@@ -14,13 +14,15 @@
   },
   "scripts": {
     "build-container": "sudo docker build --tag \"${npm_package_config_container_tag}\" - < DOCKERFILE",
-    "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/main.js",
+    "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/src/main.mjs",
     "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha --require source-map-support/register build/test",
     "lint-in-container": "yarn eslint --fix src test",
+    "compile-in-container": "yarn tsc",
     "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" /bin/bash",
     "start": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn start-in-container",
     "test": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn test-in-container",
-    "lint": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn lint-in-container"
+    "lint": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn lint-in-container",
+    "compile": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn compile-in-container"
   },
   "repository": {
     "type": "git",

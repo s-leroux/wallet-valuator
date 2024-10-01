@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "module": "commonjs",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "sourceMap" : true,
     "target": "esnext",
     "lib": ["es6", "esnext", "es2015", "dom"],
@@ -10,9 +10,9 @@
     "outDir": "build"
   },
   "files": [
-    "test/main.spec.ts",
+    "test/main.spec.mts",
 
-    "src/main.ts"
+    "src/main.mts"
   ],
   "watchOptions": {
     "watchFile": "useFsEvents",

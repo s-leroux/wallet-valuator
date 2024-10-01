@@ -1,8 +1,8 @@
 import { assert } from 'chai';
-import * as main from 'main';
+import * as main from '../src/main.mjs';
 
 describe("Suite", () => {
   it("works", () => {
-    assert.equal("Hello", main.greeintgs());
+    assert.equal("Hello", main.greetings());
   });
 });
