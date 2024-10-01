@@ -29,6 +29,15 @@ sh$
 sh$ npm start
 # or
 sh$ npm run shell
-node@2b9634cf5c20:~$ exec yarn boot
+node@2b9634cf5c20:~$ exec yarn start-in-container
+```
+
+# Stage 3: Run Mocha
+
+```
+sh$ npm test
+# or
+sh$ npm run shell
+node@2b9634cf5c20:~$ exec yarn test-in-container
 ```
 

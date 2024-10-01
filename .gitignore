@@ -13,6 +13,7 @@ node_ignore/**/*
 .yarn/**/*
 .cache/**/*
 .pnp.cjs
+.pnp.loader.mjs
 
 # Histories
 .bash_history

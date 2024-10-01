@@ -10,6 +10,8 @@
     "outDir": "build"
   },
   "files": [
+    "test/main.spec.ts",
+
     "src/main.ts"
   ],
   "watchOptions": {

@@ -14,11 +14,11 @@
   },
   "scripts": {
     "build-container": "sudo docker build --tag \"${npm_package_config_container_tag}\" - < DOCKERFILE",
-    "boot": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/main.js",
-    "run-container": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" echo No start script defined",
+    "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/main.js",
+    "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha --require source-map-support/register build/test",
     "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" /bin/bash",
-    "start": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn boot",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn start-in-container",
+    "test": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn test-in-container"
   },
   "repository": {
     "type": "git",
@@ -31,7 +31,11 @@
   },
   "homepage": "https://github.com/s-leroux/TypeScriptDemo#readme",
   "devDependencies": {
+    "@types/chai": "^5",
+    "@types/mocha": "^10",
     "@types/source-map-support": "^0",
+    "chai": "^5.1.1",
+    "mocha": "^10.7.3",
     "source-map-support": "^0.5.21",
     "typescript": "^5.6.2"
   }
