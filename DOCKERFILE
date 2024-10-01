@@ -1,0 +1,30 @@
+#
+# Node runtime environment
+#
+# Test you app using:
+#   sudo docker run -it --rm -v /path/to/project:/home:ro node-14
+# (the default CMD is "npm test")
+##
+# Open a shell for interactive testing:
+#   sudo docker run -it --rm -v /path/to/project:/home:ro node-14 bash
+#
+FROM heroku/heroku:20
+
+ARG NODE_ARCH=linux-x64
+ARG NODE_VERSION=18.20.3
+RUN cd /usr/local && \
+    wget -O- --progress=dot:mega https://nodejs.org/dist/v"${NODE_VERSION}"/node-v"${NODE_VERSION}-${NODE_ARCH}".tar.xz | tar xJf - && \
+    ln -sT "node-v${NODE_VERSION}-${NODE_ARCH}" node
+ENV PATH="/usr/local/node/bin:${PATH}"
+RUN npm config -g set update-notifier false
+RUN corepack enable
+RUN corepack install -g yarn
+
+ARG DEBIAN_FRONTEND="noninteractive"
+RUN apt-get update
+RUN apt-get install -y vim
+
+WORKDIR /home
+RUN useradd -d /home node
+USER node
+CMD ["npm", "test"]

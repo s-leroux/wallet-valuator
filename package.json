@@ -3,7 +3,15 @@
   "version": "1.0.0",
   "description": "Toy project to create a default configuration for woring with TypeScript, ESLint, Mocha and Chai in the same NodeJS project",
   "main": "index.js",
+  "config": {
+    "container": {
+      "tag": "typescriptdemo/dev"
+    }
+  },
   "scripts": {
+    "build-container": "sudo docker build --tag \"${npm_package_config_container_tag}\" - < DOCKERFILE",
+    "run-container": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" echo No start script defined",
+    "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" /bin/bash",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
