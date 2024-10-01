@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build-container": "sudo docker build --tag \"${npm_package_config_container_tag}\" - < DOCKERFILE",
-    "boot": "env $(echo LOCAL_ENV=1; cat .env) node index.js",
+    "boot": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/main.js",
     "run-container": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" echo No start script defined",
     "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" /bin/bash",
     "start": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn boot",
@@ -29,5 +29,10 @@
   "bugs": {
     "url": "https://github.com/s-leroux/TypeScriptDemo/issues"
   },
-  "homepage": "https://github.com/s-leroux/TypeScriptDemo#readme"
+  "homepage": "https://github.com/s-leroux/TypeScriptDemo#readme",
+  "devDependencies": {
+    "@types/source-map-support": "^0",
+    "source-map-support": "^0.5.21",
+    "typescript": "^5.6.2"
+  }
 }
