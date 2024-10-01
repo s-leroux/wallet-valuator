@@ -41,3 +41,12 @@ sh$ npm run shell
 node@2b9634cf5c20:~$ exec yarn test-in-container
 ```
 
+# Stage 4: Run ESLint
+
+```
+sh$ npm run lint
+# or
+sh$ npm run shell
+node@2b9634cf5c20:~$ exec yarn lint-in-container
+```
+
