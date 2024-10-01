@@ -1,5 +1,16 @@
 # Editor swap
 *.swp
 
+# Vim
+.editorconfig
+.viminfo
+
+# Package manager
+node_ignore/**/*
+.npm/**/*
+.yarn/**/*
+.cache/**/*
+
 # Histories
 .bash_history
+.node_repl_history

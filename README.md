@@ -23,3 +23,12 @@ exit
 sh$
 ```
 
+# Start 2: Run the node application
+
+```
+sh$ npm start
+# or
+sh$ npm run shell
+node@2b9634cf5c20:~$ exec yarn boot
+```
+
