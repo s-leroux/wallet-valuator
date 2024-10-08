@@ -1,5 +1,5 @@
-import { assert } from 'chai';
-import * as main from '../src/main.mjs';
+import { assert } from "chai";
+import * as main from "../src/main.mjs";
 
 describe("Suite", () => {
   it("works", () => {

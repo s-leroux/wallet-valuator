@@ -1,6 +1,5 @@
-console .  log(greetings());
+console.log(greetings());
 
 export function greetings() {
   return "Hello";
 }
-
