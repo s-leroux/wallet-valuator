@@ -11,6 +11,7 @@
   },
   "files": [
     "test/main.spec.mts",
+    "test/libs/node-fetch.spec.mts",
 
     "src/main.mts"
   ],
