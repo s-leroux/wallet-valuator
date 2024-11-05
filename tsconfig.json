@@ -11,9 +11,11 @@
   },
   "files": [
     "test/main.spec.mts",
+    "test/provider.spec.mts",
     "test/libs/node-fetch.spec.mts",
 
-    "src/main.mts"
+    "src/main.mts",
+    "src/provider.mts"
   ],
   "watchOptions": {
     "watchFile": "useFsEvents",
