@@ -39,6 +39,7 @@
     "@types/chai": "^5",
     "@types/eslint__js": "^8.42.3",
     "@types/mocha": "^10",
+    "@types/node": "^22.9.0",
     "@types/source-map-support": "^0",
     "chai": "^5.1.1",
     "eslint": "^9.11.1",
