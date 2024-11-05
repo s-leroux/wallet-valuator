@@ -12,8 +12,8 @@ const FAKE_API_KEY = "12345";
 class TestProvider extends Provider {
   forced_failures: number;
 
-  constructor() {
-    super(HTTPBIN_BASE_ADDR);
+  constructor(options: any = {}) {
+    super(HTTPBIN_BASE_ADDR, options);
     this.forced_failures = 0;
   }
 
@@ -75,7 +75,7 @@ describe("Provider", function () {
   });
 
   it("fail on status error", async function () {
-    const provider = new TestProvider();
+    const provider = new TestProvider({ parse_json: false });
     return assert.isRejected(
       provider.fetch("status/418", {}),
       "status code 418"

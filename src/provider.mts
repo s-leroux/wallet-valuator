@@ -47,9 +47,11 @@ export class Provider implements ProviderInterface {
     return status === 429 || status >= 500;
   }
 
-  newError(res, json) {
+  newError(res, body) {
     // OVERRIDE ME
-    return new Error(json);
+    return new Error(
+      `Error status ${res.status} while fetching ${res.url}\n${body}`
+    );
   }
 
   buildUrl(endpoint: string, params): URL {
