@@ -1,5 +1,5 @@
 import { Provider } from "../../provider.mjs";
-import { Oracle } from "../oracle.mjs";
+import { Oracle, mangle } from "../oracle.mjs";
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
 
@@ -7,6 +7,7 @@ interface Coin {
   id: string;
   symbol: string;
   name: string;
+  platforms;
 }
 
 export class CoinGeckoProvider extends Provider {
@@ -25,6 +26,7 @@ export class CoinGeckoProvider extends Provider {
 export class CoinGecko implements Oracle {
   readonly provider: Provider;
   readonly symbol_to_coin: Map<string, Coin[]>;
+  readonly pc_to_coin: Map<string, Coin>; // maps platform/contract to a coin
   readonly ready;
 
   constructor(provider?: Provider) {
@@ -39,6 +41,7 @@ export class CoinGecko implements Oracle {
     }
     this.provider = provider;
     this.symbol_to_coin = new Map();
+    this.pc_to_coin = new Map();
     this.ready = this.init();
   }
 
@@ -57,11 +60,23 @@ export class CoinGecko implements Oracle {
       } else {
         this.symbol_to_coin.set(coin.symbol, [coin]);
       }
+
+      const entries = Object.entries(coin.platforms);
+      if (entries.length > 0) {
+        for (const [platform, contract] of Object.entries(coin.platforms)) {
+          this.pc_to_coin.set(mangle(platform, contract), coin);
+        }
+      } else {
+        this.pc_to_coin.set(coin.id, coin);
+      }
     }
+    console.dir(this.pc_to_coin, { maxArrayLength: null });
   }
 
   async coinList(): Promise<Coin[]> {
-    const result = await this.provider.fetch("coins/list", {});
+    const result = await this.provider.fetch("coins/list", {
+      include_platform: true,
+    });
     return result;
   }
 
@@ -71,5 +86,10 @@ export class CoinGecko implements Oracle {
     return coins.map((item) => item.id);
   }
 
-  getPrice(quoteCurrencySymbol, baseCurrencySymbol, date) {}
+  async getCoin(platform: string, contract: string): Promise<Coin> {
+    await this.ready;
+    return this.pc_to_coin.get(mangle(platform, contract));
+  }
+
+  getPrice(platform, contract, baseCurrencySymbol, date) {}
 }

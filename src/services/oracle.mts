@@ -1,3 +1,12 @@
 export interface Oracle {
-  getPrice(quoteCurrencySymbol: string, baseCurrencySymbol: string, date: Date);
+  getPrice(
+    platform: string,
+    contract: string,
+    baseCurrencySymbol: string,
+    date: Date
+  );
+}
+
+export function mangle(platform, contract) {
+  return `${platform}/${contract.toLowerCase()}`;
 }

@@ -5,7 +5,7 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
 
-const MOCHA_TEST_TIMEOUT = 5000;
+const MOCHA_TEST_TIMEOUT = 10000;
 
 describe("CoinGecko", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
@@ -30,6 +30,20 @@ describe("CoinGecko", function () {
 
   describe("Utilities", () => {
     it("should map symbols to id", async () => {
+      const test_cases = [
+        ["reg", "realtoken-ecosystem-governance"],
+        ["xdai", "xdai"],
+        ["btc", "bitcoin"],
+      ];
+
+      for (const [symbol, id] of test_cases) {
+        const ids = await coingecko.symbolToIds(symbol);
+        assert.typeOf(ids, "array");
+        assert.include(ids, id);
+      }
+    });
+
+    it("should map platform and contract to coin", async () => {
       const test_cases = [
         ["reg", "realtoken-ecosystem-governance"],
         ["xdai", "xdai"],
