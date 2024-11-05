@@ -21,8 +21,8 @@
     "src/services/oracles/coingecko.mts"
   ],
   "watchOptions": {
-    "watchFile": "useFsEvents",
-    "watchDirectory": "useFsEvents"
+    "watchFile": "dynamicprioritypolling",
+    "watchDirectory": "dynamicprioritypolling"
 
   }
 }
