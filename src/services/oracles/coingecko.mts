@@ -14,6 +14,7 @@ export class CoinGeckoProvider extends Provider {
   readonly api_key: string;
 
   constructor(api_key: string, options = {} as any) {
+    options.retry = options.retry ?? 40;
     super(COINGECKO_API_BASE_ADDRESS, options);
     this.api_key = api_key;
   }
@@ -70,7 +71,6 @@ export class CoinGecko implements Oracle {
         this.pc_to_coin.set(coin.id, coin);
       }
     }
-    console.dir(this.pc_to_coin, { maxArrayLength: null });
   }
 
   async coinList(): Promise<Coin[]> {
@@ -86,10 +86,21 @@ export class CoinGecko implements Oracle {
     return coins.map((item) => item.id);
   }
 
-  async getCoin(platform: string, contract: string): Promise<Coin> {
+  async getCoin(pc: string): Promise<Coin> {
     await this.ready;
-    return this.pc_to_coin.get(mangle(platform, contract));
+    return this.pc_to_coin.get(pc);
   }
 
-  getPrice(platform, contract, baseCurrencySymbol, date) {}
+  async getPrice(id, date, currencies) {
+    const historical_data = await this.provider.fetch(`coins/${id}/history`, {
+      date,
+    });
+    const prices = historical_data.market_data.current_price;
+    const result = {};
+    for (const currency of currencies) {
+      result[currency] = prices[currency];
+    }
+
+    return result;
+  }
 }

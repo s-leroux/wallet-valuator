@@ -1,10 +1,5 @@
 export interface Oracle {
-  getPrice(
-    platform: string,
-    contract: string,
-    baseCurrencySymbol: string,
-    date: Date
-  );
+  getPrice(id: string, date: Date, currencies: string[]);
 }
 
 export function mangle(platform, contract) {
