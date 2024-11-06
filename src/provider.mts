@@ -79,9 +79,12 @@ export class Provider implements ProviderInterface {
         // it's an error
         if (retry-- > 0 && this.shouldRetry(res, result)) {
           await new Promise((r) => setTimeout(r, cooldown));
-          cooldown *= 0.5;
+          cooldown *= 1.4 + 0.2 * Math.random();
 
           ++this.retries; // for stats
+          console.log(
+            `${url} retrying ${retry} (${res.status} ${res.statusText})`
+          );
           continue;
         }
 
