@@ -5,7 +5,7 @@ export class Price {
   readonly currency: string;
   readonly amount: number;
 
-  constructor(coin: Coin, currency: string, amount: any) {
+  constructor(coin: Coin, currency: string, amount: number) {
     this.coin = coin;
     this.currency = currency;
     this.amount = amount;
