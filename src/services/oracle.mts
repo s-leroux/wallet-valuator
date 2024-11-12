@@ -1,5 +1,8 @@
+import { Coin } from "../coin.mjs";
+import { Price } from "../price.mjs";
+
 export interface Oracle {
-  getPrice(id: string, date: Date, currencies: string[]);
+  getPrice(coin: Coin, date: Date, currencies: string[]): Promise<Price[]>;
 }
 
 export function mangle(platform, contract) {

@@ -11,11 +11,15 @@
   },
   "files": [
     "test/main.spec.mts",
+
+    "test/coin.spec.mts",
     "test/provider.spec.mts",
     "test/libs/node-fetch.spec.mts",
     "test/services/oracles/coingecko.spec.mts",
 
+    "src/coin.mts",
     "src/main.mts",
+    "src/price.mts",
     "src/provider.mts",
     "src/services/oracle.mts",
     "src/services/oracles/coingecko.mts"
