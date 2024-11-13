@@ -9,15 +9,20 @@ import { Price } from "../../../src/price.mjs";
 import { mangle } from "../../../src/services/oracle.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
+const API_KEY = process.env["COINGECKO_API_KEY"];
 
 describe("CoinGecko", function () {
+  if (!API_KEY) {
+    throw Error("You must define the COINGECKO_API_KEY environment variable");
+  }
+
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
   let coingecko;
 
   beforeEach(function () {
-    coingecko = new CoinGecko();
+    coingecko = CoinGecko.create(API_KEY);
   });
 
   describe("API", () => {});

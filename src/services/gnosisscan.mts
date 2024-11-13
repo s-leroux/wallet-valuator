@@ -1,25 +1,28 @@
 import { Provider } from "../provider.mjs";
 
-const GNOSISSCAN_BASE_ADDRESS = "https://api.gnosisscan.io/api";
+const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
 const GNOSISSCAN_DEFAULT_RETRY = Infinity;
 const GNOSISSCAN_DEFAULT_COOLDOWN = 1000;
 
 const GNOSIS_NATIVE_COIN_DECIMALS = 18;
 
+/**
+ * Handle the idiosyncrasies of the GnosisScan API server
+ */
 export class GnosisScanProvider extends Provider {
   readonly origin: string;
   readonly api_key: string;
 
   constructor(
     api_key: string,
-    origin: string = GNOSISSCAN_BASE_ADDRESS,
+    origin: string = GNOSISSCAN_API_BASE_ADDRESS,
     options = {} as any
   ) {
     const defaults = {
       retry: GNOSISSCAN_DEFAULT_RETRY,
       cooldown: GNOSISSCAN_DEFAULT_COOLDOWN,
     };
-    super(GNOSISSCAN_BASE_ADDRESS, Object.assign(defaults, options));
+    super(origin, Object.assign(defaults, options));
     this.api_key = api_key;
   }
 
@@ -38,6 +41,9 @@ export class GnosisScanProvider extends Provider {
   }
 }
 
+/**
+ * Provides an interface to the GnosisScan API functions we need.
+ */
 export class GnosisScan {
   readonly provider;
 
@@ -47,7 +53,7 @@ export class GnosisScan {
 
   static create(
     api_key: string,
-    origin: string = GNOSISSCAN_BASE_ADDRESS,
+    origin: string = GNOSISSCAN_API_BASE_ADDRESS,
     options = {} as any
   ) {
     return new GnosisScan(new GnosisScanProvider(api_key, origin, options));

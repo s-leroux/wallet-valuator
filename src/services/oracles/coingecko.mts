@@ -5,12 +5,21 @@ import { Oracle, mangle } from "../oracle.mjs";
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
 
+/**
+ * Handle the idiosyncrasies of the CoinGecko API server
+ */
 export class CoinGeckoProvider extends Provider {
   readonly api_key: string;
 
-  constructor(api_key: string, options = {} as any) {
-    options.retry = options.retry ?? 40;
-    super(COINGECKO_API_BASE_ADDRESS, options);
+  constructor(
+    api_key: string,
+    origin: string = COINGECKO_API_BASE_ADDRESS,
+    options = {} as any
+  ) {
+    const defaults = {
+      retry: 40,
+    };
+    super(origin, Object.assign(defaults, options));
     this.api_key = api_key;
   }
 
@@ -32,10 +41,18 @@ export class CoinGecko implements Oracle {
           "You must specify a provider or define the COINGECKO_API_KEY environment variable"
         );
       }
-      provider = new CoinGeckoProvider(api_key, {});
+      provider = new CoinGeckoProvider(api_key);
     }
     this.provider = provider;
     this.ready = this.init();
+  }
+
+  static create(
+    api_key: string,
+    origin: string = COINGECKO_API_BASE_ADDRESS,
+    options = {} as any
+  ) {
+    return new CoinGecko(new CoinGeckoProvider(api_key, origin, options));
   }
 
   async init() {}
