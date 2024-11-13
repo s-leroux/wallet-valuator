@@ -40,7 +40,7 @@ export class CoinGecko implements Oracle {
 
   async init() {}
 
-  async getPrice(coin: Coin, date, currencies): Promise<Price[]> {
+  async getPrice(coin: Coin, date, currencies): Promise<Record<string, Price>> {
     const historical_data = await this.provider.fetch(
       `coins/${coin.oracle_id}/history`,
       {
@@ -48,11 +48,11 @@ export class CoinGecko implements Oracle {
       }
     );
     const prices = historical_data.market_data.current_price;
-    const result: Price[] = [];
-    for (const currency of currencies) {
-      result.push(new Price(coin, currency, prices[currency]));
-    }
-
+    const result = {};
+    currencies.forEach(
+      (currency) =>
+        (result[currency] = new Price(coin, currency, prices[currency]))
+    );
     return result;
   }
 }

@@ -5,6 +5,7 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
 import { as_coin } from "../../../src/coin.mjs";
+import { Price } from "../../../src/price.mjs";
 import { mangle } from "../../../src/services/oracle.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
@@ -38,11 +39,14 @@ describe("CoinGecko", function () {
           date,
           Object.keys(expected)
         );
-        assert.equal(prices.length, Object.keys(expected).length);
-        for (const price of prices) {
-          assert.equal(price.coin, coin);
-          assert.equal(price.amount, expected[price.currency]);
-        }
+        assert.equal(Object.keys(prices).length, Object.keys(expected).length);
+        assert.deepEqual(
+          Object.values(prices).reduce((acc, price: Price) => {
+            acc[price.currency] = price.amount;
+            return acc;
+          }, {}),
+          expected
+        );
       }
     });
   });

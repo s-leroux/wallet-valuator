@@ -18,6 +18,7 @@
     "test/libs/node-fetch.spec.mts",
     "test/libs/better-sqlite3.spec.mts",
     "test/services/oracles/coingecko.spec.mts",
+    "test/services/oracles/caching.spec.mts",
 
     "src/bignumber.mts",
     "src/coin.mts",
@@ -25,7 +26,8 @@
     "src/price.mts",
     "src/provider.mts",
     "src/services/oracle.mts",
-    "src/services/oracles/coingecko.mts"
+    "src/services/oracles/coingecko.mts",
+    "src/services/oracles/caching.mts"
   ],
   "watchOptions": {
     "watchFile": "dynamicprioritypolling",
