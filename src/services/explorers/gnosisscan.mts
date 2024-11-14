@@ -47,6 +47,17 @@ export class GnosisScanProvider extends Provider {
     // GnosisScan does not signal rate limiting with a 429 status. We should examine the error message.
     return super.shouldRetry(res, json) || json.result.startsWith("Max ");
   }
+
+  newError(res, json: any) {
+    console.dir(res);
+    console.log(res.status, res.status === 200);
+    //    if (res.status !== 200) {
+    //      return super.newError(res, json);
+    //    }
+    return new Error(
+      `Error ${json.message}: ${json.result} while fetching ${res.url}`
+    );
+  }
 }
 
 /**

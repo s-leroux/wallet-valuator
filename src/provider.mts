@@ -47,10 +47,10 @@ export class Provider implements ProviderInterface {
     return status === 429 || status >= 500;
   }
 
-  newError(res, body) {
+  newError(res, json: any) {
     // OVERRIDE ME
     return new Error(
-      `Error status ${res.status} while fetching ${res.url}\n${body}`
+      `Error status ${res.status} while fetching ${res.url}\n${json}`
     );
   }
 
