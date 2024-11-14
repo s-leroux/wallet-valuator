@@ -32,7 +32,7 @@ export class Swarm {
 
     let obj: Address = this.addresses.get(key);
     if (!obj) {
-      obj = new Address(this, chain, address);
+      obj = new Address(explorer, address);
       obj.__id = key; // XXX This is ugly
       this.addresses.set(key, obj);
     }

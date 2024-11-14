@@ -9,6 +9,7 @@ const swarm = new Swarm([explorer]);
 
 const string = process.env["GNOSIS_ACCOUNT"];
 if (string) {
-  swarm.address("gnosis", process.env["GNOSIS_ACCOUNT"]);
+  const address = swarm.address("gnosis", process.env["GNOSIS_ACCOUNT"]);
+  await address.internalTransactions(swarm);
 }
 console.dir(swarm);

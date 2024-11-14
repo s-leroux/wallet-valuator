@@ -40,7 +40,9 @@ export class Transaction {
 
     this.from = swarm.address(chain, data.from);
     this.to = swarm.address(chain, data.to);
-    this.contractAddress = swarm.address(chain, data.contractAddress);
+    this.contractAddress = data.contractAddress
+      ? swarm.address(chain, data.contractAddress)
+      : null;
 
     const value = data.value;
     if (value === undefined) {

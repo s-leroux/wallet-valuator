@@ -49,8 +49,6 @@ export class GnosisScanProvider extends Provider {
   }
 
   newError(res, json: any) {
-    console.dir(res);
-    console.log(res.status, res.status === 200);
     //    if (res.status !== 200) {
     //      return super.newError(res, json);
     //    }

@@ -5,6 +5,7 @@ import {
 } from "./transaction.mjs";
 import { Swarm } from "./swarm.mjs";
 import { Explorer } from "./services/explorer.mjs";
+import type { Ledger } from "./ledger.mjs";
 
 /**
  * An address on a chain.
@@ -13,17 +14,19 @@ import { Explorer } from "./services/explorer.mjs";
  */
 export class Address {
   __id: string;
-  readonly swarm: Swarm;
   readonly explorer: Explorer;
   readonly chain: string;
   readonly address: string;
   readonly data: object;
 
-  constructor(swarm: Swarm, chain: string, address: string) {
-    this.swarm = swarm;
-    this.explorer = swarm.explorer(chain);
-    this.chain = chain; // redundant with this.explorer.chain
+  constructor(explorer: Explorer, address: string) {
+    this.explorer = explorer;
+    this.chain = explorer.chain; // redundant with this.explorer.chain
     this.address = address;
     this.data = {};
+  }
+
+  internalTransactions(swarm: Swarm): Promise<Ledger> {
+    return this.explorer.addressInternalTransactions(swarm, this.address);
   }
 }
