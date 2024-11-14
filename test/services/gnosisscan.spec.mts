@@ -7,6 +7,7 @@ const assert = chai.assert;
 import { as_coin } from "../../src/coin.mjs";
 import {
   GnosisScanProvider,
+  GnosisScanAPI,
   GnosisScan,
 } from "../../src/services/gnosisscan.mjs";
 
@@ -26,7 +27,7 @@ describe("GnosisScan", function () {
 
   beforeEach(function () {
     provider = new GnosisScanProvider(API_KEY);
-    gs = new GnosisScan(provider);
+    gs = new GnosisScanAPI(provider);
   });
 
   describe("GnosisScanProvider", () => {
@@ -46,7 +47,7 @@ describe("GnosisScan", function () {
     });
   });
 
-  describe("API", () => {
+  describe("GnosisScanAPI", () => {
     it("should retrieve block by timestamp", async () => {
       const res = await gs.blockNoByTime(1578638524);
 

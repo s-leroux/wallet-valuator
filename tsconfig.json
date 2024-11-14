@@ -10,26 +10,31 @@
     "outDir": "build"
   },
   "files": [
-    "test/main.spec.mts",
-
     "test/bignumber.spec.mts",
     "test/coin.spec.mts",
-    "test/provider.spec.mts",
-    "test/libs/node-fetch.spec.mts",
+    "test/ledger.spec.mts",
     "test/libs/better-sqlite3.spec.mts",
+    "test/libs/node-fetch.spec.mts",
+    "test/provider.spec.mts",
     "test/services/gnosisscan.spec.mts",
-    "test/services/oracles/coingecko.spec.mts",
     "test/services/oracles/caching.spec.mts",
+    "test/services/oracles/coingecko.spec.mts",
+    "test/swarm.spec.mts",
 
     "src/bignumber.mts",
     "src/coin.mts",
-    "src/main.mts",
+    "src/ledger.mts",
     "src/price.mts",
     "src/provider.mts",
     "src/services/gnosisscan.mts",
     "src/services/oracle.mts",
+    "src/services/oracles/caching.mts",
     "src/services/oracles/coingecko.mts",
-    "src/services/oracles/caching.mts"
+    "src/swarm.mts",
+    "src/transaction.mts",
+
+    "src/main.mts",
+    "test/main.spec.mts"
   ],
   "watchOptions": {
     "watchFile": "dynamicprioritypolling",

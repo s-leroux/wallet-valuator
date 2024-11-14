@@ -44,7 +44,7 @@ export class GnosisScanProvider extends Provider {
 /**
  * Provides an interface to the GnosisScan API functions we need.
  */
-export class GnosisScan {
+export class GnosisScanAPI {
   readonly provider;
 
   constructor(provider: Provider) {
@@ -56,7 +56,7 @@ export class GnosisScan {
     origin: string = GNOSISSCAN_API_BASE_ADDRESS,
     options = {} as any
   ) {
-    return new GnosisScan(new GnosisScanProvider(api_key, origin, options));
+    return new GnosisScanAPI(new GnosisScanProvider(api_key, origin, options));
   }
 
   async blockNoByTime(
@@ -107,5 +107,27 @@ export class GnosisScan {
       address: address,
     };
     return await this.provider.fetch("", params);
+  }
+}
+
+/**
+ * The high-level interface to retrieve transactions.
+ * This should probably implement some kind of interface to reduce coupling between the rest
+ * of the library and GnosisScan. Alternatively, we may also envision caching solutions, or
+ * rotating keys.
+ */
+export class GnosisScan {
+  readonly api: GnosisScanAPI;
+
+  constructor(api: GnosisScanAPI) {
+    this.api = api;
+  }
+
+  static create(
+    api_key: string,
+    origin: string = GNOSISSCAN_API_BASE_ADDRESS,
+    options = {} as any
+  ) {
+    return new GnosisScan(GnosisScanAPI.create(api_key, origin, options));
   }
 }
