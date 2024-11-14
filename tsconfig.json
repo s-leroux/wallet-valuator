@@ -36,6 +36,8 @@
     "src/swarm.mts",
     "src/transaction.mts",
 
+    "examples/find-address.mts",
+
     "src/main.mts",
     "test/main.spec.mts"
   ],

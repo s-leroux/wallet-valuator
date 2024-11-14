@@ -35,6 +35,6 @@ describe("The swarm collection", () => {
     assert.isObject(objA);
     assert.isObject(objB);
     assert.strictEqual(objA, objB);
-    assert.include(objA, { a: 1, b: 2 });
+    assert.include(objA.data, { a: 1, b: 2 });
   });
 });
