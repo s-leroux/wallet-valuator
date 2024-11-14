@@ -4,12 +4,12 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
-import { as_coin } from "../../src/coin.mjs";
+import { as_coin } from "../../../src/coin.mjs";
 import {
   GnosisScanProvider,
   GnosisScanAPI,
   GnosisScan,
-} from "../../src/services/gnosisscan.mjs";
+} from "../../../src/services/explorers/gnosisscan.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["GNOSISSCAN_API_KEY"];

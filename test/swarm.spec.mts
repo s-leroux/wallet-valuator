@@ -1,15 +1,27 @@
 import { Swarm } from "../src/swarm.mjs";
 import { assert } from "chai";
 
+import { Explorer } from "../src/services/explorer.mjs";
+
+const FAKE_CHAIN = "fake-chain";
+class FakeExplorer extends Explorer {
+  constructor() {
+    super(FAKE_CHAIN);
+  }
+}
+
 describe("The swarm collection", () => {
-  it("should initialize", () => {
-    const swarm = new Swarm();
+  let swarm: Swarm;
+  let explorer: Explorer;
+
+  beforeEach(() => {
+    explorer = new FakeExplorer();
+    swarm = new Swarm([explorer]);
   });
 
   it("should return the same object", () => {
-    const swarm = new Swarm();
-    const objA = swarm.find("MY_CHAIN", "MY_KEY");
-    const objB = swarm.find("MY_CHAIN", "MY_KEY");
+    const objA = swarm.address(FAKE_CHAIN, "MY_KEY");
+    const objB = swarm.address(FAKE_CHAIN, "MY_KEY");
 
     assert.isObject(objA);
     assert.isObject(objB);
@@ -17,9 +29,8 @@ describe("The swarm collection", () => {
   });
 
   it("should extend the object with the data", () => {
-    const swarm = new Swarm();
-    const objA = swarm.find("MY_CHAIN", "MY_KEY", { a: 1 });
-    const objB = swarm.find("MY_CHAIN", "MY_KEY", { b: 2 });
+    const objA = swarm.address(FAKE_CHAIN, "MY_KEY", { a: 1 });
+    const objB = swarm.address(FAKE_CHAIN, "MY_KEY", { b: 2 });
 
     assert.isObject(objA);
     assert.isObject(objB);

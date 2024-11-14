@@ -1,5 +1,3 @@
-import { GnosisScan } from "./services/gnosisscan.mjs";
-
 const GNOSIS_NATIVE_COIN_DECIMALS = 18;
 
 import { BigNumber, toInteger } from "./bignumber.mjs";
@@ -40,9 +38,9 @@ export class Transaction {
     this.blockNumber = toInteger(data.blockNumber);
     this.timeStamp = toInteger(data.timeStamp);
 
-    this.from = swarm.find(chain, data.from);
-    this.to = swarm.find(chain, data.to);
-    this.contractAddress = swarm.find(chain, data.contractAddress);
+    this.from = swarm.address(chain, data.from);
+    this.to = swarm.address(chain, data.to);
+    this.contractAddress = swarm.address(chain, data.contractAddress);
 
     const value = data.value;
     if (value === undefined) {

@@ -1,6 +1,7 @@
 import { assert } from "chai";
 
 import { Swarm } from "../src/swarm.mjs";
+import { Explorer } from "../src/services/explorer.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
 import { ERC20TokenTransfer } from "../src/transaction.mjs";
 
@@ -56,13 +57,19 @@ const ERC20TokenTransferEvents = {
   ],
 };
 
+class FakeExplorer extends Explorer {
+  constructor() {
+    super("gnosis");
+  }
+}
+
 describe("The Ledger", () => {
   let ledger;
   let swarm;
 
   beforeEach(() => {
     ledger = Ledger.create();
-    swarm = new Swarm();
+    swarm = new Swarm([new FakeExplorer()]);
   });
 
   describe("union method", () => {
