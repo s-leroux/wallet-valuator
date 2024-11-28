@@ -760,6 +760,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "commander@npm:12.1.0"
+  checksum: 10c0/6e1996680c083b3b897bfc1cfe1c58dfbcd9842fd43e1aaf8a795fbc237f65efcc860a3ef457b318e73f29a4f4a28f6403c3d653d021d960e4632dd45bde54a9
+  languageName: node
+  linkType: hard
+
 "concat-map@npm:0.0.1":
   version: 0.0.1
   resolution: "concat-map@npm:0.0.1"
@@ -2582,6 +2589,7 @@ __metadata:
     better-sqlite3: "npm:^11.5.0"
     chai: "npm:^5.1.1"
     chai-as-promised: "npm:^8.0.0"
+    commander: "npm:^12.1.0"
     decimal.js: "npm:^10.4.3"
     eslint: "npm:^9.11.1"
     mocha: "npm:^10.7.3"

@@ -15,6 +15,7 @@
     "test/coin.spec.mts",
     "test/ledger.spec.mts",
     "test/libs/better-sqlite3.spec.mts",
+    "test/libs/commander.spec.mts",
     "test/libs/node-fetch.spec.mts",
     "test/provider.spec.mts",
     "test/services/explorers/gnosisscan.spec.mts",

@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "better-sqlite3": "^11.5.0",
+    "commander": "^12.1.0",
     "decimal.js": "^10.4.3",
     "node-fetch": "^3.3.2"
   }
