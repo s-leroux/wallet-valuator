@@ -66,10 +66,12 @@ class FakeExplorer extends Explorer {
 describe("The Ledger", () => {
   let ledger;
   let swarm;
+  let explorer;
 
   beforeEach(() => {
     ledger = Ledger.create();
-    swarm = new Swarm([new FakeExplorer()]);
+    explorer = new FakeExplorer();
+    swarm = new Swarm([explorer]);
   });
 
   describe("union method", () => {
@@ -77,13 +79,13 @@ describe("The Ledger", () => {
       const transactions = [
         new ERC20TokenTransfer(
           swarm,
-          "gnosis",
-          ERC20TokenTransferEvents.result[0]
+          explorer,
+          ERC20TokenTransferEvents.result[0].hash
         ),
         new ERC20TokenTransfer(
           swarm,
-          "gnosis",
-          ERC20TokenTransferEvents.result[1]
+          explorer,
+          ERC20TokenTransferEvents.result[1].hash
         ),
       ];
 

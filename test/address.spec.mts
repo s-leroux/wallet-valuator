@@ -1,6 +1,7 @@
 import { assert } from "chai";
 
 import { Address } from "../src/address.mjs";
+import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 
 class FakeExplorer extends Explorer {}
@@ -12,7 +13,8 @@ describe("Address", function () {
     ];
     for (const [chain, address] of test_cases) {
       const explorer = new FakeExplorer(chain);
-      const addr = new Address(explorer, address);
+      const swarm = new Swarm([explorer]);
+      const addr = new Address(swarm, explorer, address);
 
       assert.equal(addr.chain, chain);
       assert.equal(addr.address, address);

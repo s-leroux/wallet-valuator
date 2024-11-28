@@ -162,7 +162,7 @@ export class GnosisScan extends Explorer {
     return Ledger.create(
       res.result
         .filter((tr) => tr.isError === "0")
-        .map((t) => new NormalTransaction(swarm, this.chain, t))
+        .map((t) => swarm.transaction(NormalTransaction, this.chain, t.hash, t))
     );
   }
 
@@ -172,7 +172,9 @@ export class GnosisScan extends Explorer {
     return Ledger.create(
       res.result
         .filter((tr) => tr.isError === "0")
-        .map((t) => new InternalTransaction(swarm, this.chain, t))
+        .map((t) =>
+          swarm.transaction(InternalTransaction, this.chain, t.hash, t)
+        )
     );
   }
 
@@ -180,7 +182,9 @@ export class GnosisScan extends Explorer {
     const res = await this.api.accountTokenTransfers(address);
 
     return Ledger.create(
-      res.result.map((t) => new ERC20TokenTransfer(swarm, this.chain, t))
+      res.result.map((t) =>
+        swarm.transaction(ERC20TokenTransfer, this.chain, t.hash, t)
+      )
     );
   }
 
