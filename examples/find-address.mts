@@ -2,14 +2,19 @@
 //  This example show how to access an address from a chain
 //
 import { Swarm } from "../src/swarm.mjs";
-import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
+import { Ledger } from "../src/ledger.mjs";
+import { TestScan } from "../src/services/explorers/testscan.mjs";
 
-const explorer = GnosisScan.create(process.env["GNOSISSCAN_API_KEY"]);
+const explorer = new TestScan();
 const swarm = new Swarm([explorer]);
 
-const string = process.env["GNOSIS_ACCOUNT"];
-if (string) {
-  const address = swarm.address("gnosis", process.env["GNOSIS_ACCOUNT"]);
-  await address.allTransfers(swarm);
+// A "random" address found on GnosisScan
+const address = swarm.address(
+  explorer,
+  "0x89344efA2d9953accd3e907EAb27B33542eD9E25"
+);
+
+const ledger = Ledger.create(await address.allTransfers(swarm)).slice(0, 100); // keep only the 100 first transaction as this appears to be a live account
+for (const entry of ledger) {
+  console.log("%s", entry);
 }
-console.dir(swarm);

@@ -1,12 +1,13 @@
 import { Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
-import { Ledger } from "../../ledger.mjs";
+import { Currency } from "../../currency.mjs";
 import {
+  ChainRecord,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,
 } from "../../transaction.mjs";
-import { Explorer } from "../explorer.mjs";
+import { CommonExplorer } from "../explorer.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
 const GNOSISSCAN_DEFAULT_RETRY = Infinity;
@@ -90,7 +91,7 @@ export class GnosisScanAPI {
     return await this.provider.fetch("", params);
   }
 
-  async accountNormalTransactions(address: string) {
+  accountNormalTransactions(address: string) {
     const params = {
       module: "account",
       action: "txlist",
@@ -99,7 +100,7 @@ export class GnosisScanAPI {
       sort: "asc",
       address: address,
     };
-    return await this.provider.fetch("", params);
+    return this.provider.fetch("", params);
   }
 
   async accountInternalTransactions(address: string) {
@@ -133,11 +134,14 @@ export class GnosisScanAPI {
  * of the library and GnosisScan. Alternatively, we may also envision caching solutions, or
  * rotating keys.
  */
-export class GnosisScan extends Explorer {
+export class GnosisScan extends CommonExplorer {
   readonly api: GnosisScanAPI;
 
-  constructor(api: GnosisScanAPI, chain: string = "gnosis") {
-    super(chain);
+  constructor(api: GnosisScanAPI, chain?: string) {
+    const my_chain = chain ?? "gnosis";
+    const my_nativeCurrency = new Currency(my_chain, "", "xDai", "xDai", 18);
+
+    super(my_chain, my_nativeCurrency);
     this.api = api;
   }
 
@@ -152,54 +156,20 @@ export class GnosisScan extends Explorer {
   register(swarm: Swarm): void {
     // populate with well-known addresses
     super.register(swarm);
-    swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
+    swarm.address(this, "0x0000000000000000000000000000000000000000", {
       name: "Null",
     });
   }
-  async addressNormalTransactions(swarm: Swarm, address: string) {
-    const res = await this.api.accountNormalTransactions(address);
 
-    return Ledger.create(
-      res.result
-        .filter((tr) => tr.isError === "0")
-        .map((t) => swarm.transaction(NormalTransaction, this.chain, t.hash, t))
-    );
+  async accountNormalTransactions(address): Promise<Record<string, any>[]> {
+    return (await this.api.accountNormalTransactions(address)).result;
   }
 
-  async addressInternalTransactions(swarm: Swarm, address: string) {
-    const res = await this.api.accountInternalTransactions(address);
-
-    return Ledger.create(
-      res.result
-        .filter((tr) => tr.isError === "0")
-        .map((t) =>
-          swarm.transaction(InternalTransaction, this.chain, t.hash, t)
-        )
-    );
+  async accountInternalTransactions(address): Promise<Record<string, any>[]> {
+    return (await this.api.accountInternalTransactions(address)).result;
   }
 
-  async addressTokenTransfers(swarm: Swarm, address: string) {
-    const res = await this.api.accountTokenTransfers(address);
-
-    return Ledger.create(
-      res.result.map((t) =>
-        swarm.transaction(ERC20TokenTransfer, this.chain, t.hash, t)
-      )
-    );
-  }
-
-  async addressAllTransfers(swarm: Swarm, address: string) {
-    /*
-     * Merge {normal, internal, token} transfers in one single list ordered by timestamp.
-     */
-
-    // naive implementation
-    const [normal, internal, erc20] = await Promise.all([
-      this.addressNormalTransactions(swarm, address),
-      this.addressInternalTransactions(swarm, address),
-      this.addressTokenTransfers(swarm, address),
-    ]);
-
-    return Ledger.create(normal).union(internal).union(erc20);
+  async accountTokenTransfers(address): Promise<Record<string, any>[]> {
+    return (await this.api.accountTokenTransfers(address)).result;
   }
 }

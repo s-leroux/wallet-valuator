@@ -1,9 +1,13 @@
 import { Explorer } from "./services/explorer.mjs";
 import { Address } from "./address.mjs";
-import { Transaction } from "./transaction.mjs";
+import {
+  ChainRecord,
+  NormalTransaction,
+  InternalTransaction,
+  ERC20TokenTransfer,
+} from "./transaction.mjs";
 
 export interface Storable {
-  __id: string;
   assign(swarm: Swarm, data: object): void;
 }
 
@@ -12,11 +16,13 @@ export interface Storable {
  */
 export class Swarm {
   readonly addresses: Map<string, Address>;
-  readonly transactions: Map<string, Transaction>;
+  readonly records: ChainRecord[];
+  readonly transactions: Map<string, NormalTransaction>;
   readonly explorers: Map<string, Explorer>;
 
   constructor(explorers: Explorer[]) {
     this.addresses = new Map();
+    this.records = [];
     this.transactions = new Map();
     this.explorers = new Map();
     for (const explorer of explorers) {
@@ -29,43 +35,77 @@ export class Swarm {
     return this.explorers.get(chain);
   }
 
-  store<T extends Storable, U extends T>(
+  store<T extends Storable, U extends T, OPT extends {}>(
     storage: Map<string, T>,
     ctor: new (swarm: Swarm, explorer: Explorer, id: string) => U,
-    chain: string,
+    explorer: Explorer,
     id: string,
-    data: object = {}
+    data?: OPT
   ): T {
-    const explorer = this.explorers.get(chain);
-    if (!explorer) {
-      throw new Error(`I can't explore The ${chain} chain`);
-    }
-    id = id.toLowerCase(); // XXX We do not handle mixed-case addresses properly
-
-    const key = `${chain}:${id}`;
-
+    const key = `${explorer.chain}:${id}`.toLowerCase();
     let obj: T = storage.get(key);
     if (!obj) {
       obj = new ctor(this, explorer, id);
-      obj.__id = key; // XXX This is ugly
+      // obj.__id = key;
       storage.set(key, obj);
     }
 
-    obj.assign(this, data);
+    if (data) {
+      obj.assign(this, data);
+    }
 
     return obj;
   }
 
-  address(chain: string, address: string, data: object = {}): Address {
+  address(chain: Explorer, address: string, data?: object): Address {
     return this.store(this.addresses, Address, chain, address, data);
   }
 
+  contract(chain: Explorer, address: string, data?: object): Address {
+    return this.store(this.addresses, Address, chain, address, data);
+  }
+
+  /**
+   * Return the NormalTransaction corresponding to the hash
+   */
   transaction(
-    ctor,
-    chain: string,
+    chain: Explorer,
     address: string,
-    data: object = {}
-  ): Transaction {
-    return this.store(this.transactions, ctor, chain, address, data);
+    data?: object
+  ): NormalTransaction {
+    const tr = this.store(
+      this.transactions,
+      NormalTransaction,
+      chain,
+      address,
+      data
+    );
+    this.records.push(tr);
+
+    return tr;
+  }
+
+  /**
+   *  Returns a new ERC20 Token Transfer
+   */
+  tokenTransfer(explorer: Explorer, hash: string, data): ERC20TokenTransfer {
+    const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
+    this.records.push(result);
+
+    return result;
+  }
+
+  /**
+   * Return a new Internal Transaction
+   */
+  internalTransaction(
+    explorer: Explorer,
+    hash: string,
+    data
+  ): ERC20TokenTransfer {
+    const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
+    this.records.push(result);
+
+    return result;
   }
 }

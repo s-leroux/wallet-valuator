@@ -4,97 +4,51 @@ import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
 import { ERC20TokenTransfer } from "../src/transaction.mjs";
+import { FakeExplorer } from "./fake-explorer.mjs";
 
-const ERC20TokenTransferEvents = {
-  // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
-  status: "1",
-  message: "OK",
-  result: [
-    {
-      blockNumber: "20331617",
-      timeStamp: "1643313335",
-      hash: "0x12bd3a674aea6ffaf2f5a0d4f6614a4b429aadcb92d75cee31139bfad6c76829",
-      nonce: "35",
-      blockHash:
-        "0xfeb05d7771c014c7d425a6e8cc4be24e274fb5a1c561bb54371de2d0bdb3da3b",
-      from: "0xb26dbd3efdee329162c8b3b18bb7b5b11452ea7e",
-      contractAddress: "0x524b969793a64a602342d89bc2789d43a016b13a",
-      to: "0x3cc47c557e985cb8b52d1e263a1296fd2097121c",
-      value: "650000000000000000000",
-      tokenName: "Donut on xDai",
-      tokenSymbol: "DONUT",
-      tokenDecimal: "18",
-      transactionIndex: "0",
-      gas: "62901",
-      gasPrice: "10000000000",
-      gasUsed: "60132",
-      cumulativeGasUsed: "60132",
-      input: "deprecated",
-      confirmations: "4408848",
-    },
-    {
-      blockNumber: "20331663",
-      timeStamp: "1643313565",
-      hash: "0x924f9e3d7e8bcbb5ad504ee73bb57732a9250c4b553d8f1318664de00b8b6015",
-      nonce: "1",
-      blockHash:
-        "0xd28b8455a2f550ba3e524b3cb7817c5401bd52c25bfee1943a38bda8244951d9",
-      from: "0x3cc47c557e985cb8b52d1e263a1296fd2097121c",
-      contractAddress: "0x524b969793a64a602342d89bc2789d43a016b13a",
-      to: "0xf7927bf0230c7b0e82376ac944aeedc3ea8dfa25",
-      value: "1000000000000000000",
-      tokenName: "Donut on xDai",
-      tokenSymbol: "DONUT",
-      tokenDecimal: "18",
-      transactionIndex: "0",
-      gas: "57206",
-      gasPrice: "10000000000",
-      gasUsed: "53816",
-      cumulativeGasUsed: "53816",
-      input: "deprecated",
-      confirmations: "4408802",
-    },
-  ],
-};
-
-class FakeExplorer extends Explorer {
-  constructor() {
-    super("gnosis");
-  }
-}
+// From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
+import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 
 describe("The Ledger", () => {
   let ledger;
   let swarm;
   let explorer;
+  let transactions;
 
   beforeEach(() => {
     ledger = Ledger.create();
     explorer = new FakeExplorer();
     swarm = new Swarm([explorer]);
+    transactions = ERC20TokenTransferEvents.result.map((tr) =>
+      new ERC20TokenTransfer(swarm, explorer).assign(swarm, tr)
+    );
+  });
+
+  describe("constructor", () => {
+    it("should create Ledger from Array<Transaction>", () => {
+      const ledger = Ledger.create(transactions);
+      assert.equal(ledger.list.length, 100); // our fixture has 100 entries
+    });
   });
 
   describe("union method", () => {
     it("should accept arrays of transactions", () => {
-      const transactions = [
-        new ERC20TokenTransfer(
-          swarm,
-          explorer,
-          ERC20TokenTransferEvents.result[0].hash
-        ),
-        new ERC20TokenTransfer(
-          swarm,
-          explorer,
-          ERC20TokenTransferEvents.result[1].hash
-        ),
-      ];
-
       ledger.union(transactions);
     });
 
     it("should accept another ledger", () => {
       const other = Ledger.create();
       ledger.union(other);
+    });
+  });
+  describe("slice method", () => {
+    it("should return a slice of the same entries", () => {
+      const ledger = Ledger.create(transactions);
+
+      assert.equal(ledger.list.length, 100); // our fixture has 100 entries
+      const other = ledger.slice(10, 20);
+
+      assert.deepEqual(other.list, ledger.list.slice(10, 20));
     });
   });
 });

@@ -165,6 +165,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@root/walk@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@root/walk@npm:1.1.0"
+  checksum: 10c0/abe05563a702dcaf1613f3bb97111e4f5602ee1c6f92ebbc29685e5b3f1ffe7437454fcc63d7e1bea55404da60a0a6f14e7a355d6986ccdb4471051f00cd200d
+  languageName: node
+  linkType: hard
+
 "@types/chai-as-promised@npm:^8":
   version: 8.0.1
   resolution: "@types/chai-as-promised@npm:8.0.1"
@@ -2579,6 +2586,7 @@ __metadata:
   resolution: "typescriptdemo@workspace:."
   dependencies:
     "@eslint/js": "npm:^9.11.1"
+    "@root/walk": "npm:^1.1.0"
     "@types/chai": "npm:^5"
     "@types/chai-as-promised": "npm:^8"
     "@types/eslint__js": "npm:^8.42.3"

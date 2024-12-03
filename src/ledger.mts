@@ -1,4 +1,4 @@
-import { Transaction } from "./transaction.mjs";
+import { ChainRecord } from "./transaction.mjs";
 
 type Sortable = { key };
 
@@ -56,36 +56,67 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
 }
 
 /**
- * A Ledger is an ordered list of transactions.
+ * An entry in the ledger.
+ *
+ * Entries are mutable entities, but transaction data are supposed immutable.
+ * Altering the Entry in a ledger should not alter the entry pointing to the same transaction
+ * in another unreleated ledger.
  */
-export class Ledger implements Iterable<Transaction> {
-  list: Array<Transaction>;
+class Entry implements Sortable {
+  record: ChainRecord;
 
-  constructor(list: Array<Transaction>) {
-    this.list = list;
+  key: string;
+
+  constructor(record: ChainRecord) {
+    this.record = record;
+    const data = record.data as any;
+    this.key =
+      data.timeStamp.padStart(12) +
+      record.explorer.chain +
+      data.blockNumber.padStart(12) +
+      (data.nonce ?? "0").padStart(10);
   }
 
-  static create(list?: Ledger | Array<Transaction>) {
-    if (list instanceof Ledger) return list;
+  toString(): string {
+    const record = this.record;
+    return `${record.type[0]}:${this.key}:${record.from}:${record.to}:${record.amount}`;
+  }
+}
 
-    if (list === undefined) return new Ledger([]); // Should be a constant?
+/**
+ * A Ledger is an ordered list of transactions.
+ */
+export class Ledger implements Iterable<Entry> {
+  list: Array<Entry>;
 
-    // otherwise
-    return new Ledger(list);
+  constructor(list: Array<Entry>) {
+    this.list = sort(list); // Enforce the list to be sorted
+  }
+
+  /**
+   *  Create a ledger from zero, one, or more iterables
+   */
+  static create(...lists: Array<Iterable<ChainRecord>>) {
+    const arrays: Array<Array<Entry>> = lists.map((it) =>
+      Array.from(it, (tr) => new Entry(tr))
+    );
+    const entries: Array<Entry> = [];
+
+    return new Ledger(entries.concat(...arrays));
   }
 
   /**
    *`Create the union of thwo ledgers.
    */
-  union(other: Ledger | Array<Transaction>) {
+  union(other: Ledger | Array<ChainRecord>) {
     const a = this.list;
-    let b: Array<Transaction>;
+    let b: Array<Entry>;
 
     if (other instanceof Ledger) {
       b = other.list;
     } else {
       // Assume an _unsorted_ array of transactions.
-      b = sort(other as Array<Transaction>);
+      b = sort(other.map((item) => new Entry(item)));
     }
 
     return new Ledger(join(a, b));
@@ -105,6 +136,10 @@ export class Ledger implements Iterable<Transaction> {
   //========================================================================
   //  Array-like interface
   //========================================================================
+  slice(start?: number, end?: number) {
+    return new Ledger(this.list.slice(start, end));
+  }
+
   reduce(fn, acc) {
     let idx = 0;
 
@@ -115,7 +150,7 @@ export class Ledger implements Iterable<Transaction> {
     return acc;
   }
 
-  *[Symbol.iterator](): IterableIterator<Transaction> {
+  *[Symbol.iterator](): IterableIterator<Entry> {
     for (const tr of this.list) yield tr;
   }
 }
