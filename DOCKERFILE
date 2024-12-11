@@ -23,6 +23,7 @@ RUN corepack install -g yarn
 ARG DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update
 RUN apt-get install -y vim
+ENV EDITOR=/usr/bin/vim
 
 WORKDIR /home
 RUN useradd -d /home node
