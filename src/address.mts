@@ -14,7 +14,12 @@ type ERC20TokenAddressData = {
   tokenDecimal: number;
 };
 
-export type AddressData = ERC20TokenAddressData;
+type AnyAddressData = {
+  from: string;
+  to: string;
+};
+
+export type AddressData = AnyAddressData & ERC20TokenAddressData;
 
 /**
  * An address on a chain.
@@ -24,7 +29,7 @@ export type AddressData = ERC20TokenAddressData;
 export class Address {
   readonly explorer: Explorer;
   readonly address: string;
-  readonly data: object;
+  readonly data: Partial<AddressData>;
 
   // mutable state
   currency: Currency;
@@ -39,13 +44,13 @@ export class Address {
     this.data = {};
   }
 
-  assign(swarm, data: AddressData) {
+  assign(swarm, data: Partial<AddressData>) {
     Object.assign(this.data, data);
 
     // guard  clause --- might we leverage some TypeScript capabilities here?
     if (!this.currency) {
       // ERC20 Token SC
-      const { tokenName, tokenSymbol, tokenDecimal } = data;
+      const { tokenName, tokenSymbol, tokenDecimal } = this.data;
       if (tokenName && tokenSymbol && tokenDecimal) {
         this.currency = new Currency(
           this.explorer.chain,
