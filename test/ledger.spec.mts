@@ -27,7 +27,7 @@ describe("The Ledger", () => {
   describe("constructor", () => {
     it("should create Ledger from Array<Transaction>", () => {
       const ledger = Ledger.create(transactions);
-      assert.equal(ledger.list.length, 100); // our fixture has 100 entries
+      assert.equal(ledger.list.length, 300); // our fixture has 300 entries
     });
   });
 
@@ -45,7 +45,7 @@ describe("The Ledger", () => {
     it("should return a slice of the same entries", () => {
       const ledger = Ledger.create(transactions);
 
-      assert.equal(ledger.list.length, 100); // our fixture has 100 entries
+      assert.equal(ledger.list.length, 300); // our fixture has 300 entries
       const other = ledger.slice(10, 20);
 
       assert.deepEqual(other.list, ledger.list.slice(10, 20));

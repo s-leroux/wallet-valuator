@@ -6,7 +6,7 @@ https://api.gnosisscan.io/api
    &action=tokentx
    &address=${GNOSIS_ACCOUNT}
    &page=1
-   &offset=100
+   &offset=300
    &startblock=0
    &endblock=99999999
    &sort=asc
@@ -21,7 +21,7 @@ https://api.gnosisscan.io/api
    &startblock=0
    &endblock=99999999
    &page=1
-   &offset=100
+   &offset=300
    &sort=asc
    &apikey=${GNOSISSCAN_API_KEY}
 ")
@@ -34,7 +34,7 @@ https://api.gnosisscan.io/api
    &startblock=0
    &endblock=99999999
    &page=1
-   &offset=100
+   &offset=300
    &sort=asc
    &apikey=${GNOSISSCAN_API_KEY}
 ")
