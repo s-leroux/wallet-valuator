@@ -1,28 +1,67 @@
 import { assert } from "chai";
 
 import { Amount, Currency } from "../src/currency.mjs";
+import { BigNumber } from "../src/bignumber.mjs";
 
-describe("Currency", function () {
-  const chain = "My chain";
-  const address = "0xCurrencyAddress";
-  const name = "MY-TEST_CURRENCY";
-  const symbol = "MTC";
-  const decimal = 6;
+const mockCurrency = {
+  chain: "Ethereum",
+  address: "0x123456789abcdef",
+  name: "Ether",
+  symbol: "ETH",
+  decimal: 18,
+};
 
-  it("can be created", function () {
-    const currency = new Currency(chain, address, name, symbol, decimal);
+describe("Amount", () => {
+  it("should correctly initialize an Amount instance", () => {
+    const value = BigNumber.from(1);
+    const amount = new Amount(mockCurrency, value);
 
-    assert.equal(currency.chain, chain);
-    assert.equal(currency.address, address);
-    assert.equal(currency.name, name);
-    assert.equal(currency.symbol, symbol);
-    assert.equal(currency.decimal, decimal);
+    assert.strictEqual(amount.currency, mockCurrency);
+    assert.strictEqual(amount.value, value);
   });
 
-  it("can create amount", function () {
-    const currency = new Currency(chain, address, name, symbol, decimal);
-    const amount = currency.fromBaseUnit("1234567890");
+  it("should return the correct string representation", () => {
+    const value = BigNumber.from(1000);
+    const amount = new Amount(mockCurrency, value);
 
-    assert.equal(amount.toString(), "1234.56789 MTC");
+    assert.strictEqual(amount.toString(), "1000 ETH");
+  });
+});
+
+describe("Currency", () => {
+  it("should correctly initialize a Currency instance", () => {
+    const currency = new Currency(
+      mockCurrency.chain,
+      mockCurrency.address,
+      mockCurrency.name,
+      mockCurrency.symbol,
+      mockCurrency.decimal
+    );
+
+    assert.strictEqual(currency.chain, mockCurrency.chain);
+    assert.strictEqual(currency.address, mockCurrency.address);
+    assert.strictEqual(currency.name, mockCurrency.name);
+    assert.strictEqual(currency.symbol, mockCurrency.symbol);
+    assert.strictEqual(currency.decimal, mockCurrency.decimal);
+  });
+
+  it("should convert base unit value to Amount in display unit", () => {
+    const currency = new Currency(
+      mockCurrency.chain,
+      mockCurrency.address,
+      mockCurrency.name,
+      mockCurrency.symbol,
+      mockCurrency.decimal
+    );
+    const baseUnitValue = "12345678900000000000";
+    //                     09876543210987654321
+    const amount = currency.fromBaseUnit(baseUnitValue);
+
+    assert.strictEqual(amount.currency, currency);
+    assert.strictEqual(
+      amount.value.toString(),
+      "12.3456789",
+      "Amount value should equal 12.3456789"
+    );
   });
 });

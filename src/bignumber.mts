@@ -11,7 +11,15 @@ export function toInteger(src: number | string) {
 }
 
 export class BigNumber extends DecimalImplementation {
-  static fromInteger(v: number | string) {
+  toString(): string {
+    return super.toFixed();
+  }
+
+  static fromInteger(v: number | string): BigNumber {
+    return new BigNumber(v);
+  }
+
+  static from(v: number | string | DecimalImplementation): BigNumber {
     return new BigNumber(v);
   }
 
