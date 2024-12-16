@@ -64,7 +64,7 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
  * Altering the Entry in a ledger should not alter the entry pointing to the same transaction
  * in another unrelated ledger.
  */
-class Entry implements Sortable {
+export class Entry implements Sortable {
   record: ChainRecord;
   tags: Map<string, any>;
 
