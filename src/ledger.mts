@@ -1,4 +1,6 @@
+import { NotImplementedError } from "./error.mjs";
 import { ChainRecord } from "./transaction.mjs";
+import { Address } from "./address.mjs";
 
 type Sortable = { key };
 
@@ -131,6 +133,22 @@ export class Ledger implements Iterable<Entry> {
     for (const tr of this.list) {
       yield fields.map((field) => tr[field]).join(sep);
     }
+  }
+
+  //========================================================================
+  //  Transaction selection
+  //========================================================================
+
+  /**
+   * Return a new Ledger containing only events from the given address.
+   */
+  from(address: Address): Ledger {
+    // Above: we do not accept 'string' addresses because we also need the chain.
+
+    // Swarm should ensure the uniqueness of the address object
+    const entries = this.list.filter((entry) => entry.record.from === address);
+
+    return new Ledger(entries);
   }
 
   //========================================================================

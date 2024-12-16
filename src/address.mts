@@ -38,7 +38,9 @@ export class Address {
     if (!address) {
       throw new Error("Then empty string is not a valid address");
     }
-
+    if (!(explorer instanceof Explorer)) {
+      throw new TypeError(`Explorer if of type ${typeof explorer}`);
+    }
     this.explorer = explorer;
     this.address = address;
     this.data = {};

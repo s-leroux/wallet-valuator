@@ -9,7 +9,10 @@ import { FakeExplorer } from "./fake-explorer.mjs";
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 
-describe("The Ledger", () => {
+const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
+const DISPERSE_APP_ADDRESS = "0xd152f549545093347a162dce210e7293f1452150";
+
+describe("Ledger", () => {
   let ledger;
   let swarm;
   let explorer;
@@ -20,7 +23,7 @@ describe("The Ledger", () => {
     explorer = new FakeExplorer();
     swarm = new Swarm([explorer]);
     transactions = ERC20TokenTransferEvents.result.map((tr) =>
-      new ERC20TokenTransfer(swarm, explorer).assign(swarm, tr)
+      swarm.tokenTransfer(explorer, tr.hash, tr)
     );
   });
 
@@ -41,6 +44,26 @@ describe("The Ledger", () => {
       ledger.union(other);
     });
   });
+
+  describe("from method", () => {
+    it("should return a new Ledger containing only transactions from the given address", () => {
+      // Validation:
+      // < fixtures/ERC20TokenTransferEvents.json jq '
+      //      .result |
+      //      map(select(.from == "0xd152f549545093347a162dce210e7293f1452150")) |
+      //      length'
+      const ledger = Ledger.create(transactions);
+      const address = swarm.address(explorer, DISPERSE_APP_ADDRESS);
+      const subset = ledger.from(address);
+
+      assert.notEqual(subset, ledger);
+      assert.equal(subset.list.length, 46);
+      for (const entry of subset) {
+        assert.equal(entry.record.from, address);
+      }
+    });
+  });
+
   describe("slice method", () => {
     it("should return a slice of the same entries", () => {
       const ledger = Ledger.create(transactions);
