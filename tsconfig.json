@@ -48,6 +48,7 @@
     "src/swarm.mts",
     "src/transaction.mts",
 
+    "examples/balance.mts",
     "examples/find-address.mts",
 
     "src/main.mts",

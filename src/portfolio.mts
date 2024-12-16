@@ -9,6 +9,7 @@ interface Movement {
 }
 
 export class Snapshot {
+  timeStamp: number;
   holdings: Map<Currency, Amount>;
 
   constructor(
@@ -17,6 +18,7 @@ export class Snapshot {
     tags: Map<string, any>,
     parent?: Snapshot
   ) {
+    this.timeStamp = movement.timeStamp;
     // Naive implementation: just clone the whole map
     this.holdings = new Map(parent?.holdings);
     this.update(ingress, movement, tags);
@@ -47,7 +49,7 @@ export class Snapshot {
   toString(): string {
     const lines = [];
 
-    this.holdings.forEach((currency, amount) => lines.push(amount.toString()));
+    this.holdings.forEach((amount, currency) => lines.push(amount.toString()));
     return lines.join("\n");
   }
 }
