@@ -79,7 +79,7 @@ export class Swarm {
       chain,
       address,
       data
-    );
+    ).assign(this, data);
     this.records.push(tr);
 
     return tr;

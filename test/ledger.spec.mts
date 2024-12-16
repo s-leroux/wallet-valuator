@@ -7,6 +7,8 @@ import { ERC20TokenTransfer } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
+import NormalTransactions from "../fixtures/NormalTransactions.json" assert { type: "json" };
+import InternalTransactions from "../fixtures/InternalTransactions.json" assert { type: "json" };
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 
 const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
@@ -66,15 +68,27 @@ describe("Ledger", () => {
     ledger = Ledger.create();
     explorer = new FakeExplorer();
     swarm = new Swarm([explorer]);
-    transactions = ERC20TokenTransferEvents.result.map((tr) =>
+
+    const a = ERC20TokenTransferEvents.result.map((tr) =>
       swarm.tokenTransfer(explorer, tr.hash, tr)
     );
+    const b = NormalTransactions.result.map((tr) =>
+      swarm.normalTransaction(explorer, tr.hash, tr)
+    );
+    const c = InternalTransactions.result.map((tr) =>
+      swarm.internalTransaction(explorer, tr.hash, tr)
+    );
+
+    transactions = [].concat(a, b, c);
   });
 
   describe("constructor", () => {
     it("should create Ledger from Array<Transaction>", () => {
       const ledger = Ledger.create(transactions);
-      assert.equal(ledger.list.length, 300); // our fixture has 300 entries
+
+      // According to:
+      // jq '.result | length' fixtures/*.json
+      assert.equal(ledger.list.length, 745);
     });
   });
 
@@ -92,8 +106,6 @@ describe("Ledger", () => {
   describe("slice method", () => {
     it("should return a slice of the same entries", () => {
       const ledger = Ledger.create(transactions);
-      assert.equal(ledger.list.length, 300); // our fixture has 300 entries
-
       const other = ledger.slice(10, 20);
       assert.deepEqual(other.list, ledger.list.slice(10, 20));
     });
@@ -101,17 +113,18 @@ describe("Ledger", () => {
 
   describe("from method", () => {
     it("should return a new Ledger containing only transactions from the given address", () => {
-      // Validation:
-      // < fixtures/ERC20TokenTransferEvents.json jq '
-      //      .result |
-      //      map(select(.from == "0xd152f549545093347a162dce210e7293f1452150")) |
-      //      length'
+      /* Validation:
+         jq '
+              .result |
+              map(select(.from == "0xd152f549545093347a162dce210e7293f1452150")) |
+              length' fixtures/*.json
+      */
       const ledger = Ledger.create(transactions);
       const address = swarm.address(explorer, DISPERSE_APP_ADDRESS);
       const subset = ledger.from(address);
 
       assert.notEqual(subset, ledger);
-      assert.equal(subset.list.length, 46);
+      assert.equal(subset.list.length, 48);
       for (const entry of subset) {
         assert.equal(entry.record.from, address);
       }
