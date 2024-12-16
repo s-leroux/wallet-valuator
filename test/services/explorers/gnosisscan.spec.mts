@@ -5,6 +5,7 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 import { as_coin } from "../../../src/coin.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 import {
   GnosisScanProvider,
   GnosisScanAPI,
@@ -48,16 +49,67 @@ describe("GnosisScan", function () {
   });
 
   describe("GnosisScanAPI", () => {
-    it("should retrieve block by timestamp", async () => {
-      const res = await gs.blockNoByTime(1578638524);
+    describe("blockNoByTime()", () => {
+      it("should retrieve block by timestamp", async () => {
+        const res = await gs.blockNoByTime(1578638524);
 
-      assert.deepEqual(res, {
-        status: "1",
-        message: "OK",
-        result: "7781276",
+        assert.deepEqual(res, {
+          status: "1",
+          message: "OK",
+          result: "7781276",
+        });
+      });
+      it("should fail if there is not block at the given timestamp", async () => {
+        return assert.isRejected(gs.blockNoByTime(1));
+      });
+    });
+    describe("normalTransaction()", () => {
+      it("should return a NormalTransaction given its hash", async () => {
+        const txhash =
+          "0xb76d2ba3313ebbfca1177846e791d91a3c7f675ba5c0cf8bb7ac2ad67403237c";
+        const res = await gs.normalTransaction(txhash);
+
+        assert.include(res, {
+          status: "1",
+          message: "OK",
+        });
+        assert.include(res.result, {
+          hash: txhash,
+        });
+      });
+      it("should fail if the transaction is not found", async () => {
+        const txhash =
+          "0x000000000000000000000000000000000000000000000000000000000000000";
+        return assert.isRejected(gs.normalTransaction(txhash));
       });
     });
   });
 
+  describe("GnosisScan", () => {
+    let explorer: GnosisScan;
+    let sw: Swarm;
+
+    beforeEach(() => {
+      explorer = new GnosisScan(gs);
+      sw = new Swarm([explorer]);
+    });
+
+    it("should default to the Gnosis chain", () => {
+      assert.equal(explorer.chain, "gnosis");
+    });
+    describe("normalTransaction()", () => {
+      it("should load a transaction by its hash", async () => {
+        const txhash =
+          "0xb76d2ba3313ebbfca1177846e791d91a3c7f675ba5c0cf8bb7ac2ad67403237c";
+        const transaction = await explorer.normalTransaction(sw, txhash);
+
+        assert.include(transaction, {
+          hash: txhash.toLowerCase(),
+          isError: false,
+          blockNumber: 24740464,
+        });
+      });
+    });
+  });
   describe("Utilities", () => {});
 });

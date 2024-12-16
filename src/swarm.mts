@@ -41,9 +41,9 @@ export class Swarm {
     explorer: Explorer,
     id: string,
     data?: OPT
-  ): T {
+  ): U {
     const key = `${explorer.chain}:${id}`.toLowerCase();
-    let obj: T = storage.get(key);
+    let obj: U = storage.get(key) as U;
     if (!obj) {
       obj = new ctor(this, explorer, id);
       // obj.__id = key;
@@ -79,7 +79,7 @@ export class Swarm {
       chain,
       address,
       data
-    ).assign(this, data);
+    );
     this.records.push(tr);
 
     return tr;

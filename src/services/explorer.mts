@@ -1,6 +1,7 @@
 import { Swarm } from "../swarm.mjs";
-import { ChainRecord } from "../transaction.mjs";
+import { ChainRecord, NormalTransaction } from "../transaction.mjs";
 import { Currency } from "../currency.mjs";
+import { NotImplementedError } from "../error.mjs";
 
 /**
  * The high-level interface to explorer a blockchain
@@ -16,10 +17,18 @@ export class Explorer {
 
   register(swarm: Swarm): void {}
 
+  async normalTransaction(
+    swarm: Swarm,
+    txhash: string
+  ): Promise<NormalTransaction> {
+    // OVERRIDE ME
+    throw new NotImplementedError();
+  }
+
   async addressNormalTransactions(
     swarm: Swarm,
     address: string
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<NormalTransaction>> {
     // OVERRIDE ME
     return [];
   }
@@ -54,8 +63,9 @@ export class Explorer {
       this.addressInternalTransactions(swarm, address),
       this.addressTokenTransfers(swarm, address),
     ]);
+    const result: ChainRecord[] = [];
 
-    return normal.concat(internal, erc20);
+    return result.concat(normal, internal, erc20);
   }
 }
 
