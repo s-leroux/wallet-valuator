@@ -68,7 +68,7 @@ export class Swarm {
   /**
    * Return the NormalTransaction corresponding to the hash
    */
-  transaction(
+  normalTransaction(
     chain: Explorer,
     address: string,
     data?: object

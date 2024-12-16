@@ -9,7 +9,54 @@ import { FakeExplorer } from "./fake-explorer.mjs";
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 
-describe("The Ledger", () => {
+const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
+const DISPERSE_APP_ADDRESS = "0xd152f549545093347a162dce210e7293f1452150";
+
+describe("Utilities", () => {
+  describe("The sort function", () => {
+    describe("ensures that", () => {
+      const useCases = [
+        ["", ""],
+        ["A", "A"],
+        ["BACDFE", "ABCDEF"],
+        ["BBAACDFEEE", "AABBCDEEEF"],
+        ["AFECDBAEBE", "AABBCDEEEF"],
+      ] as const;
+
+      for (let [src, expected] of useCases) {
+        it(`"${src}" is sorted as "${expected}"`, () => {
+          const res = sort(s2k(src));
+          assert.equal(k2s(res), expected);
+        });
+      }
+    });
+  });
+
+  describe("The join function", () => {
+    describe("ensures that", () => {
+      const useCases = [
+        ["", "", ""],
+        ["", "ABC", "ABC"],
+        ["ABC", "", "ABC"],
+        ["ABC", "ABC", "AABBCC"],
+        ["ABC", "DEF", "ABCDEF"],
+        ["DEF", "ABC", "ABCDEF"],
+        ["CDEF", "ABC", "ABCCDEF"],
+        ["DEF", "ABCD", "ABCDDEF"],
+        ["ACE", "BDF", "ABCDEF"],
+      ] as const;
+
+      for (let [left, right, expected] of useCases) {
+        it(`"${left}" ∪ "${right}" = "${expected}"`, () => {
+          const res = join(s2k(left), s2k(right));
+          assert.equal(k2s(res), expected);
+        });
+      }
+    });
+  });
+});
+
+describe("Ledger", () => {
   let ledger;
   let swarm;
   let explorer;
@@ -20,7 +67,7 @@ describe("The Ledger", () => {
     explorer = new FakeExplorer();
     swarm = new Swarm([explorer]);
     transactions = ERC20TokenTransferEvents.result.map((tr) =>
-      new ERC20TokenTransfer(swarm, explorer).assign(swarm, tr)
+      swarm.tokenTransfer(explorer, tr.hash, tr)
     );
   });
 
@@ -41,14 +88,51 @@ describe("The Ledger", () => {
       ledger.union(other);
     });
   });
+
   describe("slice method", () => {
     it("should return a slice of the same entries", () => {
       const ledger = Ledger.create(transactions);
-
       assert.equal(ledger.list.length, 300); // our fixture has 300 entries
-      const other = ledger.slice(10, 20);
 
+      const other = ledger.slice(10, 20);
       assert.deepEqual(other.list, ledger.list.slice(10, 20));
+    });
+  });
+
+  describe("from method", () => {
+    it("should return a new Ledger containing only transactions from the given address", () => {
+      // Validation:
+      // < fixtures/ERC20TokenTransferEvents.json jq '
+      //      .result |
+      //      map(select(.from == "0xd152f549545093347a162dce210e7293f1452150")) |
+      //      length'
+      const ledger = Ledger.create(transactions);
+      const address = swarm.address(explorer, DISPERSE_APP_ADDRESS);
+      const subset = ledger.from(address);
+
+      assert.notEqual(subset, ledger);
+      assert.equal(subset.list.length, 46);
+      for (const entry of subset) {
+        assert.equal(entry.record.from, address);
+      }
+    });
+  });
+
+  describe("tag method", () => {
+    it("should tag all entries in the ledger", () => {
+      const ledger = Ledger.create(transactions).slice(0, 100);
+      const subset = ledger.slice(2, 10);
+      const sentinel = {};
+      subset.tag("T", sentinel);
+
+      let n = 0;
+      for (const entry of ledger) {
+        if (n < 2 || n >= 10) {
+          assert.notInclude(entry.tags, "T");
+        } else {
+          assert.equal(entry.tags.get("T"), sentinel);
+        }
+      }
     });
   });
 });
@@ -60,45 +144,3 @@ function s2k(str: string) {
 function k2s(arr) {
   return arr.reduce((acc, i) => acc + i.key, "");
 }
-
-describe("The sort function", () => {
-  describe("ensures that", () => {
-    const useCases = [
-      ["", ""],
-      ["A", "A"],
-      ["BACDFE", "ABCDEF"],
-      ["BBAACDFEEE", "AABBCDEEEF"],
-      ["AFECDBAEBE", "AABBCDEEEF"],
-    ] as const;
-
-    for (let [src, expected] of useCases) {
-      it(`"${src}" is sorted as "${expected}"`, () => {
-        const res = sort(s2k(src));
-        assert.equal(k2s(res), expected);
-      });
-    }
-  });
-});
-
-describe("The join function", () => {
-  describe("ensures that", () => {
-    const useCases = [
-      ["", "", ""],
-      ["", "ABC", "ABC"],
-      ["ABC", "", "ABC"],
-      ["ABC", "ABC", "AABBCC"],
-      ["ABC", "DEF", "ABCDEF"],
-      ["DEF", "ABC", "ABCDEF"],
-      ["CDEF", "ABC", "ABCCDEF"],
-      ["DEF", "ABCD", "ABCDDEF"],
-      ["ACE", "BDF", "ABCDEF"],
-    ] as const;
-
-    for (let [left, right, expected] of useCases) {
-      it(`"${left}" ∪ "${right}" = "${expected}"`, () => {
-        const res = join(s2k(left), s2k(right));
-        assert.equal(k2s(res), expected);
-      });
-    }
-  });
-});

@@ -70,7 +70,7 @@ export class CommonExplorer extends Explorer {
 
     return res
       .filter((tr) => tr.isError === "0")
-      .map((t) => swarm.transaction(this, t.hash, t));
+      .map((t) => swarm.normalTransaction(this, t.hash, t));
   }
 
   async accountInternalTransactions(address): Promise<Record<string, any>[]> {

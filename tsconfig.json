@@ -32,6 +32,7 @@
     "src/bignumber.mts",
     "src/coin.mts",
     "src/currency.mts",
+    "src/error.mts",
     "src/ledger.mts",
     "src/price.mts",
     "src/provider.mts",

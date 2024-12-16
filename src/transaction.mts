@@ -2,6 +2,7 @@ const GNOSIS_NATIVE_COIN_DECIMALS = 18;
 
 import { BigNumber, toInteger } from "./bignumber.mjs";
 import { Swarm, Storable } from "./swarm.mjs";
+import { Address } from "./address.mjs";
 import { Explorer } from "./services/explorer.mjs";
 import { Amount } from "./currency.mjs";
 
@@ -17,7 +18,7 @@ type TransactionType =
  */
 
 export class ChainRecord {
-  readonly explorer;
+  readonly explorer: Explorer;
   readonly data: object;
   readonly type: TransactionType;
 
@@ -25,9 +26,9 @@ export class ChainRecord {
   blockNumber: number;
   timeStamp: number;
   transaction: ChainRecord;
-  from;
-  to;
-  contract;
+  from: Address;
+  to: Address;
+  contract: Address;
   amount: Amount;
   fees;
   feesAsString;
@@ -44,11 +45,11 @@ export class ChainRecord {
     this.blockNumber = toInteger(data.blockNumber);
     this.timeStamp = toInteger(data.timeStamp);
 
-    this.from = swarm.address(this.explorer.chain, data.from);
-    this.to = swarm.address(this.explorer.chain, data.to);
+    this.from = swarm.address(this.explorer, data.from);
+    this.to = swarm.address(this.explorer, data.to);
 
     if (data.contractAddress) {
-      this.contract = swarm.address(this.explorer.chain, data.contractAddress);
+      this.contract = swarm.address(this.explorer, data.contractAddress);
       this.contract.assign(swarm, {
         tokenName: data.tokenName,
         tokenSymbol: data.tokenSymbol,

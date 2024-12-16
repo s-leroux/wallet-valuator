@@ -40,7 +40,7 @@ export class Address {
     }
 
     this.explorer = explorer;
-    this.address = address;
+    this.address = address.toLowerCase();
     this.data = {};
   }
 

@@ -1,4 +1,6 @@
+import { NotImplementedError } from "./error.mjs";
 import { ChainRecord } from "./transaction.mjs";
+import { Address } from "./address.mjs";
 
 type Sortable = { key };
 
@@ -60,15 +62,17 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
  *
  * Entries are mutable entities, but transaction data are supposed immutable.
  * Altering the Entry in a ledger should not alter the entry pointing to the same transaction
- * in another unreleated ledger.
+ * in another unrelated ledger.
  */
 class Entry implements Sortable {
   record: ChainRecord;
+  tags: Map<string, any>;
 
   key: string;
 
   constructor(record: ChainRecord) {
     this.record = record;
+    this.tags = new Map();
     const data = record.data as any;
     this.key =
       data.timeStamp.padStart(12) +
@@ -80,6 +84,10 @@ class Entry implements Sortable {
   toString(): string {
     const record = this.record;
     return `${record.type[0]}:${this.key}:${record.from}:${record.to}:${record.amount}`;
+  }
+
+  tag(name: string, data?: any) {
+    this.tags.set(name, data);
   }
 }
 
@@ -131,6 +139,31 @@ export class Ledger implements Iterable<Entry> {
     for (const tr of this.list) {
       yield fields.map((field) => tr[field]).join(sep);
     }
+  }
+
+  //========================================================================
+  //  Tagging
+  //========================================================================
+  tag(name: string, data?: any) {
+    for (const entry of this.list) {
+      entry.tag(name, data);
+    }
+  }
+
+  //========================================================================
+  //  Transaction selection
+  //========================================================================
+
+  /**
+   * Return a new Ledger containing only events from the given address.
+   */
+  from(address: Address): Ledger {
+    // Above: we do not accept 'string' addresses because we also need the chain.
+
+    // Swarm should ensure the uniqueness of the address object
+    const entries = this.list.filter((entry) => entry.record.from === address);
+
+    return new Ledger(entries);
   }
 
   //========================================================================
