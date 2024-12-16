@@ -148,6 +148,34 @@ describe("Ledger", () => {
       }
     });
   });
+
+  describe("entries", () => {
+    it("should have from and to addresses", () => {
+      const ledger = Ledger.create(transactions);
+      for (const entry of ledger) {
+        assert.exists(entry.record.from);
+        assert.exists(entry.record.to);
+      }
+    });
+
+    it("should have their amount set", () => {
+      const ledger = Ledger.create(transactions);
+      for (const entry of ledger) {
+        assert.exists(entry.record.amount);
+      }
+    });
+
+    it("should be sorted by ascending timestamp", () => {
+      const ledger = Ledger.create(transactions);
+      let curr_ts = 0;
+      for (const entry of ledger) {
+        const entry_ts = entry.record.timeStamp;
+        assert.exists(entry_ts);
+        assert.isAtLeast(entry_ts, curr_ts);
+        curr_ts = entry_ts;
+      }
+    });
+  });
 });
 
 function s2k(str: string) {
