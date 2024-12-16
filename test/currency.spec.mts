@@ -11,23 +11,6 @@ const mockCurrency = {
   decimal: 18,
 };
 
-describe("Amount", () => {
-  it("should correctly initialize an Amount instance", () => {
-    const value = BigNumber.from(1);
-    const amount = new Amount(mockCurrency, value);
-
-    assert.strictEqual(amount.currency, mockCurrency);
-    assert.strictEqual(amount.value, value);
-  });
-
-  it("should return the correct string representation", () => {
-    const value = BigNumber.from(1000);
-    const amount = new Amount(mockCurrency, value);
-
-    assert.strictEqual(amount.toString(), "1000 ETH");
-  });
-});
-
 describe("Currency", () => {
   it("should correctly initialize a Currency instance", () => {
     const currency = new Currency(
@@ -63,5 +46,54 @@ describe("Currency", () => {
       "12.3456789",
       "Amount value should equal 12.3456789"
     );
+  });
+});
+
+describe("Amount", () => {
+  describe("constructor", () => {
+    it("should correctly initialize an Amount instance", () => {
+      const value = BigNumber.from(1);
+      const amount = new Amount(mockCurrency, value);
+
+      assert.strictEqual(amount.currency, mockCurrency);
+      assert.strictEqual(amount.value, value);
+    });
+  });
+
+  describe("toString() method", () => {
+    it("should return the correct string representation for the object", () => {
+      const value = BigNumber.from(1000);
+      const amount = new Amount(mockCurrency, value);
+
+      assert.strictEqual(amount.toString(), "1000 ETH");
+    });
+  });
+
+  describe("plus() method", () => {
+    it("should return the sum of two amounts", () => {
+      const va = BigNumber.from(1000);
+      const vb = BigNumber.from(3.5);
+      const a = new Amount(mockCurrency, va);
+      const b = new Amount(mockCurrency, vb);
+
+      assert.strictEqual(a.plus(b).value.toString(), va.plus(vb).toString());
+      // leave the arguments inchanged:
+      assert.strictEqual(a.value.toString(), va.toString());
+      assert.strictEqual(b.value.toString(), vb.toString());
+    });
+  });
+
+  describe("minus() method", () => {
+    it("should return the difference between two amounts", () => {
+      const va = BigNumber.from(1000);
+      const vb = BigNumber.from(3.5);
+      const a = new Amount(mockCurrency, va);
+      const b = new Amount(mockCurrency, vb);
+
+      assert.strictEqual(a.minus(b).value.toString(), va.minus(vb).toString());
+      // leave the arguments inchanged:
+      assert.strictEqual(a.value.toString(), va.toString());
+      assert.strictEqual(b.value.toString(), vb.toString());
+    });
   });
 });

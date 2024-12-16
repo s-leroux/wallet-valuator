@@ -8,6 +8,12 @@ type CurrencyLike = {
   readonly decimal: number;
 };
 
+class InconsistentCurrencyError extends TypeError {
+  constructor(a: object, b: object) {
+    super(`Inconsistent Currency Error: ${a} and ${b}`);
+  }
+}
+
 /**
  * Represents an amount of a currency expressed in its display unit.
  *
@@ -25,9 +31,9 @@ export class Amount {
    * @param currency - The currency associated with the amount.
    * @param value - The value of the amount expressed in the display unit.
    */
-  constructor(currency: CurrencyLike, value: BigNumber) {
+  constructor(currency: CurrencyLike, value?: BigNumber) {
     this.currency = currency;
-    this.value = value;
+    this.value = value ?? BigNumber.ZERO;
   }
 
   /**
@@ -40,6 +46,44 @@ export class Amount {
    */
   toString(): string {
     return `${this.value} ${this.currency.symbol}`;
+  }
+
+  /**
+   * Returns a new `Amount` representing the sum of the current instance and the specified `other` amount.
+   *
+   * This method ensures that both amounts share the same currency before performing the addition.
+   * If the currencies are inconsistent, an `InconsistentCurrencyError` is thrown.
+   *
+   * @param other - The `Amount` to add to the current instance.
+   * @returns A new `Amount` object with the same currency and the combined value.
+   * @throws {InconsistentCurrencyError} If the currencies of the two amounts are not the same.
+   */
+  plus(other: Amount): Amount {
+    const currency = this.currency;
+    if (other.currency !== currency) {
+      throw new InconsistentCurrencyError(this, other);
+    }
+
+    return new Amount(currency, this.value.plus(other.value));
+  }
+
+  /**
+   * Returns a new `Amount` representing the difference between the current instance and the specified `other` amount.
+   *
+   * This method ensures that both amounts share the same currency before performing the subtraction.
+   * If the currencies are inconsistent, an `InconsistentCurrencyError` is thrown.
+   *
+   * @param other - The `Amount` to subtract from the current instance.
+   * @returns A new `Amount` object with the same currency and the resulting value.
+   * @throws {InconsistentCurrencyError} If the currencies of the two amounts are not the same.
+   */
+  minus(other: Amount): Amount {
+    const currency = this.currency;
+    if (other.currency !== currency) {
+      throw new InconsistentCurrencyError(this, other);
+    }
+
+    return new Amount(currency, this.value.minus(other.value));
   }
 }
 
