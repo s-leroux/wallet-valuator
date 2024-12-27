@@ -41,12 +41,14 @@ export class GnosisScanProvider extends Provider {
 
   isError(res, json: any) {
     // GnosisScan returns errors with the 200 status code, but a status set to "0"
-    return super.isError(res, json) || json.status === "0";
+    return (
+      super.isError(res, json) || json.status === "0" || json.result === null
+    );
   }
 
   shouldRetry(res, json: any) {
     // GnosisScan does not signal rate limiting with a 429 status. We should examine the error message.
-    return super.shouldRetry(res, json) || json.result.startsWith("Max ");
+    return super.shouldRetry(res, json) || json.result?.startsWith("Max ");
   }
 
   newError(res, json: any) {
@@ -54,7 +56,7 @@ export class GnosisScanProvider extends Provider {
     //      return super.newError(res, json);
     //    }
     return new Error(
-      `Error ${json.message}: ${json.result} while fetching ${res.url}`
+      `Error ${json.message ?? ""}: ${json.result} while fetching ${res.url}`
     );
   }
 }
@@ -91,12 +93,28 @@ export class GnosisScanAPI {
     return await this.provider.fetch("", params);
   }
 
-  accountNormalTransactions(address: string) {
+  async normalTransaction(txhash: string) {
+    const params = {
+      module: "proxy",
+      action: "eth_getTransactionByHash",
+      txhash,
+    };
+
+    const response = await this.provider.fetch("", params);
+    const iserror = response.result === null;
+    return {
+      status: iserror ? "0" : "1",
+      message: iserror ? `Error finding normal transaction ${txhash}` : "OK",
+      result: response.result,
+    };
+  }
+
+  accountNormalTransactions(address: string, block?: number) {
     const params = {
       module: "account",
       action: "txlist",
-      startBlock: 0,
-      endBlock: 99999999,
+      startBlock: block ?? 0,
+      endBlock: block ?? 99999999,
       sort: "asc",
       address: address,
     };
@@ -112,7 +130,7 @@ export class GnosisScanAPI {
       sort: "asc",
       address: address,
     };
-    return await this.provider.fetch("", params);
+    return this.provider.fetch("", params);
   }
 
   async accountTokenTransfers(address: string) {
@@ -124,7 +142,7 @@ export class GnosisScanAPI {
       sort: "asc",
       address: address,
     };
-    return await this.provider.fetch("", params);
+    return this.provider.fetch("", params);
   }
 }
 
@@ -161,6 +179,29 @@ export class GnosisScan extends CommonExplorer {
     });
   }
 
+  async normalTransaction(
+    swarm: Swarm,
+    txhash: string
+  ): Promise<NormalTransaction> {
+    const { from, blockNumber } = (await this.api.normalTransaction(txhash))
+      .result;
+    let result;
+
+    const records = (
+      await this.api.accountNormalTransactions(from, blockNumber)
+    ).result;
+
+    for (const record of records) {
+      const t = swarm.normalTransaction(this, record.hash, record);
+      if (t.hash === txhash.toLowerCase()) {
+        result = t;
+      }
+    }
+    if (result) {
+      return result;
+    }
+    throw new Error(`Transaction ${txhash} was not found in ${this}`);
+  }
   async accountNormalTransactions(address): Promise<Record<string, any>[]> {
     return (await this.api.accountNormalTransactions(address)).result;
   }

@@ -1,5 +1,6 @@
 import { Swarm } from "../../swarm.mjs";
 import { CommonExplorer } from "../explorer.mjs";
+import { NormalTransaction } from "../../transaction.mjs";
 
 import { Currency } from "../../../src/currency.mjs";
 import NormalTransactions from "../../../fixtures/NormalTransactions.json" assert { type: "json" };
@@ -17,6 +18,18 @@ export class TestScan extends CommonExplorer {
     swarm.address(this, "0x0000000000000000000000000000000000000000", {
       name: "Null",
     });
+  }
+
+  async normalTransaction(
+    swarm: Swarm,
+    txhash: string
+  ): Promise<NormalTransaction> {
+    for (const transaction of NormalTransactions.result) {
+      if (transaction.hash === txhash) {
+        return swarm.normalTransaction(this, txhash, transaction);
+      }
+    }
+    throw new Error(`Transaction with hash ${txhash} not found`);
   }
 
   async accountNormalTransactions(address): Promise<Record<string, any>[]> {

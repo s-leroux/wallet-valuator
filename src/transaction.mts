@@ -19,7 +19,7 @@ type TransactionType =
 
 export class ChainRecord {
   readonly explorer: Explorer;
-  readonly data: object;
+  readonly data: Record<string, string>;
   readonly type: TransactionType;
 
   // All data below are set to NULL and initialized only when the effective transaction is retrieved
@@ -85,8 +85,30 @@ export class NormalTransaction extends ChainRecord {
    * A normal transaction is a a transaction where an Externally Owned Address (EOA) sends
    * ETH directly to another EOA.
    */
+  hash: string;
+  isError?: boolean;
+
   constructor(swarm: Swarm, explorer: Explorer, hash: string) {
     super(swarm, explorer, "NORMAL");
+
+    this.hash = hash.toLowerCase();
+  }
+
+  async load(swarm: Swarm): Promise<NormalTransaction> {
+    if (this.timeStamp === undefined) {
+      // The transaction data are not already loaded
+      return this.explorer.normalTransaction(swarm, this.hash);
+    }
+
+    return this;
+  }
+
+  assign(swarm: Swarm, data): NormalTransaction {
+    super.assign(swarm, data);
+
+    this.isError = this.data.isError && this.data.isError !== "0";
+
+    return this;
   }
 }
 
