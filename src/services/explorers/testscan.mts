@@ -33,14 +33,20 @@ export class TestScan extends CommonExplorer {
   }
 
   async accountNormalTransactions(address): Promise<Record<string, any>[]> {
-    return NormalTransactions.result;
+    return NormalTransactions.result.filter(
+      (record) => record.from === address || record.to === address
+    );
   }
 
   async accountInternalTransactions(address): Promise<Record<string, any>[]> {
-    return InternalTransactions.result;
+    return InternalTransactions.result.filter(
+      (record) => record.from === address || record.to === address
+    );
   }
 
   async accountTokenTransfers(address): Promise<Record<string, any>[]> {
-    return ERC20TokenTransferEvents.result;
+    return ERC20TokenTransferEvents.result.filter(
+      (record) => record.from === address || record.to === address
+    );
   }
 }
