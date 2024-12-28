@@ -47,5 +47,23 @@ describe("Swarm and Transaction integration", () => {
       // @ts-ignore
       assert.instanceOf(tr1.to, Address);
     });
+
+    it("should implicitly load data when calling isValid()", async function () {
+      const testCases: [string, boolean][] = [
+        [
+          "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7",
+          true,
+        ],
+        [
+          "0x0440ed430ce248e31d80580cee995d52e16b842dbea62e8094e973091cb3154b",
+          false,
+        ],
+      ];
+      for (const [hash, ok] of testCases) {
+        const tr = await swarm.normalTransaction(explorer, hash);
+
+        assert.equal(await tr.isValid(swarm), ok);
+      }
+    });
   });
 });
