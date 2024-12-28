@@ -27,6 +27,7 @@
     "test/services/oracles/caching.spec.mts",
     "test/services/oracles/coingecko.spec.mts",
     "test/swarm.spec.mts",
+    "test/transaction.spec.mts",
 
     "src/address.mts",
     "src/bignumber.mts",

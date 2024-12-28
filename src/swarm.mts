@@ -70,14 +70,14 @@ export class Swarm {
    */
   normalTransaction(
     chain: Explorer,
-    address: string,
+    hash: string,
     data?: object
   ): NormalTransaction {
     const tr = this.store(
       this.transactions,
       NormalTransaction,
       chain,
-      address,
+      hash,
       data
     );
     this.records.push(tr);
