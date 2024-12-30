@@ -88,7 +88,7 @@ export class Swarm {
   /**
    *  Returns a new ERC20 Token Transfer
    */
-  tokenTransfer(explorer: Explorer, hash: string, data): ERC20TokenTransfer {
+  tokenTransfer(explorer: Explorer, data): ERC20TokenTransfer {
     const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
     this.records.push(result);
 
@@ -98,12 +98,8 @@ export class Swarm {
   /**
    * Return a new Internal Transaction
    */
-  internalTransaction(
-    explorer: Explorer,
-    hash: string,
-    data
-  ): ERC20TokenTransfer {
-    const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
+  internalTransaction(explorer: Explorer, data): ERC20TokenTransfer {
+    const result = new InternalTransaction(this, explorer).assign(this, data);
     this.records.push(result);
 
     return result;

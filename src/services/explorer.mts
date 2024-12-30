@@ -78,7 +78,9 @@ export class CommonExplorer extends Explorer {
   async addressNormalTransactions(swarm: Swarm, address: string) {
     const res = await this.accountNormalTransactions(address);
 
-    return res.map((t) => swarm.normalTransaction(this, t.hash, t));
+    return res
+      .map((t) => swarm.normalTransaction(this, t.hash, t))
+      .filter((t) => t.data.isError === "0");
   }
 
   async accountInternalTransactions(address): Promise<Record<string, any>[]> {
@@ -92,7 +94,7 @@ export class CommonExplorer extends Explorer {
   ): Promise<Array<ChainRecord>> {
     const res = await this.accountInternalTransactions(address);
 
-    return res.map((t) => swarm.internalTransaction(this, t.hash, t));
+    return res.map((t) => swarm.internalTransaction(this, t));
   }
 
   async accountTokenTransfers(address): Promise<Record<string, any>[]> {
@@ -103,6 +105,6 @@ export class CommonExplorer extends Explorer {
   async addressTokenTransfers(swarm: Swarm, address: string) {
     const res = await this.accountTokenTransfers(address);
 
-    return res.map((t) => swarm.tokenTransfer(this, t.hash, t));
+    return res.map((t) => swarm.tokenTransfer(this, t));
   }
 }
