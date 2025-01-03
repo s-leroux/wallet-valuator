@@ -4,6 +4,7 @@ import { Swarm } from "../src/swarm.mjs";
 import { Currency } from "../src/currency.mjs";
 
 import { Explorer } from "../src/services/explorer.mjs";
+import { Address } from "../src/address.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 
 const ADDRESS = "0xAddress";
@@ -37,26 +38,6 @@ describe("Swarm", () => {
       assert.isObject(objB);
       assert.strictEqual(objA, objB);
       assert.include(objA.data, { from: "0x11111111", to: "0x22222222" });
-    });
-
-    it("should create a currency when required data are detected", () => {
-      const obj = swarm.address(explorer, ADDRESS);
-
-      const token = {
-        tokenName: "Ether",
-        tokenSymbol: "ETH",
-        tokenDecimal: 18,
-      };
-
-      assert.isUndefined(obj.currency);
-      obj.assign(swarm, token);
-
-      const currency: Currency = obj.currency;
-      assert.isDefined(currency);
-      assert.equal(currency.name, token.tokenName);
-      assert.equal(currency.symbol, token.tokenSymbol);
-      assert.strictEqual(currency.decimal, token.tokenDecimal);
-      assert.equal(currency.chain, CHAIN_NAME);
     });
   });
 });

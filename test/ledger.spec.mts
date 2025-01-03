@@ -69,14 +69,14 @@ describe("Ledger", () => {
     explorer = new FakeExplorer();
     swarm = new Swarm([explorer]);
 
-    const a = ERC20TokenTransferEvents.result.map((tr) =>
-      swarm.tokenTransfer(explorer, tr.hash, tr)
-    );
+    const a = ERC20TokenTransferEvents.result.map((tr) => {
+      return swarm.tokenTransfer(explorer, tr);
+    });
     const b = NormalTransactions.result.map((tr) =>
       swarm.normalTransaction(explorer, tr.hash, tr)
     );
     const c = InternalTransactions.result.map((tr) =>
-      swarm.internalTransaction(explorer, tr.hash, tr)
+      swarm.internalTransaction(explorer, tr)
     );
 
     transactions = [].concat(a, b, c);

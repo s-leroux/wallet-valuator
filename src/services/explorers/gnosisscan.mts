@@ -48,7 +48,11 @@ export class GnosisScanProvider extends Provider {
 
   shouldRetry(res, json: any) {
     // GnosisScan does not signal rate limiting with a 429 status. We should examine the error message.
-    return super.shouldRetry(res, json) || json.result?.startsWith("Max ");
+    return (
+      super.shouldRetry(res, json) ||
+      typeof json === "string" || // the server may return an error page (still with status 200)
+      json.result?.startsWith("Max ") // We have overloaded te API
+    );
   }
 
   newError(res, json: any) {
@@ -157,7 +161,7 @@ export class GnosisScan extends CommonExplorer {
 
   constructor(api: GnosisScanAPI, chain?: string) {
     const my_chain = chain ?? "gnosis";
-    const my_nativeCurrency = new Currency(my_chain, "", "xDai", "xDai", 18);
+    const my_nativeCurrency = new Currency("xDai", "xDai", 18);
 
     super(my_chain, my_nativeCurrency);
     this.api = api;
@@ -183,8 +187,10 @@ export class GnosisScan extends CommonExplorer {
     swarm: Swarm,
     txhash: string
   ): Promise<NormalTransaction> {
-    const { from, blockNumber } = (await this.api.normalTransaction(txhash))
-      .result;
+    const ethTransaction = (await this.api.normalTransaction(txhash)).result;
+    const from = ethTransaction.from;
+    // apparently the gnosis aPI does not accept hexadecimal numbers!
+    const blockNumber = parseInt(ethTransaction.blockNumber);
     let result;
 
     const records = (
@@ -193,15 +199,19 @@ export class GnosisScan extends CommonExplorer {
 
     for (const record of records) {
       const t = swarm.normalTransaction(this, record.hash, record);
-      if (t.hash === txhash.toLowerCase()) {
+      if (t.hash.toLowerCase() === txhash.toLowerCase()) {
         result = t;
       }
     }
     if (result) {
       return result;
     }
-    throw new Error(`Transaction ${txhash} was not found in ${this}`);
+    console.dir(ethTransaction);
+    throw new Error(
+      `Transaction ${txhash} was not found in block ${blockNumber}`
+    );
   }
+
   async accountNormalTransactions(address): Promise<Record<string, any>[]> {
     return (await this.api.accountNormalTransactions(address)).result;
   }

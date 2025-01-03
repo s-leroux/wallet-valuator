@@ -9,7 +9,7 @@ import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents
 
 export class TestScan extends CommonExplorer {
   constructor(chain: string = "gnosis-fake") {
-    super(chain, new Currency(chain, "", "xDai", "xDai", 18));
+    super(chain, new Currency("xDai", "xDai", 18));
   }
 
   register(swarm: Swarm): void {

@@ -49,6 +49,23 @@ export class Explorer {
     return [];
   }
 
+  async addressAllValidTransfers(
+    swarm: Swarm,
+    address: string
+  ): Promise<Array<ChainRecord>> {
+    const allTransfers = await this.addressAllTransfers(swarm, address);
+    const selection = await Promise.all(
+      allTransfers.map((tr) => tr.isValid(swarm))
+    );
+
+    return allTransfers.filter((_, index) => selection[index]);
+  }
+
+  /**
+   * Return all the transfers involving a given address.
+   *
+   * You probably *don't* want to use this function but `addressAllValidTransfers` instead.
+   */
   async addressAllTransfers(
     swarm: Swarm,
     address: string

@@ -24,7 +24,10 @@ const address = swarm.address(
   program.args[0] ?? "0x89344efA2d9953accd3e907EAb27B33542eD9E25"
 );
 
-const ledger = Ledger.create(await address.allTransfers(swarm)).slice(0, 100); // keep only the 100 first transaction as this appears to be a live account
+const ledger = Ledger.create(await address.allValidTransfers(swarm)).slice(
+  0,
+  100
+); // keep only the 100 first transaction as this appears to be a live account
 for (const entry of ledger) {
   console.log("%s", entry);
 }

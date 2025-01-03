@@ -25,7 +25,7 @@ const address = swarm.address(
   program.args[0] ?? "0x89344efA2d9953accd3e907EAb27B33542eD9E25"
 );
 
-const ledger = Ledger.create(await address.allTransfers(swarm));
+const ledger = Ledger.create(await address.allValidTransfers(swarm));
 // keep only the 200 first transaction as this appears to be a live account
 
 ledger.from(address).tag("EGRESS");

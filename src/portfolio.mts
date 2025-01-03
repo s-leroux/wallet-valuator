@@ -2,7 +2,7 @@ import { Amount } from "./currency.mjs";
 import { Ledger } from "./ledger.mjs";
 
 interface Currency {
-  readonly address: string;
+  symbol: string;
 }
 
 interface Movement {
@@ -39,9 +39,9 @@ export class Snapshot {
     const currency = movement.amount.currency;
     const holding = this.holdings.get(currency) ?? new Amount(currency);
     console.log(
-      `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${
-        currency.address
-      } ${movement["type"]} ${movement["transaction"]?.hash}`
+      `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${currency} ${
+        movement["type"]
+      } ${movement["transaction"]?.hash}`
     );
 
     this.holdings.set(
@@ -58,7 +58,7 @@ export class Snapshot {
     const lines = [];
 
     this.holdings.forEach((amount, currency) =>
-      lines.push(amount.toString() + " " + currency.address)
+      lines.push(amount.toString() + " " + currency.symbol)
     );
     return lines.join("\n");
   }

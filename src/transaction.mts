@@ -42,7 +42,9 @@ export abstract class ChainRecord {
 
   assign(swarm: Swarm, data): ChainRecord {
     Object.assign(this.data, data);
-
+    if (!data.blockNumber) {
+      console.dir(data);
+    }
     this.blockNumber = toInteger(data.blockNumber);
     this.timeStamp = toInteger(data.timeStamp);
 
@@ -51,20 +53,26 @@ export abstract class ChainRecord {
 
     if (data.contractAddress) {
       this.contract = swarm.address(this.explorer, data.contractAddress);
-      this.contract.assign(swarm, {
-        tokenName: data.tokenName,
-        tokenSymbol: data.tokenSymbol,
-        tokenDecimal: data.tokenDecimal,
-      });
     }
-    const currency = this.contract?.currency ?? this.explorer.nativeCurrency;
+    const currency = this.contract
+      ? swarm.resolveCurrency(
+          this.explorer,
+          this.blockNumber,
+          this.contract.address,
+          this.data.tokenName,
+          this.data.tokenSymbol,
+          toInteger(this.data.tokenDecimal)
+        )
+      : this.explorer.nativeCurrency;
 
-    // EC20 Token code specific
-    const value = data.value;
-    if (value === undefined) {
-      this.amount = currency.fromBaseUnit("0");
-    } else {
-      this.amount = currency.fromBaseUnit(value);
+    if (currency) {
+      // EC20 Token code specific
+      const value = data.value;
+      if (value === undefined) {
+        this.amount = currency.fromBaseUnit("0");
+      } else {
+        this.amount = currency.fromBaseUnit(value);
+      }
     }
 
     const gasPrice = data.gasPrice;
@@ -129,6 +137,7 @@ export class InternalTransaction extends ChainRecord {
   transaction?: NormalTransaction;
 
   constructor(swarm: Swarm, explorer: Explorer) {
+    debugger;
     super(swarm, explorer, "INTERNAL");
   }
 
@@ -159,7 +168,10 @@ export class ERC20TokenTransfer extends ChainRecord {
   }
 
   isValid(swarm: Swarm): Promise<boolean> {
-    return this.transaction.load(swarm).then((tr) => tr.isError === false);
+    return (
+      this.amount &&
+      this.transaction.load(swarm).then((tr) => tr.isError === false)
+    );
   }
 
   assign(swarm: Swarm, data): this {

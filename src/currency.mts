@@ -1,12 +1,6 @@
 import { BigNumber } from "./bignumber.mjs";
 
-type CurrencyLike = {
-  readonly chain: string;
-  readonly address: string;
-  readonly name: string;
-  readonly symbol: string;
-  readonly decimal: number;
-};
+type CurrencyLike = Pick<Currency, "symbol" | "decimal">;
 
 class InconsistentCurrencyError extends TypeError {
   constructor(a: object, b: object) {
@@ -104,8 +98,6 @@ export class Amount {
  * order to convert a value to a human-readable format.
  */
 export class Currency {
-  readonly chain: string;
-  readonly address: string;
   readonly name: string;
   readonly symbol: string;
   readonly decimal: number;
@@ -113,21 +105,11 @@ export class Currency {
   /**
    * Creates an instance of `Currency`.
    *
-   * @param chain - The name of the blockchain the currency belongs to.
-   * @param address - The unique address of the currency on the blockchain.
    * @param name - The human-readable name of the currency.
    * @param symbol - The symbol used to represent the currency (e.g., "ETH").
    * @param decimal - The number of decimal places used for the currency.
    */
-  constructor(
-    chain: string,
-    address: string,
-    name: string,
-    symbol: string,
-    decimal: number
-  ) {
-    this.chain = chain;
-    this.address = address;
+  constructor(name: string, symbol: string, decimal: number) {
     this.name = name;
     this.symbol = symbol;
     this.decimal = decimal;
@@ -145,5 +127,9 @@ export class Currency {
    */
   fromBaseUnit(baseunit: string): Amount {
     return new Amount(this, BigNumber.fromDigits(baseunit, this.decimal));
+  }
+
+  toString(): string {
+    return `${this.symbol}`;
   }
 }

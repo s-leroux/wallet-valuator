@@ -4,8 +4,6 @@ import { Amount, Currency } from "../src/currency.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
 const mockCurrency = {
-  chain: "Ethereum",
-  address: "0x123456789abcdef",
   name: "Ether",
   symbol: "ETH",
   decimal: 18,
@@ -14,15 +12,11 @@ const mockCurrency = {
 describe("Currency", () => {
   it("should correctly initialize a Currency instance", () => {
     const currency = new Currency(
-      mockCurrency.chain,
-      mockCurrency.address,
       mockCurrency.name,
       mockCurrency.symbol,
       mockCurrency.decimal
     );
 
-    assert.strictEqual(currency.chain, mockCurrency.chain);
-    assert.strictEqual(currency.address, mockCurrency.address);
     assert.strictEqual(currency.name, mockCurrency.name);
     assert.strictEqual(currency.symbol, mockCurrency.symbol);
     assert.strictEqual(currency.decimal, mockCurrency.decimal);
@@ -30,8 +24,6 @@ describe("Currency", () => {
 
   it("should convert base unit value to Amount in display unit", () => {
     const currency = new Currency(
-      mockCurrency.chain,
-      mockCurrency.address,
       mockCurrency.name,
       mockCurrency.symbol,
       mockCurrency.decimal
