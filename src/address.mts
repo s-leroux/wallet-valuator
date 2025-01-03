@@ -5,7 +5,6 @@ import {
   ERC20TokenTransfer,
 } from "./transaction.mjs";
 import { Swarm } from "./swarm.mjs";
-import { Currency } from "./currency.mjs";
 import { Explorer } from "./services/explorer.mjs";
 
 type ERC20TokenAddressData = {
@@ -31,9 +30,6 @@ export class Address {
   readonly address: string;
   readonly data: Partial<AddressData>;
 
-  // mutable state
-  currency: Currency;
-
   constructor(swarm: Swarm, explorer: Explorer, address: string) {
     if (!address) {
       throw new Error("Then empty string is not a valid address");
@@ -44,23 +40,26 @@ export class Address {
     this.data = {};
   }
 
+  /*
+  resolveCurrency(blockNumber: number): Currency {
+    if (!this.transitions) {
+      console.dir(this);
+      throw new TypeError(`No currency associated with address ${this}`);
+    }
+    const transition = this.transitions.findLast((t) =>
+      t.isApplicable(this.explorer, this.address, blockNumber)
+    );
+
+    if (!transition) {
+      console.dir(this);
+      throw new TypeError(`No currency associated with address ${this}`);
+    }
+
+    return transition.currency;
+  }
+*/
   assign(swarm, data: Partial<AddressData>) {
     Object.assign(this.data, data);
-
-    // guard  clause --- might we leverage some TypeScript capabilities here?
-    if (!this.currency) {
-      // ERC20 Token SC
-      const { tokenName, tokenSymbol, tokenDecimal } = this.data;
-      if (tokenName && tokenSymbol && tokenDecimal) {
-        this.currency = new Currency(
-          this.explorer.chain,
-          this.address,
-          tokenName,
-          tokenSymbol,
-          tokenDecimal
-        );
-      }
-    }
   }
 
   toString(format?: { compact?: boolean }) {
@@ -97,5 +96,9 @@ export class Address {
 
   allTransfers(swarm: Swarm): Promise<Array<ChainRecord>> {
     return this.explorer.addressAllTransfers(swarm, this.address);
+  }
+
+  allValidTransfers(swarm: Swarm): Promise<Array<ChainRecord>> {
+    return this.explorer.addressAllValidTransfers(swarm, this.address);
   }
 }

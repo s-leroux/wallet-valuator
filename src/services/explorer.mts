@@ -49,6 +49,23 @@ export class Explorer {
     return [];
   }
 
+  async addressAllValidTransfers(
+    swarm: Swarm,
+    address: string
+  ): Promise<Array<ChainRecord>> {
+    const allTransfers = await this.addressAllTransfers(swarm, address);
+    const selection = await Promise.all(
+      allTransfers.map((tr) => tr.isValid(swarm))
+    );
+
+    return allTransfers.filter((_, index) => selection[index]);
+  }
+
+  /**
+   * Return all the transfers involving a given address.
+   *
+   * You probably *don't* want to use this function but `addressAllValidTransfers` instead.
+   */
   async addressAllTransfers(
     swarm: Swarm,
     address: string
@@ -79,8 +96,8 @@ export class CommonExplorer extends Explorer {
     const res = await this.accountNormalTransactions(address);
 
     return res
-      .filter((tr) => tr.isError === "0")
-      .map((t) => swarm.normalTransaction(this, t.hash, t));
+      .map((t) => swarm.normalTransaction(this, t.hash, t))
+      .filter((t) => t.data.isError === "0");
   }
 
   async accountInternalTransactions(address): Promise<Record<string, any>[]> {
@@ -94,9 +111,7 @@ export class CommonExplorer extends Explorer {
   ): Promise<Array<ChainRecord>> {
     const res = await this.accountInternalTransactions(address);
 
-    return res
-      .filter((tr) => tr.isError === "0")
-      .map((t) => swarm.internalTransaction(this, t.hash, t));
+    return res.map((t) => swarm.internalTransaction(this, t));
   }
 
   async accountTokenTransfers(address): Promise<Record<string, any>[]> {
@@ -107,6 +122,6 @@ export class CommonExplorer extends Explorer {
   async addressTokenTransfers(swarm: Swarm, address: string) {
     const res = await this.accountTokenTransfers(address);
 
-    return res.map((t) => swarm.tokenTransfer(this, t.hash, t));
+    return res.map((t) => swarm.tokenTransfer(this, t));
   }
 }

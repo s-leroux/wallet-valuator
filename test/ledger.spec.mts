@@ -69,14 +69,14 @@ describe("Ledger", () => {
     explorer = new FakeExplorer();
     swarm = new Swarm([explorer]);
 
-    const a = ERC20TokenTransferEvents.result.map((tr) =>
-      swarm.tokenTransfer(explorer, tr.hash, tr)
-    );
+    const a = ERC20TokenTransferEvents.result.map((tr) => {
+      return swarm.tokenTransfer(explorer, tr);
+    });
     const b = NormalTransactions.result.map((tr) =>
       swarm.normalTransaction(explorer, tr.hash, tr)
     );
     const c = InternalTransactions.result.map((tr) =>
-      swarm.internalTransaction(explorer, tr.hash, tr)
+      swarm.internalTransaction(explorer, tr)
     );
 
     transactions = [].concat(a, b, c);
@@ -145,6 +145,34 @@ describe("Ledger", () => {
         } else {
           assert.equal(entry.tags.get("T"), sentinel);
         }
+      }
+    });
+  });
+
+  describe("entries", () => {
+    it("should have from and to addresses", () => {
+      const ledger = Ledger.create(transactions);
+      for (const entry of ledger) {
+        assert.exists(entry.record.from);
+        assert.exists(entry.record.to);
+      }
+    });
+
+    it("should have their amount set", () => {
+      const ledger = Ledger.create(transactions);
+      for (const entry of ledger) {
+        assert.exists(entry.record.amount);
+      }
+    });
+
+    it("should be sorted by ascending timestamp", () => {
+      const ledger = Ledger.create(transactions);
+      let curr_ts = 0;
+      for (const entry of ledger) {
+        const entry_ts = entry.record.timeStamp;
+        assert.exists(entry_ts);
+        assert.isAtLeast(entry_ts, curr_ts);
+        curr_ts = entry_ts;
       }
     });
   });

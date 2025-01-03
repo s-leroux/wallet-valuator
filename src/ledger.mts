@@ -64,7 +64,7 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
  * Altering the Entry in a ledger should not alter the entry pointing to the same transaction
  * in another unrelated ledger.
  */
-class Entry implements Sortable {
+export class Entry implements Sortable {
   record: ChainRecord;
   tags: Map<string, any>;
 
@@ -86,7 +86,7 @@ class Entry implements Sortable {
     return `${record.type[0]}:${this.key}:${record.from}:${record.to}:${record.amount}`;
   }
 
-  tag(name: string, data?: any) {
+  tag(name: string, data: any = true) {
     this.tags.set(name, data);
   }
 }
@@ -162,6 +162,18 @@ export class Ledger implements Iterable<Entry> {
 
     // Swarm should ensure the uniqueness of the address object
     const entries = this.list.filter((entry) => entry.record.from === address);
+
+    return new Ledger(entries);
+  }
+
+  /**
+   * Return a new Ledger containing only events to the given address.
+   */
+  to(address: Address): Ledger {
+    // Above: we do not accept 'string' addresses because we also need the chain.
+
+    // Swarm should ensure the uniqueness of the address object
+    const entries = this.list.filter((entry) => entry.record.to === address);
 
     return new Ledger(entries);
   }

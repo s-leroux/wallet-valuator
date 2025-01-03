@@ -19,9 +19,9 @@
     "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha --require source-map-support/register 'build/test/**/*.spec.mjs'",
     "lint-in-container": "yarn eslint --fix src test",
     "compile-in-container": "yarn tsc",
-    "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn shell-in-container",
-    "start": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn start-in-container",
-    "test": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn test-in-container",
+    "shell": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn shell-in-container",
+    "start": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn start-in-container",
+    "test": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn test-in-container",
     "lint": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn lint-in-container",
     "compile": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn compile-in-container"
   },

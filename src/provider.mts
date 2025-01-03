@@ -88,6 +88,7 @@ export class Provider implements ProviderInterface {
           continue;
         }
 
+        console.dir(result);
         throw this.newError(res, result);
       }
 

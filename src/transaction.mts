@@ -17,7 +17,7 @@ type TransactionType =
  * Instance of this class or any of it sub-classes should be considered as immutable.
  */
 
-export class ChainRecord {
+export abstract class ChainRecord {
   readonly explorer: Explorer;
   readonly data: Record<string, string>;
   readonly type: TransactionType;
@@ -25,7 +25,6 @@ export class ChainRecord {
   // All data below are set to NULL and initialized only when the effective transaction is retrieved
   blockNumber: number;
   timeStamp: number;
-  transaction: ChainRecord;
   from: Address;
   to: Address;
   contract: Address;
@@ -39,9 +38,13 @@ export class ChainRecord {
     this.data = {};
   }
 
+  abstract isValid(swarm: Swarm): Promise<boolean>;
+
   assign(swarm: Swarm, data): ChainRecord {
     Object.assign(this.data, data);
-
+    if (!data.blockNumber) {
+      console.dir(data);
+    }
     this.blockNumber = toInteger(data.blockNumber);
     this.timeStamp = toInteger(data.timeStamp);
 
@@ -50,20 +53,26 @@ export class ChainRecord {
 
     if (data.contractAddress) {
       this.contract = swarm.address(this.explorer, data.contractAddress);
-      this.contract.assign(swarm, {
-        tokenName: data.tokenName,
-        tokenSymbol: data.tokenSymbol,
-        tokenDecimal: data.tokenDecimal,
-      });
     }
-    const currency = this.contract?.currency ?? this.explorer.nativeCurrency;
+    const currency = this.contract
+      ? swarm.resolveCurrency(
+          this.explorer,
+          this.blockNumber,
+          this.contract.address,
+          this.data.tokenName,
+          this.data.tokenSymbol,
+          toInteger(this.data.tokenDecimal)
+        )
+      : this.explorer.nativeCurrency;
 
-    // EC20 Token code specific
-    const value = data.value;
-    if (value === undefined) {
-      this.amount = currency.fromBaseUnit("0");
-    } else {
-      this.amount = currency.fromBaseUnit(value);
+    if (currency) {
+      // EC20 Token code specific
+      const value = data.value;
+      if (value === undefined) {
+        this.amount = currency.fromBaseUnit("0");
+      } else {
+        this.amount = currency.fromBaseUnit(value);
+      }
     }
 
     const gasPrice = data.gasPrice;
@@ -103,6 +112,10 @@ export class NormalTransaction extends ChainRecord {
     return this;
   }
 
+  isValid(swarm: Swarm): Promise<boolean> {
+    return this.load(swarm).then((tr) => tr.isError === false);
+  }
+
   assign(swarm: Swarm, data): NormalTransaction {
     super.assign(swarm, data);
 
@@ -120,8 +133,27 @@ export class InternalTransaction extends ChainRecord {
    * For internal transactions the Gas is paid for by the original normal transaction that
    * triggered the smart contract.
    */
+  isError?: boolean;
+  transaction?: NormalTransaction;
+
   constructor(swarm: Swarm, explorer: Explorer) {
+    debugger;
     super(swarm, explorer, "INTERNAL");
+  }
+
+  async isValid(swarm: Swarm): Promise<boolean> {
+    return this.isError === false;
+  }
+
+  assign(swarm: Swarm, data): this {
+    super.assign(swarm, data);
+
+    this.isError = this.data.isError && this.data.isError !== "0";
+    if (this.transaction === undefined && this.data.hash) {
+      this.transaction = swarm.normalTransaction(this.explorer, this.data.hash);
+    }
+
+    return this;
   }
 }
 
@@ -129,7 +161,26 @@ export class ERC20TokenTransfer extends ChainRecord {
   /**
    * An ERC-20 token transfer;
    */
+  transaction?: NormalTransaction;
+
   constructor(swarm: Swarm, explorer: Explorer) {
     super(swarm, explorer, "ERC20");
+  }
+
+  isValid(swarm: Swarm): Promise<boolean> {
+    return (
+      this.amount &&
+      this.transaction.load(swarm).then((tr) => tr.isError === false)
+    );
+  }
+
+  assign(swarm: Swarm, data): this {
+    super.assign(swarm, data);
+
+    if (this.transaction === undefined && this.data.hash) {
+      this.transaction = swarm.normalTransaction(this.explorer, this.data.hash);
+    }
+
+    return this;
   }
 }

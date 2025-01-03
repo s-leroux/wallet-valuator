@@ -1,4 +1,7 @@
 import { Explorer } from "./services/explorer.mjs";
+import { CurrencyResolver } from "./services/currencydb.mjs";
+import { DefaultCurrencyResolver } from "./services/currencydb/default.mjs";
+import { Currency } from "./currency.mjs";
 import { Address } from "./address.mjs";
 import {
   ChainRecord,
@@ -15,12 +18,14 @@ export interface Storable {
  *  The swarm act as a repository that maps (chain, address) to Address objects.
  */
 export class Swarm {
+  readonly currencyResolver: CurrencyResolver;
   readonly addresses: Map<string, Address>;
   readonly records: ChainRecord[];
   readonly transactions: Map<string, NormalTransaction>;
   readonly explorers: Map<string, Explorer>;
 
   constructor(explorers: Explorer[]) {
+    this.currencyResolver = new DefaultCurrencyResolver();
     this.addresses = new Map();
     this.records = [];
     this.transactions = new Map();
@@ -33,6 +38,24 @@ export class Swarm {
 
   explorer(chain: string): Explorer {
     return this.explorers.get(chain);
+  }
+
+  resolveCurrency(
+    explorer: Explorer,
+    blockNumber: number,
+    contract: string,
+    name: string,
+    symbol: string,
+    decimal: number
+  ): Currency | null {
+    return this.currencyResolver.resolve(
+      explorer.chain,
+      blockNumber,
+      contract,
+      name,
+      symbol,
+      decimal
+    );
   }
 
   store<T extends Storable, U extends T, OPT extends {}>(
@@ -88,7 +111,7 @@ export class Swarm {
   /**
    *  Returns a new ERC20 Token Transfer
    */
-  tokenTransfer(explorer: Explorer, hash: string, data): ERC20TokenTransfer {
+  tokenTransfer(explorer: Explorer, data): ERC20TokenTransfer {
     const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
     this.records.push(result);
 
@@ -98,12 +121,8 @@ export class Swarm {
   /**
    * Return a new Internal Transaction
    */
-  internalTransaction(
-    explorer: Explorer,
-    hash: string,
-    data
-  ): ERC20TokenTransfer {
-    const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
+  internalTransaction(explorer: Explorer, data): ERC20TokenTransfer {
+    const result = new InternalTransaction(this, explorer).assign(this, data);
     this.records.push(result);
 
     return result;
