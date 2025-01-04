@@ -57,7 +57,7 @@ describe("Snapshot", () => {
       const snapshot = new Snapshot(...movement);
       assert.equal(snapshot.holdings.size, 1);
       assert.equal(
-        snapshot.holdings.get(mockCurrencies.ETH).toString(),
+        snapshot.holdings.get(mockCurrencies.ETH)!.toString(),
         `${value} ${mockCurrencies.ETH.symbol}`
       );
     });
@@ -70,18 +70,19 @@ describe("Snapshot", () => {
         mockMovement(true, 40, "300", "ETH"),
       ];
 
-      let snapshot: Snapshot;
-      for (const movement of movements) {
-        snapshot = new Snapshot(...movement, snapshot);
-      }
+      let snapshot = movements.reduce<Snapshot | null>(
+        (prev, movement) => new Snapshot(...movement, prev),
+        null
+      );
 
+      assert.isNotNull(snapshot);
       assert.equal(snapshot.holdings.size, 2);
       assert.equal(
-        snapshot.holdings.get(mockCurrencies.ETH).toString(),
+        snapshot.holdings.get(mockCurrencies.ETH)!.toString(),
         "500 ETH"
       );
       assert.equal(
-        snapshot.holdings.get(mockCurrencies.DAI).toString(),
+        snapshot.holdings.get(mockCurrencies.DAI)!.toString(),
         "75 DAI"
       );
     });

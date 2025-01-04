@@ -26,18 +26,20 @@ function run(scriptPath): Promise<string> {
     stdio: ["ignore", "pipe", null, "ipc"],
   });
 
+  assert.isDefined(child);
+
   return new Promise((resolve, reject) => {
     let buff = "";
-    child.stdout.on("data", (chunk) => {
+    child.stdout!.on("data", (chunk) => {
       buff += chunk.toString();
     });
-    child.stdout.on("error", reject);
-    child.stdout.on("end", () => resolve(buff));
+    child.stdout!.on("error", reject);
+    child.stdout!.on("end", () => resolve(buff));
   });
 }
 
 async function runAndCompare(scriptPath, expectedDataPath, outDataPath) {
-  let expectedData = undefined;
+  let expectedData: string | undefined;
   try {
     expectedData = await fs.readFile(expectedDataPath, { encoding: "utf8" });
   } catch (err) {

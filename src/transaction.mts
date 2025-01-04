@@ -119,7 +119,7 @@ export class NormalTransaction extends ChainRecord {
   assign(swarm: Swarm, data): NormalTransaction {
     super.assign(swarm, data);
 
-    this.isError = this.data.isError && this.data.isError !== "0";
+    this.isError = !!this.data.isError && this.data.isError !== "0";
 
     return this;
   }
@@ -148,7 +148,7 @@ export class InternalTransaction extends ChainRecord {
   assign(swarm: Swarm, data): this {
     super.assign(swarm, data);
 
-    this.isError = this.data.isError && this.data.isError !== "0";
+    this.isError = !!this.data.isError && this.data.isError !== "0";
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = swarm.normalTransaction(this.explorer, this.data.hash);
     }
@@ -167,9 +167,10 @@ export class ERC20TokenTransfer extends ChainRecord {
     super(swarm, explorer, "ERC20");
   }
 
-  isValid(swarm: Swarm): Promise<boolean> {
+  async isValid(swarm: Swarm): Promise<boolean> {
     return (
       this.amount &&
+      this.transaction !== undefined &&
       this.transaction.load(swarm).then((tr) => tr.isError === false)
     );
   }

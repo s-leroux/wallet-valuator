@@ -14,7 +14,7 @@ import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
 
 const explorer = program.args.length
-  ? GnosisScan.create(process.env.GNOSISSCAN_API_KEY)
+  ? GnosisScan.create(process.env.GNOSISSCAN_API_KEY ?? "")
   : new TestScan();
 const swarm = new Swarm([explorer]);
 

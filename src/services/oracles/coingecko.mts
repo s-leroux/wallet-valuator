@@ -35,7 +35,7 @@ export class CoinGecko implements Oracle {
 
   constructor(provider?: Provider) {
     if (!provider) {
-      const api_key: string = process.env["COINGECKO_API_KEY"];
+      const api_key = process.env["COINGECKO_API_KEY"];
       if (!api_key) {
         throw Error(
           "You must specify a provider or define the COINGECKO_API_KEY environment variable"

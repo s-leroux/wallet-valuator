@@ -36,7 +36,7 @@ export class Swarm {
     }
   }
 
-  explorer(chain: string): Explorer {
+  explorer(chain: string): Explorer | undefined {
     return this.explorers.get(chain);
   }
 

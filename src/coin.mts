@@ -11,7 +11,7 @@ export function get_coin_by_oracle_id(oracle_id: string): Coin {
       return coin;
     }
   }
-  return null;
+  throw new Error(`Can't find a coin with oracle_id ${oracle_id}`);
 }
 
 export function as_coin(thing): Coin {

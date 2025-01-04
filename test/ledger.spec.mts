@@ -3,7 +3,7 @@ import { assert } from "chai";
 import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
-import { ERC20TokenTransfer } from "../src/transaction.mjs";
+import { ChainRecord, ERC20TokenTransfer } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
@@ -79,7 +79,7 @@ describe("Ledger", () => {
       swarm.internalTransaction(explorer, tr)
     );
 
-    transactions = [].concat(a, b, c);
+    transactions = a.concat(b, c);
   });
 
   describe("constructor", () => {

@@ -19,7 +19,7 @@ export class Snapshot {
     ingress: boolean,
     movement: Movement,
     tags: Map<string, any>,
-    parent?: Snapshot
+    parent: Snapshot | null = null
   ) {
     this.timeStamp = movement.timeStamp;
     // Naive implementation: just clone the whole map
@@ -55,7 +55,7 @@ export class Snapshot {
   }
 
   toString(): string {
-    const lines = [];
+    const lines: string[] = [];
 
     this.holdings.forEach((amount, currency) =>
       lines.push(amount.toString() + " " + currency.symbol)
@@ -73,8 +73,8 @@ export class Portfolio {
    * This maps ledger's entries to Snapshots
    */
   constructor(ledger: Ledger) {
-    let snapshots = (this.snapshots = []);
-    let curr: Snapshot = null;
+    let snapshots = (this.snapshots = [] as Snapshot[]);
+    let curr: Snapshot | null = null;
 
     for (const entry of ledger) {
       const ingress = entry.tags.get("INGRESS") ?? false;

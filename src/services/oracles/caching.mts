@@ -38,9 +38,13 @@ export class Caching implements Oracle {
     }
   }
 
-  async getPrice(coin: Coin, date, currencies): Promise<Record<string, Price>> {
+  async getPrice(
+    coin: Coin,
+    date,
+    currencies: string[]
+  ): Promise<Record<string, Price>> {
     const result = {};
-    const missing = [];
+    const missing: string[] = [];
     const stmt = this.db.prepare(
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
     );

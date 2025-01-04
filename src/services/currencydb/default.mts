@@ -12,7 +12,7 @@ const wellKnownCurrencies: [
 ];
 
 export const wellKnownTransitions: [
-  currency_id: string,
+  currency_id: string | null,
   chain: string,
   startBlock: number,
   endBlock: number,
@@ -76,7 +76,7 @@ export class DefaultCurrencyDB extends CurrencyDB {
 export type CurrencyLike = Pick<Currency, "symbol">;
 
 type MappingEntry<T extends CurrencyLike> = {
-  currency: T;
+  currency: T | null;
   chain: string; // XXX Is this property required?
   startBlock: number;
   endBlock: number;
@@ -117,7 +117,7 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
       }
 
       transitions.push({
-        currency: currency_id && currencies.get(currency_id),
+        currency: currency_id ? currencies.get(currency_id) || null : null,
         chain,
         startBlock,
         endBlock,

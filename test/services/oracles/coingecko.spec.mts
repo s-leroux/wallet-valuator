@@ -46,10 +46,13 @@ describe("CoinGecko", function () {
         );
         assert.equal(Object.keys(prices).length, Object.keys(expected).length);
         assert.deepEqual(
-          Object.values(prices).reduce((acc, price: Price) => {
-            acc[price.currency] = price.amount;
-            return acc;
-          }, {}),
+          Object.values(prices).reduce<Partial<typeof expected>>(
+            (acc, price: Price) => {
+              acc[price.currency] = price.amount;
+              return acc;
+            },
+            {}
+          ),
           expected
         );
       }
