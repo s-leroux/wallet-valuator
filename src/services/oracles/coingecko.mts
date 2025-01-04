@@ -23,7 +23,7 @@ export class CoinGeckoProvider extends Provider {
     this.api_key = api_key;
   }
 
-  injectExtraParams(search_params) {
+  injectExtraParams(search_params: URLSearchParams) {
     search_params.set("x-cg-demo-api-key", this.api_key);
   }
 }
@@ -57,7 +57,11 @@ export class CoinGecko implements Oracle {
 
   async init() {}
 
-  async getPrice(coin: Coin, date, currencies): Promise<Record<string, Price>> {
+  async getPrice(
+    coin: Coin,
+    date: string,
+    currencies: string[]
+  ): Promise<Record<string, Price>> {
     const historical_data = await this.provider.fetch(
       `coins/${coin.oracle_id}/history`,
       {
@@ -65,7 +69,7 @@ export class CoinGecko implements Oracle {
       }
     );
     const prices = historical_data.market_data.current_price;
-    const result = {};
+    const result: Record<string, Price> = {};
     currencies.forEach(
       (currency) =>
         (result[currency] = new Price(coin, currency, prices[currency]))

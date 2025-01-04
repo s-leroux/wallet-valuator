@@ -35,18 +35,18 @@ export class GnosisScanProvider extends Provider {
     this.api_key = api_key;
   }
 
-  injectExtraParams(search_params) {
+  injectExtraParams(search_params: URLSearchParams) {
     search_params.set("apiKey", this.api_key);
   }
 
-  isError(res, json: any) {
+  isError(res: any, json: any) {
     // GnosisScan returns errors with the 200 status code, but a status set to "0"
     return (
       super.isError(res, json) || json.status === "0" || json.result === null
     );
   }
 
-  shouldRetry(res, json: any) {
+  shouldRetry(res: any, json: any) {
     // GnosisScan does not signal rate limiting with a 429 status. We should examine the error message.
     return (
       super.shouldRetry(res, json) ||
@@ -55,7 +55,7 @@ export class GnosisScanProvider extends Provider {
     );
   }
 
-  newError(res, json: any) {
+  newError(res: any, json: any) {
     //    if (res.status !== 200) {
     //      return super.newError(res, json);
     //    }
@@ -212,15 +212,19 @@ export class GnosisScan extends CommonExplorer {
     );
   }
 
-  async accountNormalTransactions(address): Promise<Record<string, any>[]> {
+  async accountNormalTransactions(
+    address: string
+  ): Promise<Record<string, any>[]> {
     return (await this.api.accountNormalTransactions(address)).result;
   }
 
-  async accountInternalTransactions(address): Promise<Record<string, any>[]> {
+  async accountInternalTransactions(
+    address: string
+  ): Promise<Record<string, any>[]> {
     return (await this.api.accountInternalTransactions(address)).result;
   }
 
-  async accountTokenTransfers(address): Promise<Record<string, any>[]> {
+  async accountTokenTransfers(address: string): Promise<Record<string, any>[]> {
     return (await this.api.accountTokenTransfers(address)).result;
   }
 }

@@ -94,7 +94,7 @@ export class Swarm {
   normalTransaction(
     chain: Explorer,
     hash: string,
-    data?: object
+    data?: Record<string, any>
   ): NormalTransaction {
     const tr = this.store(
       this.transactions,
@@ -111,7 +111,10 @@ export class Swarm {
   /**
    *  Returns a new ERC20 Token Transfer
    */
-  tokenTransfer(explorer: Explorer, data): ERC20TokenTransfer {
+  tokenTransfer(
+    explorer: Explorer,
+    data: Record<string, any>
+  ): ERC20TokenTransfer {
     const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
     this.records.push(result);
 
@@ -121,7 +124,10 @@ export class Swarm {
   /**
    * Return a new Internal Transaction
    */
-  internalTransaction(explorer: Explorer, data): ERC20TokenTransfer {
+  internalTransaction(
+    explorer: Explorer,
+    data: Record<string, any>
+  ): ERC20TokenTransfer {
     const result = new InternalTransaction(this, explorer).assign(this, data);
     this.records.push(result);
 

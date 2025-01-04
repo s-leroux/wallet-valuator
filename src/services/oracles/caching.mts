@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS prices (
 
 export class Caching implements Oracle {
   readonly backend: Oracle;
-  readonly db: Database;
+  readonly db: Database.Database;
 
   // for statistics
   backend_calls: number;
@@ -29,7 +29,7 @@ export class Caching implements Oracle {
     this.db.exec(DB_INIT_SEQUENCE);
   }
 
-  insert(date, prices: Record<string, Price>): void {
+  insert(date: string, prices: Record<string, Price>): void {
     const stmt = this.db.prepare(
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price) VALUES (?,?,?,?)"
     );
@@ -40,12 +40,12 @@ export class Caching implements Oracle {
 
   async getPrice(
     coin: Coin,
-    date,
+    date: string,
     currencies: string[]
   ): Promise<Record<string, Price>> {
-    const result = {};
+    const result: Record<string, Price> = {};
     const missing: string[] = [];
-    const stmt = this.db.prepare(
+    const stmt = this.db.prepare<[string, string, string], { price: number }>(
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
     );
     for (const currency of currencies) {

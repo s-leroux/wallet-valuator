@@ -29,8 +29,8 @@ export abstract class ChainRecord {
   to: Address;
   contract: Address;
   amount: Amount;
-  fees;
-  feesAsString;
+  fees: BigNumber;
+  feesAsString: string;
 
   constructor(swarm: Swarm, explorer: Explorer, type: TransactionType) {
     this.type = type;
@@ -40,7 +40,7 @@ export abstract class ChainRecord {
 
   abstract isValid(swarm: Swarm): Promise<boolean>;
 
-  assign(swarm: Swarm, data): ChainRecord {
+  assign(swarm: Swarm, data: Record<string, any>): ChainRecord {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
       console.dir(data);
@@ -116,7 +116,7 @@ export class NormalTransaction extends ChainRecord {
     return this.load(swarm).then((tr) => tr.isError === false);
   }
 
-  assign(swarm: Swarm, data): NormalTransaction {
+  assign(swarm: Swarm, data: Record<string, any>): NormalTransaction {
     super.assign(swarm, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
@@ -145,7 +145,7 @@ export class InternalTransaction extends ChainRecord {
     return this.isError === false;
   }
 
-  assign(swarm: Swarm, data): this {
+  assign(swarm: Swarm, data: Record<string, any>): this {
     super.assign(swarm, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
@@ -175,7 +175,7 @@ export class ERC20TokenTransfer extends ChainRecord {
     );
   }
 
-  assign(swarm: Swarm, data): this {
+  assign(swarm: Swarm, data: Record<string, any>): this {
     super.assign(swarm, data);
 
     if (this.transaction === undefined && this.data.hash) {

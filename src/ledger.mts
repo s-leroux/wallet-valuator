@@ -2,7 +2,7 @@ import { NotImplementedError } from "./error.mjs";
 import { ChainRecord } from "./transaction.mjs";
 import { Address } from "./address.mjs";
 
-type Sortable = { key };
+type Sortable = { key: any };
 
 /**
  * Sort an array by its item's key.
@@ -137,7 +137,7 @@ export class Ledger implements Iterable<Entry> {
     const sep = ",";
     const fields = ["timestamp", "blockNumber", "from", "to", "unit", "amount"];
     for (const tr of this.list) {
-      yield fields.map((field) => tr[field]).join(sep);
+      yield fields.map((field) => (tr as any)[field]).join(sep);
     }
   }
 
@@ -185,7 +185,8 @@ export class Ledger implements Iterable<Entry> {
     return new Ledger(this.list.slice(start, end));
   }
 
-  reduce(fn, acc) {
+  reduce(fn: Function, acc: any) {
+    // XXX Fix types
     let idx = 0;
 
     for (const tr of this.list) {

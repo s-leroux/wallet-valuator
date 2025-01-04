@@ -1,11 +1,11 @@
 export interface ProviderInterface {
-  fetch(endpoint, params): Promise<object>;
+  fetch(endpoint: string, params: Record<string, string>): Promise<object>;
 }
 
 const DEFAULT_RETRY = 5;
 const DEFAULT_COOLDOWN = 100;
 
-function is_json(res): boolean {
+function is_json(res: any): boolean {
   const content_type = res.headers.get("content-type");
   if (content_type && content_type.indexOf("application/json") > -1) {
     return true;
@@ -13,6 +13,8 @@ function is_json(res): boolean {
 
   return false;
 }
+
+export type Payload = Record<string, any> | string;
 
 export class Provider implements ProviderInterface {
   /**
@@ -32,29 +34,29 @@ export class Provider implements ProviderInterface {
     this.retries = 0;
   }
 
-  injectExtraParams(search_params) {
+  injectExtraParams(search_params: URLSearchParams) {
     // OVERRIDE ME
   }
 
-  isError(res, json: any) {
+  isError(res: any, payload: Payload) {
     // OVERRIDE ME
     return res.status != 200;
   }
 
-  shouldRetry(res, json: any) {
+  shouldRetry(res: any, payload: Payload) {
     // OVERRIDE ME
     const status = res.status;
     return status === 429 || status >= 500;
   }
 
-  newError(res, json: any) {
+  newError(res: any, payload: Payload) {
     // OVERRIDE ME
     return new Error(
-      `Error status ${res.status} while fetching ${res.url}\n${json}`
+      `Error status ${res.status} while fetching ${res.url}\n${payload}`
     );
   }
 
-  buildUrl(endpoint: string, params): URL {
+  buildUrl(endpoint: string, params: Record<string, any>): URL {
     const url = new URL(endpoint, this.base);
     const search_params = new URLSearchParams(params);
     this.injectExtraParams(search_params);
@@ -64,7 +66,7 @@ export class Provider implements ProviderInterface {
     return url;
   }
 
-  async fetch(endpoint: string, params) {
+  async fetch(endpoint: string, params: Record<string, any>) {
     let cooldown = this.cooldown;
     let retry = this.retry;
     const url = this.buildUrl(endpoint, params);

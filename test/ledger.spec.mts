@@ -59,10 +59,10 @@ describe("Utilities", () => {
 });
 
 describe("Ledger", () => {
-  let ledger;
-  let swarm;
-  let explorer;
-  let transactions;
+  let ledger: Ledger;
+  let swarm: Swarm;
+  let explorer: Explorer;
+  let transactions: ChainRecord[];
 
   beforeEach(() => {
     ledger = Ledger.create();
@@ -178,10 +178,10 @@ describe("Ledger", () => {
   });
 });
 
-function s2k(str: string) {
-  return Array.prototype.map.call(str, (c) => ({ key: c }));
+function s2k(str: string): Array<{ key: string }> {
+  return Array.prototype.map.call(str, (c: string) => ({ key: c }));
 }
 
-function k2s(arr) {
+function k2s(arr: Array<{ key: string }>): string {
   return arr.reduce((acc, i) => acc + i.key, "");
 }

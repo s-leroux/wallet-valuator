@@ -9,6 +9,8 @@ const MOCHA_TEST_TIMEOUT = 2000;
 const HTTPBIN_BASE_ADDR = "https://httpbingo.org/";
 const FAKE_API_KEY = "12345";
 
+export type Payload = Record<string, any> | string;
+
 class TestProvider extends Provider {
   forced_failures: number;
 
@@ -17,19 +19,19 @@ class TestProvider extends Provider {
     this.forced_failures = 0;
   }
 
-  injectExtraParams(search_params) {
+  injectExtraParams(search_params: Record<string, any>) {
     // OVERRIDE ME
     search_params.set("apiKey", FAKE_API_KEY);
   }
 
-  isError(res, json: any) {
+  isError(res: any, payload: Payload) {
     if (this.forced_failures > 0) {
       return true;
     }
     return res.status != 200; // XXX Should be the default implementation!
   }
 
-  shouldRetry(res, json: any) {
+  shouldRetry(res: any, payload: Payload) {
     // OVERRIDE ME
     if (this.forced_failures-- > 0) return true;
     const status = res.status;
@@ -37,7 +39,7 @@ class TestProvider extends Provider {
     return status === 429 || status >= 500;
   }
 
-  newError(res, json) {
+  newError(res: any, payload: Payload) {
     // OVERRIDE ME
     return new Error(`Request returned status code ${res.status}`);
   }

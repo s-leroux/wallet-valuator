@@ -14,7 +14,7 @@ export function get_coin_by_oracle_id(oracle_id: string): Coin {
   throw new Error(`Can't find a coin with oracle_id ${oracle_id}`);
 }
 
-export function as_coin(thing): Coin {
+export function as_coin(thing: string | Coin): Coin {
   if (typeof thing === "string") {
     return get_coin_by_oracle_id(thing);
   }

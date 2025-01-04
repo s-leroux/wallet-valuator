@@ -40,8 +40,8 @@ export class Snapshot {
     const holding = this.holdings.get(currency) ?? new Amount(currency);
     console.log(
       `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${currency} ${
-        movement["type"]
-      } ${movement["transaction"]?.hash}`
+        (movement as any)["type"]
+      } ${(movement as any)["transaction"]?.hash}`
     );
 
     this.holdings.set(

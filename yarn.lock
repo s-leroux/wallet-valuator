@@ -172,6 +172,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/better-sqlite3@npm:^7.6.12":
+  version: 7.6.12
+  resolution: "@types/better-sqlite3@npm:7.6.12"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/5367de7492e2c697aa20cc4024ba26210971d15f60c01ef691eddfbbfd39ccf9f80d5129fd7fd6c76c98804739325e23d2b156b0eac8f5a7665ba374a08ac1e7
+  languageName: node
+  linkType: hard
+
 "@types/chai-as-promised@npm:^8":
   version: 8.0.1
   resolution: "@types/chai-as-promised@npm:8.0.1"
@@ -2587,6 +2596,7 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:^9.11.1"
     "@root/walk": "npm:^1.1.0"
+    "@types/better-sqlite3": "npm:^7.6.12"
     "@types/chai": "npm:^5"
     "@types/chai-as-promised": "npm:^8"
     "@types/eslint__js": "npm:^8.42.3"

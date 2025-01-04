@@ -21,7 +21,7 @@ const SCRIPT_DIR = path.join(BUILD_DIR, "examples");
 /**
  * Run a script, returning its standard output as a string.
  */
-function run(scriptPath): Promise<string> {
+function run(scriptPath: string): Promise<string> {
   const child = fork(scriptPath, {
     stdio: ["ignore", "pipe", null, "ipc"],
   });
@@ -38,7 +38,11 @@ function run(scriptPath): Promise<string> {
   });
 }
 
-async function runAndCompare(scriptPath, expectedDataPath, outDataPath) {
+async function runAndCompare(
+  scriptPath: string,
+  expectedDataPath: string,
+  outDataPath: string
+) {
   let expectedData: string | undefined;
   try {
     expectedData = await fs.readFile(expectedDataPath, { encoding: "utf8" });
@@ -68,7 +72,7 @@ async function runAndCompare(scriptPath, expectedDataPath, outDataPath) {
   }
 }
 
-async function walker(err, pathname, dirent) {
+async function walker(err: any, pathname: string, dirent: string) {
   if (err) {
     return false;
   }
@@ -85,7 +89,7 @@ async function walker(err, pathname, dirent) {
   }
 }
 
-function addTest(title, fct) {
+function addTest(title: string, fct: any) {
   const test = new Test(title, fct);
   suite.addTest(test);
 }

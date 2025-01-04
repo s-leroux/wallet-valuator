@@ -58,7 +58,7 @@ export class Address {
     return transition.currency;
   }
 */
-  assign(swarm, data: Partial<AddressData>) {
+  assign(swarm: Swarm, data: Partial<AddressData>) {
     Object.assign(this.data, data);
   }
 

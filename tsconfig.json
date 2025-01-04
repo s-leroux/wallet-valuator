@@ -8,6 +8,7 @@
     "target": "esnext",
     "lib": ["es6", "esnext", "es2015", "dom"],
     "strictNullChecks": true,
+    "noImplicitAny": true,
     "declaration": true,
     "outDir": "build"
   },
@@ -32,6 +33,7 @@
     "test/services/oracles/coingecko.spec.mts",
     "test/swarm.spec.mts",
     "test/transaction.spec.mts",
+    "test/walk.d.ts",
 
     "src/address.mts",
     "src/bignumber.mts",

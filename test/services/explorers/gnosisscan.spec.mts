@@ -23,8 +23,8 @@ describe("GnosisScan", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
-  let provider;
-  let gs;
+  let provider: GnosisScanProvider | undefined;
+  let gs: GnosisScanAPI | undefined;
 
   beforeEach(function () {
     provider = new GnosisScanProvider(API_KEY);
@@ -34,24 +34,24 @@ describe("GnosisScan", function () {
   describe("GnosisScanProvider", () => {
     it("should retry query if we hit the rate limit", async function () {
       this.timeout(0);
-      assert.equal(provider.retries, 0);
+      assert.equal(provider!.retries, 0);
       await Promise.all([
-        gs.blockNoByTime(1578638524),
-        gs.blockNoByTime(1578638524),
-        gs.blockNoByTime(1578638524),
-        gs.blockNoByTime(1578638524),
-        gs.blockNoByTime(1578638524),
-        gs.blockNoByTime(1578638524),
-        gs.blockNoByTime(1578638524),
+        gs!.blockNoByTime(1578638524),
+        gs!.blockNoByTime(1578638524),
+        gs!.blockNoByTime(1578638524),
+        gs!.blockNoByTime(1578638524),
+        gs!.blockNoByTime(1578638524),
+        gs!.blockNoByTime(1578638524),
+        gs!.blockNoByTime(1578638524),
       ]);
-      assert.isAbove(provider.retries, 0);
+      assert.isAbove(provider!.retries, 0);
     });
   });
 
   describe("GnosisScanAPI", () => {
     describe("blockNoByTime()", () => {
       it("should retrieve block by timestamp", async () => {
-        const res = await gs.blockNoByTime(1578638524);
+        const res = await gs!.blockNoByTime(1578638524);
 
         assert.deepEqual(res, {
           status: "1",
@@ -60,14 +60,14 @@ describe("GnosisScan", function () {
         });
       });
       it("should fail if there is not block at the given timestamp", async () => {
-        return assert.isRejected(gs.blockNoByTime(1));
+        return assert.isRejected(gs!.blockNoByTime(1));
       });
     });
     describe("normalTransaction()", () => {
       it("should return a NormalTransaction given its hash", async () => {
         const txhash =
           "0xb76d2ba3313ebbfca1177846e791d91a3c7f675ba5c0cf8bb7ac2ad67403237c";
-        const res = await gs.normalTransaction(txhash);
+        const res = await gs!.normalTransaction(txhash);
 
         assert.include(res, {
           status: "1",
@@ -80,7 +80,7 @@ describe("GnosisScan", function () {
       it("should fail if the transaction is not found", async () => {
         const txhash =
           "0x000000000000000000000000000000000000000000000000000000000000000";
-        return assert.isRejected(gs.normalTransaction(txhash));
+        return assert.isRejected(gs!.normalTransaction(txhash));
       });
     });
   });
@@ -90,7 +90,7 @@ describe("GnosisScan", function () {
     let sw: Swarm;
 
     beforeEach(() => {
-      explorer = new GnosisScan(gs);
+      explorer = new GnosisScan(gs!);
       sw = new Swarm([explorer]);
     });
 

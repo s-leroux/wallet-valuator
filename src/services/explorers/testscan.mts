@@ -32,19 +32,23 @@ export class TestScan extends CommonExplorer {
     throw new Error(`Transaction with hash ${txhash} not found`);
   }
 
-  async accountNormalTransactions(address): Promise<Record<string, any>[]> {
+  async accountNormalTransactions(
+    address: string
+  ): Promise<Record<string, any>[]> {
     return NormalTransactions.result.filter(
       (record) => record.from === address || record.to === address
     );
   }
 
-  async accountInternalTransactions(address): Promise<Record<string, any>[]> {
+  async accountInternalTransactions(
+    address: string
+  ): Promise<Record<string, any>[]> {
     return InternalTransactions.result.filter(
       (record) => record.from === address || record.to === address
     );
   }
 
-  async accountTokenTransfers(address): Promise<Record<string, any>[]> {
+  async accountTokenTransfers(address: string): Promise<Record<string, any>[]> {
     return ERC20TokenTransferEvents.result.filter(
       (record) => record.from === address || record.to === address
     );

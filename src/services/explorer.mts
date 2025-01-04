@@ -87,7 +87,9 @@ export class Explorer {
 }
 
 export class CommonExplorer extends Explorer {
-  async accountNormalTransactions(address): Promise<Record<string, any>[]> {
+  async accountNormalTransactions(
+    address: string
+  ): Promise<Record<string, any>[]> {
     // OVERRIDE ME
     return [];
   }
@@ -100,7 +102,9 @@ export class CommonExplorer extends Explorer {
       .filter((t) => t.data.isError === "0");
   }
 
-  async accountInternalTransactions(address): Promise<Record<string, any>[]> {
+  async accountInternalTransactions(
+    address: string
+  ): Promise<Record<string, any>[]> {
     // OVERRIDE ME
     return [];
   }
@@ -114,7 +118,7 @@ export class CommonExplorer extends Explorer {
     return res.map((t) => swarm.internalTransaction(this, t));
   }
 
-  async accountTokenTransfers(address): Promise<Record<string, any>[]> {
+  async accountTokenTransfers(address: string): Promise<Record<string, any>[]> {
     // OVERRIDE ME
     return [];
   }

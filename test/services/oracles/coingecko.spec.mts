@@ -19,7 +19,7 @@ describe("CoinGecko", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
-  let coingecko;
+  let coingecko: CoinGecko | undefined;
 
   beforeEach(function () {
     coingecko = CoinGecko.create(API_KEY);
@@ -29,7 +29,7 @@ describe("CoinGecko", function () {
 
   describe("Utilities", () => {
     it("should return historical prices", async function () {
-      const test_cases = [
+      const test_cases: [string, string, Record<string, number>][] = [
         [
           "bitcoin",
           "30-12-2023",
@@ -39,7 +39,7 @@ describe("CoinGecko", function () {
 
       for (const [id, date, expected] of test_cases) {
         const coin = as_coin(id);
-        const prices = await coingecko.getPrice(
+        const prices = await coingecko!.getPrice(
           coin,
           date,
           Object.keys(expected)

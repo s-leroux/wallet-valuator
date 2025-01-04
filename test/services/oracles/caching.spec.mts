@@ -12,8 +12,12 @@ import { Coin, get_coin_by_oracle_id } from "../../../src/coin.mjs";
 class FakeOracle implements Oracle {
   seq: number = 0;
 
-  async getPrice(coin: Coin, date, currencies): Promise<Record<string, Price>> {
-    const result = {};
+  async getPrice(
+    coin: Coin,
+    date: string,
+    currencies: string[]
+  ): Promise<Record<string, Price>> {
+    const result: Record<string, Price> = {};
     currencies.forEach(
       (currency) => (result[currency] = new Price(coin, currency, this.seq++))
     );
@@ -25,12 +29,12 @@ describe("Caching", function () {
   const date = "30-12-2023";
   const coin = get_coin_by_oracle_id("bitcoin");
   const currencies = ["eur", "usd"];
-  let oracle;
+  let oracle: Oracle;
 
   /**
    * Check the prices are what we expect from our fake oracle.
    */
-  function checkPrices(prices) {
+  function checkPrices(prices: Record<string, Price>) {
     assert.equal(Object.values(prices).length, currencies.length);
     assert.deepEqual(
       Object.values(prices).map((price: Price) => ({
