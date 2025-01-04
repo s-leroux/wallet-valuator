@@ -1,6 +1,6 @@
 import { Swarm } from "../swarm.mjs";
 import { ChainRecord, NormalTransaction } from "../transaction.mjs";
-import { Currency } from "../currency.mjs";
+import { CryptoAsset } from "../cryptoasset.mjs";
 import { NotImplementedError } from "../error.mjs";
 
 /**
@@ -8,9 +8,9 @@ import { NotImplementedError } from "../error.mjs";
  */
 export class Explorer {
   readonly chain: string;
-  readonly nativeCurrency: Currency;
+  readonly nativeCurrency: CryptoAsset;
 
-  constructor(chain: string, nativeCurrency: Currency) {
+  constructor(chain: string, nativeCurrency: CryptoAsset) {
     this.chain = chain;
     this.nativeCurrency = nativeCurrency;
   }

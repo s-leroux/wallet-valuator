@@ -1,5 +1,5 @@
 import { Price } from "../../price.mjs";
-import { Coin } from "../../coin.mjs";
+import { GeckoCoin } from "../../geckocoin.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
@@ -39,7 +39,7 @@ export class Caching implements Oracle {
   }
 
   async getPrice(
-    coin: Coin,
+    coin: GeckoCoin,
     date: string,
     currencies: string[]
   ): Promise<Record<string, Price>> {

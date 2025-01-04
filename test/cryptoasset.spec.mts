@@ -1,38 +1,38 @@
 import { assert } from "chai";
 
-import { Amount, Currency } from "../src/currency.mjs";
+import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
-const mockCurrency = {
+const mockCrypto = {
   name: "Ether",
   symbol: "ETH",
   decimal: 18,
 };
 
-describe("Currency", () => {
-  it("should correctly initialize a Currency instance", () => {
-    const currency = new Currency(
-      mockCurrency.name,
-      mockCurrency.symbol,
-      mockCurrency.decimal
+describe("CryptoAsset", () => {
+  it("should correctly initialize a CryptoAsset instance", () => {
+    const crypto = new CryptoAsset(
+      mockCrypto.name,
+      mockCrypto.symbol,
+      mockCrypto.decimal
     );
 
-    assert.strictEqual(currency.name, mockCurrency.name);
-    assert.strictEqual(currency.symbol, mockCurrency.symbol);
-    assert.strictEqual(currency.decimal, mockCurrency.decimal);
+    assert.strictEqual(crypto.name, mockCrypto.name);
+    assert.strictEqual(crypto.symbol, mockCrypto.symbol);
+    assert.strictEqual(crypto.decimal, mockCrypto.decimal);
   });
 
   it("should convert base unit value to Amount in display unit", () => {
-    const currency = new Currency(
-      mockCurrency.name,
-      mockCurrency.symbol,
-      mockCurrency.decimal
+    const crypto = new CryptoAsset(
+      mockCrypto.name,
+      mockCrypto.symbol,
+      mockCrypto.decimal
     );
     const baseUnitValue = "12345678900000000000";
     //                     09876543210987654321
-    const amount = currency.fromBaseUnit(baseUnitValue);
+    const amount = crypto.fromBaseUnit(baseUnitValue);
 
-    assert.strictEqual(amount.currency, currency);
+    assert.strictEqual(amount.crypto, crypto);
     assert.strictEqual(
       amount.value.toString(),
       "12.3456789",
@@ -45,9 +45,9 @@ describe("Amount", () => {
   describe("constructor", () => {
     it("should correctly initialize an Amount instance", () => {
       const value = BigNumber.from(1);
-      const amount = new Amount(mockCurrency, value);
+      const amount = new Amount(mockCrypto, value);
 
-      assert.strictEqual(amount.currency, mockCurrency);
+      assert.strictEqual(amount.crypto, mockCrypto);
       assert.strictEqual(amount.value, value);
     });
   });
@@ -55,7 +55,7 @@ describe("Amount", () => {
   describe("toString() method", () => {
     it("should return the correct string representation for the object", () => {
       const value = BigNumber.from(1000);
-      const amount = new Amount(mockCurrency, value);
+      const amount = new Amount(mockCrypto, value);
 
       assert.strictEqual(amount.toString(), "1000 ETH");
     });
@@ -65,8 +65,8 @@ describe("Amount", () => {
     it("should return the sum of two amounts", () => {
       const va = BigNumber.from(1000);
       const vb = BigNumber.from(3.5);
-      const a = new Amount(mockCurrency, va);
-      const b = new Amount(mockCurrency, vb);
+      const a = new Amount(mockCrypto, va);
+      const b = new Amount(mockCrypto, vb);
 
       assert.strictEqual(a.plus(b).value.toString(), va.plus(vb).toString());
       // leave the arguments inchanged:
@@ -79,8 +79,8 @@ describe("Amount", () => {
     it("should return the difference between two amounts", () => {
       const va = BigNumber.from(1000);
       const vb = BigNumber.from(3.5);
-      const a = new Amount(mockCurrency, va);
-      const b = new Amount(mockCurrency, vb);
+      const a = new Amount(mockCrypto, va);
+      const b = new Amount(mockCrypto, vb);
 
       assert.strictEqual(a.minus(b).value.toString(), va.minus(vb).toString());
       // leave the arguments inchanged:

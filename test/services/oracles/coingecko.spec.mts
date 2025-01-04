@@ -4,7 +4,7 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
-import { as_coin } from "../../../src/coin.mjs";
+import { as_coin } from "../../../src/geckocoin.mjs";
 import { Price } from "../../../src/price.mjs";
 import { mangle } from "../../../src/services/oracle.mjs";
 

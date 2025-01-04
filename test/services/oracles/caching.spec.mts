@@ -7,13 +7,13 @@ const assert = chai.assert;
 import { Oracle } from "../../../src/services/oracle.mjs";
 import { Caching } from "../../../src/services/oracles/caching.mjs";
 import { Price } from "../../../src/price.mjs";
-import { Coin, get_coin_by_oracle_id } from "../../../src/coin.mjs";
+import { GeckoCoin, get_coin_by_oracle_id } from "../../../src/geckocoin.mjs";
 
 class FakeOracle implements Oracle {
   seq: number = 0;
 
   async getPrice(
-    coin: Coin,
+    coin: GeckoCoin,
     date: string,
     currencies: string[]
   ): Promise<Record<string, Price>> {

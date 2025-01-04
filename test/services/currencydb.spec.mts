@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { Currency } from "../../src/currency.mjs";
+import { CryptoAsset } from "../../src/cryptoasset.mjs";
 import {
   CurrencyResolver,
   CurrencyDB,

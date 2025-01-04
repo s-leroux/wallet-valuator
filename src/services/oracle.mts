@@ -1,9 +1,9 @@
-import { Coin } from "../coin.mjs";
+import { GeckoCoin } from "../geckocoin.mjs";
 import { Price } from "../price.mjs";
 
 export interface Oracle {
   getPrice(
-    coin: Coin,
+    coin: GeckoCoin,
     date: string,
     currencies: string[]
   ): Promise<Record<string, Price>>;

@@ -1,7 +1,7 @@
-import { Amount } from "./currency.mjs";
+import { Amount } from "./cryptoasset.mjs";
 import { Ledger } from "./ledger.mjs";
 
-interface Currency {
+interface CryptoAsset {
   symbol: string;
 }
 
@@ -13,7 +13,7 @@ interface Movement {
 
 export class Snapshot {
   timeStamp: number;
-  holdings: Map<Currency, Amount>;
+  holdings: Map<CryptoAsset, Amount>;
 
   constructor(
     ingress: boolean,
@@ -36,16 +36,16 @@ export class Snapshot {
      */
 
     // Basic implementation: just update the position
-    const currency = movement.amount.currency;
-    const holding = this.holdings.get(currency) ?? new Amount(currency);
+    const crypto = movement.amount.crypto;
+    const holding = this.holdings.get(crypto) ?? new Amount(crypto);
     console.log(
-      `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${currency} ${
+      `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${crypto} ${
         (movement as any)["type"]
       } ${(movement as any)["transaction"]?.hash}`
     );
 
     this.holdings.set(
-      currency,
+      crypto,
       holding
         ? ingress
           ? holding.plus(movement.amount)
@@ -57,8 +57,8 @@ export class Snapshot {
   toString(): string {
     const lines: string[] = [];
 
-    this.holdings.forEach((amount, currency) =>
-      lines.push(amount.toString() + " " + currency.symbol)
+    this.holdings.forEach((amount, crypto) =>
+      lines.push(amount.toString() + " " + crypto.symbol)
     );
     return lines.join("\n");
   }

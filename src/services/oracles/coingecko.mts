@@ -1,5 +1,5 @@
 import { Price } from "../../price.mjs";
-import { Coin } from "../../coin.mjs";
+import { GeckoCoin } from "../../geckocoin.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle, mangle } from "../oracle.mjs";
 
@@ -30,7 +30,7 @@ export class CoinGeckoProvider extends Provider {
 
 export class CoinGecko implements Oracle {
   readonly provider: Provider;
-  readonly pc_to_coin: Map<string, Coin>; // maps platform/contract to a coin
+  readonly pc_to_coin: Map<string, GeckoCoin>; // maps platform/contract to a coin
   readonly ready;
 
   constructor(provider?: Provider) {
@@ -58,7 +58,7 @@ export class CoinGecko implements Oracle {
   async init() {}
 
   async getPrice(
-    coin: Coin,
+    coin: GeckoCoin,
     date: string,
     currencies: string[]
   ): Promise<Record<string, Price>> {

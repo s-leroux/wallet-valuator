@@ -4,7 +4,7 @@ import { BigNumber, toInteger } from "./bignumber.mjs";
 import { Swarm, Storable } from "./swarm.mjs";
 import { Address } from "./address.mjs";
 import { Explorer } from "./services/explorer.mjs";
-import { Amount } from "./currency.mjs";
+import { Amount } from "./cryptoasset.mjs";
 
 type TransactionType =
   | "NORMAL" // a normal transaction

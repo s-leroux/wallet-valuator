@@ -1,6 +1,6 @@
 import { Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
-import { Currency } from "../../currency.mjs";
+import { CryptoAsset } from "../../cryptoasset.mjs";
 import {
   ChainRecord,
   NormalTransaction,
@@ -161,7 +161,7 @@ export class GnosisScan extends CommonExplorer {
 
   constructor(api: GnosisScanAPI, chain?: string) {
     const my_chain = chain ?? "gnosis";
-    const my_nativeCurrency = new Currency("xDai", "xDai", 18);
+    const my_nativeCurrency = new CryptoAsset("xDai", "xDai", 18);
 
     super(my_chain, my_nativeCurrency);
     this.api = api;

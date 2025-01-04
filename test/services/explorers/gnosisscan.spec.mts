@@ -4,7 +4,7 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
-import { as_coin } from "../../../src/coin.mjs";
+import { as_coin } from "../../../src/geckocoin.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
 import {
   GnosisScanProvider,

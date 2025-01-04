@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { Amount } from "../src/currency.mjs";
+import { Amount } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 import { Snapshot } from "../src/portfolio.mjs";
 
