@@ -171,7 +171,7 @@ export class ERC20TokenTransfer extends ChainRecord {
     // It was confirmed by the GnosisScan support that
     // only valid transafers are reported. No need to check
     // for the parent's transaction status
-    return this.amount;
+    return this.amount != undefined;
   }
 
   assign(swarm: Swarm, data: Record<string, any>): this {
