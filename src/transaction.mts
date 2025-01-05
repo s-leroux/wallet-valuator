@@ -168,11 +168,10 @@ export class ERC20TokenTransfer extends ChainRecord {
   }
 
   async isValid(swarm: Swarm): Promise<boolean> {
-    return (
-      this.amount &&
-      this.transaction !== undefined &&
-      this.transaction.load(swarm).then((tr) => tr.isError === false)
-    );
+    // It was confirmed by the GnosisScan support that
+    // only valid transafers are reported. No need to check
+    // for the parent's transaction status
+    return this.amount;
   }
 
   assign(swarm: Swarm, data: Record<string, any>): this {
