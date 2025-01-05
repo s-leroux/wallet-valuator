@@ -1,5 +1,6 @@
+import { CryptoAsset } from "../../cryptoasset.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Price } from "../../price.mjs";
-import { GeckoCoin } from "../../geckocoin.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
@@ -34,24 +35,24 @@ export class Caching implements Oracle {
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price) VALUES (?,?,?,?)"
     );
     for (const price of Object.values(prices)) {
-      stmt.run(price.coin.oracle_id, date, price.currency, price.amount);
+      stmt.run(price.crypto.id, date, price.currency, price.amount);
     }
   }
 
   async getPrice(
-    coin: GeckoCoin,
+    crypto: CryptoAsset,
     date: string,
-    currencies: string[]
+    currencies: FiatCurrency[]
   ): Promise<Record<string, Price>> {
     const result: Record<string, Price> = {};
-    const missing: string[] = [];
+    const missing: FiatCurrency[] = [];
     const stmt = this.db.prepare<[string, string, string], { price: number }>(
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
     );
     for (const currency of currencies) {
-      const row = stmt.get(coin.oracle_id, date, currency);
+      const row = stmt.get(crypto.id, date, currency);
       if (row) {
-        result[currency] = new Price(coin, currency, row.price);
+        result[currency] = new Price(crypto, currency, row.price);
       } else {
         missing.push(currency);
       }
@@ -60,7 +61,7 @@ export class Caching implements Oracle {
       return result;
     }
     // else
-    const new_values = await this.backend.getPrice(coin, date, missing);
+    const new_values = await this.backend.getPrice(crypto, date, missing);
     this.backend_calls += 1;
     this.insert(date, new_values);
 

@@ -2,7 +2,8 @@ import { BigNumber } from "./bignumber.mjs";
 
 type CryptoAssetLike = Pick<CryptoAsset, "symbol" | "decimal">;
 
-class InconsistentCryptoAssetError extends TypeError { // XXX Replace by "InconsistenUnitError" in errors.mts
+class InconsistentCryptoAssetError extends TypeError {
+  // XXX Replace by "InconsistenUnitError" in errors.mts
   constructor(a: object, b: object) {
     super(`Inconsistent CryptoAsset Error: ${a} and ${b}`);
   }
@@ -98,6 +99,7 @@ export class Amount {
  * order to convert a value to a human-readable format.
  */
 export class CryptoAsset {
+  readonly id: string; // internal id for that asset cross-chain
   readonly name: string;
   readonly symbol: string;
   readonly decimal: number;
@@ -109,7 +111,8 @@ export class CryptoAsset {
    * @param symbol - The symbol used to represent the crypto (e.g., "ETH").
    * @param decimal - The number of decimal places used for the crypto.
    */
-  constructor(name: string, symbol: string, decimal: number) {
+  constructor(id: string, name: string, symbol: string, decimal: number) {
+    this.id = id;
     this.name = name;
     this.symbol = symbol;
     this.decimal = decimal;

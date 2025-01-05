@@ -1,14 +1,11 @@
-import { GeckoCoin } from "../geckocoin.mjs";
+import { CryptoAsset } from "../cryptoasset.mjs";
+import { FiatCurrency } from "../fiatcurrency.mjs";
 import { Price } from "../price.mjs";
 
 export interface Oracle {
   getPrice(
-    coin: GeckoCoin,
+    crypto: CryptoAsset,
     date: string,
-    currencies: string[]
-  ): Promise<Record<string, Price>>;
-}
-
-export function mangle(platform: string, contract: string) {
-  return `${platform}/${contract.toLowerCase()}`;
+    fiat: FiatCurrency[]
+  ): Promise<Record<FiatCurrency, Price>>;
 }

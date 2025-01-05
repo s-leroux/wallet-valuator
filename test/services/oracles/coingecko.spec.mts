@@ -4,9 +4,9 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
-import { as_coin } from "../../../src/geckocoin.mjs";
+import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { Price } from "../../../src/price.mjs";
-import { mangle } from "../../../src/services/oracle.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["COINGECKO_API_KEY"];
@@ -29,6 +29,8 @@ describe("CoinGecko", function () {
 
   describe("Utilities", () => {
     it("should return historical prices", async function () {
+      const bitcoin = new CryptoAsset("bitcoin", "BTC", "bitcoin", 18);
+
       const test_cases: [string, string, Record<string, number>][] = [
         [
           "bitcoin",
@@ -38,11 +40,10 @@ describe("CoinGecko", function () {
       ];
 
       for (const [id, date, expected] of test_cases) {
-        const coin = as_coin(id);
         const prices = await coingecko!.getPrice(
-          coin,
+          bitcoin,
           date,
-          Object.keys(expected)
+          Object.keys(expected) as FiatCurrency[]
         );
         assert.equal(Object.keys(prices).length, Object.keys(expected).length);
         assert.deepEqual(

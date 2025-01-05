@@ -7,43 +7,58 @@ const assert = chai.assert;
 import { Oracle } from "../../../src/services/oracle.mjs";
 import { Caching } from "../../../src/services/oracles/caching.mjs";
 import { Price } from "../../../src/price.mjs";
-import { GeckoCoin, get_coin_by_oracle_id } from "../../../src/geckocoin.mjs";
+import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 
 class FakeOracle implements Oracle {
-  seq: number = 0;
+  readonly cryptos: Map<string, CryptoAsset>;
+
+  constructor() {
+    this.cryptos = new Map([
+      ["bitcoin", new CryptoAsset("bitcoin", "BTC", "bitcoin", 18)],
+    ]);
+  }
 
   async getPrice(
-    coin: GeckoCoin,
+    crypto: CryptoAsset,
     date: string,
-    currencies: string[]
-  ): Promise<Record<string, Price>> {
-    const result: Record<string, Price> = {};
+    currencies: FiatCurrency[]
+  ): Promise<Record<FiatCurrency, Price>> {
+    const data = { bitcoin: { EUR: 100, USD: 101, BTC: 1 } };
+    const result = {} as Record<FiatCurrency, Price>;
+
     currencies.forEach(
-      (currency) => (result[currency] = new Price(coin, currency, this.seq++))
+      (currency) =>
+        (result[currency] = new Price(
+          this.cryptos.get(crypto.id)!,
+          currency,
+          (data as any)[crypto.id][currency] as number
+        ))
     );
+
     return result;
   }
 }
 
 describe("Caching", function () {
   const date = "30-12-2023";
-  const coin = get_coin_by_oracle_id("bitcoin");
-  const currencies = ["eur", "usd"];
+  const crypto = new CryptoAsset("bitcoin", "BTC", "bitcoin", 18);
+  const fiatCurrencies = ["eur", "usd"] as FiatCurrency[];
   let oracle: Oracle;
 
   /**
    * Check the prices are what we expect from our fake oracle.
    */
-  function checkPrices(prices: Record<string, Price>) {
-    assert.equal(Object.values(prices).length, currencies.length);
+  function checkPrices(prices: Record<FiatCurrency, Price>) {
+    assert.equal(Object.values(prices).length, fiatCurrencies.length);
     assert.deepEqual(
       Object.values(prices).map((price: Price) => ({
         currency: price.currency,
         amount: price.amount,
       })),
       [
-        { currency: currencies[0], amount: 0 },
-        { currency: currencies[1], amount: 1 },
+        { currency: fiatCurrencies[0], amount: 0 },
+        { currency: fiatCurrencies[1], amount: 1 },
       ]
     );
   }
@@ -54,7 +69,7 @@ describe("Caching", function () {
 
   describe("FakeOracle", () => {
     it("should return deterministic data", async function () {
-      const prices = await oracle.getPrice(coin, date, currencies);
+      const prices = await oracle.getPrice(crypto, date, fiatCurrencies);
       checkPrices(prices);
     });
   });
@@ -64,10 +79,10 @@ describe("Caching", function () {
       const cache = new Caching(oracle, ":memory:");
       let prices;
       assert.equal(cache.backend_calls, 0);
-      prices = await cache.getPrice(coin, date, currencies);
+      prices = await cache.getPrice(crypto, date, fiatCurrencies);
       checkPrices(prices);
       assert.equal(cache.backend_calls, 1);
-      prices = await cache.getPrice(coin, date, currencies);
+      prices = await cache.getPrice(crypto, date, fiatCurrencies);
       checkPrices(prices);
       assert.equal(cache.backend_calls, 1);
     });

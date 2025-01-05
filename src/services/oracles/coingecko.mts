@@ -1,9 +1,14 @@
 import { Price } from "../../price.mjs";
-import { GeckoCoin } from "../../geckocoin.mjs";
+import { CryptoAsset } from "../../cryptoasset.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
-import { Oracle, mangle } from "../oracle.mjs";
+import { Oracle } from "../oracle.mjs";
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
+
+const INTERNAL_TO_COINGECKO_ID: Record<string, string> = {
+  bitcoin: "bitcoin",
+};
 
 /**
  * Handle the idiosyncrasies of the CoinGecko API server
@@ -30,7 +35,6 @@ export class CoinGeckoProvider extends Provider {
 
 export class CoinGecko implements Oracle {
   readonly provider: Provider;
-  readonly pc_to_coin: Map<string, GeckoCoin>; // maps platform/contract to a coin
   readonly ready;
 
   constructor(provider?: Provider) {
@@ -58,12 +62,12 @@ export class CoinGecko implements Oracle {
   async init() {}
 
   async getPrice(
-    coin: GeckoCoin,
+    crypto: CryptoAsset,
     date: string,
-    currencies: string[]
-  ): Promise<Record<string, Price>> {
+    currencies: FiatCurrency[]
+  ): Promise<Record<FiatCurrency, Price>> {
     const historical_data = await this.provider.fetch(
-      `coins/${coin.oracle_id}/history`,
+      `coins/${INTERNAL_TO_COINGECKO_ID[crypto.id]}/history`,
       {
         date,
       }
@@ -72,7 +76,7 @@ export class CoinGecko implements Oracle {
     const result: Record<string, Price> = {};
     currencies.forEach(
       (currency) =>
-        (result[currency] = new Price(coin, currency, prices[currency]))
+        (result[currency] = new Price(crypto, currency, prices[currency]))
     );
     return result;
   }

@@ -4,6 +4,7 @@ import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
 const mockCrypto = {
+  id: "eth",
   name: "Ether",
   symbol: "ETH",
   decimal: 18,
@@ -12,11 +13,13 @@ const mockCrypto = {
 describe("CryptoAsset", () => {
   it("should correctly initialize a CryptoAsset instance", () => {
     const crypto = new CryptoAsset(
+      mockCrypto.id,
       mockCrypto.name,
       mockCrypto.symbol,
       mockCrypto.decimal
     );
 
+    assert.strictEqual(crypto.id, mockCrypto.id);
     assert.strictEqual(crypto.name, mockCrypto.name);
     assert.strictEqual(crypto.symbol, mockCrypto.symbol);
     assert.strictEqual(crypto.decimal, mockCrypto.decimal);
@@ -24,6 +27,7 @@ describe("CryptoAsset", () => {
 
   it("should convert base unit value to Amount in display unit", () => {
     const crypto = new CryptoAsset(
+      mockCrypto.id,
       mockCrypto.name,
       mockCrypto.symbol,
       mockCrypto.decimal

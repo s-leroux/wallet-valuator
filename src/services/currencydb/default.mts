@@ -68,7 +68,7 @@ export class DefaultCurrencyDB extends CurrencyDB {
   constructor() {
     super();
     for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
-      this.set(id, new CryptoAsset(name, symbol, decimal));
+      this.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
   }
 }
@@ -93,14 +93,16 @@ function toChainAddress(
 
 export class DefaultCurrencyResolver extends CurrencyResolver {
   private transitionMap: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
+  private seq: number;
 
   constructor() {
     super();
     this.transitionMap = new Map();
+    this.seq = 0;
 
     const currencies: Map<string, CryptoAsset> = new Map();
     for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
-      currencies.set(id, new CryptoAsset(name, symbol, decimal));
+      currencies.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
     for (const [
       currency_id,
@@ -164,7 +166,8 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     symbol: string,
     decimal: number
   ): CryptoAsset {
-    const currency = new CryptoAsset(name, symbol, decimal);
+    const id = `unknown-${this.seq++}-${symbol.toLowerCase()}`;
+    const currency = new CryptoAsset(id, name, symbol, decimal);
     this.transitionMap.set(chainAddress, [
       {
         currency,

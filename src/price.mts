@@ -1,12 +1,12 @@
-import { GeckoCoin } from "./geckocoin.mjs";
+import { CryptoAsset } from "./cryptoasset.mjs";
 
 export class Price {
-  readonly coin: GeckoCoin;
+  readonly crypto: CryptoAsset;
   readonly currency: string;
   readonly amount: number;
 
-  constructor(coin: GeckoCoin, currency: string, amount: number) {
-    this.coin = coin;
+  constructor(crypto: CryptoAsset, currency: string, amount: number) {
+    this.crypto = crypto;
     this.currency = currency;
     this.amount = amount;
   }

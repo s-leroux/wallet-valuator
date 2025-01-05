@@ -17,9 +17,9 @@
 
     "test/address.spec.mts",
     "test/bignumber.spec.mts",
-    "test/geckocoin.spec.mts",
     "test/cryptoasset.spec.mts",
     "test/examples.spec.mts",
+    "test/geckocoin.spec.mts",
     "test/ledger.spec.mts",
     "test/libs/better-sqlite3.spec.mts",
     "test/libs/commander.spec.mts",
@@ -37,9 +37,10 @@
 
     "src/address.mts",
     "src/bignumber.mts",
-    "src/geckocoin.mts",
     "src/cryptoasset.mts",
     "src/error.mts",
+    "src/fiatcurrency.mts",
+    "src/geckocoin.mts",
     "src/ledger.mts",
     "src/portfolio.mts",
     "src/price.mts",
