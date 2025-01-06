@@ -1,5 +1,10 @@
+import { NotImplementedError } from "./error.mjs";
 import { Amount } from "./cryptoasset.mjs";
 import { Ledger } from "./ledger.mjs";
+import { Valuation } from "./valuation.mjs";
+
+interface FiatCurrency {}
+interface Oracle {}
 
 interface CryptoAsset {
   symbol: string;
@@ -52,6 +57,10 @@ export class Snapshot {
           : holding.minus(movement.amount)
         : movement.amount
     );
+  }
+
+  evaluate(oracle: Oracle, fiatCurrency: FiatCurrency): Valuation {
+    throw new NotImplementedError();
   }
 
   toString(): string {

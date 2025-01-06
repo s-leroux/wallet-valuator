@@ -55,6 +55,7 @@
     "src/services/oracles/coingecko.mts",
     "src/swarm.mts",
     "src/transaction.mts",
+    "src/valuation.mts",
 
     "examples/balance.mts",
     "examples/find-address.mts",
