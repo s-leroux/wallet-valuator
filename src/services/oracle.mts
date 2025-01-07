@@ -5,7 +5,7 @@ import { Price } from "../price.mjs";
 export interface Oracle {
   getPrice(
     crypto: CryptoAsset,
-    date: string,
+    date: Date,
     fiat: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>>;
 }

@@ -1,3 +1,4 @@
+import { formatDate } from "../../date.mjs";
 import { Price } from "../../price.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
@@ -63,13 +64,14 @@ export class CoinGecko implements Oracle {
 
   async getPrice(
     crypto: CryptoAsset,
-    date: string,
+    date: Date,
     currencies: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>> {
+    const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
     const historical_data = await this.provider.fetch(
       `coins/${INTERNAL_TO_COINGECKO_ID[crypto.id]}/history`,
       {
-        date,
+        dateDdMmYyyy,
       }
     );
     const prices = historical_data.market_data.current_price;

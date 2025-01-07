@@ -21,7 +21,7 @@ class FakeOracle implements Oracle {
 
   async getPrice(
     crypto: CryptoAsset,
-    date: string,
+    date: Date,
     currencies: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>> {
     const data = { bitcoin: { EUR: 100, USD: 101, BTC: 1 } };
@@ -41,7 +41,7 @@ class FakeOracle implements Oracle {
 }
 
 describe("Caching", function () {
-  const date = "30-12-2023";
+  const date = new Date("2023-12-30");
   const crypto = new CryptoAsset("bitcoin", "BTC", "bitcoin", 18);
   const fiatCurrencies = ["eur", "usd"] as FiatCurrency[];
   let oracle: Oracle;

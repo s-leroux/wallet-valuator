@@ -41,16 +41,17 @@ export class Caching implements Oracle {
 
   async getPrice(
     crypto: CryptoAsset,
-    date: string,
+    date: Date,
     currencies: FiatCurrency[]
   ): Promise<Record<string, Price>> {
     const result: Record<string, Price> = {};
+    const dateYyyyMmDd = date.toISOString().substring(0, 10);
     const missing: FiatCurrency[] = [];
     const stmt = this.db.prepare<[string, string, string], { price: number }>(
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
     );
     for (const currency of currencies) {
-      const row = stmt.get(crypto.id, date, currency);
+      const row = stmt.get(crypto.id, dateYyyyMmDd, currency);
       if (row) {
         result[currency] = new Price(crypto, currency, row.price);
       } else {
@@ -63,7 +64,7 @@ export class Caching implements Oracle {
     // else
     const new_values = await this.backend.getPrice(crypto, date, missing);
     this.backend_calls += 1;
-    this.insert(date, new_values);
+    this.insert(dateYyyyMmDd, new_values);
 
     return Object.assign(result, new_values);
   }
