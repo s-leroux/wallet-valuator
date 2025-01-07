@@ -43,11 +43,13 @@ export class Snapshot {
     // Basic implementation: just update the position
     const crypto = movement.amount.crypto;
     const holding = this.holdings.get(crypto) ?? new Amount(crypto);
+    /*
     console.log(
       `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${crypto} ${
         (movement as any)["type"]
       } ${(movement as any)["transaction"]?.hash}`
     );
+    */
 
     this.holdings.set(
       crypto,
@@ -66,9 +68,7 @@ export class Snapshot {
   toString(): string {
     const lines: string[] = [];
 
-    this.holdings.forEach((amount, crypto) =>
-      lines.push(amount.toString() + " " + crypto.symbol)
-    );
+    this.holdings.forEach((amount, crypto) => lines.push(amount.toString()));
     return lines.join("\n");
   }
 }
