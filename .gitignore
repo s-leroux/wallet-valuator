@@ -1,8 +1,16 @@
 build/**/*
+tmp/**/*
 
 # Secrets
 .env
 *.env
+
+# Garbage
+/*.js
+/*.json
+/*.log
+/*.ts
+/*.txt
 
 # Editor swap
 *.swp
@@ -10,6 +18,19 @@ build/**/*
 # Vim
 .editorconfig
 .viminfo
+.vimspector.json
+
+# VSCode
+.vscode
+
+# Mocha
+.mocharc.js
+
+# Sqlite3
+/*.db
+
+# Heroku
+/heroku/
 
 # Package manager
 node_ignore/**/*
