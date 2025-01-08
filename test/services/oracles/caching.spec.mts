@@ -4,6 +4,8 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
+import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
+import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { Oracle } from "../../../src/services/oracle.mjs";
 import { Caching } from "../../../src/services/oracles/caching.mjs";
 import { Price } from "../../../src/price.mjs";
@@ -14,9 +16,7 @@ class FakeOracle implements Oracle {
   readonly cryptos: Map<string, CryptoAsset>;
 
   constructor() {
-    this.cryptos = new Map([
-      ["bitcoin", new CryptoAsset("bitcoin", "BTC", "bitcoin", 18)],
-    ]);
+    this.cryptos = new Map([["bitcoin", FakeCryptoAsset.bitcoin]]);
   }
 
   async getPrice(
@@ -42,8 +42,8 @@ class FakeOracle implements Oracle {
 
 describe("Caching", function () {
   const date = new Date("2023-12-30");
-  const crypto = new CryptoAsset("bitcoin", "BTC", "bitcoin", 18);
-  const fiatCurrencies = ["eur", "usd"] as FiatCurrency[];
+  const crypto = FakeCryptoAsset.bitcoin;
+  const fiatCurrencies = [FakeFiatCurrency.eur, FakeFiatCurrency.usd];
   let oracle: Oracle;
 
   /**

@@ -3,8 +3,8 @@ import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
+import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { Price } from "../../../src/price.mjs";
 
@@ -29,7 +29,7 @@ describe("CoinGecko", function () {
 
   describe("Utilities", () => {
     it("should return historical prices", async function () {
-      const bitcoin = new CryptoAsset("bitcoin", "BTC", "bitcoin", 18);
+      const bitcoin = FakeCryptoAsset.bitcoin;
 
       const test_cases: [string, string, Record<string, number>][] = [
         [

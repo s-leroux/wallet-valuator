@@ -37,6 +37,9 @@
     "test/transaction.spec.mts",
     "test/walk.d.ts",
 
+    "test/support/cryptoasset.fake.mts",
+    "test/support/fiatcurrency.fake.mts",
+
     "src/address.mts",
     "src/bignumber.mts",
     "src/cryptoasset.mts",
