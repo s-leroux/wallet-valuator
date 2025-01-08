@@ -1,0 +1,4 @@
+{
+  "require": "source-map-support/register",
+  "inspect": "0.0.0.0:9229"
+}

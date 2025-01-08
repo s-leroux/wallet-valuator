@@ -16,7 +16,7 @@
     "build-container": "sudo docker build --tag \"${npm_package_config_container_tag}\" - < DOCKERFILE",
     "shell-in-container": "env $(echo LOCAL_ENV=1; cat .env) /bin/bash",
     "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/src/main.mjs",
-    "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha --require source-map-support/register 'build/test/**/*.spec.mjs'",
+    "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha 'build/test/**/*.mjs'",
     "lint-in-container": "yarn eslint --fix src test",
     "compile-in-container": "yarn tsc",
     "shell": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn shell-in-container",
