@@ -34,8 +34,8 @@ describe("CoinGecko", function () {
       const test_cases: [string, string, Record<string, number>][] = [
         [
           "bitcoin",
-          "2023-12-30",
-          { btc: 1, usd: 42074.70715618848, eur: 38057.70863986569 },
+          "2024-12-30",
+          { btc: 1, usd: 93663.44751964067, eur: 89809.00932731242 },
         ],
       ];
 

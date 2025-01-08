@@ -71,7 +71,7 @@ export class CoinGecko implements Oracle {
     const historical_data = await this.provider.fetch(
       `coins/${INTERNAL_TO_COINGECKO_ID[crypto.id]}/history`,
       {
-        dateDdMmYyyy,
+        date: dateDdMmYyyy,
       }
     );
     const prices = historical_data.market_data.current_price;
