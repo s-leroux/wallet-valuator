@@ -4,6 +4,7 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
+import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { Oracle } from "../../../src/services/oracle.mjs";
@@ -12,36 +13,8 @@ import { Price } from "../../../src/price.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 
-class FakeOracle implements Oracle {
-  readonly cryptos: Map<string, CryptoAsset>;
-
-  constructor() {
-    this.cryptos = new Map([["bitcoin", FakeCryptoAsset.bitcoin]]);
-  }
-
-  async getPrice(
-    crypto: CryptoAsset,
-    date: Date,
-    currencies: FiatCurrency[]
-  ): Promise<Record<FiatCurrency, Price>> {
-    const data = { bitcoin: { EUR: 100, USD: 101, BTC: 1 } };
-    const result = {} as Record<FiatCurrency, Price>;
-
-    currencies.forEach(
-      (currency) =>
-        (result[currency] = new Price(
-          this.cryptos.get(crypto.id)!,
-          currency,
-          (data as any)[crypto.id][currency] as number
-        ))
-    );
-
-    return result;
-  }
-}
-
 describe("Caching", function () {
-  const date = new Date("2023-12-30");
+  const date = new Date("2024-12-30");
   const crypto = FakeCryptoAsset.bitcoin;
   const fiatCurrencies = [FakeFiatCurrency.eur, FakeFiatCurrency.usd];
   let oracle: Oracle;
@@ -57,21 +30,14 @@ describe("Caching", function () {
         amount: price.rate,
       })),
       [
-        { currency: fiatCurrencies[0], amount: 0 },
-        { currency: fiatCurrencies[1], amount: 1 },
+        { currency: fiatCurrencies[0], amount: 89809.00932731242 },
+        { currency: fiatCurrencies[1], amount: 93663.44751964067 },
       ]
     );
   }
 
   beforeEach(function () {
     oracle = new FakeOracle();
-  });
-
-  describe("FakeOracle", () => {
-    it("should return deterministic data", async function () {
-      const prices = await oracle.getPrice(crypto, date, fiatCurrencies);
-      checkPrices(prices);
-    });
   });
 
   describe("Utilities", () => {

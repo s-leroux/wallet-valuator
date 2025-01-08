@@ -39,6 +39,7 @@
 
     "test/support/cryptoasset.fake.mts",
     "test/support/fiatcurrency.fake.mts",
+    "test/support/oracle.fake.mts",
 
     "src/address.mts",
     "src/bignumber.mts",
@@ -59,7 +60,6 @@
     "src/services/oracle.mts",
     "src/services/oracles/caching.mts",
     "src/services/oracles/coingecko.mts",
-    "src/services/oracles/fakeoracle.mts",
     "src/swarm.mts",
     "src/transaction.mts",
     "src/valuation.mts",

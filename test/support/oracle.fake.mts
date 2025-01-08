@@ -1,8 +1,8 @@
-import { Oracle } from "../oracle.mjs";
-import { CryptoAsset } from "../../cryptoasset.mjs";
-import { FiatCurrency } from "../../fiatcurrency.mjs";
-import { Price } from "../../price.mjs";
-import { formatDate } from "../../date.mjs";
+import { Oracle } from "../../src/services/oracle.mjs";
+import { CryptoAsset } from "../../src/cryptoasset.mjs";
+import { FiatCurrency } from "../../src/fiatcurrency.mjs";
+import { Price } from "../../src/price.mjs";
+import { formatDate } from "../../src/date.mjs";
 
 // From coingecko v3/coins/currency/history
 // for d in $(seq 25 30); do
@@ -11,7 +11,7 @@ import { formatDate } from "../../date.mjs";
 //     < "$f" jq -c --arg DATE "${DATE}" '[ $DATE, .id, (.market_data.current_price | { eur, usd, btc }) ]'
 //   done
 // done
-import HistoricalPrices from "../../../fixtures/HistoricalPrices.json" assert { type: "json" };
+import HistoricalPrices from "../../fixtures/HistoricalPrices.json" assert { type: "json" };
 
 type HistoricalDataRecord = [
   date: string, // dd-mm-yyyy format like in the CoinGecko API
@@ -48,7 +48,7 @@ export class FakeOracle {
     const prices = dataRecord[2];
 
     return fiat.reduce((acc, key) => {
-      acc[key] = new Price(cryptoAsset, key, prices[key as string]);
+      acc[key] = new Price(cryptoAsset, key, prices[key.toLowerCase()]);
       return acc;
     }, {} as Record<FiatCurrency, Price>);
   }
