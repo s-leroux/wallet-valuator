@@ -1,4 +1,6 @@
 import { BigNumber } from "./bignumber.mjs";
+import { Price } from "./price.mjs";
+import { FiatCurrency } from "./fiatcurrency.mjs";
 
 class InconsistentCryptoAssetError extends TypeError {
   // XXX Replace by "InconsistenUnitError" in errors.mts
@@ -128,6 +130,15 @@ export class CryptoAsset {
    */
   fromBaseUnit(baseunit: string): Amount {
     return new Amount(this, BigNumber.fromDigits(baseunit, this.decimal));
+  }
+
+  fromString(v: string): Amount {
+    // FIXME rename as `amount()`
+    return new Amount(this, BigNumber.fromString(v));
+  }
+
+  price(fiat: FiatCurrency, rate: number | string) {
+    return new Price(this, fiat, rate);
   }
 
   toString(): string {

@@ -19,6 +19,10 @@ export class BigNumber extends DecimalImplementation {
     return new BigNumber(v);
   }
 
+  static fromString(v: string): BigNumber {
+    return new BigNumber(v);
+  }
+
   static from(v: number | string | DecimalImplementation): BigNumber {
     return new BigNumber(v);
   }

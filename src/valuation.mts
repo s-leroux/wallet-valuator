@@ -14,7 +14,7 @@ export class Value {
   }
 }
 
-function valueFromAmountAndRate(amount: Amount, price: Price): Value {
+export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
   if (amount.crypto !== price.crypto) {
     throw new IncompatibleUnitsError(amount.crypto, price.crypto);
   }
@@ -31,14 +31,26 @@ export class Valuation {
   readonly holdings: Map<CryptoAsset, Value>;
   readonly totalValue: BigNumber;
 
-  constructor(
+  private constructor(
     fiatCurrency: FiatCurrency,
     timeStamp: number,
     holdings: Map<CryptoAsset, Value>
   ) {
     this.fiatCurrency = fiatCurrency;
     this.timeStamp = timeStamp;
-    this.holdings = new Map();
+    this.holdings = holdings;
+
+    let acc = BigNumber.ZERO;
+    for (const value of holdings.values()) {
+      acc = acc.plus(value.value); // XXX It is unclear if totalValue should be a BigNumber or a Value
+    }
+    this.totalValue = acc;
+  }
+
+  get(crypto: CryptoAsset): Value {
+    return (
+      this.holdings.get(crypto) ?? new Value(this.fiatCurrency, BigNumber.ZERO)
+    );
   }
 
   static async create(
@@ -48,20 +60,18 @@ export class Valuation {
     amounts: Iterable<Amount>
   ): Promise<Valuation> {
     const holdings: Map<CryptoAsset, Value> = new Map();
-    const date = new Date(timeStamp);
+    const date = new Date(timeStamp * 1000);
 
     for (const amount of amounts) {
       const crypto = amount.crypto;
       const price = (await oracle.getPrice(crypto, date, [fiatCurrency]))[
         fiatCurrency
       ];
-      const value = valueFromAmountAndRate(amount, price);
+      const value = valueFromAmountAndPrice(amount, price);
 
       holdings.set(crypto, value);
     }
 
     return new Valuation(fiatCurrency, timeStamp, holdings);
-
-    throw new NotImplementedError();
   }
 }

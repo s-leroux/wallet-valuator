@@ -19,9 +19,6 @@ type HistoricalDataRecord = [
   prices: Record<string, number>
 ];
 const DATA = HistoricalPrices as HistoricalDataRecord[];
-const CRYPTOS: Record<string, CryptoAsset> = {
-  bitcoin: new CryptoAsset("bitcoin", "bitcoin", "BTC", 18),
-};
 
 export class FakeOracle {
   constructor() {}
@@ -32,11 +29,6 @@ export class FakeOracle {
     fiat: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>> {
     const cryptoId = crypto.id;
-    const cryptoAsset = CRYPTOS[cryptoId];
-    if (!cryptoAsset) {
-      throw new Error(`${cryptoId} is not in the testset`);
-    }
-
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 
     const dataRecord = DATA.find(
@@ -48,7 +40,7 @@ export class FakeOracle {
     const prices = dataRecord[2];
 
     return fiat.reduce((acc, key) => {
-      acc[key] = new Price(cryptoAsset, key, prices[key.toLowerCase()]);
+      acc[key] = crypto.price(key, prices[key.toLowerCase()]);
       return acc;
     }, {} as Record<FiatCurrency, Price>);
   }

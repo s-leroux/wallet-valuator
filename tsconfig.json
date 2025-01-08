@@ -35,6 +35,7 @@
     "test/services/oracles/fakeoracle.spec.mts",
     "test/swarm.spec.mts",
     "test/transaction.spec.mts",
+    "test/valuation.spec.mts",
     "test/walk.d.ts",
 
     "test/support/cryptoasset.fake.mts",

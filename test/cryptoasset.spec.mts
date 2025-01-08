@@ -1,14 +1,12 @@
 import { assert } from "chai";
 
+import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
+import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
+import { Price } from "../src/price.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
-const mockCrypto = {
-  id: "eth",
-  name: "Ether",
-  symbol: "ETH",
-  decimal: 18,
-} as CryptoAsset;
+const mockCrypto = FakeCryptoAsset.ethereum;
 
 describe("CryptoAsset", () => {
   it("should correctly initialize a CryptoAsset instance", () => {
@@ -42,6 +40,24 @@ describe("CryptoAsset", () => {
       "12.3456789",
       "Amount value should equal 12.3456789"
     );
+  });
+
+  it("should create an Amount from a string", () => {
+    const crypto = FakeCryptoAsset.bitcoin;
+    const amount = crypto.fromString("100.5");
+
+    assert.strictEqual(amount.toString(), "100.5 BTC");
+  });
+
+  it("should create a Price instance from fiat and rate", () => {
+    const crypto = FakeCryptoAsset.bitcoin;
+    const amount = crypto.fromString("100.5");
+    const fiat = FakeFiatCurrency.eur;
+    const price = crypto.price(fiat, 100000);
+
+    assert.strictEqual(price.rate, 100000);
+    assert.strictEqual(price.crypto, crypto);
+    assert.strictEqual(price.fiatCurrency, fiat);
   });
 });
 

@@ -1,39 +1,71 @@
 import { assert } from "chai";
 
-import { formatDate } from "../src/date.mjs";
+import { NotImplementedError } from "../src/error.mjs";
+import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
+import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
+import { FakeOracle } from "./support/oracle.fake.mjs";
+import {
+  Valuation,
+  Value,
+  valueFromAmountAndPrice,
+} from "../src/valuation.mjs";
 
-const END_OF_YEAR = 1735689599; // timestamp for 2024-12-31 23:59:59
+describe("Valuation", () => {
+  describe("valueFromAmountAndRate()", () => {
+    const bitcoin = FakeCryptoAsset.bitcoin;
+    const amount = bitcoin.fromString("100.5");
+    const fiat = FakeFiatCurrency.eur;
+    const price = bitcoin.price(fiat, 100000);
 
-describe("Date utilities", () => {
-  describe("formatDate()", () => {
-    it("should format date as DD-MM-YYYY UTC", () => {
-      const testcases: [number, string][] = [
-        [END_OF_YEAR, "31-12-2024"],
-        [END_OF_YEAR + 1, "01-01-2025"],
-      ];
-
-      for (const [timestamp, expected] of testcases) {
-        assert.equal(
-          formatDate("DD-MM-YYYY", new Date(timestamp * 1000)),
-          expected,
-          `for timestamp ${timestamp}`
-        );
-      }
+    it("should create a Value instance from amount and rate", () => {
+      const value = valueFromAmountAndPrice(amount, price);
+      assert.strictEqual(value.toString(), "10050000 EUR");
     });
 
-    it("should format date as YYYY-MM-DD UTC", () => {
-      const testcases: [number, string][] = [
-        [END_OF_YEAR, "2024-12-31"],
-        [END_OF_YEAR + 1, "2025-01-01"],
-      ];
+    it("should check if the amount and rate are consistent", () => {
+      assert.throws(() => {
+        const price = FakeCryptoAsset.ethereum.price(fiat, 5000);
+        const value = valueFromAmountAndPrice(amount, price);
+      });
+    });
+  });
 
-      for (const [timestamp, expected] of testcases) {
-        assert.equal(
-          formatDate("YYYY-MM-DD", new Date(timestamp * 1000)),
-          expected,
-          `for timestamp ${timestamp}`
-        );
-      }
+  describe("create()", () => {
+    const oracle = FakeOracle.create();
+    const fiat = FakeFiatCurrency.eur;
+    const timeStamp = new Date("2024-12-30").getTime() / 1000;
+    const amounts = [
+      FakeCryptoAsset.bitcoin.fromString("0.001"),
+      FakeCryptoAsset.ethereum.fromString("5"),
+    ];
+
+    it("should create a Valuation instance from holdings", async () => {
+      const valuation = await Valuation.create(
+        oracle,
+        fiat,
+        timeStamp,
+        amounts
+      );
+
+      assert.strictEqual(valuation.fiatCurrency, fiat);
+      assert.strictEqual(valuation.timeStamp, timeStamp);
+      assert.strictEqual(valuation.timeStamp, timeStamp);
+      assert.strictEqual(
+        valuation.get(FakeCryptoAsset.bitcoin).toString(),
+        "89.80900932731242 EUR"
+      );
+      assert.strictEqual(
+        valuation.get(FakeCryptoAsset.ethereum).toString(),
+        "16095.84934118351 EUR"
+      );
+      assert.strictEqual(
+        valuation.get(FakeCryptoAsset.solana).toString(),
+        "0 EUR"
+      );
+      assert.strictEqual(
+        valuation.totalValue.toString(),
+        "16185.65835051082242"
+      );
     });
   });
 });
