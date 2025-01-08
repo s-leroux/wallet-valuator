@@ -8,7 +8,7 @@ const mockCrypto = {
   name: "Ether",
   symbol: "ETH",
   decimal: 18,
-};
+} as CryptoAsset;
 
 describe("CryptoAsset", () => {
   it("should correctly initialize a CryptoAsset instance", () => {

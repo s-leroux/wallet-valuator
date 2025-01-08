@@ -1,7 +1,5 @@
 import { BigNumber } from "./bignumber.mjs";
 
-type CryptoAssetLike = Pick<CryptoAsset, "symbol" | "decimal">;
-
 class InconsistentCryptoAssetError extends TypeError {
   // XXX Replace by "InconsistenUnitError" in errors.mts
   constructor(a: object, b: object) {
@@ -17,7 +15,7 @@ class InconsistentCryptoAssetError extends TypeError {
  * in a human-readable format.
  */
 export class Amount {
-  crypto: CryptoAssetLike;
+  crypto: CryptoAsset;
   value: BigNumber;
 
   /**
@@ -26,7 +24,7 @@ export class Amount {
    * @param crypto - The crypto associated with the amount.
    * @param value - The value of the amount expressed in the display unit.
    */
-  constructor(crypto: CryptoAssetLike, value?: BigNumber) {
+  constructor(crypto: CryptoAsset, value?: BigNumber) {
     this.crypto = crypto;
     this.value = value ?? BigNumber.ZERO;
   }

@@ -1,10 +1,9 @@
 import { NotImplementedError } from "./error.mjs";
 import { Amount } from "./cryptoasset.mjs";
+import { FiatCurrency } from "./fiatcurrency.mjs";
 import { Ledger } from "./ledger.mjs";
 import { Valuation } from "./valuation.mjs";
-
-interface FiatCurrency {}
-interface Oracle {}
+import { Oracle } from "./services/oracle.mjs";
 
 interface CryptoAsset {
   symbol: string;
@@ -61,8 +60,13 @@ export class Snapshot {
     );
   }
 
-  evaluate(oracle: Oracle, fiatCurrency: FiatCurrency): Valuation {
-    throw new NotImplementedError();
+  evaluate(oracle: Oracle, fiatCurrency: FiatCurrency): Promise<Valuation> {
+    return Valuation.create(
+      oracle,
+      fiatCurrency,
+      this.timeStamp,
+      this.holdings.values()
+    );
   }
 
   toString(): string {

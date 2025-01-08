@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { Amount } from "../src/cryptoasset.mjs";
+import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 import { Snapshot } from "../src/portfolio.mjs";
 
@@ -36,7 +36,10 @@ function mockMovement(
     ingress,
     {
       timeStamp,
-      amount: new Amount(mockCurrencies[currency], BigNumber.from(amount)),
+      amount: new Amount(
+        mockCurrencies[currency] as CryptoAsset,
+        BigNumber.from(amount)
+      ),
     },
     new Map(tags),
   ] as const;
