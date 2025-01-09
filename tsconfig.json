@@ -67,6 +67,7 @@
 
     "examples/balance.mts",
     "examples/find-address.mts",
+    "examples/report.mts",
 
     "src/main.mts",
     "test/main.spec.mts"

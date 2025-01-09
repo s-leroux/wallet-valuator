@@ -34,11 +34,12 @@ export class CoinGeckoProvider extends Provider {
   }
 }
 
-export class CoinGecko implements Oracle {
+export class CoinGecko extends Oracle {
   readonly provider: Provider;
   readonly ready;
 
   constructor(provider?: Provider) {
+    super();
     if (!provider) {
       const api_key = process.env["COINGECKO_API_KEY"];
       if (!api_key) {

@@ -16,17 +16,17 @@ CREATE TABLE IF NOT EXISTS prices (
 );
 `;
 
-export class Caching implements Oracle {
+export class Caching {
   readonly backend: Oracle;
   readonly db: Database.Database;
 
   // for statistics
   backend_calls: number;
 
-  constructor(backend: Oracle, path: string = ":memory:") {
+  constructor(backend: Oracle, path: string | undefined) {
     this.backend = backend;
     this.backend_calls = 0;
-    this.db = new Database(path);
+    this.db = new Database(path ?? ":memory:");
     this.db.exec(DB_INIT_SEQUENCE);
   }
 
@@ -67,5 +67,9 @@ export class Caching implements Oracle {
     this.insert(dateYyyyMmDd, new_values);
 
     return Object.assign(result, new_values);
+  }
+
+  cache(path?: string): Oracle {
+    throw new Error("Nested caching is not supported");
   }
 }

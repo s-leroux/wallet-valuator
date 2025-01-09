@@ -20,9 +20,7 @@ type HistoricalDataRecord = [
 ];
 const DATA = HistoricalPrices as HistoricalDataRecord[];
 
-export class FakeOracle {
-  constructor() {}
-
+export class FakeOracle extends Oracle {
   async getPrice(
     crypto: CryptoAsset,
     date: Date,

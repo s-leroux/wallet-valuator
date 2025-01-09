@@ -31,7 +31,7 @@ const ledger = Ledger.create(await address.allValidTransfers(swarm));
 ledger.from(address).tag("EGRESS");
 ledger.to(address).tag("INGRESS");
 
-const portfolio = new Portfolio(ledger);
+const portfolio = Portfolio.createFromLedger(ledger);
 const [snapshot] = portfolio.snapshots.slice(-1);
 console.log("%s", snapshot);
 console.log("%d", ledger.list.length);

@@ -1,3 +1,5 @@
+import os from "node:os";
+
 import { NotImplementedError } from "./error.mjs";
 import { Amount } from "./cryptoasset.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
@@ -69,6 +71,10 @@ export class Snapshot {
     );
   }
 
+  assets(): CryptoAsset[] {
+    return Array.from(this.holdings.keys());
+  }
+
   toString(): string {
     const lines: string[] = [];
 
@@ -80,13 +86,17 @@ export class Snapshot {
 export class Portfolio {
   snapshots: Snapshot[];
 
+  constructor(snapshots: Snapshot[]) {
+    this.snapshots = snapshots;
+  }
+
   /**
    * Create a Portfolio instance from a Ledger.
    *
    * This maps ledger's entries to Snapshots
    */
-  constructor(ledger: Ledger) {
-    let snapshots = (this.snapshots = [] as Snapshot[]);
+  static createFromLedger(ledger: Ledger): Portfolio {
+    let snapshots = [] as Snapshot[];
     let curr: Snapshot | null = null;
 
     for (const entry of ledger) {
@@ -102,5 +112,33 @@ export class Portfolio {
         // Not our business
       }
     }
+
+    return new Portfolio(snapshots);
+  }
+
+  /**
+   * Return all the assets that has been owned in that portfolio
+   *
+   * Given the Snapshot implementation this is the same as checking
+   * the assets of the _last_ snapshot
+   */
+  allAssetsEverOwned(): CryptoAsset[] {
+    return this.snapshots.at(-1)?.assets() ?? [];
+  }
+
+  asCSV(): string {
+    const separator = ",";
+    const lines = [] as string[];
+    const cryptoAssets = this.allAssetsEverOwned();
+
+    // Header line
+    lines.push(
+      cryptoAssets.map((cryptoAsset) => cryptoAsset.symbol).join(separator)
+    );
+
+    // Data lines
+    for (const cryptoAsset of cryptoAssets) {
+    }
+    return lines.join(os.EOL);
   }
 }
