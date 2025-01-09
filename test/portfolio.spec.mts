@@ -150,9 +150,18 @@ describe("Portfolio", () => {
   describe("asCSV()", () => {
     it("should list of all assets ever owned in the header", () => {
       const csv = portfolio.asCSV();
-      const lines = csv.split(os.EOL);
 
-      assert.equal(lines[0], "SOL,DAI,ETH,BTC");
+      const lines = csv.split(os.EOL); // this will implicitly check if we use the OS-specific EOL
+      assert.equal(lines.length, 1 + movements.length + 1); // header, content, trailing EOL
+
+      assert.equal(lines[0], "DATE,SOL,DAI,ETH,BTC");
+      assert.equal(lines[1], "5,50,0,0,0");
+      assert.equal(lines[2], "10,50,100,0,0");
+      assert.equal(lines[3], "20,50,100,200,0");
+      assert.equal(lines[4], "30,50,75,200,0");
+      assert.equal(lines[5], "35,0,75,200,0");
+      assert.equal(lines[6], "40,0,75,200,300");
+      assert.equal(lines[7], "");
     });
   });
 });

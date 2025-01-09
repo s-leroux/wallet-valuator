@@ -133,12 +133,26 @@ export class Portfolio {
 
     // Header line
     lines.push(
-      cryptoAssets.map((cryptoAsset) => cryptoAsset.symbol).join(separator)
+      cryptoAssets
+        .reduce(
+          (acc, cryptoAsset) => (acc.push(cryptoAsset.symbol), acc),
+          ["DATE"]
+        )
+        .join(separator) + os.EOL
     );
 
     // Data lines
-    for (const cryptoAsset of cryptoAssets) {
+    for (const snapshot of this.snapshots) {
+      const items = cryptoAssets.reduce(
+        // XXX Move that logic to Snapshot ?
+        (acc, cryptoAsset) => (
+          acc.push(snapshot.holdings.get(cryptoAsset)?.value.toString() ?? "0"),
+          acc
+        ),
+        [snapshot.timeStamp.toString()]
+      );
+      lines.push(items.join(separator) + os.EOL);
     }
-    return lines.join(os.EOL);
+    return lines.join("");
   }
 }
