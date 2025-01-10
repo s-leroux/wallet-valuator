@@ -53,6 +53,10 @@ export class Valuation {
     );
   }
 
+  toString(): string {
+    return `${this.totalValue} ${this.fiatCurrency}`;
+  }
+
   static async create(
     oracle: Oracle,
     fiatCurrency: FiatCurrency,

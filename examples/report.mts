@@ -25,7 +25,9 @@ function env(name: string): string {
 }
 
 const explorer = GnosisScan.create(env("GNOSISSCAN_API_KEY"));
-const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache("cache.db");
+const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache(
+  "historical-data.db"
+);
 
 const swarm = new Swarm([explorer]);
 const address = swarm.address(explorer, program.args[0]);
@@ -35,4 +37,14 @@ ledger.from(address).tag("EGRESS");
 ledger.to(address).tag("INGRESS");
 
 const portfolio = Portfolio.createFromLedger(ledger);
-console.log("%s", portfolio.asCSV());
+console.log("%s", portfolio.asCSV()); // XXX Actually this shows the portfolio _history_
+const valuations = await Promise.all(
+  portfolio.snapshots.map(
+    (snapshot) => snapshot.evaluate(oracle, FiatCurrency("usd"))
+    // XXX Check: fiat curencies are compared by _value_, cryptoassets are
+    // compared by _identity_. Is this coherent?
+  )
+);
+for (const valuation of valuations) {
+  console.log("%s", valuation);
+}

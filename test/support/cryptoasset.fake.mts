@@ -7,4 +7,5 @@ export const FakeCryptoAsset = {
   ethereum: new CryptoAsset("ethereum", "ethereum", "ETH", 18),
   solana: new CryptoAsset("solana", "Solana", "SOL", 9),
   tether: new CryptoAsset("tether", "Tether USD", "USDT", 6),
+  "usd-coin": new CryptoAsset("usd-coin", "USDC", "USDC", 6),
 };

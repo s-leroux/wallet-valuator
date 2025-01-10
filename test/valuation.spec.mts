@@ -2,6 +2,10 @@ import { assert } from "chai";
 
 import { NotImplementedError } from "../src/error.mjs";
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
+import {
+  FakeMovement,
+  snapshotsFromMovements,
+} from "./support/snapshot.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "./support/oracle.fake.mjs";
 import {
@@ -66,6 +70,37 @@ describe("Valuation", () => {
         valuation.totalValue.toString(),
         "16185.65835051082242"
       );
+    });
+  });
+
+  describe("from Snapshot", () => {
+    const INGRESS = true;
+    const EGRESS = false;
+
+    const movements = [
+      FakeMovement(INGRESS, "2024-12-02", "200000", "usd-coin"),
+      FakeMovement(EGRESS, "2024-12-03", "1", "bitcoin"),
+    ];
+    it("should create a Valuation instance from holdings", async () => {
+      const fiat = FakeFiatCurrency.usd;
+      const oracle = new FakeOracle();
+      const snapshots = snapshotsFromMovements(movements);
+      const valuations = await Promise.all(
+        snapshots.map((snapshot) => snapshot.evaluate(oracle, fiat))
+      );
+
+      // Check that total valuation is properly computed
+      assert.strictEqual(
+        valuations[0].totalValue.toString(),
+        "199930.97669449622"
+      );
+      assert.strictEqual(valuations[0].fiatCurrency, fiat);
+
+      assert.strictEqual(
+        valuations[1].totalValue.toString(),
+        "104286.57382058582"
+      );
+      assert.strictEqual(valuations[1].fiatCurrency, fiat);
     });
   });
 });

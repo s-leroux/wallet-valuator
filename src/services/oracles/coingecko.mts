@@ -11,6 +11,20 @@ const INTERNAL_TO_COINGECKO_ID: Record<string, string> = {
   bitcoin: "bitcoin",
 };
 
+function internalToCoinGeckoId(internalId: string): string {
+  const coinGeckoId = INTERNAL_TO_COINGECKO_ID[internalId];
+
+  if (coinGeckoId !== undefined) {
+    return coinGeckoId;
+  }
+
+  console.log(
+    "CoinGecko id not known for %s. Returning unchanged.",
+    internalId
+  );
+  return internalId.toLowerCase();
+}
+
 /**
  * Handle the idiosyncrasies of the CoinGecko API server
  */
@@ -42,6 +56,9 @@ export class CoinGecko extends Oracle {
     super();
     if (!provider) {
       const api_key = process.env["COINGECKO_API_KEY"];
+      // XXX Check if implicit key retrieval from the environment is:
+      // (1) coherent in the whole library
+      // (2) desirable
       if (!api_key) {
         throw Error(
           "You must specify a provider or define the COINGECKO_API_KEY environment variable"
@@ -69,17 +86,27 @@ export class CoinGecko extends Oracle {
     currencies: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>> {
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
-    const historical_data = await this.provider.fetch(
-      `coins/${INTERNAL_TO_COINGECKO_ID[crypto.id]}/history`,
-      {
-        date: dateDdMmYyyy,
-      }
-    );
-    const prices = historical_data.market_data.current_price;
+
+    let prices;
+    try {
+      const historical_data = await this.provider.fetch(
+        `coins/${internalToCoinGeckoId(crypto.id)}/history`,
+        {
+          date: dateDdMmYyyy,
+        }
+      );
+      prices = historical_data.market_data.current_price;
+    } catch (err) {
+      prices = {};
+    }
     const result: Record<string, Price> = {};
     currencies.forEach(
       (currency) =>
-        (result[currency] = new Price(crypto, currency, prices[currency]))
+        (result[currency] = new Price(
+          crypto,
+          currency,
+          prices[currency] ?? "0" // XXX Should we silently default to zero here?
+        ))
     );
     return result;
   }

@@ -3,66 +3,23 @@ import os from "node:os";
 import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
+import {
+  FakeMovement,
+  snapshotFromMovements,
+  snapshotsFromMovements,
+} from "./support/snapshot.fake.mjs";
 import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 import { Portfolio, Snapshot } from "../src/portfolio.mjs";
 
-type M = [boolean, { timeStamp: number; amount: Amount }, Map<string, any>];
 const INGRESS = true;
 const EGRESS = false;
-
-function mockMovement(
-  ingress: boolean,
-  timeStamp: number,
-  amount: string,
-  asset: keyof typeof FakeCryptoAsset,
-  ...tags: [string, any][]
-): M {
-  return [
-    ingress,
-    {
-      timeStamp,
-      amount: new Amount(
-        FakeCryptoAsset[asset] as CryptoAsset,
-        BigNumber.from(amount)
-      ),
-    },
-    new Map(tags),
-  ] as const;
-}
-
-function snapshotFromMovements(movements: M[]): Snapshot {
-  if (!movements.length) {
-    throw new Error("Invalid argument: must have at least one movement");
-  }
-
-  return movements.reduce<Snapshot | null>(
-    (prev, movement) => new Snapshot(...movement, prev),
-    null
-  )!;
-}
-
-function snapshotsFromMovements(movements: M[]): Snapshot[] {
-  if (!movements.length) {
-    throw new Error("Invalid argument: must have at least one movement");
-  }
-
-  let result = [] as Snapshot[];
-
-  movements.reduce<Snapshot | null>((prev, movement) => {
-    const s = new Snapshot(...movement, prev);
-    result.push(s);
-    return s;
-  }, null);
-
-  return result;
-}
 
 describe("Snapshot", () => {
   describe("constructor", () => {
     it("should correctly initialize an instance", () => {
       const value = "100.5";
-      const movement = mockMovement(
+      const movement = FakeMovement(
         true,
         10,
         value,
@@ -80,10 +37,10 @@ describe("Snapshot", () => {
 
     it("should correctly initialize an instance from a parent", () => {
       const movements = [
-        mockMovement(INGRESS, 10, "100", "dai"),
-        mockMovement(INGRESS, 20, "200", "ethereum"),
-        mockMovement(EGRESS, 30, "25", "dai"),
-        mockMovement(INGRESS, 40, "300", "ethereum"),
+        FakeMovement(INGRESS, 10, "100", "dai"),
+        FakeMovement(INGRESS, 20, "200", "ethereum"),
+        FakeMovement(EGRESS, 30, "25", "dai"),
+        FakeMovement(INGRESS, 40, "300", "ethereum"),
       ];
 
       let snapshot = snapshotFromMovements(movements);
@@ -103,10 +60,10 @@ describe("Snapshot", () => {
 
   describe("assets()", () => {
     const movements = [
-      mockMovement(INGRESS, 10, "100", "dai"),
-      mockMovement(INGRESS, 20, "200", "ethereum"),
-      mockMovement(EGRESS, 30, "25", "dai"),
-      mockMovement(INGRESS, 40, "300", "ethereum"),
+      FakeMovement(INGRESS, 10, "100", "dai"),
+      FakeMovement(INGRESS, 20, "200", "ethereum"),
+      FakeMovement(EGRESS, 30, "25", "dai"),
+      FakeMovement(INGRESS, 40, "300", "ethereum"),
     ];
 
     let snapshot = snapshotFromMovements(movements);
@@ -126,12 +83,12 @@ describe("Portfolio", () => {
   });
 
   const movements = [
-    mockMovement(INGRESS, 5, "50", "solana"),
-    mockMovement(INGRESS, 10, "100", "dai"),
-    mockMovement(INGRESS, 20, "200", "ethereum"),
-    mockMovement(EGRESS, 30, "25", "dai"),
-    mockMovement(EGRESS, 35, "50", "solana"),
-    mockMovement(INGRESS, 40, "300", "bitcoin"),
+    FakeMovement(INGRESS, 5, "50", "solana"),
+    FakeMovement(INGRESS, 10, "100", "dai"),
+    FakeMovement(INGRESS, 20, "200", "ethereum"),
+    FakeMovement(EGRESS, 30, "25", "dai"),
+    FakeMovement(EGRESS, 35, "50", "solana"),
+    FakeMovement(INGRESS, 40, "300", "bitcoin"),
   ];
 
   let portfolio = new Portfolio(snapshotsFromMovements(movements));
