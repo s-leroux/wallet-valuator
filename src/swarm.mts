@@ -1,7 +1,7 @@
 import { Explorer } from "./services/explorer.mjs";
 import { CurrencyResolver } from "./services/currencydb.mjs";
 import { DefaultCurrencyResolver } from "./services/currencydb/default.mjs";
-import { Currency } from "./currency.mjs";
+import { CryptoAsset } from "./cryptoasset.mjs";
 import { Address } from "./address.mjs";
 import {
   ChainRecord,
@@ -47,7 +47,7 @@ export class Swarm {
     name: string,
     symbol: string,
     decimal: number
-  ): Currency | null {
+  ): CryptoAsset | null {
     return this.currencyResolver.resolve(
       explorer.chain,
       blockNumber,

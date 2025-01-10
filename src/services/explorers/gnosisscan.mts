@@ -1,6 +1,6 @@
 import { Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
-import { Currency } from "../../currency.mjs";
+import { CryptoAsset } from "../../cryptoasset.mjs";
 import {
   ChainRecord,
   NormalTransaction,
@@ -46,13 +46,20 @@ export class GnosisScanProvider extends Provider {
     );
   }
 
-  shouldRetry(res: any, json: any) {
+  shouldRetry(res: any, payload: any) {
     // GnosisScan does not signal rate limiting with a 429 status. We should examine the error message.
-    return (
-      super.shouldRetry(res, json) ||
-      typeof json === "string" || // the server may return an error page (still with status 200)
-      json.result?.startsWith("Max ") // We have overloaded te API
-    );
+    try {
+      return (
+        super.shouldRetry(res, payload) ||
+        typeof payload === "string" || // the server may return an error page (still with status 200)
+        payload.result?.startsWith("Max ") // We have overloaded te API
+      );
+    } catch (err) {
+      console.log("An error occured:", err);
+      console.dir(payload);
+
+      throw err;
+    }
   }
 
   newError(res: any, json: any) {
@@ -161,7 +168,7 @@ export class GnosisScan extends CommonExplorer {
 
   constructor(api: GnosisScanAPI, chain?: string) {
     const my_chain = chain ?? "gnosis";
-    const my_nativeCurrency = new Currency("xDai", "xDai", 18);
+    const my_nativeCurrency = new CryptoAsset("xDai", "xDai", "xDai", 18);
 
     super(my_chain, my_nativeCurrency);
     this.api = api;

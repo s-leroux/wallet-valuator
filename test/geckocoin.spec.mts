@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { Coin, get_coin_by_oracle_id } from "../src/coin.mjs";
+import { GeckoCoin, get_coin_by_oracle_id } from "../src/geckocoin.mjs";
 
 describe("Coin", function () {
   describe("get_coin_by_oracle_id", async function () {

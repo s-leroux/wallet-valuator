@@ -1,7 +1,7 @@
 import { assert } from "chai";
 
 import { Swarm } from "../src/swarm.mjs";
-import { Currency } from "../src/currency.mjs";
+import { CryptoAsset } from "../src/cryptoasset.mjs";
 
 import { Explorer } from "../src/services/explorer.mjs";
 import { Address } from "../src/address.mjs";

@@ -1,11 +1,11 @@
-export interface Coin {
+export interface GeckoCoin {
   ticker: string;
   name: string;
   oracle_id: string;
   platforms: object;
 }
 
-export function get_coin_by_oracle_id(oracle_id: string): Coin {
+export function get_coin_by_oracle_id(oracle_id: string): GeckoCoin {
   for (const coin of coins) {
     if (coin.oracle_id == oracle_id) {
       return coin;
@@ -14,7 +14,7 @@ export function get_coin_by_oracle_id(oracle_id: string): Coin {
   throw new Error(`Can't find a coin with oracle_id ${oracle_id}`);
 }
 
-export function as_coin(thing: string | Coin): Coin {
+export function as_coin(thing: string | GeckoCoin): GeckoCoin {
   if (typeof thing === "string") {
     return get_coin_by_oracle_id(thing);
   }
@@ -22,7 +22,7 @@ export function as_coin(thing: string | Coin): Coin {
   return thing;
 }
 
-export const coins: Coin[] = [
+export const coins: GeckoCoin[] = [
   {
     ticker: "BTC",
     name: "Bitcoin",

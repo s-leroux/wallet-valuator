@@ -1,4 +1,4 @@
-import { Currency } from "../../currency.mjs";
+import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CurrencyResolver, CurrencyDB } from "../currencydb.mjs";
 
 const wellKnownCurrencies: [
@@ -68,12 +68,12 @@ export class DefaultCurrencyDB extends CurrencyDB {
   constructor() {
     super();
     for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
-      this.set(id, new Currency(name, symbol, decimal));
+      this.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
   }
 }
 
-export type CurrencyLike = Pick<Currency, "symbol">;
+export type CurrencyLike = Pick<CryptoAsset, "symbol">;
 
 type MappingEntry<T extends CurrencyLike> = {
   currency: T | null;
@@ -92,15 +92,17 @@ function toChainAddress(
 }
 
 export class DefaultCurrencyResolver extends CurrencyResolver {
-  private transitionMap: Map<ChainAddress, MappingEntry<Currency>[]>;
+  private transitionMap: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
+  private seq: number;
 
   constructor() {
     super();
     this.transitionMap = new Map();
+    this.seq = 0;
 
-    const currencies: Map<string, Currency> = new Map();
+    const currencies: Map<string, CryptoAsset> = new Map();
     for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
-      currencies.set(id, new Currency(name, symbol, decimal));
+      currencies.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
     for (const [
       currency_id,
@@ -133,7 +135,7 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Currency | null {
+  ): CryptoAsset | null {
     const chainAddress = toChainAddress(chain, smartContractAddress);
     const transitions = this.transitionMap.get(chainAddress);
     if (!transitions) {
@@ -163,8 +165,9 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Currency {
-    const currency = new Currency(name, symbol, decimal);
+  ): CryptoAsset {
+    const id = `unknown-${this.seq++}-${symbol.toLowerCase()}`;
+    const currency = new CryptoAsset(id, name, symbol, decimal);
     this.transitionMap.set(chainAddress, [
       {
         currency,

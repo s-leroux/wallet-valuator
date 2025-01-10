@@ -1,14 +1,17 @@
-import { Coin } from "../coin.mjs";
-import { Price } from "../price.mjs";
+import type { CryptoAsset } from "../cryptoasset.mjs";
+import type { FiatCurrency } from "../fiatcurrency.mjs";
+import type { Price } from "../price.mjs";
 
-export interface Oracle {
-  getPrice(
-    coin: Coin,
-    date: string,
-    currencies: string[]
-  ): Promise<Record<string, Price>>;
-}
+import { Caching } from "./oracles/caching.mjs";
 
-export function mangle(platform: string, contract: string) {
-  return `${platform}/${contract.toLowerCase()}`;
+export abstract class Oracle {
+  abstract getPrice(
+    crypto: CryptoAsset,
+    date: Date,
+    fiat: FiatCurrency[]
+  ): Promise<Record<FiatCurrency, Price>>;
+
+  cache(path: string | undefined): Oracle {
+    return new Caching(this, path);
+  }
 }

@@ -1,5 +1,6 @@
+import { CryptoAsset } from "../../cryptoasset.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Price } from "../../price.mjs";
-import { Coin } from "../../coin.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
@@ -15,17 +16,17 @@ CREATE TABLE IF NOT EXISTS prices (
 );
 `;
 
-export class Caching implements Oracle {
+export class Caching {
   readonly backend: Oracle;
   readonly db: Database.Database;
 
   // for statistics
   backend_calls: number;
 
-  constructor(backend: Oracle, path: string = ":memory:") {
+  constructor(backend: Oracle, path: string | undefined) {
     this.backend = backend;
     this.backend_calls = 0;
-    this.db = new Database(path);
+    this.db = new Database(path ?? ":memory:");
     this.db.exec(DB_INIT_SEQUENCE);
   }
 
@@ -34,24 +35,25 @@ export class Caching implements Oracle {
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price) VALUES (?,?,?,?)"
     );
     for (const price of Object.values(prices)) {
-      stmt.run(price.coin.oracle_id, date, price.currency, price.amount);
+      stmt.run(price.crypto.id, date, price.fiatCurrency, price.rate);
     }
   }
 
   async getPrice(
-    coin: Coin,
-    date: string,
-    currencies: string[]
+    crypto: CryptoAsset,
+    date: Date,
+    currencies: FiatCurrency[]
   ): Promise<Record<string, Price>> {
     const result: Record<string, Price> = {};
-    const missing: string[] = [];
+    const dateYyyyMmDd = date.toISOString().substring(0, 10);
+    const missing: FiatCurrency[] = [];
     const stmt = this.db.prepare<[string, string, string], { price: number }>(
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
     );
     for (const currency of currencies) {
-      const row = stmt.get(coin.oracle_id, date, currency);
+      const row = stmt.get(crypto.id, dateYyyyMmDd, currency);
       if (row) {
-        result[currency] = new Price(coin, currency, row.price);
+        result[currency] = new Price(crypto, currency, row.price);
       } else {
         missing.push(currency);
       }
@@ -60,10 +62,14 @@ export class Caching implements Oracle {
       return result;
     }
     // else
-    const new_values = await this.backend.getPrice(coin, date, missing);
+    const new_values = await this.backend.getPrice(crypto, date, missing);
     this.backend_calls += 1;
-    this.insert(date, new_values);
+    this.insert(dateYyyyMmDd, new_values);
 
     return Object.assign(result, new_values);
+  }
+
+  cache(path?: string): Oracle {
+    throw new Error("Nested caching is not supported");
   }
 }

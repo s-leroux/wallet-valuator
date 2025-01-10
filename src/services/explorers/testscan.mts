@@ -2,14 +2,14 @@ import { Swarm } from "../../swarm.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { NormalTransaction } from "../../transaction.mjs";
 
-import { Currency } from "../../../src/currency.mjs";
+import { CryptoAsset } from "../../cryptoasset.mjs";
 import NormalTransactions from "../../../fixtures/NormalTransactions.json" assert { type: "json" };
 import InternalTransactions from "../../../fixtures/InternalTransactions.json" assert { type: "json" };
 import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 
 export class TestScan extends CommonExplorer {
   constructor(chain: string = "gnosis-fake") {
-    super(chain, new Currency("xDai", "xDai", 18));
+    super(chain, new CryptoAsset("xdai", "xDai", "xDai", 18));
   }
 
   register(swarm: Swarm): void {

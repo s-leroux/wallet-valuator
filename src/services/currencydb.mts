@@ -1,4 +1,4 @@
-import { Currency } from "../currency.mjs";
+import { CryptoAsset } from "../cryptoasset.mjs";
 
 /**
  * Resolves a smart contract address to a logical currency.
@@ -32,17 +32,17 @@ export abstract class CurrencyResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Currency | null;
+  ): CryptoAsset | null;
 }
 
 export class CurrencyDB {
-  private currencyMap: Map<string, Currency>;
+  private currencyMap: Map<string, CryptoAsset>;
 
   constructor() {
     this.currencyMap = new Map();
   }
 
-  getCurrency(id: string): Currency {
+  getCurrency(id: string): CryptoAsset {
     const currency = this.currencyMap.get(id);
     if (!currency) {
       throw new Error(`Currency with ID ${id} not found`);
@@ -50,7 +50,7 @@ export class CurrencyDB {
     return currency;
   }
 
-  set(id: string, currency: Currency): void {
+  set(id: string, currency: CryptoAsset): void {
     this.currencyMap.set(id, currency);
   }
 }

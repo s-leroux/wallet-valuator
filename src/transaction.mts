@@ -4,7 +4,7 @@ import { BigNumber, toInteger } from "./bignumber.mjs";
 import { Swarm, Storable } from "./swarm.mjs";
 import { Address } from "./address.mjs";
 import { Explorer } from "./services/explorer.mjs";
-import { Amount } from "./currency.mjs";
+import { Amount } from "./cryptoasset.mjs";
 
 type TransactionType =
   | "NORMAL" // a normal transaction
@@ -168,11 +168,10 @@ export class ERC20TokenTransfer extends ChainRecord {
   }
 
   async isValid(swarm: Swarm): Promise<boolean> {
-    return (
-      this.amount &&
-      this.transaction !== undefined &&
-      this.transaction.load(swarm).then((tr) => tr.isError === false)
-    );
+    // It was confirmed by the GnosisScan support that
+    // only valid transafers are reported. No need to check
+    // for the parent's transaction status
+    return this.amount != undefined;
   }
 
   assign(swarm: Swarm, data: Record<string, any>): this {

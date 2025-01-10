@@ -1,9 +1,29 @@
+import { formatDate } from "../../date.mjs";
 import { Price } from "../../price.mjs";
-import { Coin } from "../../coin.mjs";
+import { CryptoAsset } from "../../cryptoasset.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
-import { Oracle, mangle } from "../oracle.mjs";
+import { Oracle } from "../oracle.mjs";
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
+
+const INTERNAL_TO_COINGECKO_ID: Record<string, string> = {
+  bitcoin: "bitcoin",
+};
+
+function internalToCoinGeckoId(internalId: string): string {
+  const coinGeckoId = INTERNAL_TO_COINGECKO_ID[internalId];
+
+  if (coinGeckoId !== undefined) {
+    return coinGeckoId;
+  }
+
+  console.log(
+    "CoinGecko id not known for %s. Returning unchanged.",
+    internalId
+  );
+  return internalId.toLowerCase();
+}
 
 /**
  * Handle the idiosyncrasies of the CoinGecko API server
@@ -28,14 +48,17 @@ export class CoinGeckoProvider extends Provider {
   }
 }
 
-export class CoinGecko implements Oracle {
+export class CoinGecko extends Oracle {
   readonly provider: Provider;
-  readonly pc_to_coin: Map<string, Coin>; // maps platform/contract to a coin
   readonly ready;
 
   constructor(provider?: Provider) {
+    super();
     if (!provider) {
       const api_key = process.env["COINGECKO_API_KEY"];
+      // XXX Check if implicit key retrieval from the environment is:
+      // (1) coherent in the whole library
+      // (2) desirable
       if (!api_key) {
         throw Error(
           "You must specify a provider or define the COINGECKO_API_KEY environment variable"
@@ -58,21 +81,32 @@ export class CoinGecko implements Oracle {
   async init() {}
 
   async getPrice(
-    coin: Coin,
-    date: string,
-    currencies: string[]
-  ): Promise<Record<string, Price>> {
-    const historical_data = await this.provider.fetch(
-      `coins/${coin.oracle_id}/history`,
-      {
-        date,
-      }
-    );
-    const prices = historical_data.market_data.current_price;
+    crypto: CryptoAsset,
+    date: Date,
+    currencies: FiatCurrency[]
+  ): Promise<Record<FiatCurrency, Price>> {
+    const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
+
+    let prices;
+    try {
+      const historical_data = await this.provider.fetch(
+        `coins/${internalToCoinGeckoId(crypto.id)}/history`,
+        {
+          date: dateDdMmYyyy,
+        }
+      );
+      prices = historical_data.market_data.current_price;
+    } catch (err) {
+      prices = {};
+    }
     const result: Record<string, Price> = {};
     currencies.forEach(
       (currency) =>
-        (result[currency] = new Price(coin, currency, prices[currency]))
+        (result[currency] = new Price(
+          crypto,
+          currency,
+          prices[currency] ?? "0" // XXX Should we silently default to zero here?
+        ))
     );
     return result;
   }

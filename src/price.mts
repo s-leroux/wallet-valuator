@@ -1,13 +1,21 @@
-import { Coin } from "./coin.mjs";
+import { CryptoAsset } from "./cryptoasset.mjs";
+import type { FiatCurrency } from "./fiatcurrency.mjs";
 
+/**
+ *  A Price insstance represents the value of a crypto-asset expressed in a given fiat currency.
+ */
 export class Price {
-  readonly coin: Coin;
-  readonly currency: string;
-  readonly amount: number;
+  readonly crypto: CryptoAsset;
+  readonly fiatCurrency: FiatCurrency;
+  readonly rate: number;
 
-  constructor(coin: Coin, currency: string, amount: number) {
-    this.coin = coin;
-    this.currency = currency;
-    this.amount = amount;
+  constructor(
+    crypto: CryptoAsset,
+    fiatCurrency: FiatCurrency,
+    rate: number | string
+  ) {
+    this.crypto = crypto;
+    this.fiatCurrency = fiatCurrency;
+    this.rate = +rate;
   }
 }

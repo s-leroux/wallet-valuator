@@ -1,7 +1,13 @@
-import { Amount } from "./currency.mjs";
-import { Ledger } from "./ledger.mjs";
+import os from "node:os";
 
-interface Currency {
+import { NotImplementedError } from "./error.mjs";
+import { Amount } from "./cryptoasset.mjs";
+import { FiatCurrency } from "./fiatcurrency.mjs";
+import { Ledger } from "./ledger.mjs";
+import { Valuation } from "./valuation.mjs";
+import { Oracle } from "./services/oracle.mjs";
+
+interface CryptoAsset {
   symbol: string;
 }
 
@@ -13,7 +19,7 @@ interface Movement {
 
 export class Snapshot {
   timeStamp: number;
-  holdings: Map<Currency, Amount>;
+  holdings: Map<CryptoAsset, Amount>;
 
   constructor(
     ingress: boolean,
@@ -36,16 +42,18 @@ export class Snapshot {
      */
 
     // Basic implementation: just update the position
-    const currency = movement.amount.currency;
-    const holding = this.holdings.get(currency) ?? new Amount(currency);
+    const crypto = movement.amount.crypto;
+    const holding = this.holdings.get(crypto) ?? new Amount(crypto);
+    /*
     console.log(
-      `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${currency} ${
+      `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${crypto} ${
         (movement as any)["type"]
       } ${(movement as any)["transaction"]?.hash}`
     );
+    */
 
     this.holdings.set(
-      currency,
+      crypto,
       holding
         ? ingress
           ? holding.plus(movement.amount)
@@ -54,12 +62,23 @@ export class Snapshot {
     );
   }
 
+  evaluate(oracle: Oracle, fiatCurrency: FiatCurrency): Promise<Valuation> {
+    return Valuation.create(
+      oracle,
+      fiatCurrency,
+      this.timeStamp,
+      this.holdings.values()
+    );
+  }
+
+  assets(): CryptoAsset[] {
+    return Array.from(this.holdings.keys());
+  }
+
   toString(): string {
     const lines: string[] = [];
 
-    this.holdings.forEach((amount, currency) =>
-      lines.push(amount.toString() + " " + currency.symbol)
-    );
+    this.holdings.forEach((amount, crypto) => lines.push(amount.toString()));
     return lines.join("\n");
   }
 }
@@ -67,13 +86,17 @@ export class Snapshot {
 export class Portfolio {
   snapshots: Snapshot[];
 
+  constructor(snapshots: Snapshot[]) {
+    this.snapshots = snapshots;
+  }
+
   /**
    * Create a Portfolio instance from a Ledger.
    *
    * This maps ledger's entries to Snapshots
    */
-  constructor(ledger: Ledger) {
-    let snapshots = (this.snapshots = [] as Snapshot[]);
+  static createFromLedger(ledger: Ledger): Portfolio {
+    let snapshots = [] as Snapshot[];
     let curr: Snapshot | null = null;
 
     for (const entry of ledger) {
@@ -89,5 +112,47 @@ export class Portfolio {
         // Not our business
       }
     }
+
+    return new Portfolio(snapshots);
+  }
+
+  /**
+   * Return all the assets that has been owned in that portfolio
+   *
+   * Given the Snapshot implementation this is the same as checking
+   * the assets of the _last_ snapshot
+   */
+  allAssetsEverOwned(): CryptoAsset[] {
+    return this.snapshots.at(-1)?.assets() ?? [];
+  }
+
+  asCSV(): string {
+    const separator = ",";
+    const lines = [] as string[];
+    const cryptoAssets = this.allAssetsEverOwned();
+
+    // Header line
+    lines.push(
+      cryptoAssets
+        .reduce(
+          (acc, cryptoAsset) => (acc.push(cryptoAsset.symbol), acc),
+          ["DATE"]
+        )
+        .join(separator) + os.EOL
+    );
+
+    // Data lines
+    for (const snapshot of this.snapshots) {
+      const items = cryptoAssets.reduce(
+        // XXX Move that logic to Snapshot ?
+        (acc, cryptoAsset) => (
+          acc.push(snapshot.holdings.get(cryptoAsset)?.value.toString() ?? "0"),
+          acc
+        ),
+        [snapshot.timeStamp.toString()]
+      );
+      lines.push(items.join(separator) + os.EOL);
+    }
+    return lines.join("");
   }
 }
