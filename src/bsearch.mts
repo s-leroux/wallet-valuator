@@ -55,24 +55,31 @@ export class Table<K extends unknown, T extends readonly [K, ...unknown[]]> {
   }
 
   get(key: K): T | undefined {
-    let bestMatch: T | undefined = undefined;
-    let start = 0;
-    let end = this.table.length;
-    while (start != end) {
-      const middle = Math.floor((start + end) / 2);
-      const row = this.table[middle];
-
-      if (row[0] < key) {
-        bestMatch = row;
-        start = middle + 1;
-      } else if (row[0] > key) {
-        end = middle;
-      } else {
-        // Found !
-        return row;
-      }
-    }
-
-    return bestMatch;
+    return bsearch(this.table, key);
   }
+}
+
+export function bsearch<
+  K extends unknown,
+  R extends readonly [K, ...unknown[]]
+>(haystack: R[], needle: K): R | undefined {
+  let bestMatch: R | undefined = undefined;
+  let start = 0;
+  let end = haystack.length;
+  while (start != end) {
+    const middle = Math.floor((start + end) / 2);
+    const row = haystack[middle];
+
+    if (row[0] < needle) {
+      bestMatch = row;
+      start = middle + 1;
+    } else if (row[0] > needle) {
+      end = middle;
+    } else {
+      // Found !
+      return row;
+    }
+  }
+
+  return bestMatch;
 }
