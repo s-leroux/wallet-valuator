@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import { NotImplementedError, ValueError } from "./error.mjs";
 import { bsearch } from "./bsearch.mjs";
 
-type Row = [string, string];
-type Column = Row[];
+type Row<T> = [string, T];
+type Column<T> = Row<T>[];
 
 export function* lineIterator(input: string): IterableIterator<string> {
   const lineRegex = /([^\r\n]+)(?:[\r\n]+|$)/g;
@@ -50,10 +50,10 @@ export function itemIterator(
  * In this format data point are represented as (row, column, value) triples,
  * one per line.
  */
-export class COOFile {
-  constructor(private columns: Map<string, Column>) {}
+export class COOFile<T> {
+  constructor(private columns: Map<string, Column<T>>) {}
 
-  get(row: string, col: string): Row | undefined {
+  get(row: string, col: string): Row<T> | undefined {
     const column = this.columns.get(col);
     if (!column) {
       return undefined;
@@ -62,14 +62,17 @@ export class COOFile {
     return bsearch(column, row);
   }
 
-  static createFromPath(path: string): Promise<COOFile> {
+  static createFromPath<T>(
+    path: string,
+    fn: (arg0: string) => T
+  ): Promise<COOFile<T>> {
     return readFile(path, { encoding: "utf8" }).then((text) =>
-      COOFile.createFromText(text)
+      COOFile.createFromText(text, fn)
     );
   }
 
-  static createFromText(text: string): COOFile {
-    const columns = new Map<string, Column>();
+  static createFromText<T>(text: string, fn: (arg0: string) => T): COOFile<T> {
+    const columns = new Map<string, Column<T>>();
     const separator = ",";
 
     let empty = true;
@@ -99,7 +102,7 @@ export class COOFile {
           }
         }
 
-        column.push([date, value]);
+        column.push([date, fn(value)]);
 
         rest = tail;
       }

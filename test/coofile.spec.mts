@@ -56,22 +56,22 @@ const COO_DATA = `
 `;
 describe("COOFile", function () {
   it("Can be created from text data", async () => {
-    const cooFile = COOFile.createFromText(COO_DATA);
+    const cooFile = COOFile.createFromText(COO_DATA, parseInt);
   });
 
   describe("get()", function () {
     const register = prepare(this);
-    const cooFile = COOFile.createFromText(COO_DATA);
+    const cooFile = COOFile.createFromText(COO_DATA, parseInt);
     // prettier-ignore
     const testcases = [
       ["2023-13-24", "TK_1", undefined],
       ["2023-13-24", "TK_2", undefined],
-      ["2023-13-25", "TK_1", "11"],
+      ["2023-13-25", "TK_1", 11],
       ["2023-13-25", "TK_2", undefined],
-      ["2023-13-26", "TK_1", "33"],
-      ["2023-13-26", "TK_2", "22"],
-      ["2023-13-27", "TK_1", "33"],
-      ["2023-13-27", "TK_2", "22"],
+      ["2023-13-26", "TK_1", 33],
+      ["2023-13-26", "TK_2", 22],
+      ["2023-13-27", "TK_1", 33],
+      ["2023-13-27", "TK_2", 22],
     ] as const;
 
     for (const [row, col, expected] of testcases) {
