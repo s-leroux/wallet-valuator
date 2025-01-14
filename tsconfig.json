@@ -17,6 +17,7 @@
 
     "test/address.spec.mts",
     "test/bignumber.spec.mts",
+    "test/bsearch.spec.mts",
     "test/cryptoasset.spec.mts",
     "test/date.spec.mts",
     "test/examples.spec.mts",
@@ -46,6 +47,7 @@
 
     "src/address.mts",
     "src/bignumber.mts",
+    "src/bsearch.mts",
     "src/cryptoasset.mts",
     "src/date.mts",
     "src/error.mts",

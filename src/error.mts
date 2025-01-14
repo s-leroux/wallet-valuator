@@ -13,3 +13,14 @@ export class IncompatibleUnitsError extends Error {
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
 }
+
+/**
+ * A value does not satisfy a pre-condition.
+ */
+export class ValueError extends Error {
+  constructor(message: string = "") {
+    super(`Value error: ${message}`);
+    this.name = "ValueError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
