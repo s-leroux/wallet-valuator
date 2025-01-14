@@ -42,6 +42,7 @@
     "test/support/fiatcurrency.fake.mts",
     "test/support/snapshot.fake.mts",
     "test/support/oracle.fake.mts",
+    "test/support/register.helper.mts",
 
     "src/address.mts",
     "src/bignumber.mts",
