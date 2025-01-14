@@ -37,11 +37,11 @@ ledger.from(address).tag("EGRESS");
 ledger.to(address).tag("INGRESS");
 
 const portfolio = Portfolio.createFromLedger(ledger);
-console.log("%s", portfolio.asCSV()); // XXX Actually this shows the portfolio _history_
+console.log("%s", portfolio.asCSV()); // XXX ISSUE #23 Actually this shows the portfolio _history_
 const valuations = await Promise.all(
   portfolio.snapshots.map(
     (snapshot) => snapshot.evaluate(oracle, FiatCurrency("usd"))
-    // XXX Check: fiat curencies are compared by _value_, cryptoassets are
+    // XXX ISSUE #22 Check: fiat curencies are compared by _value_, cryptoassets are
     // compared by _identity_. Is this coherent?
   )
 );

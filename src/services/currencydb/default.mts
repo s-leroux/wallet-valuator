@@ -77,7 +77,7 @@ export type CurrencyLike = Pick<CryptoAsset, "symbol">;
 
 type MappingEntry<T extends CurrencyLike> = {
   currency: T | null;
-  chain: string; // XXX Is this property required?
+  chain: string;
   startBlock: number;
   endBlock: number;
   smartContractAddress: string;

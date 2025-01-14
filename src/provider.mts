@@ -51,7 +51,7 @@ export class Provider implements ProviderInterface {
 
   newError(res: any, payload: Payload) {
     // OVERRIDE ME
-    return new Error( // XXX We should have a specific HTTPStatusError
+    return new Error( // XXX ISSUE 29 We should have a specific HTTPStatusError
       `Error status ${res.status} while fetching ${res.url}\n${payload}`
     );
   }

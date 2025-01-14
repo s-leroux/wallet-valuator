@@ -28,7 +28,7 @@ class TestProvider extends Provider {
     if (this.forced_failures > 0) {
       return true;
     }
-    return res.status != 200; // XXX Should be the default implementation!
+    return res.status != 200; // XXX ISSUE #35 Should be the default implementation!
   }
 
   shouldRetry(res: any, payload: Payload) {

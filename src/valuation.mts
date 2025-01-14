@@ -42,7 +42,7 @@ export class Valuation {
 
     let acc = BigNumber.ZERO;
     for (const value of holdings.values()) {
-      acc = acc.plus(value.value); // XXX It is unclear if totalValue should be a BigNumber or a Value
+      acc = acc.plus(value.value); // XXX ISSUE #33 It is unclear if totalValue should be a BigNumber or a Value
     }
     this.totalValue = acc;
   }

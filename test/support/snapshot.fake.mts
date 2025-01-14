@@ -1,4 +1,4 @@
-// XXX This is more an 'helper' file than a 'fake' data file
+// XXX ISSUE #34 This is more an 'helper' file than a 'fake' data file
 import type { CryptoAsset, Amount } from "../../src/cryptoasset.mjs";
 import { FakeCryptoAsset } from "./cryptoasset.fake.mjs";
 import { Snapshot } from "../../src/portfolio.mjs";

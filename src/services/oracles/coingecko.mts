@@ -56,7 +56,7 @@ export class CoinGecko extends Oracle {
     super();
     if (!provider) {
       const api_key = process.env["COINGECKO_API_KEY"];
-      // XXX Check if implicit key retrieval from the environment is:
+      // XXX ISSUE #25 Check if implicit key retrieval from the environment is:
       // (1) coherent in the whole library
       // (2) desirable
       if (!api_key) {
@@ -91,7 +91,7 @@ export class CoinGecko extends Oracle {
     try {
       const historical_data = await this.provider.fetch(
         `coins/${internalToCoinGeckoId(crypto.id)}/history`,
-        // FIXME We must url encode the id!
+        // FIXME ISSUE #26 We must url encode the id!
         {
           date: dateDdMmYyyy,
         }
@@ -106,7 +106,7 @@ export class CoinGecko extends Oracle {
         (result[currency] = new Price(
           crypto,
           currency,
-          prices[currency] ?? "0" // XXX Should we silently default to zero here?
+          prices[currency] ?? "0" // XXX ISSUE #27 Should we silently default to zero here?
         ))
     );
     return result;
