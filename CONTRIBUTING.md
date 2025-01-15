@@ -7,6 +7,7 @@ Thank you for considering contributing to this project! By following these guide
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Vocabulary](#vocabulary)
 - [Code of Conduct](#code-of-conduct)
 - [Submitting Changes](#submitting-changes)
 - [Coding Style](#coding-style)
@@ -17,6 +18,15 @@ Thank you for considering contributing to this project! By following these guide
 ## Getting Started
 
 To be defined
+
+---
+
+## Vocabulary
+
+Throughout the project, I have tried to be consistent with the following definitions, especially regarding naming files, classes, variables, and other code artifacts.
+
+- **crypto** (or better **crypto-asset**): a generic term for coins, cryptocurrencies, rwa, tokens, or similar, stored on-chain.
+- **fiat** (or better **fiat-currency**): a generic term for government-issued currency. Fiat currencies are identified by *ISO 4217 currency codes*, a 3-letter code usually made from the country and currency initial: USD, GBP, JPY. A notable exception is EUR for euros.
 
 ---
 
@@ -105,4 +115,5 @@ All new features and fixes must include test coverage. Follow these steps for te
    ```
 
 Thank you for contributing to this project! Your efforts help make it better for everyone.
+
 

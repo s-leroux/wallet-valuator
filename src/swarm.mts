@@ -1,6 +1,6 @@
 import { Explorer } from "./services/explorer.mjs";
-import { CurrencyResolver } from "./services/currencydb.mjs";
-import { DefaultCurrencyResolver } from "./services/currencydb/default.mjs";
+import { CryptoResolver } from "./services/cryptodb.mjs";
+import { DefaultCryptoResolver } from "./services/cryptodb/default.mjs";
 import { CryptoAsset } from "./cryptoasset.mjs";
 import { Address } from "./address.mjs";
 import {
@@ -18,14 +18,14 @@ export interface Storable {
  *  The swarm act as a repository that maps (chain, address) to Address objects.
  */
 export class Swarm {
-  readonly currencyResolver: CurrencyResolver;
+  readonly currencyResolver: CryptoResolver;
   readonly addresses: Map<string, Address>;
   readonly records: ChainRecord[];
   readonly transactions: Map<string, NormalTransaction>;
   readonly explorers: Map<string, Explorer>;
 
   constructor(explorers: Explorer[]) {
-    this.currencyResolver = new DefaultCurrencyResolver();
+    this.currencyResolver = new DefaultCryptoResolver();
     this.addresses = new Map();
     this.records = [];
     this.transactions = new Map();

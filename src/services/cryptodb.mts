@@ -1,13 +1,13 @@
 import { CryptoAsset } from "../cryptoasset.mjs";
 
 /**
- * Resolves a smart contract address to a logical currency.
+ * Resolves a smart contract address to a logical crypto-asset.
  *
- * This function determines the logical currency associated with a given
+ * This function determines the logical crypto-asset associated with a given
  * smart contract address on a specific chain and block number. The behavior
  * depends on the state of the smart contract address:
  *
- * - If the smart contract address is unknown, a dedicated logical currency
+ * - If the smart contract address is unknown, a dedicated logical crypto-asset
  *   is created dynamically.
  * - If the smart contract address is known, but the block number falls outside
  *   any defined range, an error is raised.
@@ -24,7 +24,7 @@ import { CryptoAsset } from "../cryptoasset.mjs";
  * @returns The resolved `Currency` instance or `null` if the address is disabled.
  * @throws An error if the block number is outside any defined range for the address.
  */
-export abstract class CurrencyResolver {
+export abstract class CryptoResolver {
   abstract resolve(
     chain: string,
     block: number,
@@ -35,22 +35,22 @@ export abstract class CurrencyResolver {
   ): CryptoAsset | null;
 }
 
-export class CurrencyDB {
-  private currencyMap: Map<string, CryptoAsset>;
+export class CryptoDB {
+  private cryptoMap: Map<string, CryptoAsset>;
 
   constructor() {
-    this.currencyMap = new Map();
+    this.cryptoMap = new Map();
   }
 
-  getCurrency(id: string): CryptoAsset {
-    const currency = this.currencyMap.get(id);
-    if (!currency) {
+  getCrypto(id: string): CryptoAsset {
+    const crypto = this.cryptoMap.get(id);
+    if (!crypto) {
       throw new Error(`Currency with ID ${id} not found`);
     }
-    return currency;
+    return crypto;
   }
 
-  set(id: string, currency: CryptoAsset): void {
-    this.currencyMap.set(id, currency);
+  set(id: string, crypto: CryptoAsset): void {
+    this.cryptoMap.set(id, crypto);
   }
 }

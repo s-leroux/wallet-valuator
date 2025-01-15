@@ -1,7 +1,7 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CurrencyResolver, CurrencyDB } from "../currencydb.mjs";
+import { CryptoResolver, CryptoDB } from "../cryptodb.mjs";
 
-const wellKnownCurrencies: [
+const wellKnownCryptos: [
   id: string,
   name: string,
   symbol: string,
@@ -12,7 +12,7 @@ const wellKnownCurrencies: [
 ];
 
 export const wellKnownTransitions: [
-  currency_id: string | null,
+  crypto_id: string | null,
   chain: string,
   startBlock: number,
   endBlock: number,
@@ -64,19 +64,19 @@ export const wellKnownTransitions: [
   ],
 ];
 
-export class DefaultCurrencyDB extends CurrencyDB {
+export class DefaultCryptoDB extends CryptoDB {
   constructor() {
     super();
-    for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
+    for (const [id, name, symbol, decimal] of wellKnownCryptos) {
       this.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
   }
 }
 
-export type CurrencyLike = Pick<CryptoAsset, "symbol">;
+export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
-type MappingEntry<T extends CurrencyLike> = {
-  currency: T | null;
+type MappingEntry<T extends CryptoLike> = {
+  crypto: T | null;
   chain: string;
   startBlock: number;
   endBlock: number;
@@ -91,7 +91,7 @@ function toChainAddress(
   return `${chain}:${smartContractAddress}`.toLowerCase() as ChainAddress;
 }
 
-export class DefaultCurrencyResolver extends CurrencyResolver {
+export class DefaultCryptoResolver extends CryptoResolver {
   private transitionMap: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
   private seq: number;
 
@@ -100,12 +100,12 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     this.transitionMap = new Map();
     this.seq = 0;
 
-    const currencies: Map<string, CryptoAsset> = new Map();
-    for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
-      currencies.set(id, new CryptoAsset(id, name, symbol, decimal));
+    const cryptos: Map<string, CryptoAsset> = new Map();
+    for (const [id, name, symbol, decimal] of wellKnownCryptos) {
+      cryptos.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
     for (const [
-      currency_id,
+      crypto_id,
       chain,
       startBlock,
       endBlock,
@@ -119,7 +119,7 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
       }
 
       transitions.push({
-        currency: currency_id ? currencies.get(currency_id) || null : null,
+        crypto: crypto_id ? cryptos.get(crypto_id) || null : null,
         chain,
         startBlock,
         endBlock,
@@ -150,11 +150,11 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     }
     for (const transition of transitions) {
       if (block >= transition.startBlock && block <= transition.endBlock) {
-        return transition.currency;
+        return transition.crypto;
       }
     }
     throw new Error(
-      `Cannot resolve currency ${symbol}(?) address ${chainAddress} at block ${block}`
+      `Cannot resolve crypto-asset ${symbol}(?) address ${chainAddress} at block ${block}`
     );
   }
 
@@ -167,10 +167,10 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     decimal: number
   ): CryptoAsset {
     const id = `unknown-${this.seq++}-${symbol.toLowerCase()}`;
-    const currency = new CryptoAsset(id, name, symbol, decimal);
+    const crypto = new CryptoAsset(id, name, symbol, decimal);
     this.transitionMap.set(chainAddress, [
       {
-        currency,
+        crypto: crypto,
         chain,
         startBlock: 0,
         endBlock: Infinity,
@@ -178,6 +178,6 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
       },
     ]);
 
-    return currency;
+    return crypto;
   }
 }
