@@ -1,7 +1,8 @@
 import { Oracle } from "../../src/services/oracle.mjs";
-import { CryptoAsset } from "../../src/cryptoasset.mjs";
-import { FiatCurrency } from "../../src/fiatcurrency.mjs";
-import { Price } from "../../src/price.mjs";
+import type { FiatConverter } from "../../src/services/fiatconverter.mjs";
+import type { CryptoAsset } from "../../src/cryptoasset.mjs";
+import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
+import type { Price } from "../../src/price.mjs";
 import { formatDate } from "../../src/date.mjs";
 
 // From coingecko v3/coins/currency/history
@@ -22,6 +23,7 @@ const DATA = HistoricalPrices as HistoricalDataRecord[];
 
 export class FakeOracle extends Oracle {
   async getPrice(
+    fiatConverter: FiatConverter,
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]

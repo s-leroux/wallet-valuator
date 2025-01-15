@@ -1,11 +1,12 @@
 import os from "node:os";
 
-import { NotImplementedError } from "./error.mjs";
+import type { NotImplementedError } from "./error.mjs";
 import { Amount } from "./cryptoasset.mjs";
-import { FiatCurrency } from "./fiatcurrency.mjs";
-import { Ledger } from "./ledger.mjs";
+import type { FiatCurrency } from "./fiatcurrency.mjs";
+import type { Ledger } from "./ledger.mjs";
 import { Valuation } from "./valuation.mjs";
-import { Oracle } from "./services/oracle.mjs";
+import type { FiatConverter } from "./services/fiatconverter.mjs";
+import type { Oracle } from "./services/oracle.mjs";
 
 interface CryptoAsset {
   symbol: string;
@@ -62,9 +63,14 @@ export class Snapshot {
     );
   }
 
-  evaluate(oracle: Oracle, fiatCurrency: FiatCurrency): Promise<Valuation> {
+  evaluate(
+    oracle: Oracle,
+    fiatConverter: FiatConverter,
+    fiatCurrency: FiatCurrency
+  ): Promise<Valuation> {
     return Valuation.create(
       oracle,
+      fiatConverter,
       fiatCurrency,
       this.timeStamp,
       this.holdings.values()

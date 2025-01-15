@@ -1,10 +1,11 @@
 import { NotImplementedError, IncompatibleUnitsError } from "./error.mjs";
 import { BigNumber } from "./bignumber.mjs";
-import { FiatCurrency } from "./fiatcurrency.mjs";
-import { CryptoAsset } from "./cryptoasset.mjs";
-import { Amount } from "./cryptoasset.mjs";
-import { Price } from "./price.mjs";
-import { Oracle } from "./services/oracle.mjs";
+import type { FiatCurrency } from "./fiatcurrency.mjs";
+import type { CryptoAsset } from "./cryptoasset.mjs";
+import type { Amount } from "./cryptoasset.mjs";
+import type { Price } from "./price.mjs";
+import type { Oracle } from "./services/oracle.mjs";
+import type { FiatConverter } from "./services/fiatconverter.mjs";
 
 export class Value {
   constructor(readonly fiatCurrency: FiatCurrency, readonly value: BigNumber) {}
@@ -59,6 +60,7 @@ export class Valuation {
 
   static async create(
     oracle: Oracle,
+    fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency,
     timeStamp: number,
     amounts: Iterable<Amount>
@@ -68,9 +70,9 @@ export class Valuation {
 
     for (const amount of amounts) {
       const crypto = amount.crypto;
-      const price = (await oracle.getPrice(crypto, date, [fiatCurrency]))[
-        fiatCurrency
-      ];
+      const price = (
+        await oracle.getPrice(fiatConverter, crypto, date, [fiatCurrency])
+      )[fiatCurrency];
       const value = valueFromAmountAndPrice(amount, price);
 
       holdings.set(crypto, value);

@@ -43,6 +43,7 @@
     "test/walk.d.ts",
 
     "test/support/cryptoasset.fake.mts",
+    "test/support/fiatconverter.fake.mts",
     "test/support/fiatcurrency.fake.mts",
     "test/support/snapshot.fake.mts",
     "test/support/oracle.fake.mts",
