@@ -11,6 +11,7 @@ import {
   GnosisScanAPI,
   GnosisScan,
 } from "../../../src/services/explorers/gnosisscan.mjs";
+import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["GNOSISSCAN_API_KEY"];
@@ -23,6 +24,7 @@ describe("GnosisScan", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
+  const cryptoResolver = new FakeCryptoResolver();
   let provider: GnosisScanProvider | undefined;
   let gs: GnosisScanAPI | undefined;
 
@@ -91,7 +93,7 @@ describe("GnosisScan", function () {
 
     beforeEach(() => {
       explorer = new GnosisScan(gs!);
-      sw = new Swarm([explorer]);
+      sw = new Swarm([explorer], cryptoResolver);
     });
 
     it("should default to the Gnosis chain", () => {
@@ -101,7 +103,11 @@ describe("GnosisScan", function () {
       it("should load a transaction by its hash", async () => {
         const txhash =
           "0xb76d2ba3313ebbfca1177846e791d91a3c7f675ba5c0cf8bb7ac2ad67403237c";
-        const transaction = await explorer.normalTransaction(sw, txhash);
+        const transaction = await explorer.normalTransaction(
+          sw,
+          cryptoResolver,
+          txhash
+        );
 
         assert.include(transaction, {
           hash: txhash.toLowerCase(),

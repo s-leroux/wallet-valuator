@@ -1,11 +1,12 @@
-import {
+import type {
   ChainRecord,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,
 } from "./transaction.mjs";
-import { Swarm } from "./swarm.mjs";
-import { Explorer } from "./services/explorer.mjs";
+import type { Swarm } from "./swarm.mjs";
+import type { Explorer } from "./services/explorer.mjs";
+import type { CryptoResolver } from "./services/cryptoresolver.mjs";
 
 type ERC20TokenAddressData = {
   tokenName: string;
@@ -58,7 +59,11 @@ export class Address {
     return transition.currency;
   }
 */
-  assign(swarm: Swarm, data: Partial<AddressData>) {
+  assign(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver,
+    data: Partial<AddressData>
+  ) {
     Object.assign(this.data, data);
   }
 
@@ -82,23 +87,58 @@ export class Address {
     );
   }
 
-  normalTransactions(swarm: Swarm): Promise<Array<ChainRecord>> {
-    return this.explorer.addressNormalTransactions(swarm, this.address);
+  normalTransactions(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver
+  ): Promise<Array<ChainRecord>> {
+    return this.explorer.addressNormalTransactions(
+      swarm,
+      cryptoResolver,
+      this.address
+    );
   }
 
-  internalTransactions(swarm: Swarm): Promise<Array<ChainRecord>> {
-    return this.explorer.addressInternalTransactions(swarm, this.address);
+  internalTransactions(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver
+  ): Promise<Array<ChainRecord>> {
+    return this.explorer.addressInternalTransactions(
+      swarm,
+      cryptoResolver,
+      this.address
+    );
   }
 
-  tokenTransfers(swarm: Swarm): Promise<Array<ChainRecord>> {
-    return this.explorer.addressTokenTransfers(swarm, this.address);
+  tokenTransfers(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver
+  ): Promise<Array<ChainRecord>> {
+    return this.explorer.addressTokenTransfers(
+      swarm,
+      cryptoResolver,
+      this.address
+    );
   }
 
-  allTransfers(swarm: Swarm): Promise<Array<ChainRecord>> {
-    return this.explorer.addressAllTransfers(swarm, this.address);
+  allTransfers(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver
+  ): Promise<Array<ChainRecord>> {
+    return this.explorer.addressAllTransfers(
+      swarm,
+      cryptoResolver,
+      this.address
+    );
   }
 
-  allValidTransfers(swarm: Swarm): Promise<Array<ChainRecord>> {
-    return this.explorer.addressAllValidTransfers(swarm, this.address);
+  allValidTransfers(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver
+  ): Promise<Array<ChainRecord>> {
+    return this.explorer.addressAllValidTransfers(
+      swarm,
+      cryptoResolver,
+      this.address
+    );
   }
 }

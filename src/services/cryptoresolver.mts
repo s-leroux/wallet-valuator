@@ -33,6 +33,8 @@ export abstract class CryptoResolver {
     symbol: string,
     decimal: number
   ): CryptoAsset | null;
+
+  abstract get(crypto_id: string): CryptoAsset | null;
 }
 
 export class CryptoDB {
