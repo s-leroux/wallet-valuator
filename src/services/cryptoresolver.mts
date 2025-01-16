@@ -41,16 +41,17 @@ export abstract class CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): CryptoAsset | null;
+  ): CryptoAsset | null; // XXX Shouldn't we throw an exception instead of returning null?
 
   /**
    * Return a logical crypto-asset from its internal `id`.
    * Return `null` if the given `id` is not in the database.
    */
-  abstract get(crypto_id: string): CryptoAsset | null;
+  abstract get(crypto_id: string): CryptoAsset | null; // XXX Shouldn't we throw an exception instead of returning null?
 }
 
 export class CryptoDB {
+  // XXX Isn't this redundant with CryptoResolver? Where is this used?
   private cryptoMap: Map<string, CryptoAsset>;
 
   constructor() {

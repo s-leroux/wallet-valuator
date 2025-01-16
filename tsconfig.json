@@ -30,6 +30,7 @@
     "test/portfolio.spec.mts",
     "test/provider.spec.mts",
     "test/services/cryptoresolver.spec.mts",
+    "test/services/cryptoresolvers/defaultcryptoresolver.spec.mts",
     "test/services/explorers/gnosisscan.spec.mts",
     "test/services/explorers/testscan.spec.mts",
     "test/services/fiatconverter.spec.mts",

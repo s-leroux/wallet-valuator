@@ -30,8 +30,11 @@ const explorer = GnosisScan.create(env("GNOSISSCAN_API_KEY"));
 const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache(
   "historical-data.db"
 );
-const fiatConverter = new ImplicitFiatConverter(oracle, null);
 const cryptoResolver = new DefaultCryptoResolver();
+const fiatConverter = new ImplicitFiatConverter(
+  oracle,
+  cryptoResolver.get("bitcoin")
+);
 
 const swarm = new Swarm([explorer], cryptoResolver);
 const address = swarm.address(explorer, cryptoResolver, program.args[0]);

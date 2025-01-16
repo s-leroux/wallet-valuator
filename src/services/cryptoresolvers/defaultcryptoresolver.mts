@@ -105,12 +105,12 @@ function ChainAddress(
 
 export class DefaultCryptoResolver extends CryptoResolver {
   private cryptos: Map<string, CryptoAsset>;
-  private transitionMap: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
+  private transitions: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
   private seq: number;
 
   constructor() {
     super();
-    this.transitionMap = new Map();
+    this.transitions = new Map();
     this.seq = 0;
 
     const cryptos = (this.cryptos = new Map());
@@ -127,10 +127,10 @@ export class DefaultCryptoResolver extends CryptoResolver {
       smartContractAddress,
     ] of wellKnownTransitions) {
       const key = ChainAddress(chain, smartContractAddress);
-      let transitions = this.transitionMap.get(key);
+      let transitions = this.transitions.get(key);
       if (!transitions) {
         transitions = [];
-        this.transitionMap.set(key, transitions);
+        this.transitions.set(key, transitions);
       }
 
       transitions.push({
@@ -152,7 +152,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
     decimal: number
   ): CryptoAsset | null {
     const chainAddress = ChainAddress(chain, smartContractAddress);
-    const transitions = this.transitionMap.get(chainAddress);
+    const transitions = this.transitions.get(chainAddress);
     if (!transitions) {
       return this.register(
         chainAddress,
@@ -168,6 +168,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
         return transition.crypto;
       }
     }
+    return null;
     throw new Error(
       `Cannot resolve crypto-asset ${symbol}(?) address ${chainAddress} at block ${block}`
     );
@@ -184,7 +185,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
     const id = `unknown-${this.seq++}-${symbol.toLowerCase()}`;
     const crypto = new CryptoAsset(id, name, symbol, decimal);
     this.cryptos.set(id, crypto);
-    this.transitionMap.set(chainAddress, [
+    this.transitions.set(chainAddress, [
       {
         crypto: crypto,
         chain,
