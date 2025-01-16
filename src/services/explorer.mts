@@ -1,7 +1,8 @@
 import { Swarm } from "../swarm.mjs";
+import { NotImplementedError } from "../error.mjs";
 import { ChainRecord, NormalTransaction } from "../transaction.mjs";
 import { CryptoAsset } from "../cryptoasset.mjs";
-import { NotImplementedError } from "../error.mjs";
+import { CryptoResolver } from "./cryptoresolver.mjs";
 
 /**
  * The high-level interface to explorer a blockchain
@@ -15,10 +16,11 @@ export class Explorer {
     this.nativeCurrency = nativeCurrency;
   }
 
-  register(swarm: Swarm): void {}
+  register(swarm: Swarm, cryptoResolver: CryptoResolver): void {}
 
   async normalTransaction(
     swarm: Swarm,
+    cryptoResolver: CryptoResolver,
     txhash: string
   ): Promise<NormalTransaction> {
     // OVERRIDE ME
@@ -27,6 +29,7 @@ export class Explorer {
 
   async addressNormalTransactions(
     swarm: Swarm,
+    cryptoResolver: CryptoResolver,
     address: string
   ): Promise<Array<NormalTransaction>> {
     // OVERRIDE ME
@@ -35,6 +38,7 @@ export class Explorer {
 
   async addressInternalTransactions(
     swarm: Swarm,
+    cryptoResolver: CryptoResolver,
     address: string
   ): Promise<Array<ChainRecord>> {
     // OVERRIDE ME
@@ -43,6 +47,7 @@ export class Explorer {
 
   async addressTokenTransfers(
     swarm: Swarm,
+    cryptoResolver: CryptoResolver,
     address: string
   ): Promise<Array<ChainRecord>> {
     // OVERRIDE ME
@@ -51,11 +56,16 @@ export class Explorer {
 
   async addressAllValidTransfers(
     swarm: Swarm,
+    cryptoResolver: CryptoResolver,
     address: string
   ): Promise<Array<ChainRecord>> {
-    const allTransfers = await this.addressAllTransfers(swarm, address);
+    const allTransfers = await this.addressAllTransfers(
+      swarm,
+      cryptoResolver,
+      address
+    );
     const selection = await Promise.all(
-      allTransfers.map((tr) => tr.isValid(swarm))
+      allTransfers.map((tr) => tr.isValid(swarm, cryptoResolver))
     );
 
     return allTransfers.filter((_, index) => selection[index]);
@@ -68,6 +78,7 @@ export class Explorer {
    */
   async addressAllTransfers(
     swarm: Swarm,
+    cryptoResolver: CryptoResolver,
     address: string
   ): Promise<Array<ChainRecord>> {
     /*
@@ -76,9 +87,9 @@ export class Explorer {
 
     // naive implementation
     const [normal, internal, erc20] = await Promise.all([
-      this.addressNormalTransactions(swarm, address),
-      this.addressInternalTransactions(swarm, address),
-      this.addressTokenTransfers(swarm, address),
+      this.addressNormalTransactions(swarm, cryptoResolver, address),
+      this.addressInternalTransactions(swarm, cryptoResolver, address),
+      this.addressTokenTransfers(swarm, cryptoResolver, address),
     ]);
     const result: ChainRecord[] = [];
 
@@ -94,11 +105,15 @@ export class CommonExplorer extends Explorer {
     return [];
   }
 
-  async addressNormalTransactions(swarm: Swarm, address: string) {
+  async addressNormalTransactions(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver,
+    address: string
+  ) {
     const res = await this.accountNormalTransactions(address);
 
     return res
-      .map((t) => swarm.normalTransaction(this, t.hash, t))
+      .map((t) => swarm.normalTransaction(this, cryptoResolver, t.hash, t))
       .filter((t) => t.data.isError === "0");
   }
 
@@ -111,11 +126,12 @@ export class CommonExplorer extends Explorer {
 
   async addressInternalTransactions(
     swarm: Swarm,
+    cryptoResolver: CryptoResolver,
     address: string
   ): Promise<Array<ChainRecord>> {
     const res = await this.accountInternalTransactions(address);
 
-    return res.map((t) => swarm.internalTransaction(this, t));
+    return res.map((t) => swarm.internalTransaction(this, cryptoResolver, t));
   }
 
   async accountTokenTransfers(address: string): Promise<Record<string, any>[]> {
@@ -123,9 +139,13 @@ export class CommonExplorer extends Explorer {
     return [];
   }
 
-  async addressTokenTransfers(swarm: Swarm, address: string) {
+  async addressTokenTransfers(
+    swarm: Swarm,
+    cryptoResolver: CryptoResolver,
+    address: string
+  ) {
     const res = await this.accountTokenTransfers(address);
 
-    return res.map((t) => swarm.tokenTransfer(this, t));
+    return res.map((t) => swarm.tokenTransfer(this, cryptoResolver, t));
   }
 }

@@ -1,7 +1,7 @@
-import { Explorer } from "./services/explorer.mjs";
-import { CryptoResolver } from "./services/cryptodb.mjs";
-import { DefaultCryptoResolver } from "./services/cryptodb/default.mjs";
-import { CryptoAsset } from "./cryptoasset.mjs";
+import type { Explorer } from "./services/explorer.mjs";
+import type { CryptoResolver } from "./services/cryptoresolver.mjs";
+import type { DefaultCryptoResolver } from "./services/cryptoresolvers/defaultcryptoresolver.mjs";
+import type { CryptoAsset } from "./cryptoasset.mjs";
 import { Address } from "./address.mjs";
 import {
   ChainRecord,
@@ -11,28 +11,26 @@ import {
 } from "./transaction.mjs";
 
 export interface Storable {
-  assign(swarm: Swarm, data: object): void;
+  assign(swarm: Swarm, cryptoResolver: CryptoResolver, data: object): void;
 }
 
 /**
  *  The swarm act as a repository that maps (chain, address) to Address objects.
  */
 export class Swarm {
-  readonly currencyResolver: CryptoResolver;
   readonly addresses: Map<string, Address>;
   readonly records: ChainRecord[];
   readonly transactions: Map<string, NormalTransaction>;
   readonly explorers: Map<string, Explorer>;
 
-  constructor(explorers: Explorer[]) {
-    this.currencyResolver = new DefaultCryptoResolver();
+  constructor(explorers: Explorer[], crypoResolver: CryptoResolver) {
     this.addresses = new Map();
     this.records = [];
     this.transactions = new Map();
     this.explorers = new Map();
     for (const explorer of explorers) {
       this.explorers.set(explorer.chain, explorer);
-      explorer.register(this);
+      explorer.register(this, crypoResolver);
     }
   }
 
@@ -40,28 +38,11 @@ export class Swarm {
     return this.explorers.get(chain);
   }
 
-  resolveCurrency(
-    explorer: Explorer,
-    blockNumber: number,
-    contract: string,
-    name: string,
-    symbol: string,
-    decimal: number
-  ): CryptoAsset | null {
-    return this.currencyResolver.resolve(
-      explorer.chain,
-      blockNumber,
-      contract,
-      name,
-      symbol,
-      decimal
-    );
-  }
-
   store<T extends Storable, U extends T, OPT extends {}>(
     storage: Map<string, T>,
     ctor: new (swarm: Swarm, explorer: Explorer, id: string) => U,
     explorer: Explorer,
+    cryptoResolver: CryptoResolver,
     id: string,
     data?: OPT
   ): U {
@@ -74,18 +55,42 @@ export class Swarm {
     }
 
     if (data) {
-      obj.assign(this, data);
+      obj.assign(this, cryptoResolver, data);
     }
 
     return obj;
   }
 
-  address(chain: Explorer, address: string, data?: object): Address {
-    return this.store(this.addresses, Address, chain, address, data);
+  address(
+    chain: Explorer,
+    cryptoResolver: CryptoResolver,
+    address: string,
+    data?: object
+  ): Address {
+    return this.store(
+      this.addresses,
+      Address,
+      chain,
+      cryptoResolver,
+      address,
+      data
+    );
   }
 
-  contract(chain: Explorer, address: string, data?: object): Address {
-    return this.store(this.addresses, Address, chain, address, data);
+  contract(
+    chain: Explorer,
+    cryptoResolver: CryptoResolver,
+    address: string,
+    data?: object
+  ): Address {
+    return this.store(
+      this.addresses,
+      Address,
+      chain,
+      cryptoResolver,
+      address,
+      data
+    );
   }
 
   /**
@@ -93,6 +98,7 @@ export class Swarm {
    */
   normalTransaction(
     chain: Explorer,
+    cryptoResolver: CryptoResolver,
     hash: string,
     data?: Record<string, any>
   ): NormalTransaction {
@@ -100,6 +106,7 @@ export class Swarm {
       this.transactions,
       NormalTransaction,
       chain,
+      cryptoResolver,
       hash,
       data
     );
@@ -113,9 +120,14 @@ export class Swarm {
    */
   tokenTransfer(
     explorer: Explorer,
+    cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): ERC20TokenTransfer {
-    const result = new ERC20TokenTransfer(this, explorer).assign(this, data);
+    const result = new ERC20TokenTransfer(this, explorer).assign(
+      this,
+      cryptoResolver,
+      data
+    );
     this.records.push(result);
 
     return result;
@@ -126,9 +138,14 @@ export class Swarm {
    */
   internalTransaction(
     explorer: Explorer,
+    cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): ERC20TokenTransfer {
-    const result = new InternalTransaction(this, explorer).assign(this, data);
+    const result = new InternalTransaction(this, explorer).assign(
+      this,
+      cryptoResolver,
+      data
+    );
     this.records.push(result);
 
     return result;

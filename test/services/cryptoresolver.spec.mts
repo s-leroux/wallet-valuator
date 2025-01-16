@@ -4,7 +4,7 @@ import { CryptoAsset } from "../../src/cryptoasset.mjs";
 import {
   CryptoResolver,
   CryptoDB,
-} from "../../src/services/cryptodb.mjs";
+} from "../../src/services/cryptoresolver.mjs";
 
 describe("CurrencyDB", () => {
   it("should correctly initialize from a list of Currency instance", () => {

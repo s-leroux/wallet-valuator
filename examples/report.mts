@@ -16,6 +16,7 @@ import type { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
 import { CoinGecko } from "../src/services/oracles/coingecko.mjs";
 import { ImplicitFiatConverter } from "../src/services/fiatconverters/implicitfiatconverter.mjs";
+import { DefaultCryptoResolver } from "../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
 
 function env(name: string): string {
   const result = process.env[name];
@@ -29,12 +30,17 @@ const explorer = GnosisScan.create(env("GNOSISSCAN_API_KEY"));
 const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache(
   "historical-data.db"
 );
-const fiatConverter = new ImplicitFiatConverter(oracle, null);
+const cryptoResolver = new DefaultCryptoResolver();
+const fiatConverter = new ImplicitFiatConverter(
+  oracle,
+  cryptoResolver.get("bitcoin")
+);
 
-const swarm = new Swarm([explorer]);
-const address = swarm.address(explorer, program.args[0]);
-
-const ledger = Ledger.create(await address.allValidTransfers(swarm));
+const swarm = new Swarm([explorer], cryptoResolver);
+const address = swarm.address(explorer, cryptoResolver, program.args[0]);
+const ledger = Ledger.create(
+  await address.allValidTransfers(swarm, cryptoResolver)
+);
 ledger.from(address).tag("EGRESS");
 ledger.to(address).tag("INGRESS");
 

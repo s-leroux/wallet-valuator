@@ -5,6 +5,7 @@ import { Explorer } from "../src/services/explorer.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
 import { ChainRecord, ERC20TokenTransfer } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
+import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
 import NormalTransactions from "../fixtures/NormalTransactions.json" assert { type: "json" };
@@ -63,20 +64,21 @@ describe("Ledger", () => {
   let swarm: Swarm;
   let explorer: Explorer;
   let transactions: ChainRecord[];
+  const cryptoResolver = new FakeCryptoResolver();
 
   beforeEach(() => {
     ledger = Ledger.create();
     explorer = new FakeExplorer();
-    swarm = new Swarm([explorer]);
+    swarm = new Swarm([explorer], cryptoResolver);
 
     const a = ERC20TokenTransferEvents.result.map((tr) => {
-      return swarm.tokenTransfer(explorer, tr);
+      return swarm.tokenTransfer(explorer, cryptoResolver, tr);
     });
     const b = NormalTransactions.result.map((tr) =>
-      swarm.normalTransaction(explorer, tr.hash, tr)
+      swarm.normalTransaction(explorer, cryptoResolver, tr.hash, tr)
     );
     const c = InternalTransactions.result.map((tr) =>
-      swarm.internalTransaction(explorer, tr)
+      swarm.internalTransaction(explorer, cryptoResolver, tr)
     );
 
     transactions = a.concat(b, c);
@@ -120,7 +122,11 @@ describe("Ledger", () => {
               length' fixtures/*.json
       */
       const ledger = Ledger.create(transactions);
-      const address = swarm.address(explorer, DISPERSE_APP_ADDRESS);
+      const address = swarm.address(
+        explorer,
+        cryptoResolver,
+        DISPERSE_APP_ADDRESS
+      );
       const subset = ledger.from(address);
 
       assert.notEqual(subset, ledger);

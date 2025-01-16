@@ -6,26 +6,32 @@ const assert = chai.assert;
 
 import { Swarm } from "../src/swarm.mjs";
 import { Address } from "../src/address.mjs";
-import { Explorer } from "../src/services/explorer.mjs";
+import type { Explorer } from "../src/services/explorer.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
+import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 
 const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
 
 describe("Swarm and Transaction integration", () => {
+  const cryptoResolver = new FakeCryptoResolver();
   let swarm: Swarm;
   let explorer: Explorer;
 
   beforeEach(() => {
     explorer = new TestScan(CHAIN_NAME);
-    swarm = new Swarm([explorer]);
+    swarm = new Swarm([explorer], cryptoResolver);
   });
 
   describe("NormalTransaction", () => {
     it("should lazy load", async () => {
       const TXHASH =
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
-      const transaction = await swarm.normalTransaction(explorer, TXHASH);
+      const transaction = await swarm.normalTransaction(
+        explorer,
+        cryptoResolver,
+        TXHASH
+      );
 
       assert.deepEqual(transaction.data, {});
     });
@@ -33,8 +39,12 @@ describe("Swarm and Transaction integration", () => {
     it("should load data on demand", async function () {
       const TXHASH =
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
-      const tr1 = await swarm.normalTransaction(explorer, TXHASH);
-      const tr2 = await tr1.load(swarm);
+      const tr1 = await swarm.normalTransaction(
+        explorer,
+        cryptoResolver,
+        TXHASH
+      );
+      const tr2 = await tr1.load(swarm, cryptoResolver);
 
       assert.equal(tr1, tr2);
       assert.include(tr1.data, {
@@ -60,9 +70,13 @@ describe("Swarm and Transaction integration", () => {
         ],
       ];
       for (const [hash, ok] of testCases) {
-        const tr = await swarm.normalTransaction(explorer, hash);
+        const tr = await swarm.normalTransaction(
+          explorer,
+          cryptoResolver,
+          hash
+        );
 
-        assert.equal(await tr.isValid(swarm), ok);
+        assert.equal(await tr.isValid(swarm, cryptoResolver), ok);
       }
     });
   });
