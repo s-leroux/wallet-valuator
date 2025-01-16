@@ -12,7 +12,7 @@ import { Swarm } from "../src/swarm.mjs";
 import { Ledger } from "../src/ledger.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
-import { DefaultCryptoResolver } from "../src/services/cryptoresolvers/default.mjs";
+import { DefaultCryptoResolver } from "../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
 
 const explorer = program.args.length
   ? GnosisScan.create(process.env.GNOSISSCAN_API_KEY ?? "")

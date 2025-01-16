@@ -1,6 +1,6 @@
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
-import type { DefaultCryptoResolver } from "./services/cryptoresolvers/default.mjs";
+import type { DefaultCryptoResolver } from "./services/cryptoresolvers/defaultcryptoresolver.mjs";
 import type { CryptoAsset } from "./cryptoasset.mjs";
 import { Address } from "./address.mjs";
 import {
