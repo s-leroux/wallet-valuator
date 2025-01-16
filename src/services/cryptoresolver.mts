@@ -25,6 +25,15 @@ import { CryptoAsset } from "../cryptoasset.mjs";
  * @throws An error if the block number is outside any defined range for the address.
  */
 export abstract class CryptoResolver {
+  /**
+   * Resolve a token identified by its chain, block, and contract address to a logical
+   * crypto-asset.
+   *
+   * A new token and the corresponding crypto-asset are created if needed.
+   *
+   * This method returns `null` only if the contract was explicitly disabled (e.g.:
+   * the contract was updated at a given block and is not longer valid).
+   */
   abstract resolve(
     chain: string,
     block: number,
@@ -34,6 +43,10 @@ export abstract class CryptoResolver {
     decimal: number
   ): CryptoAsset | null;
 
+  /**
+   * Return a logical crypto-asset from its internal `id`.
+   * Return `null` if the given `id` is not in the database.
+   */
   abstract get(crypto_id: string): CryptoAsset | null;
 }
 
