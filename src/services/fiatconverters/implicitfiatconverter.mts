@@ -13,7 +13,7 @@ export class ImplicitFiatConverter {
 
   constructor(
     oracle: Oracle,
-    crypto: CryptoAsset | null // XXX Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
+    crypto: CryptoAsset | null // XXX ISSUE #45 Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
   ) {
     if (!crypto) {
       throw new ValueError(`The reference crypto-asset must be defined`);
@@ -31,7 +31,7 @@ export class ImplicitFiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(this, this.crypto, date, [from, to]); // XXX this may be re-entrant. Is it a problem?
+    const ref = await this.oracle.getPrice(this, this.crypto, date, [from, to]); // XXX ISSUE #46 this may be re-entrant. Is it a problem?
 
     const conversion = ref[to].rate / ref[from].rate;
 
