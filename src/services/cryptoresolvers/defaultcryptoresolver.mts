@@ -1,53 +1,65 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CurrencyResolver, CurrencyDB } from "../currencydb.mjs";
+import { CryptoResolver, CryptoDB } from "../cryptoresolver.mjs";
 
-const wellKnownCurrencies: [
+const wellKnownCryptos: [
   id: string,
   name: string,
   symbol: string,
   decimal: number
 ][] = [
-  ["ETH", "Ethereum", "ETH", 18],
-  ["EURe", "Monerium EURe", "EURe", 18],
+  ["monerium-eur-money", "Monerium EUR emoney", "EURe", 18],
+  ["binancecoin", "Binance Coin", "BNB", 18],
+  ["bitcoin", "bitcoin", "BTC", 8],
+  ["dai", "Dai Stablecoin", "DAI", 18],
+  ["ethereum", "ethereum", "ETH", 18],
+  ["solana", "Solana", "SOL", 9],
+  ["tether", "Tether USD", "USDT", 6],
+  ["usd-coin", "USDC", "USDC", 6],
 ];
 
 export const wellKnownTransitions: [
-  currency_id: string | null,
+  crypto_id: string | null,
   chain: string,
   startBlock: number,
   endBlock: number,
   smartContractAddress: string
 ][] = [
-  ["ETH", "ethereum", 0, Infinity, ""],
+  ["ethereum", "ethereum", 0, Infinity, ""],
   [
-    "EURe",
+    "monerium-eur-money",
     "ethereum",
     0,
     21419971,
     "0x3231Cb76718CDeF2155FC47b5286d82e6eDA273f",
   ],
   [
-    "EURe",
+    "monerium-eur-money",
     "ethereum",
     21419972,
     Infinity,
     "0x39b8B6385416f4cA36a20319F70D28621895279D",
   ],
   [
-    "EURe",
+    "monerium-eur-money",
     "polygon",
     0,
     60733236,
     "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6",
   ],
   [
-    "EURe",
+    "monerium-eur-money",
     "polygon",
     60733237,
     Infinity,
     "0xE0aEa583266584DafBB3f9C3211d5588c73fEa8d",
   ],
-  ["EURe", "gnosis", 0, 35656950, "0xcB444e90D8198415266c6a2724b7900fb12FC56E"],
+  [
+    "monerium-eur-money",
+    "gnosis",
+    0,
+    35656950,
+    "0xcB444e90D8198415266c6a2724b7900fb12FC56E",
+  ],
   [
     null,
     "gnosis",
@@ -56,7 +68,7 @@ export const wellKnownTransitions: [
     "0xcB444e90D8198415266c6a2724b7900fb12FC56E",
   ],
   [
-    "EURe",
+    "monerium-eur-money",
     "gnosis",
     35656951,
     Infinity,
@@ -64,62 +76,65 @@ export const wellKnownTransitions: [
   ],
 ];
 
-export class DefaultCurrencyDB extends CurrencyDB {
+export class DefaultCryptoDB extends CryptoDB {
   constructor() {
     super();
-    for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
+    for (const [id, name, symbol, decimal] of wellKnownCryptos) {
       this.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
   }
 }
 
-export type CurrencyLike = Pick<CryptoAsset, "symbol">;
+export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
-type MappingEntry<T extends CurrencyLike> = {
-  currency: T | null;
+type MappingEntry<T extends CryptoLike> = {
+  crypto: T | null;
   chain: string;
   startBlock: number;
   endBlock: number;
-  smartContractAddress: string;
+  smartContractAddress: string; // empty string for native currencies
 };
 
 type ChainAddress = string & { readonly brand: unique symbol };
-function toChainAddress(
+function ChainAddress(
   chain: string,
   smartContractAddress: string
 ): ChainAddress {
   return `${chain}:${smartContractAddress}`.toLowerCase() as ChainAddress;
 }
 
-export class DefaultCurrencyResolver extends CurrencyResolver {
-  private transitionMap: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
+export class DefaultCryptoResolver extends CryptoResolver {
+  private cryptos: Map<string, CryptoAsset>;
+  private transitions: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
   private seq: number;
 
   constructor() {
     super();
-    this.transitionMap = new Map();
+    this.transitions = new Map();
     this.seq = 0;
 
-    const currencies: Map<string, CryptoAsset> = new Map();
-    for (const [id, name, symbol, decimal] of wellKnownCurrencies) {
-      currencies.set(id, new CryptoAsset(id, name, symbol, decimal));
+    const cryptos = (this.cryptos = new Map());
+    for (const [id, name, symbol, decimal] of wellKnownCryptos) {
+      cryptos.set(id, new CryptoAsset(id, name, symbol, decimal));
     }
+
+    // register chain:address => (crypto, ...) for all known transitions
     for (const [
-      currency_id,
+      crypto_id,
       chain,
       startBlock,
       endBlock,
       smartContractAddress,
     ] of wellKnownTransitions) {
-      const key = toChainAddress(chain, smartContractAddress);
-      let transitions = this.transitionMap.get(key);
+      const key = ChainAddress(chain, smartContractAddress);
+      let transitions = this.transitions.get(key);
       if (!transitions) {
         transitions = [];
-        this.transitionMap.set(key, transitions);
+        this.transitions.set(key, transitions);
       }
 
       transitions.push({
-        currency: currency_id ? currencies.get(currency_id) || null : null,
+        crypto: crypto_id ? cryptos.get(crypto_id) || null : null,
         chain,
         startBlock,
         endBlock,
@@ -136,8 +151,8 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     symbol: string,
     decimal: number
   ): CryptoAsset | null {
-    const chainAddress = toChainAddress(chain, smartContractAddress);
-    const transitions = this.transitionMap.get(chainAddress);
+    const chainAddress = ChainAddress(chain, smartContractAddress);
+    const transitions = this.transitions.get(chainAddress);
     if (!transitions) {
       return this.register(
         chainAddress,
@@ -150,11 +165,12 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     }
     for (const transition of transitions) {
       if (block >= transition.startBlock && block <= transition.endBlock) {
-        return transition.currency;
+        return transition.crypto;
       }
     }
+    return null;
     throw new Error(
-      `Cannot resolve currency ${symbol}(?) address ${chainAddress} at block ${block}`
+      `Cannot resolve crypto-asset ${symbol}(?) address ${chainAddress} at block ${block}`
     );
   }
 
@@ -167,10 +183,11 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
     decimal: number
   ): CryptoAsset {
     const id = `unknown-${this.seq++}-${symbol.toLowerCase()}`;
-    const currency = new CryptoAsset(id, name, symbol, decimal);
-    this.transitionMap.set(chainAddress, [
+    const crypto = new CryptoAsset(id, name, symbol, decimal);
+    this.cryptos.set(id, crypto);
+    this.transitions.set(chainAddress, [
       {
-        currency,
+        crypto: crypto,
         chain,
         startBlock: 0,
         endBlock: Infinity,
@@ -178,6 +195,10 @@ export class DefaultCurrencyResolver extends CurrencyResolver {
       },
     ]);
 
-    return currency;
+    return crypto;
+  }
+
+  get(crypto_id: string): CryptoAsset | null {
+    return this.cryptos.get(crypto_id) ?? null;
   }
 }

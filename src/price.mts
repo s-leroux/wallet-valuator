@@ -7,7 +7,7 @@ import type { FiatCurrency } from "./fiatcurrency.mjs";
 export class Price {
   readonly crypto: CryptoAsset;
   readonly fiatCurrency: FiatCurrency;
-  readonly rate: number;
+  readonly rate: number; // XXX ISSUE #39 Should we use BigNumber here?
 
   constructor(
     crypto: CryptoAsset,

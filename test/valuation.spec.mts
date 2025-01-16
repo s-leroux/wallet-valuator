@@ -8,6 +8,7 @@ import {
 } from "./support/snapshot.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "./support/oracle.fake.mjs";
+import { FakeFiatConverter } from "./support/fiatconverter.fake.mjs";
 import {
   Valuation,
   Value,
@@ -15,6 +16,8 @@ import {
 } from "../src/valuation.mjs";
 
 describe("Valuation", () => {
+  const fiatConverter = new FakeFiatConverter();
+
   describe("valueFromAmountAndRate()", () => {
     const bitcoin = FakeCryptoAsset.bitcoin;
     const amount = bitcoin.fromString("100.5");
@@ -46,6 +49,7 @@ describe("Valuation", () => {
     it("should create a Valuation instance from holdings", async () => {
       const valuation = await Valuation.create(
         oracle,
+        fiatConverter,
         fiat,
         timeStamp,
         amounts
@@ -86,7 +90,9 @@ describe("Valuation", () => {
       const oracle = new FakeOracle();
       const snapshots = snapshotsFromMovements(movements);
       const valuations = await Promise.all(
-        snapshots.map((snapshot) => snapshot.evaluate(oracle, fiat))
+        snapshots.map((snapshot) =>
+          snapshot.evaluate(oracle, fiatConverter, fiat)
+        )
       );
 
       // Check that total valuation is properly computed
