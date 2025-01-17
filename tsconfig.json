@@ -74,6 +74,7 @@
     "src/services/oracle.mts",
     "src/services/oracles/caching.mts",
     "src/services/oracles/coingecko.mts",
+    "src/services/oracles/oraclegroup.mts",
     "src/swarm.mts",
     "src/transaction.mts",
     "src/valuation.mts",
