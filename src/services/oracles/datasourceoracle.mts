@@ -13,7 +13,7 @@ interface CSVOracleOptions {
   dateFormat?: string;
 }
 
-export class CSVOracle<T extends BigNumberSource> extends Oracle {
+export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
   readonly crypto: CryptoAsset;
   readonly data: DataSource<string, T>;
   readonly columMapping: Record<FiatCurrency, string>;

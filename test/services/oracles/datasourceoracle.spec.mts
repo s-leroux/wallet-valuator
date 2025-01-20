@@ -6,7 +6,7 @@ import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeDataSource } from "../../support/datasource.fake.mjs";
 import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
 
-import { CSVOracle } from "../../../src/services/oracles/csvoracle.mjs";
+import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -15,10 +15,10 @@ describe("DataSource", function () {
   const bitcoin = FakeCryptoAsset.bitcoin;
   const eur = FakeFiatCurrency.eur;
   const usd = FakeFiatCurrency.usd;
-  let oracle: CSVOracle<number>;
+  let oracle: DataSourceOracle<number>;
 
   beforeEach(() => {
-    oracle = new CSVOracle(bitcoin, new FakeDataSource((v) => v), {
+    oracle = new DataSourceOracle(bitcoin, new FakeDataSource((v) => v), {
       [usd]: "USD",
       [eur]: "EUR",
     });
