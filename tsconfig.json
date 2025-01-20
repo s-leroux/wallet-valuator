@@ -20,6 +20,7 @@
     "test/bsearch.spec.mts",
     "test/coofile.spec.mts",
     "test/cryptoasset.spec.mts",
+    "test/datasource.spec.mts",
     "test/date.spec.mts",
     "test/examples.spec.mts",
     "test/geckocoin.spec.mts",
@@ -46,6 +47,7 @@
 
     "test/support/cryptoasset.fake.mts",
     "test/support/cryptoresolver.fake.mts",
+    "test/support/datasource.fake.mts",
     "test/support/fiatconverter.fake.mts",
     "test/support/fiatcurrency.fake.mts",
     "test/support/snapshot.fake.mts",

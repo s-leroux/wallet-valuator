@@ -41,6 +41,10 @@ export function itemIterator(
   return _itemIterator();
 }
 
+export interface DataSource<R, V> {
+  get(row: R, col: string): [R, V] | undefined;
+}
+
 /**
  * Read and parse COO file.
  *
@@ -50,7 +54,7 @@ export function itemIterator(
  * In this format data point are represented as (row, column, value) triples,
  * one per line.
  */
-export class COOFile<T> {
+export class COOFile<T> implements DataSource<string, T> {
   constructor(private columns: Map<string, Column<T>>) {}
 
   get(row: string, col: string): Row<T> | undefined {
@@ -122,7 +126,7 @@ export class COOFile<T> {
  *  - first column is a date expressed as a string (assuming YYYY-MM-DD format)
  *  - all lines are filled with data of type T
  */
-export class CSVFile<T> {
+export class CSVFile<T> implements DataSource<string, T> {
   constructor(readonly headings: string[], readonly rows: [string, ...T[]][]) {}
 
   get(row: string, col: string): [string, T] | undefined {
