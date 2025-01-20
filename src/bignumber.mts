@@ -10,6 +10,8 @@ export function toInteger(src: number | string) {
   return result;
 }
 
+export type BigNumberSource = number | string | DecimalImplementation;
+
 export class BigNumber extends DecimalImplementation {
   toString(): string {
     return super.toFixed();
@@ -23,7 +25,7 @@ export class BigNumber extends DecimalImplementation {
     return new BigNumber(v);
   }
 
-  static from(v: number | string | DecimalImplementation): BigNumber {
+  static from(v: BigNumberSource): BigNumber {
     return new BigNumber(v);
   }
 
