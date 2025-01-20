@@ -13,7 +13,7 @@ describe("DataSource", function () {
   let ds: DataSource<Date, number>;
 
   beforeEach(function () {
-    ds = new FakeDataSource();
+    ds = new FakeDataSource((v) => new Date(v));
   });
 
   describe("get()", () => {

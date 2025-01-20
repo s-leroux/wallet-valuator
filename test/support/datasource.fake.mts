@@ -1,10 +1,10 @@
 import type { DataSource } from "../../src/coofile.mjs";
 import { bsearch } from "../../src/bsearch.mjs";
 
-export class FakeDataSource implements DataSource<Date, number> {
-  prices: [Date, number, number][];
+export class FakeDataSource<T> implements DataSource<T, number> {
+  prices: [T, number, number][];
 
-  constructor() {
+  constructor(factory: (v: string) => T) {
     // pretier-ignore
     const prices = [
       // ["Date", "BTC in USD", "BTC in EUR"]
@@ -20,10 +20,10 @@ export class FakeDataSource implements DataSource<Date, number> {
       ["2024-12-10", 91_316.18, 91_343.64],
     ] as const;
 
-    this.prices = prices.map(([d, ...n]) => [new Date(d), ...n]);
+    this.prices = prices.map(([d, ...n]) => [factory(d), ...n]);
   }
 
-  get(date: Date, col: string): [Date, number] | undefined {
+  get(date: T, col: string): [T, number] | undefined {
     const row = bsearch(this.prices, date);
     if (!row) return undefined;
 

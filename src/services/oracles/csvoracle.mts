@@ -6,7 +6,7 @@ import type { Price } from "../../price.mjs";
 import { NotImplementedError } from "../../error.mjs";
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
-import { CSVFile } from "../../coofile.mjs";
+import { DataSource } from "../../coofile.mjs";
 import { Oracle } from "../oracle.mjs";
 
 interface CSVOracleOptions {
@@ -15,7 +15,7 @@ interface CSVOracleOptions {
 
 export class CSVOracle<T extends BigNumberSource> extends Oracle {
   readonly crypto: CryptoAsset;
-  readonly data: CSVFile<T>;
+  readonly data: DataSource<string, T>;
   readonly columMapping: Record<FiatCurrency, string>;
 
   // option
@@ -23,7 +23,7 @@ export class CSVOracle<T extends BigNumberSource> extends Oracle {
 
   constructor(
     crypto: CryptoAsset,
-    data: CSVFile<T>,
+    data: DataSource<string, T>,
     columMapping: Record<FiatCurrency, string>,
     { dateFormat = "YYYY-MM-DD" } = {}
   ) {
