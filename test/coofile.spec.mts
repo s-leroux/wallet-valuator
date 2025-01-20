@@ -2,7 +2,12 @@ import { assert } from "chai";
 
 import { prepare } from "./support/register.helper.mjs";
 
-import { lineIterator, itemIterator, COOFile } from "../src/coofile.mjs";
+import {
+  lineIterator,
+  itemIterator,
+  COOFile,
+  CSVFile,
+} from "../src/coofile.mjs";
 
 describe("COOFile utilities", function () {
   describe("lineIterator", function () {
@@ -57,6 +62,7 @@ const COO_DATA = `
 describe("COOFile", function () {
   it("Can be created from text data", async () => {
     const cooFile = COOFile.createFromText(COO_DATA, parseInt);
+    assert.exists(cooFile);
   });
 
   describe("get()", function () {
@@ -77,6 +83,30 @@ describe("COOFile", function () {
     for (const [row, col, expected] of testcases) {
       register(`case ${row} ${col}`, () => {
         const actual = cooFile.get(row, col);
+        assert.deepEqual(actual && actual[1], expected);
+      });
+    }
+  });
+});
+
+const CSV_TEST_FILE = "fixtures/sol-usd-max.csv";
+describe("CSVFile", function () {
+  it("Can be created from file", async () => {
+    const csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, parseInt);
+    assert.exists(csvFile);
+  });
+
+  describe("get()", async function () {
+    const register = prepare(this);
+    const csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, String);
+    // prettier-ignore
+    const testcases = [
+      ["2020-04-15 00:00:00 UTC", "price", "0.666673390515131"],
+    ] as const;
+
+    for (const [row, col, expected] of testcases) {
+      register(`case ${row} ${col} = ${expected}`, () => {
+        const actual = csvFile.get(row, col);
         assert.deepEqual(actual && actual[1], expected);
       });
     }
