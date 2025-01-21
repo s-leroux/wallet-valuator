@@ -6,10 +6,11 @@ import type { Price } from "../../price.mjs";
 import { NotImplementedError } from "../../error.mjs";
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
-import { DataSource } from "../../coofile.mjs";
+import type { DataSource } from "../../coofile.mjs";
+import { CSVFile } from "../../coofile.mjs";
 import { Oracle } from "../oracle.mjs";
 
-interface CSVOracleOptions {
+interface DataSourceOracleOptions {
   dateFormat?: string;
 }
 
@@ -61,5 +62,16 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
     }
 
     return result;
+  }
+
+  static async createFromPath(
+    crypto: CryptoAsset,
+    path: string,
+    columMapping: Record<FiatCurrency, string>,
+    options: DataSourceOracleOptions = {}
+  ) {
+    const dataSource = await CSVFile.createFromPath(path, BigNumber.from);
+
+    return new DataSourceOracle(crypto, dataSource, columMapping, options);
   }
 }
