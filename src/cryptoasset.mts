@@ -1,13 +1,7 @@
 import { BigNumber } from "./bignumber.mjs";
 import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
-
-class InconsistentCryptoAssetError extends TypeError {
-  // XXX ISSUE #31 Replace by "InconsistenUnitError" in errors.mts
-  constructor(a: object, b: object) {
-    super(`Inconsistent CryptoAsset Error: ${a} and ${b}`);
-  }
-}
+import { InconsistentUnitsError } from "./error.mjs";
 
 /**
  * Represents an amount of a CryptoAsset expressed in its display unit.
@@ -47,16 +41,16 @@ export class Amount {
    * Returns a new `Amount` representing the sum of the current instance and the specified `other` amount.
    *
    * This method ensures that both amounts share the same crypto before performing the addition.
-   * If the currencies are inconsistent, an `InconsistentCryptoAssetError` is thrown.
+   * If the currencies are inconsistent, an `InconsistentUnitsError` is thrown.
    *
    * @param other - The `Amount` to add to the current instance.
    * @returns A new `Amount` object with the same crypto and the combined value.
-   * @throws {InconsistentCryptoAssetError} If the currencies of the two amounts are not the same.
+   * @throws {InconsistentUnitsError} If the currencies of the two amounts are not the same.
    */
   plus(other: Amount): Amount {
     const crypto = this.crypto;
     if (other.crypto !== crypto) {
-      throw new InconsistentCryptoAssetError(this, other);
+      throw new InconsistentUnitsError(this, other);
     }
 
     return new Amount(crypto, this.value.plus(other.value));
@@ -66,16 +60,16 @@ export class Amount {
    * Returns a new `Amount` representing the difference between the current instance and the specified `other` amount.
    *
    * This method ensures that both amounts share the same crypto before performing the subtraction.
-   * If the currencies are inconsistent, an `InconsistentCryptoAssetError` is thrown.
+   * If the currencies are inconsistent, an `InconsistentUnitsError` is thrown.
    *
    * @param other - The `Amount` to subtract from the current instance.
    * @returns A new `Amount` object with the same crypto and the resulting value.
-   * @throws {InconsistentCryptoAssetError} If the currencies of the two amounts are not the same.
+   * @throws {InconsistentUnitsError} If the currencies of the two amounts are not the same.
    */
   minus(other: Amount): Amount {
     const crypto = this.crypto;
     if (other.crypto !== crypto) {
-      throw new InconsistentCryptoAssetError(this, other);
+      throw new InconsistentUnitsError(this, other);
     }
 
     return new Amount(crypto, this.value.minus(other.value));

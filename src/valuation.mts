@@ -1,4 +1,4 @@
-import { NotImplementedError, IncompatibleUnitsError } from "./error.mjs";
+import { NotImplementedError, InconsistentUnitsError } from "./error.mjs";
 import { BigNumber } from "./bignumber.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { CryptoAsset } from "./cryptoasset.mjs";
@@ -17,7 +17,7 @@ export class Value {
 
 export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
   if (amount.crypto !== price.crypto) {
-    throw new IncompatibleUnitsError(amount.crypto, price.crypto);
+    throw new InconsistentUnitsError(amount.crypto, price.crypto);
   }
   return new Value(price.fiatCurrency, BigNumber.mul(amount.value, price.rate));
 }

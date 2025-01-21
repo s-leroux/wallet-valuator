@@ -6,10 +6,10 @@ export class NotImplementedError extends Error {
   }
 }
 
-export class IncompatibleUnitsError extends Error {
+export class InconsistentUnitsError extends Error {
   constructor(unitA: any, unitB: any) {
     super(`Imcompatible units ${unitA.toString()} and ${unitB.toString()}`);
-    this.name = "IncompatibleUnitsError";
+    this.name = "InconsistentUnitsError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
 }
