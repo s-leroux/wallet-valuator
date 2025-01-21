@@ -41,6 +41,10 @@ export function itemIterator(
   return _itemIterator();
 }
 
+export interface DataSource<R, V> {
+  get(row: R, col: string): [R, V] | undefined;
+}
+
 /**
  * Read and parse COO file.
  *
@@ -50,7 +54,7 @@ export function itemIterator(
  * In this format data point are represented as (row, column, value) triples,
  * one per line.
  */
-export class COOFile<T> {
+export class COOFile<T> implements DataSource<string, T> {
   constructor(private columns: Map<string, Column<T>>) {}
 
   get(row: string, col: string): Row<T> | undefined {
@@ -112,5 +116,73 @@ export class COOFile<T> {
       throw new ValueError("Data cannot be empty");
     }
     return new COOFile(columns);
+  }
+}
+
+/**
+ *  Read homogenous simple CSV files.
+ *
+ *  This class make many asumptions:
+ *  - first column is a date expressed as a string (assuming YYYY-MM-DD format)
+ *  - all lines are filled with data of type T
+ */
+export class CSVFile<T> implements DataSource<string, T> {
+  constructor(readonly headings: string[], readonly rows: [string, ...T[]][]) {}
+
+  get(row: string, col: string): [string, T] | undefined {
+    const idx = this.headings.indexOf(col);
+    if (idx < 1) {
+      throw new ValueError(`Invalid data column ${col}`);
+    }
+
+    const result = bsearch(this.rows, row);
+    if (result === undefined) {
+      return undefined;
+    }
+
+    return [result[0], result[idx] as T];
+  }
+
+  static createFromPath<T>(
+    path: string,
+    fn: (arg0: string) => T
+  ): Promise<CSVFile<T>> {
+    return readFile(path, { encoding: "utf8" }).then((text) =>
+      CSVFile.createFromText(text, fn)
+    );
+  }
+
+  static createFromText<T>(text: string, fn: (arg0: string) => T): CSVFile<T> {
+    let lineNum = 0;
+    const separator = ",";
+    const lines = lineIterator(text);
+
+    let prev = "";
+    let empty = true;
+    let headings: string[] | undefined;
+    const rows = [] as [string, ...T[]][];
+
+    for (const line of lineIterator(text)) {
+      lineNum += 1;
+      if (headings === undefined) {
+        // read the heading
+        headings = Array.from(itemIterator(line, separator));
+      } else {
+        // read a data line
+        empty = false;
+        let [date, ...rest] = Array.from(itemIterator(line, separator));
+        if (date <= prev) {
+          throw new ValueError(
+            `Data must be stored in strictly ascending order (line ${lineNum}: ${prev} >= ${date})`
+          );
+        }
+        rows.push([date, ...rest.map(fn)]);
+        prev = date;
+      }
+    }
+    if (empty || !headings) {
+      throw new ValueError("No data to proceed");
+    }
+    return new CSVFile(headings, rows);
   }
 }
