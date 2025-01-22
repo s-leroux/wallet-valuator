@@ -18,4 +18,15 @@ export class Price {
     this.fiatCurrency = fiatCurrency;
     this.rate = +rate;
   }
+
+  /**
+   *  Convert a price to another fiat currency given the exchange rate.
+   */
+  to(destinationCurrency: FiatCurrency, exchangeRate: number) {
+    return new Price(
+      this.crypto,
+      destinationCurrency,
+      this.rate * exchangeRate
+    );
+  }
 }
