@@ -4,7 +4,6 @@ import chaiAsPromised from "chai-as-promised";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeDataSource } from "../../support/datasource.fake.mjs";
-import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
 
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 
@@ -29,12 +28,9 @@ describe("DataSource", function () {
   });
   describe("getPrice()", () => {
     it("should return the price in requested currency", async () => {
-      const prices = await oracle.getPrice(
-        new FakeFiatConverter(),
-        bitcoin,
-        new Date("2024-12-04"),
-        [eur]
-      );
+      const prices = await oracle.getPrice(bitcoin, new Date("2024-12-04"), [
+        eur,
+      ]);
       const price = prices[eur];
       assert.equal(price.rate, 93_966.82);
       assert.equal(price.fiatCurrency, eur);

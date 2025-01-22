@@ -1,6 +1,5 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { FiatConverter } from "../fiatconverter.mjs";
 import type { Price } from "../../price.mjs";
 
 import { NotImplementedError } from "../../error.mjs";
@@ -15,7 +14,6 @@ export class OracleGroup extends Oracle {
   }
 
   async getPrice(
-    converter: FiatConverter, // oracles may use that if they do not have the data for a required currency
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]
@@ -25,12 +23,7 @@ export class OracleGroup extends Oracle {
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas
     for (const backend of this.backends) {
-      const intermediateResult = await backend.getPrice(
-        converter,
-        crypto,
-        date,
-        missing
-      );
+      const intermediateResult = await backend.getPrice(crypto, date, missing);
       for (const [currency, price] of Object.entries(intermediateResult) as [
         FiatCurrency,
         Price

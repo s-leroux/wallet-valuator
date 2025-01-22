@@ -7,7 +7,7 @@ import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoResolver } from "../cryptoresolver.mjs";
 
-export class ImplicitFiatConverter {
+export class ImplicitFiatConverter implements FiatConverter {
   readonly oracle: Oracle;
   readonly crypto: CryptoAsset;
 
@@ -31,10 +31,10 @@ export class ImplicitFiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(this, this.crypto, date, [from, to]); // XXX ISSUE #46 this may be re-entrant. Is it a problem?
+    const ref = await this.oracle.getPrice(this.crypto, date, [from, to]); // XXX What to do if this fails?
 
-    const conversion = ref[to].rate / ref[from].rate;
+    const exchangeRage = ref[to].rate / ref[from].rate;
 
-    return new Price(price.crypto, to, price.rate * conversion);
+    return price.to(to, exchangeRage);
   }
 }

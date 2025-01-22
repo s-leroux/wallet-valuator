@@ -7,7 +7,6 @@ const assert = chai.assert;
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
-import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
 import { Caching } from "../../../src/services/oracles/caching.mjs";
 import type { Price } from "../../../src/price.mjs";
@@ -17,7 +16,6 @@ import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 describe("Caching", function () {
   const date = new Date("2024-12-30");
   const crypto = FakeCryptoAsset.bitcoin;
-  const fiatConverter = new FakeFiatConverter();
   const fiatCurrencies = [FakeFiatCurrency.eur, FakeFiatCurrency.usd];
   let oracle: Oracle;
 
@@ -47,20 +45,10 @@ describe("Caching", function () {
       const cache = new Caching(oracle, ":memory:");
       let prices;
       assert.equal(cache.backend_calls, 0);
-      prices = await cache.getPrice(
-        fiatConverter,
-        crypto,
-        date,
-        fiatCurrencies
-      );
+      prices = await cache.getPrice(crypto, date, fiatCurrencies);
       checkPrices(prices);
       assert.equal(cache.backend_calls, 1);
-      prices = await cache.getPrice(
-        fiatConverter,
-        crypto,
-        date,
-        fiatCurrencies
-      );
+      prices = await cache.getPrice(crypto, date, fiatCurrencies);
       checkPrices(prices);
       assert.equal(cache.backend_calls, 1);
     });

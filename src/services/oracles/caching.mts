@@ -3,7 +3,6 @@ import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Price } from "../../price.mjs";
 import type { Provider } from "../../provider.mjs";
 import type { Oracle } from "../oracle.mjs";
-import type { FiatConverter } from "../fiatconverter.mjs";
 
 import Database from "better-sqlite3";
 
@@ -41,7 +40,6 @@ export class Caching {
   }
 
   async getPrice(
-    converter: FiatConverter,
     crypto: CryptoAsset,
     date: Date,
     currencies: FiatCurrency[]
@@ -64,12 +62,7 @@ export class Caching {
       return result;
     }
     // else
-    const new_values = await this.backend.getPrice(
-      converter,
-      crypto,
-      date,
-      missing
-    );
+    const new_values = await this.backend.getPrice(crypto, date, missing);
     this.backend_calls += 1;
     this.insert(dateYyyyMmDd, new_values);
 
