@@ -3,7 +3,6 @@ import { assert } from "chai";
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
-import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 
@@ -11,7 +10,6 @@ import { ImplicitFiatConverter } from "../../../src/services/fiatconverters/impl
 
 describe("ImplicitFiatConverter", function () {
   const oracle = new FakeOracle();
-  const fiatConverter = new FakeFiatConverter();
   const { bitcoin, ethereum } = FakeCryptoAsset;
   const { eur, usd } = FakeFiatCurrency;
   const date = new Date("2024-12-10");
@@ -27,7 +25,7 @@ describe("ImplicitFiatConverter", function () {
     const error = 0.1; // acceptable error in %
 
     it(`should convert prices with ±${error}% error`, async () => {
-      const prices = await oracle.getPrice(fiatConverter, ethereum, date, [
+      const prices = await oracle.getPrice(ethereum, date, [
         FakeFiatCurrency.eur,
         FakeFiatCurrency.usd,
       ]);

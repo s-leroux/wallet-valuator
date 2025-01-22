@@ -4,7 +4,6 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
-import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import type { Price } from "../../../src/price.mjs";
@@ -13,8 +12,6 @@ const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["COINGECKO_API_KEY"];
 
 describe("CoinGecko", function () {
-  const fiatConverter = new FakeFiatConverter();
-
   if (!API_KEY) {
     throw Error("You must define the COINGECKO_API_KEY environment variable");
   }
@@ -44,7 +41,6 @@ describe("CoinGecko", function () {
 
       for (const [id, date, expected] of test_cases) {
         const prices = await coingecko!.getPrice(
-          fiatConverter,
           bitcoin,
           new Date(date),
           Object.keys(expected) as FiatCurrency[]

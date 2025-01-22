@@ -70,9 +70,9 @@ export class Valuation {
 
     for (const amount of amounts) {
       const crypto = amount.crypto;
-      const price = (
-        await oracle.getPrice(fiatConverter, crypto, date, [fiatCurrency])
-      )[fiatCurrency];
+      const price = (await oracle.getPrice(crypto, date, [fiatCurrency]))[
+        fiatCurrency
+      ];
       const value = valueFromAmountAndPrice(amount, price);
 
       holdings.set(crypto, value);

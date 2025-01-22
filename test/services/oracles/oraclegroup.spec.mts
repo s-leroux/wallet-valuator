@@ -7,7 +7,6 @@ const assert = chai.assert;
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
-import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
 import { Caching } from "../../../src/services/oracles/caching.mjs";
 import type { Price } from "../../../src/price.mjs";
@@ -19,7 +18,6 @@ import { OracleGroup } from "../../../src/services/oracles/oraclegroup.mjs";
 describe("OracleGroup", function () {
   const date = new Date("2024-12-30");
   const bitcoin = FakeCryptoAsset.bitcoin;
-  const fiatConverter = new FakeFiatConverter();
   const [eur, usd] = [FakeFiatCurrency.eur, FakeFiatCurrency.usd];
   let oracle: Oracle;
 
@@ -34,12 +32,10 @@ describe("OracleGroup", function () {
 
   describe("getPrice()", () => {
     it("should aggregate the results from several oracles", async function () {
-      const prices = await oracle.getPrice(
-        fiatConverter,
-        bitcoin,
-        new Date("2024-12-05"),
-        [usd, eur]
-      );
+      const prices = await oracle.getPrice(bitcoin, new Date("2024-12-05"), [
+        usd,
+        eur,
+      ]);
 
       assert.containsAllKeys(prices, [eur, usd]);
       assert.equal(prices[usd].rate, 229.06669921453178);

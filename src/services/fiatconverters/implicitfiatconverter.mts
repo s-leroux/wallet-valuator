@@ -31,7 +31,7 @@ export class ImplicitFiatConverter implements FiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(this, this.crypto, date, [from, to]); // XXX ISSUE #46 this may be re-entrant. Is it a problem?
+    const ref = await this.oracle.getPrice(this.crypto, date, [from, to]);
 
     const conversion = ref[to].rate / ref[from].rate;
 
