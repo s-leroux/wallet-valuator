@@ -7,7 +7,7 @@ import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoResolver } from "../cryptoresolver.mjs";
 
-export class ImplicitFiatConverter {
+export class ImplicitFiatConverter implements FiatConverter {
   readonly oracle: Oracle;
   readonly crypto: CryptoAsset;
 
