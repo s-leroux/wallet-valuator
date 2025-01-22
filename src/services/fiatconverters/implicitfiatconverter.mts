@@ -31,10 +31,10 @@ export class ImplicitFiatConverter implements FiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(this.crypto, date, [from, to]);
+    const ref = await this.oracle.getPrice(this.crypto, date, [from, to]); // XXX What to do if this fails?
 
-    const conversion = ref[to].rate / ref[from].rate;
+    const exchangeRage = ref[to].rate / ref[from].rate;
 
-    return new Price(price.crypto, to, price.rate * conversion);
+    return price.to(to, exchangeRage);
   }
 }
