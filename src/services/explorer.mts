@@ -18,7 +18,7 @@ export class Explorer {
 
   register(swarm: Swarm, cryptoResolver: CryptoResolver): void {}
 
-  async normalTransaction(
+  async getNormalTransactionByHash(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     txhash: string
@@ -27,7 +27,7 @@ export class Explorer {
     throw new NotImplementedError();
   }
 
-  async addressNormalTransactions(
+  async getNormalTransactionsByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string
@@ -36,7 +36,7 @@ export class Explorer {
     return [];
   }
 
-  async addressInternalTransactions(
+  async getInternalTransactionsByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string
@@ -45,7 +45,7 @@ export class Explorer {
     return [];
   }
 
-  async addressTokenTransfers(
+  async getTokenTransfersByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string
@@ -54,12 +54,12 @@ export class Explorer {
     return [];
   }
 
-  async addressAllValidTransfers(
+  async getAllValidTransactionsByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string
   ): Promise<Array<ChainRecord>> {
-    const allTransfers = await this.addressAllTransfers(
+    const allTransfers = await this.getAllTransactionsByAddress(
       swarm,
       cryptoResolver,
       address
@@ -76,7 +76,7 @@ export class Explorer {
    *
    * You probably *don't* want to use this function but `addressAllValidTransfers` instead.
    */
-  async addressAllTransfers(
+  async getAllTransactionsByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string
@@ -87,9 +87,9 @@ export class Explorer {
 
     // naive implementation
     const [normal, internal, erc20] = await Promise.all([
-      this.addressNormalTransactions(swarm, cryptoResolver, address),
-      this.addressInternalTransactions(swarm, cryptoResolver, address),
-      this.addressTokenTransfers(swarm, cryptoResolver, address),
+      this.getNormalTransactionsByAddress(swarm, cryptoResolver, address),
+      this.getInternalTransactionsByAddress(swarm, cryptoResolver, address),
+      this.getTokenTransfersByAddress(swarm, cryptoResolver, address),
     ]);
     const result: ChainRecord[] = [];
 
@@ -105,7 +105,7 @@ export class CommonExplorer extends Explorer {
     return [];
   }
 
-  async addressNormalTransactions(
+  async getNormalTransactionsByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string
@@ -124,7 +124,7 @@ export class CommonExplorer extends Explorer {
     return [];
   }
 
-  async addressInternalTransactions(
+  async getInternalTransactionsByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string
@@ -139,7 +139,7 @@ export class CommonExplorer extends Explorer {
     return [];
   }
 
-  async addressTokenTransfers(
+  async getTokenTransfersByAddress(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     address: string

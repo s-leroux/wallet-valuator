@@ -196,7 +196,7 @@ export class GnosisScan extends CommonExplorer {
     );
   }
 
-  async normalTransaction(
+  async getNormalTransactionByHash(
     swarm: Swarm,
     cryptoResolver: CryptoResolver,
     txhash: string

@@ -91,7 +91,7 @@ export class Address {
     swarm: Swarm,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
-    return this.explorer.addressNormalTransactions(
+    return this.explorer.getNormalTransactionsByAddress(
       swarm,
       cryptoResolver,
       this.address
@@ -102,7 +102,7 @@ export class Address {
     swarm: Swarm,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
-    return this.explorer.addressInternalTransactions(
+    return this.explorer.getInternalTransactionsByAddress(
       swarm,
       cryptoResolver,
       this.address
@@ -113,7 +113,7 @@ export class Address {
     swarm: Swarm,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
-    return this.explorer.addressTokenTransfers(
+    return this.explorer.getTokenTransfersByAddress(
       swarm,
       cryptoResolver,
       this.address
@@ -124,7 +124,7 @@ export class Address {
     swarm: Swarm,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
-    return this.explorer.addressAllTransfers(
+    return this.explorer.getAllTransactionsByAddress(
       swarm,
       cryptoResolver,
       this.address
@@ -135,7 +135,7 @@ export class Address {
     swarm: Swarm,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
-    return this.explorer.addressAllValidTransfers(
+    return this.explorer.getAllValidTransactionsByAddress(
       swarm,
       cryptoResolver,
       this.address

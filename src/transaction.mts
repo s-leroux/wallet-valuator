@@ -121,7 +121,7 @@ export class NormalTransaction extends ChainRecord {
   ): Promise<NormalTransaction> {
     if (this.timeStamp === undefined) {
       // The transaction data are not already loaded
-      return this.explorer.normalTransaction(swarm, cryptoResolver, this.hash);
+      return this.explorer.getNormalTransactionByHash(swarm, cryptoResolver, this.hash);
     }
 
     return this;

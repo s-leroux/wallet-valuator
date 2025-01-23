@@ -103,7 +103,7 @@ describe("GnosisScan", function () {
       it("should load a transaction by its hash", async () => {
         const txhash =
           "0xb76d2ba3313ebbfca1177846e791d91a3c7f675ba5c0cf8bb7ac2ad67403237c";
-        const transaction = await explorer.normalTransaction(
+        const transaction = await explorer.getNormalTransactionByHash(
           sw,
           cryptoResolver,
           txhash
