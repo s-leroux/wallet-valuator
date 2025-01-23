@@ -106,6 +106,8 @@ export class CryptoAsset {
    * @param name - The human-readable name of the crypto.
    * @param symbol - The symbol used to represent the crypto (e.g., "ETH").
    * @param decimal - The number of decimal places used for the crypto.
+   *
+   * XXX Make the constructor private and provide a CryptoAsset.create static method
    */
   constructor(id: string, name: string, symbol: string, decimal: number) {
     register(this);

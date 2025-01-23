@@ -3,10 +3,14 @@ import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
+
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import type { Price } from "../../../src/price.mjs";
+import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+
+import { prepare } from "../../support/register.helper.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["COINGECKO_API_KEY"];
@@ -19,7 +23,7 @@ describe("CoinGecko", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
-  let coingecko: CoinGecko | undefined;
+  let coingecko: CoinGecko;
 
   beforeEach(function () {
     coingecko = CoinGecko.create(API_KEY);
@@ -27,8 +31,10 @@ describe("CoinGecko", function () {
 
   describe("API", () => {});
 
-  describe("Utilities", () => {
-    it("should return historical prices", async function () {
+  describe("getPrice", function () {
+    describe("should return historical prices", function () {
+      const register = prepare(this);
+
       const bitcoin = FakeCryptoAsset.bitcoin;
 
       const test_cases: [string, string, Record<string, number>][] = [
@@ -40,23 +46,52 @@ describe("CoinGecko", function () {
       ];
 
       for (const [id, date, expected] of test_cases) {
-        const prices = await coingecko!.getPrice(
-          bitcoin,
-          new Date(date),
-          Object.keys(expected) as FiatCurrency[]
-        );
-        assert.equal(Object.keys(prices).length, Object.keys(expected).length);
-        assert.deepEqual(
-          Object.values(prices).reduce<Partial<typeof expected>>(
-            (acc, price: Price) => {
-              acc[price.fiatCurrency] = price.rate;
-              return acc;
-            },
-            {}
-          ),
-          expected
-        );
+        register(`case ${id} ${date}`, async () => {
+          const prices = await coingecko!.getPrice(
+            bitcoin,
+            new Date(date),
+            Object.keys(expected) as FiatCurrency[]
+          );
+          assert.equal(
+            Object.keys(prices).length,
+            Object.keys(expected).length
+          );
+          assert.deepEqual(
+            Object.values(prices).reduce<Partial<typeof expected>>(
+              (acc, price: Price) => {
+                acc[price.fiatCurrency] = price.rate;
+                return acc;
+              },
+              {}
+            ),
+            expected
+          );
+        });
       }
+    });
+
+    it("should properly URI encode the crypto id", async function () {
+      // If the URI is not properly encoded, the price of the crypto below
+      // will be resolved as if it was the "plain" bitcoin.
+      const maliciousCrypto = new CryptoAsset(
+        "/bitcoin",
+        "fake bitcoin",
+        "/BTC",
+        18
+      );
+      const price = await coingecko.getPrice(
+        maliciousCrypto,
+        new Date("2024-12-30"),
+        ["eur"] as FiatCurrency[]
+      );
+      const expected = {
+        eur: {
+          crypto: maliciousCrypto,
+          fiatCurrency: "eur",
+          rate: 0, // XXX ISSUE #27 CoinGecko silently defaults to 0
+        },
+      };
+      assert.deepEqual(price, expected);
     });
   });
 });

@@ -90,8 +90,7 @@ export class CoinGecko extends Oracle {
     let prices;
     try {
       const historical_data = await this.provider.fetch(
-        `coins/${internalToCoinGeckoId(crypto.id)}/history`,
-        // FIXME ISSUE #26 We must url encode the id!
+        `coins/${internalToCoinGeckoId(encodeURIComponent(crypto.id))}/history`,
         {
           date: dateDdMmYyyy,
         }
