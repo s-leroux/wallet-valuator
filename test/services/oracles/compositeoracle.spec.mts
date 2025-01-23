@@ -13,9 +13,9 @@ import type { Price } from "../../../src/price.mjs";
 import type { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
-import { OracleGroup } from "../../../src/services/oracles/oraclegroup.mjs";
+import { CompositeOracle } from "../../../src/services/oracles/compositeoracle.mjs";
 
-describe("OracleGroup", function () {
+describe("CompositeOracle", function () {
   const date = new Date("2024-12-30");
   const bitcoin = FakeCryptoAsset.bitcoin;
   const [eur, usd] = [FakeFiatCurrency.eur, FakeFiatCurrency.usd];
@@ -24,7 +24,7 @@ describe("OracleGroup", function () {
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
     // prettier-ignore
-    oracle = new OracleGroup([
+    oracle = new CompositeOracle([
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-eur-max.csv", {[eur]: "price"}, opt),
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-usd-max.csv", {[usd]: "price"}, opt),
     ])

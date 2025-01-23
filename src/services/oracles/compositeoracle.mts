@@ -5,7 +5,7 @@ import type { Price } from "../../price.mjs";
 import { NotImplementedError } from "../../error.mjs";
 import { Oracle } from "../oracle.mjs";
 
-export class OracleGroup extends Oracle {
+export class CompositeOracle extends Oracle {
   readonly backends: Oracle[];
 
   constructor(backends: Oracle[]) {
