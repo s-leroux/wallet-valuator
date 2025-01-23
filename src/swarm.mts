@@ -140,7 +140,7 @@ export class Swarm {
     explorer: Explorer,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): ERC20TokenTransfer {
+  ): InternalTransaction {
     const result = new InternalTransaction(this, explorer).assign(
       this,
       cryptoResolver,
