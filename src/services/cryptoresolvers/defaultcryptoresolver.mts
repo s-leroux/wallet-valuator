@@ -1,5 +1,5 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CryptoResolver, CryptoDB } from "../cryptoresolver.mjs";
+import { CryptoResolver } from "../cryptoresolver.mjs";
 
 const wellKnownCryptos: [
   id: string,
@@ -75,15 +75,6 @@ export const wellKnownTransitions: [
     "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430",
   ],
 ];
-
-export class DefaultCryptoDB extends CryptoDB {
-  constructor() {
-    super();
-    for (const [id, name, symbol, decimal] of wellKnownCryptos) {
-      this.set(id, new CryptoAsset(id, name, symbol, decimal));
-    }
-  }
-}
 
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
 

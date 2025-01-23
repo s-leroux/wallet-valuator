@@ -49,24 +49,3 @@ export abstract class CryptoResolver {
    */
   abstract get(crypto_id: string): CryptoAsset | null; // XXX ISSUE #43 Shouldn't we throw an exception instead of returning null?
 }
-
-export class CryptoDB {
-  // XXX ISSUE #44 Isn't this redundant with CryptoResolver? Where is this used?
-  private cryptoMap: Map<string, CryptoAsset>;
-
-  constructor() {
-    this.cryptoMap = new Map();
-  }
-
-  getCrypto(id: string): CryptoAsset {
-    const crypto = this.cryptoMap.get(id);
-    if (!crypto) {
-      throw new Error(`Currency with ID ${id} not found`);
-    }
-    return crypto;
-  }
-
-  set(id: string, crypto: CryptoAsset): void {
-    this.cryptoMap.set(id, crypto);
-  }
-}

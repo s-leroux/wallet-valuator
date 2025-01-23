@@ -1,10 +1,7 @@
 import { assert } from "chai";
 
 import { CryptoAsset } from "../../src/cryptoasset.mjs";
-import {
-  CryptoResolver,
-  CryptoDB,
-} from "../../src/services/cryptoresolver.mjs";
+import { CryptoResolver } from "../../src/services/cryptoresolver.mjs";
 
 describe("CurrencyDB", () => {
   it("should correctly initialize from a list of Currency instance", () => {
