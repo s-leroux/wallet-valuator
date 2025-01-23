@@ -3,6 +3,8 @@ import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError } from "./error.mjs";
 
+import { register } from "./debug.mjs";
+
 /**
  * Represents an amount of a CryptoAsset expressed in its display unit.
  *
@@ -106,6 +108,8 @@ export class CryptoAsset {
    * @param decimal - The number of decimal places used for the crypto.
    */
   constructor(id: string, name: string, symbol: string, decimal: number) {
+    register(this);
+
     this.id = id;
     this.name = name;
     this.symbol = symbol;

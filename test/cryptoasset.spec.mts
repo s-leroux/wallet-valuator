@@ -6,6 +6,8 @@ import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { Price } from "../src/price.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
+import { debugId } from "../src/debug.mjs";
+
 const mockCrypto = FakeCryptoAsset.ethereum;
 
 describe("CryptoAsset", () => {
@@ -21,6 +23,9 @@ describe("CryptoAsset", () => {
     assert.strictEqual(crypto.name, mockCrypto.name);
     assert.strictEqual(crypto.symbol, mockCrypto.symbol);
     assert.strictEqual(crypto.decimal, mockCrypto.decimal);
+
+    // Check we support object registration for debugging purposes
+    assert.match(debugId(crypto), /^ID-\d{6}$/);
   });
 
   it("should convert base unit value to Amount in display unit", () => {
