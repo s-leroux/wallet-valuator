@@ -2,6 +2,7 @@ import { NotImplementedError, InconsistentUnitsError } from "./error.mjs";
 import { BigNumber } from "./bignumber.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { CryptoAsset } from "./cryptoasset.mjs";
+import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import type { Amount } from "./cryptoasset.mjs";
 import type { Price } from "./price.mjs";
 import type { Oracle } from "./services/oracle.mjs";
@@ -59,6 +60,7 @@ export class Valuation {
   }
 
   static async create(
+    registry: CryptoRegistry,
     oracle: Oracle,
     fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency,
@@ -70,9 +72,9 @@ export class Valuation {
 
     for (const amount of amounts) {
       const crypto = amount.crypto;
-      const price = (await oracle.getPrice(crypto, date, [fiatCurrency]))[
-        fiatCurrency
-      ];
+      const price = (
+        await oracle.getPrice(registry, crypto, date, [fiatCurrency])
+      )[fiatCurrency];
       const value = valueFromAmountAndPrice(amount, price);
 
       holdings.set(crypto, value);

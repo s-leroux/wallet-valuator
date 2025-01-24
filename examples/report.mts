@@ -12,6 +12,7 @@ import { Swarm } from "../src/swarm.mjs";
 import { Ledger } from "../src/ledger.mjs";
 import { Portfolio } from "../src/portfolio.mjs";
 import { FiatCurrency } from "../src/fiatcurrency.mjs";
+import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 import type { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
 import { CoinGecko } from "../src/services/oracles/coingecko.mjs";
@@ -30,16 +31,22 @@ const explorer = GnosisScan.create(env("GNOSISSCAN_API_KEY"));
 const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache(
   "historical-data.db"
 );
+const registry = CryptoRegistry.create();
 const cryptoResolver = new DefaultCryptoResolver();
 const fiatConverter = new ImplicitFiatConverter(
   oracle,
   cryptoResolver.get("bitcoin")
 );
 
-const swarm = new Swarm([explorer], cryptoResolver);
-const address = swarm.address(explorer, cryptoResolver, program.args[0]);
+const swarm = new Swarm([explorer], registry, cryptoResolver);
+const address = swarm.address(
+  explorer,
+  registry,
+  cryptoResolver,
+  program.args[0]
+);
 const ledger = Ledger.create(
-  await address.allValidTransfers(swarm, cryptoResolver)
+  await address.allValidTransfers(swarm, registry, cryptoResolver)
 );
 ledger.from(address).tag("EGRESS");
 ledger.to(address).tag("INGRESS");
@@ -48,7 +55,8 @@ const portfolio = Portfolio.createFromLedger(ledger);
 console.log("%s", portfolio.asCSV()); // XXX ISSUE #23 Actually this shows the portfolio _history_
 const valuations = await Promise.all(
   portfolio.snapshots.map(
-    (snapshot) => snapshot.evaluate(oracle, fiatConverter, FiatCurrency("usd"))
+    (snapshot) =>
+      snapshot.evaluate(registry, oracle, fiatConverter, FiatCurrency("usd"))
     // XXX ISSUE #22 Check: fiat curencies are compared by _value_, cryptoassets are
     // compared by _identity_. Is this coherent?
   )

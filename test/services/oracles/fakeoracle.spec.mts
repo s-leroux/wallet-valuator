@@ -7,12 +7,15 @@ import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { Price } from "../../../src/price.mjs";
+import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 describe("FakeOracle", function () {
   let fakeoracle: FakeOracle | undefined;
+  let registry: CryptoRegistry;
 
   beforeEach(function () {
     fakeoracle = FakeOracle.create();
+    registry = CryptoRegistry.create();
   });
 
   describe("API", () => {});
@@ -31,6 +34,7 @@ describe("FakeOracle", function () {
 
       for (const [id, date, expected] of test_cases) {
         const prices = await fakeoracle!.getPrice(
+          registry,
           bitcoin,
           new Date(date),
           Object.keys(expected) as FiatCurrency[]

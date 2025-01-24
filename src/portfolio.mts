@@ -6,6 +6,7 @@ import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
 import { Valuation } from "./valuation.mjs";
 import type { FiatConverter } from "./services/fiatconverter.mjs";
+import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import type { Oracle } from "./services/oracle.mjs";
 
 interface CryptoAsset {
@@ -64,11 +65,13 @@ export class Snapshot {
   }
 
   evaluate(
+    registry: CryptoRegistry,
     oracle: Oracle,
     fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency
   ): Promise<Valuation> {
     return Valuation.create(
+      registry,
       oracle,
       fiatConverter,
       fiatCurrency,

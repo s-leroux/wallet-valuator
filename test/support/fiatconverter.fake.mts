@@ -6,12 +6,18 @@ import {
 } from "../../src/error.mjs";
 import type { Price } from "../../src/price.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
+import type { CryptoRegistry } from "../../src/cryptoregistry.mjs";
 
 /**
  * A fake fiat converter that always raises an exception if used
  */
 export class FakeFiatConverter extends FiatConverter {
-  convert(date: Date, from: Price, to: FiatCurrency): Promise<Price> {
+  convert(
+    registry: CryptoRegistry,
+    date: Date,
+    from: Price,
+    to: FiatCurrency
+  ): Promise<Price> {
     throw new NotImplementedError();
   }
 }
@@ -28,7 +34,12 @@ export class FixedFiatConverter extends FiatConverter {
     super();
   }
 
-  async convert(date: Date, price: Price, to: FiatCurrency): Promise<Price> {
+  async convert(
+    registry: CryptoRegistry,
+    date: Date,
+    price: Price,
+    to: FiatCurrency
+  ): Promise<Price> {
     if (price.fiatCurrency !== this.from) {
       throw new InconsistentUnitsError(price.fiatCurrency, this.from);
     }

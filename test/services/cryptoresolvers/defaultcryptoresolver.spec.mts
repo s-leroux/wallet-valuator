@@ -4,6 +4,7 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { ValueError } from "../../../src/error.mjs";
 import { DefaultCryptoResolver } from "../../../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
+import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 describe("DefaultCryptoResolver", function () {
   it("can be created (no parameters)", function () {
@@ -47,7 +48,9 @@ describe("DefaultCryptoResolver", function () {
 
       for (const [chain, block, address, expected] of testcases) {
         register(`case of ${[chain, block, address]}`, () => {
+          const registry = CryptoRegistry.create();
           const result = cryptoResolver.resolve(
+            registry,
             chain,
             block,
             address,

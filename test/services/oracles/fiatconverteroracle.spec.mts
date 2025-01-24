@@ -11,6 +11,7 @@ import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
 import type { Price } from "../../../src/price.mjs";
 import type { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { FiatConverterOracle } from "../../../src/services/oracles/fiatconverteroracle.mjs";
@@ -24,6 +25,7 @@ describe("FiatConverterOracle", function () {
     return new FixedFiatConverter(eur, usd, 1.2);
   };
   let oracle: Oracle;
+  let registry: CryptoRegistry;
 
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
@@ -32,17 +34,18 @@ describe("FiatConverterOracle", function () {
       await DataSourceOracle.createFromPath(solana,"fixtures/sol-eur-max.csv", {[eur]: "price"}, opt),
       factory,
       bitcoin,
-      eur
-      
-    )
+      eur)
+    registry = CryptoRegistry.create();
   });
 
   describe("getPrice()", () => {
     it("should use the fiat converter to provide missing prices", async function () {
-      const prices = await oracle.getPrice(solana, new Date("2024-12-05"), [
-        usd,
-        eur,
-      ]);
+      const prices = await oracle.getPrice(
+        registry,
+        solana,
+        new Date("2024-12-05"),
+        [usd, eur]
+      );
 
       assert.containsAllKeys(prices, [eur, usd]);
       assert.equal(prices[eur].rate, 217.91046376268642);

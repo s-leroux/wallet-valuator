@@ -1,6 +1,7 @@
 import { formatDate } from "../../date.mjs";
 import { Price } from "../../price.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
@@ -81,6 +82,7 @@ export class CoinGecko extends Oracle {
   async init() {}
 
   async getPrice(
+    registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
     currencies: FiatCurrency[]

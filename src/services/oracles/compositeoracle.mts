@@ -1,5 +1,6 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { Price } from "../../price.mjs";
 
 import { NotImplementedError } from "../../error.mjs";
@@ -14,6 +15,7 @@ export class CompositeOracle extends Oracle {
   }
 
   async getPrice(
+    registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]
@@ -23,7 +25,12 @@ export class CompositeOracle extends Oracle {
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas
     for (const backend of this.backends) {
-      const intermediateResult = await backend.getPrice(crypto, date, missing);
+      const intermediateResult = await backend.getPrice(
+        registry,
+        crypto,
+        date,
+        missing
+      );
       for (const [currency, price] of Object.entries(intermediateResult) as [
         FiatCurrency,
         Price

@@ -1,6 +1,7 @@
 import { Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import {
   ChainRecord,
   NormalTransaction,
@@ -183,11 +184,16 @@ export class GnosisScan extends CommonExplorer {
     return new GnosisScan(GnosisScanAPI.create(api_key, origin, options));
   }
 
-  register(swarm: Swarm, cryptoResolver: CryptoResolver): void {
+  register(
+    swarm: Swarm,
+    registry: CryptoRegistry,
+    cryptoResolver: CryptoResolver
+  ): void {
     // populate with well-known addresses
-    super.register(swarm, cryptoResolver);
+    super.register(swarm, registry, cryptoResolver);
     swarm.address(
       this,
+      registry,
       cryptoResolver,
       "0x0000000000000000000000000000000000000000",
       {
@@ -198,6 +204,7 @@ export class GnosisScan extends CommonExplorer {
 
   async getNormalTransactionByHash(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     txhash: string
   ): Promise<NormalTransaction> {
@@ -214,6 +221,7 @@ export class GnosisScan extends CommonExplorer {
     for (const record of records) {
       const t = swarm.normalTransaction(
         this,
+        registry,
         cryptoResolver,
         record.hash,
         record

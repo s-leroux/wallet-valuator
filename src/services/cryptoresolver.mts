@@ -1,4 +1,5 @@
 import { CryptoAsset } from "../cryptoasset.mjs";
+import type { CryptoRegistry } from "../cryptoregistry.mjs";
 
 /**
  * Resolves a smart contract address to a logical crypto-asset.
@@ -15,6 +16,7 @@ import { CryptoAsset } from "../cryptoasset.mjs";
  *   function returns `null`. Transactions involving a disabled address should
  *   be ignored.
  *
+ * @param registry - The crypto-asset registry
  * @param chain - The blockchain identifier (e.g., "Ethereum").
  * @param block - The block number for context.
  * @param smartContractAddress - The address of the smart contract.
@@ -35,6 +37,7 @@ export abstract class CryptoResolver {
    * the contract was updated at a given block and is not longer valid).
    */
   abstract resolve(
+    registry: CryptoRegistry,
     chain: string,
     block: number,
     smartContractAddress: string,

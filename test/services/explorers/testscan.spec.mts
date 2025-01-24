@@ -8,16 +8,19 @@ import { as_coin } from "../../../src/geckocoin.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
 import { TestScan } from "../../../src/services/explorers/testscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
+import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 describe("TestScan", function () {
+  let registry: CryptoRegistry;
   let cryptoResolver: FakeCryptoResolver;
   let explorer: TestScan;
   let sw: Swarm;
 
   beforeEach(() => {
+    registry = CryptoRegistry.create();
     cryptoResolver = new FakeCryptoResolver();
     explorer = new TestScan();
-    sw = new Swarm([explorer], cryptoResolver);
+    sw = new Swarm([explorer], registry, cryptoResolver);
   });
 
   it("should default to the fake Gnosis chain", () => {
@@ -30,6 +33,7 @@ describe("TestScan", function () {
         "0xc732d2593a010bace7333493dee5292fbb1aa1a6892c0dae420453a205825dcf";
       const transaction = await explorer.getNormalTransactionByHash(
         sw,
+        registry,
         cryptoResolver,
         txhash
       );
@@ -49,6 +53,7 @@ describe("TestScan", function () {
       const address = "0x89344efa2d9953accd3e907eab27b33542ed9e25";
       const transactions = await explorer.getInternalTransactionsByAddress(
         sw,
+        registry,
         cryptoResolver,
         address
       );

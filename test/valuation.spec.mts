@@ -14,6 +14,7 @@ import {
   Value,
   valueFromAmountAndPrice,
 } from "../src/valuation.mjs";
+import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 describe("Valuation", () => {
   const fiatConverter = new FakeFiatConverter();
@@ -38,6 +39,7 @@ describe("Valuation", () => {
   });
 
   describe("create()", () => {
+    const registry = CryptoRegistry.create();
     const oracle = FakeOracle.create();
     const fiat = FakeFiatCurrency.eur;
     const timeStamp = new Date("2024-12-30").getTime() / 1000;
@@ -48,6 +50,7 @@ describe("Valuation", () => {
 
     it("should create a Valuation instance from holdings", async () => {
       const valuation = await Valuation.create(
+        registry,
         oracle,
         fiatConverter,
         fiat,
@@ -85,13 +88,15 @@ describe("Valuation", () => {
       FakeMovement(INGRESS, "2024-12-02", "200000", "usd-coin"),
       FakeMovement(EGRESS, "2024-12-03", "1", "bitcoin"),
     ];
+
     it("should create a Valuation instance from holdings", async () => {
+      const registry = CryptoRegistry.create();
       const fiat = FakeFiatCurrency.usd;
       const oracle = new FakeOracle();
       const snapshots = snapshotsFromMovements(movements);
       const valuations = await Promise.all(
         snapshots.map((snapshot) =>
-          snapshot.evaluate(oracle, fiatConverter, fiat)
+          snapshot.evaluate(registry, oracle, fiatConverter, fiat)
         )
       );
 

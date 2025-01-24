@@ -1,5 +1,6 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver } from "../cryptoresolver.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 const wellKnownCryptos: [
   id: string,
@@ -135,6 +136,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
   }
 
   resolve(
+    registry: CryptoRegistry,
     chain: string,
     block: number,
     smartContractAddress: string,
