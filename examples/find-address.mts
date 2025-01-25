@@ -24,7 +24,7 @@ const cryptoResolver = new DefaultCryptoResolver();
 const swarm = new Swarm([explorer], registry, cryptoResolver);
 
 // A "random" address found on GnosisScan
-const address = swarm.address(
+const address = await swarm.address(
   explorer,
   registry,
   cryptoResolver,

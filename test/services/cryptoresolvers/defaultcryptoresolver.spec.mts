@@ -22,9 +22,9 @@ describe("DefaultCryptoResolver", function () {
       const register = prepare(this);
       const testcases = ["bitcoin", "ethereum"];
       for (const id of testcases) {
-        register(`case of ${id}`, () => {
-          const a = cryptoResolver.get(id);
-          const b = cryptoResolver.get(id);
+        register(`case of ${id}`, async () => {
+          const a = await cryptoResolver.get(id);
+          const b = await cryptoResolver.get(id);
 
           assert.exists(a);
           assert.strictEqual(a, b);
@@ -47,16 +47,19 @@ describe("DefaultCryptoResolver", function () {
       ] as const;
 
       for (const [chain, block, address, expected] of testcases) {
-        register(`case of ${[chain, block, address]}`, () => {
+        register(`case of ${[chain, block, address]}`, async () => {
           const registry = CryptoRegistry.create();
-          const result = cryptoResolver.resolve(
+          const result = await cryptoResolver.resolve(
             registry,
             chain,
             block,
             address,
             ...MONERIUM
           );
-          assert.strictEqual(result, expected && cryptoResolver.get(expected));
+          assert.strictEqual(
+            result,
+            expected && (await cryptoResolver.get(expected))
+          );
         });
       }
     });

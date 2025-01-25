@@ -219,7 +219,7 @@ export class GnosisScan extends CommonExplorer {
     ).result;
 
     for (const record of records) {
-      const t = swarm.normalTransaction(
+      const t = await swarm.normalTransaction(
         this,
         registry,
         cryptoResolver,

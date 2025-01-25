@@ -1,6 +1,11 @@
 import { Swarm } from "../swarm.mjs";
 import { NotImplementedError } from "../error.mjs";
-import { ChainRecord, NormalTransaction } from "../transaction.mjs";
+import {
+  ChainRecord,
+  NormalTransaction,
+  InternalTransaction,
+  ERC20TokenTransfer,
+} from "../transaction.mjs";
 import { CryptoAsset } from "../cryptoasset.mjs";
 import { CryptoResolver } from "./cryptoresolver.mjs";
 import type { CryptoRegistry } from "../cryptoregistry.mjs";
@@ -48,7 +53,7 @@ export class Explorer {
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<InternalTransaction>> {
     // OVERRIDE ME
     return [];
   }
@@ -58,7 +63,7 @@ export class Explorer {
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<ERC20TokenTransfer>> {
     // OVERRIDE ME
     return [];
   }
@@ -135,11 +140,13 @@ export class CommonExplorer extends Explorer {
   ) {
     const res = await this.accountNormalTransactions(address);
 
-    return res
-      .map((t) =>
-        swarm.normalTransaction(this, registry, cryptoResolver, t.hash, t)
+    return (
+      await Promise.all(
+        res.map((t) =>
+          swarm.normalTransaction(this, registry, cryptoResolver, t.hash, t)
+        )
       )
-      .filter((t) => t.data.isError === "0");
+    ).filter((t) => t.data.isError === "0");
   }
 
   async accountInternalTransactions(
@@ -154,11 +161,13 @@ export class CommonExplorer extends Explorer {
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<InternalTransaction>> {
     const res = await this.accountInternalTransactions(address);
 
-    return res.map((t) =>
-      swarm.internalTransaction(this, registry, cryptoResolver, t)
+    return await Promise.all(
+      res.map((t) =>
+        swarm.internalTransaction(this, registry, cryptoResolver, t)
+      )
     );
   }
 
@@ -175,8 +184,8 @@ export class CommonExplorer extends Explorer {
   ) {
     const res = await this.accountTokenTransfers(address);
 
-    return res.map((t) =>
-      swarm.tokenTransfer(this, registry, cryptoResolver, t)
+    return await Promise.all(
+      res.map((t) => swarm.tokenTransfer(this, registry, cryptoResolver, t))
     );
   }
 }

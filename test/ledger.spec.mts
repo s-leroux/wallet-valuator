@@ -68,23 +68,29 @@ describe("Ledger", () => {
   const cryptoResolver = new FakeCryptoResolver();
   let registry: CryptoRegistry;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     ledger = Ledger.create();
     explorer = new FakeExplorer();
     registry = CryptoRegistry.create();
     swarm = new Swarm([explorer], registry, cryptoResolver);
 
-    const a = ERC20TokenTransferEvents.result.map((tr) => {
-      return swarm.tokenTransfer(explorer, registry, cryptoResolver, tr);
-    });
-    const b = NormalTransactions.result.map((tr) =>
-      swarm.normalTransaction(explorer, registry, cryptoResolver, tr.hash, tr)
+    const a = await Promise.all(
+      ERC20TokenTransferEvents.result.map((tr) => {
+        return swarm.tokenTransfer(explorer, registry, cryptoResolver, tr);
+      })
     );
-    const c = InternalTransactions.result.map((tr) =>
-      swarm.internalTransaction(explorer, registry, cryptoResolver, tr)
+    const b = await Promise.all(
+      NormalTransactions.result.map((tr) =>
+        swarm.normalTransaction(explorer, registry, cryptoResolver, tr.hash, tr)
+      )
+    );
+    const c = await Promise.all(
+      InternalTransactions.result.map((tr) =>
+        swarm.internalTransaction(explorer, registry, cryptoResolver, tr)
+      )
     );
 
-    transactions = a.concat(b, c);
+    transactions = (a as ChainRecord[]).concat(b, c);
   });
 
   describe("constructor", () => {
@@ -117,7 +123,7 @@ describe("Ledger", () => {
   });
 
   describe("from method", () => {
-    it("should return a new Ledger containing only transactions from the given address", () => {
+    it("should return a new Ledger containing only transactions from the given address", async () => {
       /* Validation:
          jq '
               .result |
@@ -125,7 +131,7 @@ describe("Ledger", () => {
               length' fixtures/*.json
       */
       const ledger = Ledger.create(transactions);
-      const address = swarm.address(
+      const address = await swarm.address(
         explorer,
         registry,
         cryptoResolver,

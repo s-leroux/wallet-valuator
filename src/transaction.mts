@@ -46,12 +46,12 @@ export abstract class ChainRecord {
     cryptoResolver: CryptoResolver
   ): Promise<boolean>;
 
-  assign(
+  async assign(
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): ChainRecord {
+  ): Promise<ChainRecord> {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
       console.dir(data);
@@ -59,16 +59,21 @@ export abstract class ChainRecord {
     this.blockNumber = toInteger(data.blockNumber);
     this.timeStamp = toInteger(data.timeStamp);
 
-    this.from = swarm.address(
+    this.from = await swarm.address(
       this.explorer,
       registry,
       cryptoResolver,
       data.from
     );
-    this.to = swarm.address(this.explorer, registry, cryptoResolver, data.to);
+    this.to = await swarm.address(
+      this.explorer,
+      registry,
+      cryptoResolver,
+      data.to
+    );
 
     if (data.contractAddress) {
-      this.contract = swarm.address(
+      this.contract = await swarm.address(
         this.explorer,
         registry,
         cryptoResolver,
@@ -76,7 +81,7 @@ export abstract class ChainRecord {
       );
     }
     const currency = this.contract
-      ? cryptoResolver.resolve(
+      ? await cryptoResolver.resolve(
           registry,
           this.explorer.chain,
           this.blockNumber,
@@ -153,12 +158,12 @@ export class NormalTransaction extends ChainRecord {
     );
   }
 
-  assign(
+  async assign(
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): NormalTransaction {
+  ): Promise<NormalTransaction> {
     super.assign(swarm, registry, cryptoResolver, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
@@ -191,17 +196,17 @@ export class InternalTransaction extends ChainRecord {
     return this.isError === false;
   }
 
-  assign(
+  async assign(
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): this {
+  ): Promise<this> {
     super.assign(swarm, registry, cryptoResolver, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
     if (this.transaction === undefined && this.data.hash) {
-      this.transaction = swarm.normalTransaction(
+      this.transaction = await swarm.normalTransaction(
         this.explorer,
         registry,
         cryptoResolver,
@@ -234,16 +239,16 @@ export class ERC20TokenTransfer extends ChainRecord {
     return this.amount != undefined;
   }
 
-  assign(
+  async assign(
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): this {
+  ): Promise<this> {
     super.assign(swarm, registry, cryptoResolver, data);
 
     if (this.transaction === undefined && this.data.hash) {
-      this.transaction = swarm.normalTransaction(
+      this.transaction = await swarm.normalTransaction(
         this.explorer,
         registry,
         cryptoResolver,

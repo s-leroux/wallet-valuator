@@ -53,7 +53,7 @@ export class Swarm {
     return this.explorers.get(chain);
   }
 
-  store<T extends Storable, U extends T, OPT extends {}>(
+  async store<T extends Storable, U extends T, OPT extends {}>(
     storage: Map<string, T>,
     ctor: new (swarm: Swarm, explorer: Explorer, id: string) => U,
     explorer: Explorer,
@@ -61,7 +61,7 @@ export class Swarm {
     cryptoResolver: CryptoResolver,
     id: string,
     data?: OPT
-  ): U {
+  ): Promise<U> {
     const key = `${explorer.chain}:${id}`.toLowerCase();
     let obj: U = storage.get(key) as U;
     if (!obj) {
@@ -71,7 +71,7 @@ export class Swarm {
     }
 
     if (data) {
-      obj.assign(this, registry, cryptoResolver, data);
+      await obj.assign(this, registry, cryptoResolver, data);
     }
 
     return obj;
@@ -83,7 +83,7 @@ export class Swarm {
     cryptoResolver: CryptoResolver,
     address: string,
     data?: object
-  ): Address {
+  ): Promise<Address> {
     return this.store(
       this.addresses,
       Address,
@@ -101,7 +101,7 @@ export class Swarm {
     cryptoResolver: CryptoResolver,
     address: string,
     data?: object
-  ): Address {
+  ): Promise<Address> {
     return this.store(
       this.addresses,
       Address,
@@ -116,14 +116,14 @@ export class Swarm {
   /**
    * Return the NormalTransaction corresponding to the hash
    */
-  normalTransaction(
+  async normalTransaction(
     chain: Explorer,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     hash: string,
     data?: Record<string, any>
-  ): NormalTransaction {
-    const tr = this.store(
+  ): Promise<NormalTransaction> {
+    const tr = await this.store(
       this.transactions,
       NormalTransaction,
       chain,
@@ -140,13 +140,13 @@ export class Swarm {
   /**
    *  Returns a new ERC20 Token Transfer
    */
-  tokenTransfer(
+  async tokenTransfer(
     explorer: Explorer,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): ERC20TokenTransfer {
-    const result = new ERC20TokenTransfer(this, explorer).assign(
+  ): Promise<ERC20TokenTransfer> {
+    const result = await new ERC20TokenTransfer(this, explorer).assign(
       this,
       registry,
       cryptoResolver,
@@ -160,13 +160,13 @@ export class Swarm {
   /**
    * Return a new Internal Transaction
    */
-  internalTransaction(
+  async internalTransaction(
     explorer: Explorer,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): InternalTransaction {
-    const result = new InternalTransaction(this, explorer).assign(
+  ): Promise<InternalTransaction> {
+    const result = await new InternalTransaction(this, explorer).assign(
       this,
       registry,
       cryptoResolver,

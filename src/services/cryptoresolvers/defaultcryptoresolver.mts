@@ -135,7 +135,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
     }
   }
 
-  resolve(
+  async resolve(
     registry: CryptoRegistry,
     chain: string,
     block: number,
@@ -143,7 +143,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): CryptoAsset | null {
+  ): Promise<CryptoAsset | null> {
     const chainAddress = ChainAddress(chain, smartContractAddress);
     const transitions = this.transitions.get(chainAddress);
     if (!transitions) {
@@ -191,7 +191,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
     return crypto;
   }
 
-  get(crypto_id: string): CryptoAsset | null {
+  async get(crypto_id: string): Promise<CryptoAsset | null> {
     return this.cryptos.get(crypto_id) ?? null;
   }
 }
