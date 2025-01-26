@@ -3,62 +3,8 @@ import { NotImplementedError } from "../../error.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
-
-import { Provider } from "../../provider.mjs";
-
-const REALTOKEN_API_BASEADDRESS = "https://api.realtoken.community/";
-
-export class RealTokenProvider extends Provider {
-  constructor(
-    base: string = REALTOKEN_API_BASEADDRESS,
-    options = {} as Record<string, any>
-  ) {
-    super(base, options);
-  }
-}
-
-type RealToken = {
-  fullName: string;
-  shortName: string;
-  symbol: string;
-  productType: string;
-  tokenPrice: number;
-  currency: string;
-  uuid: string;
-  ethereumContract: string | null;
-  xDaiContract: string | null;
-  gnosisContract: string | null;
-};
-
-type TokenEvent = {
-  date: string; // YYYYMMDD
-  values: Record<string, any>;
-};
-
-type TokenHistory = {
-  uuid: string;
-  history: TokenEvent[];
-};
-
-export interface RealTokenAPILike {
-  token(): Promise<RealToken[]>;
-
-  tokenHistory(): Promise<TokenHistory[]>;
-}
-
-export class RealTokenAPI implements RealTokenAPILike {
-  constructor(readonly provider: Provider) {}
-
-  token() {
-    return this.provider.fetch("/v1/token") as Promise<RealToken[]>;
-  }
-
-  tokenHistory() {
-    return this.provider.fetch("/v1/tokenHistory") as Promise<TokenHistory[]>;
-  }
-}
+import type { RealTokenAPI, RealToken } from "./realtokenapi.mjs";
 
 type MappingEntry<T extends CryptoLike> = {
   crypto: T | null;
@@ -101,7 +47,7 @@ function cryptoAssetFromEntry(
 export class RealTokenResolver extends CryptoResolver {
   readonly tokens: Map<ChainAddress, Entry>;
 
-  constructor(readonly api: RealTokenAPILike) {
+  constructor(readonly api: RealTokenAPI) {
     super();
     this.tokens = new Map();
   }
