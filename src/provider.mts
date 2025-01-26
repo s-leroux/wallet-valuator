@@ -28,6 +28,7 @@ export class Provider implements ProviderInterface {
   retries: number; // How many time did we retry a request because or rate-limit
 
   constructor(base: string, options = {} as any) {
+    // XXX Create a type for the option bag
     this.base = base;
     this.retry = options.retry ?? DEFAULT_RETRY;
     this.cooldown = options.cooldown ?? DEFAULT_COOLDOWN;
@@ -66,7 +67,7 @@ export class Provider implements ProviderInterface {
     return url;
   }
 
-  async fetch(endpoint: string, params: Record<string, any>) {
+  async fetch(endpoint: string, params: Record<string, any> = {}) {
     let cooldown = this.cooldown;
     let retry = this.retry;
     const url = this.buildUrl(endpoint, params);
