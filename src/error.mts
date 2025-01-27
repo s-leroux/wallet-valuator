@@ -24,3 +24,18 @@ export class ValueError extends Error {
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
 }
+
+export class InvalidTreeStructureError extends Error {
+  constructor(keyPath: string[] = []) {
+    const message = keyPath.length
+      ? `Graphic structure detected at key path: ${keyPath.join(" -> ")}`
+      : "Graphic structure detected";
+    super(message);
+
+    // Set the name explicitly for better debugging
+    this.name = "InvalidTreeStructureError";
+
+    // Maintain proper prototype chain for Error subclassing
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}

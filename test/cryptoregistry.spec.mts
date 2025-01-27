@@ -1,34 +1,49 @@
 import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
-import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
-import { Price } from "../src/price.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
+import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
-describe("Price", () => {
-  const { ethereum } = FakeCryptoAsset;
-  const { eur, usd } = FakeFiatCurrency;
+describe("CryptoRegistry", () => {
+  const { ethereum, bitcoin } = FakeCryptoAsset;
 
-  describe("constructor", () => {
-    it("should correctly initialize a price instance", () => {
-      const price = new Price(ethereum, eur, 3000);
+  it("should provide a factory function", () => {
+    const registry = CryptoRegistry.create();
 
-      assert.strictEqual(price.crypto, ethereum);
-      assert.strictEqual(price.fiatCurrency, eur);
-      assert.strictEqual(price.rate, 3000);
-    });
+    assert.equal(registry.constructor.name, CryptoRegistry.name);
   });
 
-  describe("to()", () => {
-    it("should return a new price expressed in the conversion fiat currency", () => {
-      const price1 = new Price(ethereum, eur, 4000);
-      const price2 = price1.to(usd, 1.1);
+  describe("behaviour", () => {
+    let registry: CryptoRegistry;
 
-      assert.notStrictEqual(price1, price2);
-      assert.strictEqual(price2.crypto, ethereum);
-      assert.strictEqual(price2.fiatCurrency, usd);
-      assert.strictEqual(price2.rate, 4000 * 1.1);
+    beforeEach(() => {
+      registry = CryptoRegistry.create();
+    });
+
+    it("should set and retrieve metadata for a currency", () => {
+      const obj = { x: 1, y: "abc" };
+      registry.setDomainData(ethereum, "STANDARD", obj);
+
+      const result = registry.getDomainData(ethereum, "STANDARD");
+
+      assert.notStrictEqual(result, obj);
+      assert.deepEqual(result, obj);
+    });
+
+    it("should return undefined if the crypto-asset is not in the registry", () => {
+      registry.setDomainData(ethereum, "STANDARD", {});
+
+      const result = registry.getDomainData(bitcoin, "STANDARD");
+
+      assert.isUndefined(result);
+    });
+
+    it("should return undefined the donaim names do not match", () => {
+      registry.setDomainData(ethereum, "STANDARD", {});
+
+      const result = registry.getDomainData(ethereum, "SPECIAL");
+
+      assert.isUndefined(result);
     });
   });
 });
