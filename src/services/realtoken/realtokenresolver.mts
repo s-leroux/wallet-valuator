@@ -27,13 +27,17 @@ type Entry = {
   data: RealToken; // raw data from the API
 };
 
+/**
+ * Return the logical crypto-asset associated with an entry.
+ */
 function cryptoAssetFromEntry(
+  registry: CryptoRegistry,
   entry: Entry,
   name: string,
   symmbol: string,
   decimal: number
 ): CryptoAsset {
-  const crypto = entry.crypto;
+  let crypto = entry.crypto;
   if (crypto) {
     // XXX assert the decimal are consistent with what we alreaady know. This is the only critical field
     // Other "user-supplied" fields are replaced by API values.
@@ -41,7 +45,12 @@ function cryptoAssetFromEntry(
   }
 
   const { uuid, fullName, symbol } = entry.data;
-  return (entry.crypto = new CryptoAsset(uuid, fullName, symbol, decimal));
+  crypto = entry.crypto = new CryptoAsset(uuid, fullName, symbol, decimal);
+
+  // Record domain specific metadata
+  registry.setDomainData(crypto, "REALTOKEN", { uuid });
+
+  return crypto;
 }
 
 export class RealTokenResolver extends CryptoResolver {
@@ -104,7 +113,7 @@ export class RealTokenResolver extends CryptoResolver {
       return null;
     }
 
-    return cryptoAssetFromEntry(entry, name, symbol, decimal);
+    return cryptoAssetFromEntry(registry, entry, name, symbol, decimal);
   }
 
   get(crypto_id: string): Promise<CryptoAsset | null> {
