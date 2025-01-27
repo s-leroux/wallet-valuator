@@ -95,6 +95,59 @@ const list: Node<number> | null = new Node(1); // `null` signifies the end of th
 let someValue: string | undefined; // `undefined` indicates the variable is not yet initialized.
 ```
 
+### Coding Style: Mixed Property Declarations
+
+In certain classes, it may be necessary to use both **explicit property declarations** and **implicit property declarations through constructor parameters**. This pattern can improve readability and align with the separation of responsibilities within a class.
+
+#### When to Use Mixed Styles
+- Use **implicit declarations** for **dependencies** that are injected into the class, such as services, utilities, or helpers. These parameters should be concise and require minimal initialization logic.
+- Use **explicit declarations** for **data properties** that represent the class's core state or require complex initialization, transformation, or validation logic.
+
+#### Benefits
+- **Clarity**: Clearly distinguishes between injected dependencies and the core state of the class.
+- **Responsibility Separation**: Aligns with dependency injection patterns while maintaining flexibility for state initialization.
+- **Reduced Boilerplate**: Keeps constructors concise for dependency injection.
+
+#### Example
+
+```typescript
+class UserService {
+  constructor(
+    private readonly apiClient: ApiClient, // Dependency Injection
+    private readonly logger: Logger // Dependency Injection
+  ) {}
+
+  // Explicitly declared data properties
+  public username: string;
+  private age: number;
+
+  constructor(
+    apiClient: ApiClient,
+    logger: Logger,
+    username: string,
+    age: number
+  ) {
+    this.apiClient = apiClient;
+    this.logger = logger;
+
+    // Explicitly initialize data properties
+    this.username = username.trim();
+    this.age = Math.max(0, age); // Example of complex initialization logic
+  }
+
+  // Example method
+  getUserProfile(): Promise<UserProfile> {
+    this.logger.log(`Fetching profile for ${this.username}`);
+    return this.apiClient.fetchUserProfile(this.username);
+  }
+}
+```
+
+#### Guidelines
+- Keep **implicit declarations** concise and limited to injected dependencies.
+- Use **explicit declarations** for properties that require additional processing or are integral to the class's state.
+- Avoid mixing styles in small or simple classes where one style is sufficient.
+
 ### Additional TypeScript Guidelines
 
 - Prefer `readonly` for properties that should not change after initialization.
