@@ -24,6 +24,7 @@
     "test/date.spec.mts",
     "test/debug.spec.mts",
     "test/examples.spec.mts",
+    "test/fiatcurrency.spec.mts",
     "test/geckocoin.spec.mts",
     "test/ledger.spec.mts",
     "test/libs/better-sqlite3.spec.mts",
