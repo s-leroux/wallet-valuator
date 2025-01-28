@@ -33,7 +33,9 @@ function isSorted<K extends unknown, T extends readonly [K, ...unknown[]]>(
 /**
  * An ordered table of tuples.
  */
-export class Table<K extends unknown, T extends readonly [K, ...unknown[]]> {
+export class Table<K extends unknown, T extends readonly [K, ...unknown[]]>
+  implements Iterable<T>
+{
   table: T[];
 
   constructor(data: Iterable<T>) {
@@ -50,12 +52,16 @@ export class Table<K extends unknown, T extends readonly [K, ...unknown[]]> {
     this.table = table;
   }
 
+  get(key: K): T | undefined {
+    return bsearch(this.table, key);
+  }
+
   toArray(): T[] {
     return this.table.slice();
   }
 
-  get(key: K): T | undefined {
-    return bsearch(this.table, key);
+  [Symbol.iterator](): Iterator<T> {
+    return this.table[Symbol.iterator]();
   }
 }
 

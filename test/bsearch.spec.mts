@@ -31,6 +31,18 @@ describe("Table", function () {
     }, ValueError);
   });
 
+  it("is iterable", function () {
+    const data: [string, number][] = [
+      ["A", 1],
+      ["B", 3],
+      ["C", 2],
+    ] as const;
+
+    const table = new Table(data);
+    // the spread operator makes use of the iterable protocol
+    assert.deepEqual([...table], data);
+  });
+
   describe("get()", function () {
     const register = prepare(this);
 
