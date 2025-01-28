@@ -9,18 +9,21 @@ import { Address } from "../src/address.mjs";
 import type { Explorer } from "../src/services/explorer.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
+import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
 
 describe("Swarm and Transaction integration", () => {
   const cryptoResolver = new FakeCryptoResolver();
-  let swarm: Swarm;
   let explorer: Explorer;
+  let registry: CryptoRegistry;
+  let swarm: Swarm;
 
   beforeEach(() => {
     explorer = new TestScan(CHAIN_NAME);
-    swarm = new Swarm([explorer], cryptoResolver);
+    registry = CryptoRegistry.create();
+    swarm = new Swarm([explorer], registry, cryptoResolver);
   });
 
   describe("NormalTransaction", () => {
@@ -29,6 +32,7 @@ describe("Swarm and Transaction integration", () => {
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
       const transaction = await swarm.normalTransaction(
         explorer,
+        registry,
         cryptoResolver,
         TXHASH
       );
@@ -41,10 +45,11 @@ describe("Swarm and Transaction integration", () => {
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
       const tr1 = await swarm.normalTransaction(
         explorer,
+        registry,
         cryptoResolver,
         TXHASH
       );
-      const tr2 = await tr1.load(swarm, cryptoResolver);
+      const tr2 = await tr1.load(swarm, registry, cryptoResolver);
 
       assert.equal(tr1, tr2);
       assert.include(tr1.data, {
@@ -72,11 +77,12 @@ describe("Swarm and Transaction integration", () => {
       for (const [hash, ok] of testCases) {
         const tr = await swarm.normalTransaction(
           explorer,
+          registry,
           cryptoResolver,
           hash
         );
 
-        assert.equal(await tr.isValid(swarm, cryptoResolver), ok);
+        assert.equal(await tr.isValid(swarm, registry, cryptoResolver), ok);
       }
     });
   });

@@ -6,6 +6,7 @@ import { Address } from "./address.mjs";
 import { Explorer } from "./services/explorer.mjs";
 import { Amount } from "./cryptoasset.mjs";
 import { CryptoResolver } from "./services/cryptoresolver.mjs";
+import type { CryptoRegistry } from "./cryptoregistry.mjs";
 
 type TransactionType =
   | "NORMAL" // a normal transaction
@@ -41,14 +42,16 @@ export abstract class ChainRecord {
 
   abstract isValid(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<boolean>;
 
-  assign(
+  async assign(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): ChainRecord {
+  ): Promise<ChainRecord> {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
       console.dir(data);
@@ -56,18 +59,30 @@ export abstract class ChainRecord {
     this.blockNumber = toInteger(data.blockNumber);
     this.timeStamp = toInteger(data.timeStamp);
 
-    this.from = swarm.address(this.explorer, cryptoResolver, data.from);
-    this.to = swarm.address(this.explorer, cryptoResolver, data.to);
+    this.from = await swarm.address(
+      this.explorer,
+      registry,
+      cryptoResolver,
+      data.from
+    );
+    this.to = await swarm.address(
+      this.explorer,
+      registry,
+      cryptoResolver,
+      data.to
+    );
 
     if (data.contractAddress) {
-      this.contract = swarm.address(
+      this.contract = await swarm.address(
         this.explorer,
+        registry,
         cryptoResolver,
         data.contractAddress
       );
     }
     const currency = this.contract
-      ? cryptoResolver.resolve(
+      ? await cryptoResolver.resolve(
+          registry,
           this.explorer.chain,
           this.blockNumber,
           this.contract.address,
@@ -117,26 +132,39 @@ export class NormalTransaction extends ChainRecord {
 
   async load(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<NormalTransaction> {
     if (this.timeStamp === undefined) {
       // The transaction data are not already loaded
-      return this.explorer.getNormalTransactionByHash(swarm, cryptoResolver, this.hash);
+      return this.explorer.getNormalTransactionByHash(
+        swarm,
+        registry,
+        cryptoResolver,
+        this.hash
+      );
     }
 
     return this;
   }
 
-  isValid(swarm: Swarm, cryptoResolver: CryptoResolver): Promise<boolean> {
-    return this.load(swarm, cryptoResolver).then((tr) => tr.isError === false);
+  isValid(
+    swarm: Swarm,
+    registry: CryptoRegistry,
+    cryptoResolver: CryptoResolver
+  ): Promise<boolean> {
+    return this.load(swarm, registry, cryptoResolver).then(
+      (tr) => tr.isError === false
+    );
   }
 
-  assign(
+  async assign(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): NormalTransaction {
-    super.assign(swarm, cryptoResolver, data);
+  ): Promise<NormalTransaction> {
+    super.assign(swarm, registry, cryptoResolver, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
 
@@ -162,22 +190,25 @@ export class InternalTransaction extends ChainRecord {
 
   async isValid(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<boolean> {
     return this.isError === false;
   }
 
-  assign(
+  async assign(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): this {
-    super.assign(swarm, cryptoResolver, data);
+  ): Promise<this> {
+    super.assign(swarm, registry, cryptoResolver, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
     if (this.transaction === undefined && this.data.hash) {
-      this.transaction = swarm.normalTransaction(
+      this.transaction = await swarm.normalTransaction(
         this.explorer,
+        registry,
         cryptoResolver,
         this.data.hash
       );
@@ -199,6 +230,7 @@ export class ERC20TokenTransfer extends ChainRecord {
 
   async isValid(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<boolean> {
     // It was confirmed by the GnosisScan support that
@@ -207,16 +239,18 @@ export class ERC20TokenTransfer extends ChainRecord {
     return this.amount != undefined;
   }
 
-  assign(
+  async assign(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): this {
-    super.assign(swarm, cryptoResolver, data);
+  ): Promise<this> {
+    super.assign(swarm, registry, cryptoResolver, data);
 
     if (this.transaction === undefined && this.data.hash) {
-      this.transaction = swarm.normalTransaction(
+      this.transaction = await swarm.normalTransaction(
         this.explorer,
+        registry,
         cryptoResolver,
         this.data.hash
       );

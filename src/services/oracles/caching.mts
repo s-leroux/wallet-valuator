@@ -1,4 +1,5 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Price } from "../../price.mjs";
 import type { Provider } from "../../provider.mjs";
@@ -40,6 +41,7 @@ export class Caching {
   }
 
   async getPrice(
+    registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
     currencies: FiatCurrency[]
@@ -62,7 +64,12 @@ export class Caching {
       return result;
     }
     // else
-    const new_values = await this.backend.getPrice(crypto, date, missing);
+    const new_values = await this.backend.getPrice(
+      registry,
+      crypto,
+      date,
+      missing
+    );
     this.backend_calls += 1;
     this.insert(dateYyyyMmDd, new_values);
 

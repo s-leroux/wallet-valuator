@@ -6,6 +6,7 @@ import { Ledger, sort, join } from "../src/ledger.mjs";
 import { ChainRecord, ERC20TokenTransfer } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
+import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
 import NormalTransactions from "../fixtures/NormalTransactions.json" assert { type: "json" };
@@ -65,23 +66,31 @@ describe("Ledger", () => {
   let explorer: Explorer;
   let transactions: ChainRecord[];
   const cryptoResolver = new FakeCryptoResolver();
+  let registry: CryptoRegistry;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     ledger = Ledger.create();
     explorer = new FakeExplorer();
-    swarm = new Swarm([explorer], cryptoResolver);
+    registry = CryptoRegistry.create();
+    swarm = new Swarm([explorer], registry, cryptoResolver);
 
-    const a = ERC20TokenTransferEvents.result.map((tr) => {
-      return swarm.tokenTransfer(explorer, cryptoResolver, tr);
-    });
-    const b = NormalTransactions.result.map((tr) =>
-      swarm.normalTransaction(explorer, cryptoResolver, tr.hash, tr)
+    const a = await Promise.all(
+      ERC20TokenTransferEvents.result.map((tr) => {
+        return swarm.tokenTransfer(explorer, registry, cryptoResolver, tr);
+      })
     );
-    const c = InternalTransactions.result.map((tr) =>
-      swarm.internalTransaction(explorer, cryptoResolver, tr)
+    const b = await Promise.all(
+      NormalTransactions.result.map((tr) =>
+        swarm.normalTransaction(explorer, registry, cryptoResolver, tr.hash, tr)
+      )
+    );
+    const c = await Promise.all(
+      InternalTransactions.result.map((tr) =>
+        swarm.internalTransaction(explorer, registry, cryptoResolver, tr)
+      )
     );
 
-    transactions = a.concat(b, c);
+    transactions = (a as ChainRecord[]).concat(b, c);
   });
 
   describe("constructor", () => {
@@ -114,7 +123,7 @@ describe("Ledger", () => {
   });
 
   describe("from method", () => {
-    it("should return a new Ledger containing only transactions from the given address", () => {
+    it("should return a new Ledger containing only transactions from the given address", async () => {
       /* Validation:
          jq '
               .result |
@@ -122,8 +131,9 @@ describe("Ledger", () => {
               length' fixtures/*.json
       */
       const ledger = Ledger.create(transactions);
-      const address = swarm.address(
+      const address = await swarm.address(
         explorer,
+        registry,
         cryptoResolver,
         DISPERSE_APP_ADDRESS
       );

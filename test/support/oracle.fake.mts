@@ -1,5 +1,6 @@
 import { Oracle } from "../../src/services/oracle.mjs";
 import type { CryptoAsset } from "../../src/cryptoasset.mjs";
+import type { CryptoRegistry } from "../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
 import type { Price } from "../../src/price.mjs";
 import { formatDate } from "../../src/date.mjs";
@@ -22,6 +23,7 @@ const DATA = HistoricalPrices as HistoricalDataRecord[];
 
 export class FakeOracle extends Oracle {
   async getPrice(
+    registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]

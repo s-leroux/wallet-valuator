@@ -1,4 +1,5 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
+import { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { Price } from "../../price.mjs";
 
@@ -29,6 +30,7 @@ export class FiatConverterOracle extends Oracle {
   }
 
   async getPrice(
+    registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]
@@ -39,6 +41,7 @@ export class FiatConverterOracle extends Oracle {
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas
     const intermediateResult = await this.backend.getPrice(
+      registry,
       crypto,
       date,
       missing
@@ -59,6 +62,7 @@ export class FiatConverterOracle extends Oracle {
       for (const dest of missing) {
         result[dest] = await converter.convert(
           // XXX Can we use parallel execution here without potentially wasting API calls quotas?
+          registry,
           date,
           result[this.referenceFiats[0]], // FIXME  We only consider the first reference fiat
           dest

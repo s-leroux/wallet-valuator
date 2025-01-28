@@ -7,6 +7,7 @@ import type {
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
+import type { CryptoRegistry } from "./cryptoregistry.mjs";
 
 type ERC20TokenAddressData = {
   tokenName: string;
@@ -61,6 +62,7 @@ export class Address {
 */
   assign(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Partial<AddressData>
   ) {
@@ -89,10 +91,12 @@ export class Address {
 
   normalTransactions(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
     return this.explorer.getNormalTransactionsByAddress(
       swarm,
+      registry,
       cryptoResolver,
       this.address
     );
@@ -100,10 +104,12 @@ export class Address {
 
   internalTransactions(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
     return this.explorer.getInternalTransactionsByAddress(
       swarm,
+      registry,
       cryptoResolver,
       this.address
     );
@@ -111,10 +117,12 @@ export class Address {
 
   tokenTransfers(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
     return this.explorer.getTokenTransfersByAddress(
       swarm,
+      registry,
       cryptoResolver,
       this.address
     );
@@ -122,10 +130,12 @@ export class Address {
 
   allTransfers(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
     return this.explorer.getAllTransactionsByAddress(
       swarm,
+      registry,
       cryptoResolver,
       this.address
     );
@@ -133,10 +143,12 @@ export class Address {
 
   allValidTransfers(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<Array<ChainRecord>> {
     return this.explorer.getAllValidTransactionsByAddress(
       swarm,
+      registry,
       cryptoResolver,
       this.address
     );

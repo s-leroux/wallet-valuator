@@ -9,6 +9,7 @@ import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import type { Price } from "../../../src/price.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
@@ -24,9 +25,11 @@ describe("CoinGecko", function () {
   this.slow(MOCHA_TEST_TIMEOUT);
 
   let coingecko: CoinGecko;
+  let registry: CryptoRegistry;
 
   beforeEach(function () {
     coingecko = CoinGecko.create(API_KEY);
+    registry = CryptoRegistry.create();
   });
 
   describe("API", () => {});
@@ -48,6 +51,7 @@ describe("CoinGecko", function () {
       for (const [id, date, expected] of test_cases) {
         register(`case ${id} ${date}`, async () => {
           const prices = await coingecko!.getPrice(
+            registry,
             bitcoin,
             new Date(date),
             Object.keys(expected) as FiatCurrency[]
@@ -80,6 +84,7 @@ describe("CoinGecko", function () {
         18
       );
       const price = await coingecko.getPrice(
+        registry,
         maliciousCrypto,
         new Date("2024-12-30"),
         ["eur"] as FiatCurrency[]

@@ -5,6 +5,7 @@ import { Price } from "../../price.mjs";
 import { Oracle } from "../oracle.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { CryptoResolver } from "../cryptoresolver.mjs";
 
 export class ImplicitFiatConverter implements FiatConverter {
@@ -23,7 +24,12 @@ export class ImplicitFiatConverter implements FiatConverter {
     this.crypto = crypto;
   }
 
-  async convert(date: Date, price: Price, to: FiatCurrency): Promise<Price> {
+  async convert(
+    registry: CryptoRegistry,
+    date: Date,
+    price: Price,
+    to: FiatCurrency
+  ): Promise<Price> {
     const from = price.fiatCurrency;
 
     // handle the trivial case
@@ -31,7 +37,10 @@ export class ImplicitFiatConverter implements FiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(this.crypto, date, [from, to]); // XXX What to do if this fails?
+    const ref = await this.oracle.getPrice(registry, this.crypto, date, [
+      from,
+      to,
+    ]); // XXX What to do if this fails?
 
     const exchangeRage = ref[to].rate / ref[from].rate;
 

@@ -2,6 +2,7 @@ import { Swarm } from "../../swarm.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { NormalTransaction } from "../../transaction.mjs";
 import { CryptoResolver } from "../cryptoresolver.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import NormalTransactions from "../../../fixtures/NormalTransactions.json" assert { type: "json" };
@@ -13,11 +14,16 @@ export class TestScan extends CommonExplorer {
     super(chain, new CryptoAsset("xdai", "xDai", "xDai", 18));
   }
 
-  register(swarm: Swarm, cryptoResolver: CryptoResolver): void {
+  register(
+    swarm: Swarm,
+    registry: CryptoRegistry,
+    cryptoResolver: CryptoResolver
+  ): void {
     // populate with well-known addresses
-    super.register(swarm, cryptoResolver);
+    super.register(swarm, registry, cryptoResolver);
     swarm.address(
       this,
+      registry,
       cryptoResolver,
       "0x0000000000000000000000000000000000000000",
       {
@@ -28,6 +34,7 @@ export class TestScan extends CommonExplorer {
 
   async getNormalTransactionByHash(
     swarm: Swarm,
+    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     txhash: string
   ): Promise<NormalTransaction> {
@@ -35,6 +42,7 @@ export class TestScan extends CommonExplorer {
       if (transaction.hash === txhash) {
         return swarm.normalTransaction(
           this,
+          registry,
           cryptoResolver,
           txhash,
           transaction

@@ -5,6 +5,7 @@ import { prepare } from "../../support/register.helper.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
+import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 import { ImplicitFiatConverter } from "../../../src/services/fiatconverters/implicitfiatconverter.mjs";
 
@@ -21,16 +22,18 @@ describe("ImplicitFiatConverter", function () {
   });
 
   describe("convert()", function () {
+    const registry = CryptoRegistry.create();
     const converter = new ImplicitFiatConverter(oracle, bitcoin);
     const error = 0.1; // acceptable error in %
 
     it(`should convert prices with ±${error}% error`, async () => {
-      const prices = await oracle.getPrice(ethereum, date, [
+      const prices = await oracle.getPrice(registry, ethereum, date, [
         FakeFiatCurrency.eur,
         FakeFiatCurrency.usd,
       ]);
 
       const result = await converter.convert(
+        registry,
         date,
         prices[eur],
         FakeFiatCurrency.usd
