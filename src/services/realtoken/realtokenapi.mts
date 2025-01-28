@@ -26,19 +26,19 @@ export type RealToken = {
   gnosisContract: string | null;
 };
 
-type TokenEvent = {
+export type RealTokenEvent = {
   date: string; // YYYYMMDD
   values: Record<string, any>;
 };
 
-type TokenHistory = {
+export type RealTokenHistory = {
   uuid: string;
-  history: TokenEvent[];
+  history: RealTokenEvent[];
 };
 
 export interface RealTokenAPI {
   token(): Promise<RealToken[]>;
-  tokenHistory(): Promise<TokenHistory[]>;
+  tokenHistory(): Promise<RealTokenHistory[]>;
 }
 
 export class DefaultRealTokenAPI implements RealTokenAPI {
@@ -49,6 +49,8 @@ export class DefaultRealTokenAPI implements RealTokenAPI {
   }
 
   tokenHistory() {
-    return this.provider.fetch("/v1/tokenHistory") as Promise<TokenHistory[]>;
+    return this.provider.fetch("/v1/tokenHistory") as Promise<
+      RealTokenHistory[]
+    >;
   }
 }

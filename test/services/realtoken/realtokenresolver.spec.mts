@@ -9,18 +9,7 @@ import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 
 // Test data
 import { RealTokenAPI } from "../../../src/services/realtoken/realtokenapi.mjs";
-import MockTocken from "../../../fixtures/RealT/token.json" assert { type: "json" };
-import MockTockenHistory from "../../../fixtures/RealT/tokenHistory.json" assert { type: "json" };
-
-const FakeRealTokenAPI: RealTokenAPI = {
-  async token() {
-    return MockTocken;
-  },
-
-  async tokenHistory() {
-    return MockTockenHistory;
-  },
-};
+import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
 
 describe("RealTokenResolver", function () {
   let resolver: CryptoResolver;
@@ -32,7 +21,7 @@ describe("RealTokenResolver", function () {
 
   beforeEach(() => {
     registry = CryptoRegistry.create();
-    resolver = new RealTokenResolver(FakeRealTokenAPI);
+    resolver = new RealTokenResolver(FakeRealTokenAPI.create());
   });
 
   describe("resolve()", function () {

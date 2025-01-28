@@ -37,4 +37,21 @@ describe("RealTokenAPI", function () {
       }
     });
   });
+
+  describe("tokenHistory()", function () {
+    it("should return a list of token:", async function () {
+      const provider = new RealTokenProvider();
+      const api = new DefaultRealTokenAPI(provider);
+
+      const actual = await api.tokenHistory();
+
+      assert.isTrue(Array.isArray(actual), `${actual} should be an array`);
+      for (const item of actual) {
+        assert.containsAllKeys(item, ["uuid", "history"]);
+        for (const event of item.history) {
+          assert.containsAllKeys(event, ["date", "values"]);
+        }
+      }
+    });
+  });
 });

@@ -39,3 +39,14 @@ export class InvalidTreeStructureError extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+
+/**
+ * Thrown when a method is called in an invalid sequence or protocol is violated.
+ */
+export class ProtocolError extends Error {
+  constructor(message: string = "Protocol violation.") {
+    super(message);
+    this.name = "ProtocolError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
