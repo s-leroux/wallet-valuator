@@ -29,7 +29,7 @@ describe("Caching", function () {
     assert.deepEqual(
       Object.values(prices).map((price: Price) => ({
         currency: price.fiatCurrency,
-        amount: price.rate,
+        amount: +price.rate,
       })),
       [
         { currency: fiatCurrencies[0], amount: 89809.00932731242 },

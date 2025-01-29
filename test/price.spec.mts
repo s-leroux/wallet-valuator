@@ -16,7 +16,7 @@ describe("Price", () => {
 
       assert.strictEqual(price.crypto, ethereum);
       assert.strictEqual(price.fiatCurrency, eur);
-      assert.strictEqual(price.rate, 3000);
+      assert.strictEqual(+price.rate, 3000);
     });
   });
 
@@ -28,7 +28,7 @@ describe("Price", () => {
       assert.notStrictEqual(price1, price2);
       assert.strictEqual(price2.crypto, ethereum);
       assert.strictEqual(price2.fiatCurrency, usd);
-      assert.strictEqual(price2.rate, 4000 * 1.1);
+      assert.strictEqual(+price2.rate, 4000 * 1.1);
     });
   });
 });

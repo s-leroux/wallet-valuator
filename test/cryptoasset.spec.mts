@@ -60,7 +60,7 @@ describe("CryptoAsset", () => {
     const fiat = FakeFiatCurrency.eur;
     const price = crypto.price(fiat, 100000);
 
-    assert.strictEqual(price.rate, 100000);
+    assert.strictEqual(+price.rate, 100000);
     assert.strictEqual(price.crypto, crypto);
     assert.strictEqual(price.fiatCurrency, fiat);
   });

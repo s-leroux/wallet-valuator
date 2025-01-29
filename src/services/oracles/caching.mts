@@ -36,7 +36,7 @@ export class Caching {
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price) VALUES (?,?,?,?)"
     );
     for (const price of Object.values(prices)) {
-      stmt.run(price.crypto.id, date, price.fiatCurrency, price.rate);
+      stmt.run(price.crypto.id, date, price.fiatCurrency, price.rate.toFixed());
     }
   }
 

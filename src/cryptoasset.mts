@@ -1,4 +1,4 @@
-import { BigNumber } from "./bignumber.mjs";
+import { BigNumber, BigNumberSource } from "./bignumber.mjs";
 import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError } from "./error.mjs";
@@ -137,7 +137,7 @@ export class CryptoAsset {
     return new Amount(this, BigNumber.fromString(v));
   }
 
-  price(fiat: FiatCurrency, rate: number | string) {
+  price(fiat: FiatCurrency, rate: BigNumberSource) {
     return new Price(this, fiat, rate);
   }
 

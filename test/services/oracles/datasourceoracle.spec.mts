@@ -38,7 +38,7 @@ describe("DataSource", function () {
         [eur]
       );
       const price = prices[eur];
-      assert.equal(price.rate, 93_966.82);
+      assert.equal(+price.rate, 93_966.82);
       assert.equal(price.fiatCurrency, eur);
       assert.equal(price.crypto, bitcoin);
     });

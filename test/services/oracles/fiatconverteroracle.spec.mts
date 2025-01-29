@@ -16,6 +16,8 @@ import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { FiatConverterOracle } from "../../../src/services/oracles/fiatconverteroracle.mjs";
 
+const EPSILON = 1e-12;
+
 describe("FiatConverterOracle", function () {
   const date = new Date("2024-12-30");
   const solana = FakeCryptoAsset.solana;
@@ -48,8 +50,8 @@ describe("FiatConverterOracle", function () {
       );
 
       assert.containsAllKeys(prices, [eur, usd]);
-      assert.equal(prices[eur].rate, 217.91046376268642);
-      assert.equal(prices[usd].rate, 217.91046376268642 * 1.2);
+      assert.closeTo(+prices[eur].rate, 217.91046376268642, EPSILON);
+      assert.closeTo(+prices[usd].rate, 217.91046376268642 * 1.2, EPSILON);
     });
   });
 });

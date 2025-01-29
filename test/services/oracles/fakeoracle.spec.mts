@@ -43,7 +43,7 @@ describe("FakeOracle", function () {
         assert.deepEqual(
           Object.values(prices).reduce<Partial<typeof expected>>(
             (acc, price: Price) => {
-              acc[price.fiatCurrency] = price.rate;
+              acc[price.fiatCurrency] = +price.rate;
               return acc;
             },
             {}

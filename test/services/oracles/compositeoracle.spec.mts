@@ -43,8 +43,8 @@ describe("CompositeOracle", function () {
       );
 
       assert.containsAllKeys(prices, [eur, usd]);
-      assert.equal(prices[usd].rate, 229.06669921453178);
-      assert.equal(prices[eur].rate, 217.91046376268642);
+      assert.equal(+prices[usd].rate, 229.06669921453178);
+      assert.equal(+prices[eur].rate, 217.91046376268642);
     });
   });
 });

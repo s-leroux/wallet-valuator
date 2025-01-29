@@ -106,7 +106,7 @@ export class RealTokenOracle extends Oracle {
         const priceTable = this.getPriceTable(uuid);
         const entry = priceTable.get(formatDate("YYYYMMDD", date));
         if (entry) {
-          result[fiat] = crypto.price(fiat, entry[1].toNumber()); // TODO Should be simplified as part of ISSUE #39
+          result[fiat] = crypto.price(fiat, entry[1]);
         }
         break; // XXX We default to {}. Is it correct?
       }

@@ -42,7 +42,7 @@ export class ImplicitFiatConverter implements FiatConverter {
       to,
     ]); // XXX What to do if this fails?
 
-    const exchangeRage = ref[to].rate / ref[from].rate;
+    const exchangeRage = ref[to].rate.div(ref[from].rate);
 
     return price.to(to, exchangeRage);
   }

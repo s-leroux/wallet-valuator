@@ -56,7 +56,7 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
         const value = this.data.get(formattedDate, columnName)?.at(1);
 
         if (value !== undefined) {
-          result[fiat] = crypto.price(fiat, BigNumber.from(value).toNumber()); // TODO Should be simplified as part of ISSUE #39
+          result[fiat] = crypto.price(fiat, BigNumber.from(value));
         }
       }
     }

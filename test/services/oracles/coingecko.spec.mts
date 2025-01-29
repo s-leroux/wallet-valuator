@@ -7,7 +7,7 @@ const assert = chai.assert;
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import type { Price } from "../../../src/price.mjs";
+import { Price } from "../../../src/price.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
@@ -63,7 +63,7 @@ describe("CoinGecko", function () {
           assert.deepEqual(
             Object.values(prices).reduce<Partial<typeof expected>>(
               (acc, price: Price) => {
-                acc[price.fiatCurrency] = price.rate;
+                acc[price.fiatCurrency] = +price.rate;
                 return acc;
               },
               {}
@@ -90,11 +90,11 @@ describe("CoinGecko", function () {
         ["eur"] as FiatCurrency[]
       );
       const expected = {
-        eur: {
-          crypto: maliciousCrypto,
-          fiatCurrency: "eur",
-          rate: 0, // XXX ISSUE #27 CoinGecko silently defaults to 0
-        },
+        eur: new Price(
+          maliciousCrypto,
+          "eur" as FiatCurrency,
+          0 // XXX ISSUE #27 CoinGecko silently defaults to 0
+        ),
       };
       assert.deepEqual(price, expected);
     });
