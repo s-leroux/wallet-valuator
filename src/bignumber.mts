@@ -12,7 +12,10 @@ export function toInteger(src: number | string) {
 
 export type BigNumberSource = number | string | DecimalImplementation;
 
-export class BigNumber extends DecimalImplementation {
+export class BigNumber extends DecimalImplementation.clone({
+  rounding: 1, // ROUND_DOWN to ensure truncation, mimicking integer arithmetic behavior
+  precision: 80, // 78 decimals are needed to handle full uint256 range without precision loss; 80 adds a safety margin
+}) {
   toString(): string {
     return super.toFixed();
   }
