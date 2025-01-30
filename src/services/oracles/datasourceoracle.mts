@@ -41,7 +41,7 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
     date: Date,
     fiats: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>> {
-    const result = {} as Record<FiatCurrency, Price>;
+    const result = Object.create(null) as Record<FiatCurrency, Price>;
 
     // We do not handle that crypto
     if (crypto !== this.crypto) {

@@ -153,6 +153,23 @@ class UserService {
 - Prefer `readonly` for properties that should not change after initialization.
 - Use `strictNullChecks` and avoid the `any` type unless absolutely necessary.
 
+### Null-Prototype Objects for Record<K, V>
+
+When returning a `Record<K, V>`, prefer using **null-prototype objects** (`Object.create(null)`) over plain objects (`{}`). This prevents unintended prototype pollution and avoids accidental property lookups on `Object.prototype`.
+
+**Example:**
+```ts
+// Preferred:
+const myRecord: Record<string, number> = Object.create(null);
+myRecord["key"] = 42;
+
+// Avoid:
+const myRecord: Record<string, number> = {};
+myRecord["key"] = 42; // Potential risk of prototype interference
+```
+
+This practice ensures that lookups in the record only access explicitly assigned properties and do not inherit from `Object.prototype` (e.g., avoiding `toString` or `hasOwnProperty` being accidentally overridden).
+
 ---
 
 ## Testing

@@ -46,7 +46,7 @@ export class Caching {
     date: Date,
     currencies: FiatCurrency[]
   ): Promise<Record<string, Price>> {
-    const result: Record<string, Price> = {};
+    const result: Record<string, Price> = Object.create(null);
     const dateYyyyMmDd = date.toISOString().substring(0, 10);
     const missing: FiatCurrency[] = [];
     const stmt = this.db.prepare<[string, string, string], { price: number }>(
@@ -73,7 +73,7 @@ export class Caching {
     this.backend_calls += 1;
     this.insert(dateYyyyMmDd, new_values);
 
-    return Object.assign(result, new_values);
+    return Object.assign(result, new_values); // XXX Why noot just `return new_values` ?
   }
 
   cache(path?: string): Oracle {

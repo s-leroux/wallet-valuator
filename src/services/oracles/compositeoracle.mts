@@ -20,7 +20,7 @@ export class CompositeOracle extends Oracle {
     date: Date,
     fiat: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>> {
-    const result = {} as Record<FiatCurrency, Price>;
+    const result = Object.create(null) as Record<FiatCurrency, Price>;
     let missing = fiat;
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas

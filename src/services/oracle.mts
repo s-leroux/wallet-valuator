@@ -22,8 +22,8 @@ export abstract class Oracle {
    * @param date - The date for which the price is being retrieved.
    * @param fiat - An array of fiat currencies for which the price is being requested.
    * @returns A promise that resolves to a record mapping each requested fiat currency to its price.
-   * If the price for a fiat currency is not available, the corresponding property must not be set
-   * in the result object.
+   * If the price for a fiat currency is not available, the corresponding property MUST NOT be set
+   * in the result object. The returned record  MAY be a null-prototype object.
    */
   abstract getPrice(
     registry: CryptoRegistry,
