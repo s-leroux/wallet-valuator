@@ -79,20 +79,29 @@ export class Amount {
 }
 
 /**
- * Represents a crypto, such as an ERC20 token.
+ * Represents a crypto-asset, such as a native coin or an ERC-20 token.
  *
- * The `address` field is assumed to be unique within a single blockchain (`chain`).
- * To reduce coupling and simplify testing, the blockchain is identified by its name
- * rather than referencing an object that represents the chain directly. The chain name
- * is expected to be unique across the global namespace.
+ * A `CryptoAsset` is a logical representation of a crypto-asset, independent of
+ * the underlying blockchain. For example, it may represent "USDC" regardless
+ * of the blockchain on which it exists, encompassing both the authentic
+ * Circle-issued token and bridged versions. From an accounting perspective,
+ * these are all considered a single crypto-asset.
  *
- * The `name` and `symbol` fields are intended for presentation purposes and should not
- * be relied upon as unique identifiers for a crypto. Many ERC20 tokens may share the
- * same name or symbol, either due to mistakes or malicious intent.
+ * The `id` is a unique internal identifier for the logical crypto-asset.
+ * A **crypto-asset resolver** is responsible for mapping blockchain-specific
+ * or asset-specific data to a logical crypto-asset. For example, an Ethereum
+ * crypto-asset resolver may use a smart contract address and an internal
+ * database to associate a concrete ERC-20 token transfer with its corresponding
+ * logical crypto-asset. Resolvers for other blockchains may map different
+ * smart contract addresses to the same logical asset.
  *
- * On the blockchain, values are stored as integers expressed in the crypto's base unit.
- * The `decimal` field indicates the number of decimal places (in base 10) to shift in
- * order to convert a value to a human-readable format.
+ * The `name` and `symbol` fields are intended for presentation purposes only
+ * and should not be relied upon as unique identifiers. Many ERC-20 tokens
+ * may share the same name or symbol, either due to mistakes or malicious intent.
+ *
+ * On the blockchain, values are stored as integers in the asset's base unit.
+ * The `decimal` field indicates the number of decimal places (digits in base 10)
+ * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
   readonly id: string; // internal id for that asset cross-chain
