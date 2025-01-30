@@ -35,7 +35,7 @@ export class CompositeOracle extends Oracle {
         FiatCurrency,
         Price
       ][]) {
-        result[currency] = price; // XXX What to do it we already have that price? Should we check consistency?
+        result[currency] = price; // ISSUE #61 What to do it we already have that price? Should we check consistency?
         missing = missing.filter((item) => item !== currency);
         // Above: not necessarily very efficient in the general case. But im practice,
         // the oracles tend to reply prices either with all asked fiat currencies, or none.

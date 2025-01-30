@@ -57,7 +57,7 @@ export class CoinGecko extends Oracle {
     super();
     if (!provider) {
       const api_key = process.env["COINGECKO_API_KEY"];
-      // XXX ISSUE #25 Check if implicit key retrieval from the environment is:
+      // ISSUE #25 Check if implicit key retrieval from the environment is:
       // (1) coherent in the whole library
       // (2) desirable
       if (!api_key) {
@@ -107,7 +107,7 @@ export class CoinGecko extends Oracle {
         (result[currency] = new Price(
           crypto,
           currency,
-          prices[currency] ?? "0" // XXX ISSUE #27 Should we silently default to zero here?
+          prices[currency] ?? "0" // ISSUE #27 Should we silently default to zero here?
         ))
     );
     return result;

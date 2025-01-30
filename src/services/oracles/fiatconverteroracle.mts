@@ -61,10 +61,10 @@ export class FiatConverterOracle extends Oracle {
       const converter = this.converterFactory(this);
       for (const dest of missing) {
         result[dest] = await converter.convert(
-          // XXX Can we use parallel execution here without potentially wasting API calls quotas?
+          // ISSUE #63 Can we use parallel execution here without potentially wasting API calls quotas?
           registry,
           date,
-          result[this.referenceFiats[0]], // FIXME  We only consider the first reference fiat
+          result[this.referenceFiats[0]], // ISSUE #62  We only consider the first reference fiat
           dest
         );
       }

@@ -34,7 +34,7 @@ export class Swarm {
     registry: CryptoRegistry,
     crypoResolver: CryptoResolver
   ) {
-    // XXX `cryptoResolver` is curious in the constructor's parameter list, as
+    // ISSUE #59 `cryptoResolver` is curious in the constructor's parameter list, as
     // it is both given to the constructor and injected as a dependency. May
     // `Swarm` keep a reference to the `cryptoResolver` and possibly
     // `CryptoRegistry` to reduce the number of parameter to inject when
@@ -45,7 +45,7 @@ export class Swarm {
     this.explorers = new Map();
     for (const explorer of explorers) {
       this.explorers.set(explorer.chain, explorer);
-      explorer.register(this, registry, crypoResolver); // XXX Check what exactly is the purpose of the `.register` method
+      explorer.register(this, registry, crypoResolver); // ISSUE #60 Check what exactly is the purpose of the `.register` method
     }
   }
 

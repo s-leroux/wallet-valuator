@@ -14,7 +14,7 @@ export class ImplicitFiatConverter implements FiatConverter {
 
   constructor(
     oracle: Oracle,
-    crypto: CryptoAsset | null // XXX ISSUE #45 Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
+    crypto: CryptoAsset | null // ISSUE #45 Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
   ) {
     if (!crypto) {
       throw new ValueError(`The reference crypto-asset must be defined`);
@@ -40,7 +40,7 @@ export class ImplicitFiatConverter implements FiatConverter {
     const ref = await this.oracle.getPrice(registry, this.crypto, date, [
       from,
       to,
-    ]); // XXX What to do if this fails?
+    ]); // ISSUE #64 What to do if this fails?
 
     const exchangeRage = ref[to].rate.div(ref[from].rate);
 

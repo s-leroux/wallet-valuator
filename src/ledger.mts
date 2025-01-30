@@ -186,7 +186,7 @@ export class Ledger implements Iterable<Entry> {
   }
 
   reduce(fn: Function, acc: any) {
-    // XXX ISSUE #30 Fix types
+    // ISSUE #30 Fix types
     let idx = 0;
 
     for (const tr of this.list) {

@@ -107,7 +107,7 @@ export class CryptoAsset {
    * @param symbol - The symbol used to represent the crypto (e.g., "ETH").
    * @param decimal - The number of decimal places used for the crypto.
    *
-   * XXX Make the constructor private and provide a CryptoAsset.create static method
+   * ISSUE #68 Make the constructor private and provide a CryptoAsset.create static method
    */
   constructor(id: string, name: string, symbol: string, decimal: number) {
     register(this);
@@ -133,7 +133,7 @@ export class CryptoAsset {
   }
 
   fromString(v: string): Amount {
-    // FIXME ISSUE #32 rename as `amount()`
+    // ISSUE #32 rename as `amount()`
     return new Amount(this, BigNumber.fromString(v));
   }
 

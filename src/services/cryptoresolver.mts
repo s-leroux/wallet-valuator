@@ -44,11 +44,11 @@ export abstract class CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Promise<CryptoAsset | null>; // XXX ISSUE #43 Shouldn't we throw an exception instead of returning null?
+  ): Promise<CryptoAsset | null>; // ISSUE #43 Shouldn't we throw an exception instead of returning null?
 
   /**
    * Return a logical crypto-asset from its internal `id`.
    * Return `null` if the given `id` is not in the database.
    */
-  abstract get(crypto_id: string): Promise<CryptoAsset | null>; // XXX ISSUE #43 Shouldn't we throw an exception instead of returning null?
+  abstract get(crypto_id: string): Promise<CryptoAsset | null>; // ISSUE #43 Shouldn't we throw an exception instead of returning null?
 }

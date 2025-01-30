@@ -93,7 +93,7 @@ describe("CoinGecko", function () {
         eur: new Price(
           maliciousCrypto,
           "eur" as FiatCurrency,
-          0 // XXX ISSUE #27 CoinGecko silently defaults to 0
+          0 // ISSUE #27 CoinGecko silently defaults to 0
         ),
       };
       assert.deepEqual(price, expected);

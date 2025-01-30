@@ -39,7 +39,7 @@ function cryptoAssetFromEntry(
 ): CryptoAsset {
   let crypto = entry.crypto;
   if (crypto) {
-    // XXX assert the decimal are consistent with what we alreaady know. This is the only critical field
+    // ISSUE #65 assert the decimal are consistent with what we alreaady know. This is the only critical field
     // Other "user-supplied" fields are replaced by API values.
     return crypto;
   }
@@ -109,7 +109,7 @@ export class RealTokenResolver extends CryptoResolver {
     const entry = this.tokens.get(chainAddress);
     if (!entry) {
       // Not our business
-      // TODO Log this event as it is suspicious.
+      // ISSUE #66 Log this event as it is suspicious.
       return null;
     }
 

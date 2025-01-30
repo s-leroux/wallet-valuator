@@ -28,7 +28,7 @@ describe("FiatCurrency", () => {
     ];
     for (const [a, b, expected] of testcases) {
       register(`case "${a}" "${b}"`, () => {
-        // XXX Check if this test should be asymmetric: === vs !=
+        // ISSUE #69 Check if this test should be asymmetric: === vs !=
         (expected ? assert.strictEqual : assert.notEqual)(a, b);
       });
     }

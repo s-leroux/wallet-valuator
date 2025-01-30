@@ -108,7 +108,7 @@ export class RealTokenOracle extends Oracle {
         if (entry) {
           result[fiat] = crypto.price(fiat, entry[1]);
         }
-        break; // XXX We default to {}. Is it correct?
+        break; // ISSUE #27 We default to {}. Is it correct?
       }
     }
     return result;

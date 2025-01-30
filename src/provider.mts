@@ -28,7 +28,7 @@ export class Provider implements ProviderInterface {
   retries: number; // How many time did we retry a request because or rate-limit
 
   constructor(base: string, options = {} as any) {
-    // XXX Create a type for the option bag
+    // ISSUE #67 Create a type for the option bag
     this.base = base;
     this.retry = options.retry ?? DEFAULT_RETRY;
     this.cooldown = options.cooldown ?? DEFAULT_COOLDOWN;
@@ -52,7 +52,7 @@ export class Provider implements ProviderInterface {
 
   newError(res: any, payload: Payload) {
     // OVERRIDE ME
-    return new Error( // XXX ISSUE 29 We should have a specific HTTPStatusError
+    return new Error( // ISSUE 29 We should have a specific HTTPStatusError
       `Error status ${res.status} while fetching ${res.url}\n${payload}`
     );
   }

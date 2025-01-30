@@ -153,7 +153,7 @@ export class Portfolio {
     // Data lines
     for (const snapshot of this.snapshots) {
       const items = cryptoAssets.reduce(
-        // XXX ISSUE #24 Move that logic to Snapshot ?
+        // ISSUE #24 Move that logic to Snapshot ?
         (acc, cryptoAsset) => (
           acc.push(snapshot.holdings.get(cryptoAsset)?.value.toString() ?? "0"),
           acc
