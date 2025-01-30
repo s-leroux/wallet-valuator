@@ -89,13 +89,7 @@ describe("CoinGecko", function () {
         new Date("2024-12-30"),
         ["eur"] as FiatCurrency[]
       );
-      const expected = {
-        eur: new Price(
-          maliciousCrypto,
-          "eur" as FiatCurrency,
-          0 // ISSUE #27 CoinGecko silently defaults to 0
-        ),
-      };
+      const expected = {};
       assert.deepEqual(price, expected);
     });
   });

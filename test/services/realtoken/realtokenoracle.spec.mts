@@ -142,7 +142,7 @@ describe("RealTokenOracle", function () {
       const register = prepare(this);
 
       const testcases = [
-        ["20210117", null],
+        ["20210117", null], // this tests the case we have a konwn token but no price at the requested date
         ["20210217", 50.07],
         ["20210317", 50.07],
         ["20220511", 50.07],

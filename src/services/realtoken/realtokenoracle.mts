@@ -108,7 +108,11 @@ export class RealTokenOracle extends Oracle {
         if (entry) {
           result[fiat] = crypto.price(fiat, entry[1]);
         }
-        break; // ISSUE #27 We default to {}. Is it correct?
+        // If the price is unavailable for the requested date, default to `{}`
+        // in accordance with the discussion in:
+        // https://github.com/s-leroux/wallet-valuator/issues/27#issuecomment-2624872047
+        // and the description provided in `src/services/oracle.mts`.
+        break;
       }
     }
     return result;

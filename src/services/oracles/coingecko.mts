@@ -92,7 +92,7 @@ export class CoinGecko extends Oracle {
     let prices;
     try {
       const historical_data = await this.provider.fetch(
-        `coins/${internalToCoinGeckoId(encodeURIComponent(crypto.id))}/history`,
+        `coins/${encodeURIComponent(internalToCoinGeckoId(crypto.id))}/history`,
         {
           date: dateDdMmYyyy,
         }
@@ -102,14 +102,12 @@ export class CoinGecko extends Oracle {
       prices = {};
     }
     const result: Record<string, Price> = {};
-    currencies.forEach(
-      (currency) =>
-        (result[currency] = new Price(
-          crypto,
-          currency,
-          prices[currency] ?? "0" // ISSUE #27 Should we silently default to zero here?
-        ))
-    );
+    for (const currency of currencies) {
+      if (Object.hasOwn(prices, currency)) {
+        result[currency] = new Price(crypto, currency, prices[currency]);
+      }
+    }
+
     return result;
   }
 }
