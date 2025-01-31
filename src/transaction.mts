@@ -96,9 +96,9 @@ export abstract class ChainRecord {
       // EC20 Token code specific
       const value = data.value;
       if (value === undefined) {
-        this.amount = currency.fromBaseUnit("0");
+        this.amount = currency.amountFromBaseUnit("0");
       } else {
-        this.amount = currency.fromBaseUnit(value);
+        this.amount = currency.amountFromBaseUnit(value);
       }
     }
 

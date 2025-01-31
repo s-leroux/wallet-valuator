@@ -137,11 +137,11 @@ export class CryptoAsset {
    * const amount = eth.fromBaseUnit('1000000000000000000'); // 1 ETH
    * console.log(amount.toString()); // "1 ETH"
    */
-  fromBaseUnit(baseunit: string): Amount {
+  amountFromBaseUnit(baseunit: string): Amount {
     return new Amount(this, BigNumber.fromDigits(baseunit, this.decimal));
   }
 
-  fromString(v: string): Amount {
+  amountFromString(v: string): Amount {
     // ISSUE #32 rename as `amount()`
     return new Amount(this, BigNumber.fromString(v));
   }

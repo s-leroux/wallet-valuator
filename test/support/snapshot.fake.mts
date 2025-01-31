@@ -27,7 +27,7 @@ export function FakeMovement( // Capitalized to pretend we are a class. Hin! Hin
         typeof timeStampOrDate === "string"
           ? timeStampFromDate(timeStampOrDate)
           : timeStampOrDate,
-      amount: FakeCryptoAsset[asset].fromString(amount),
+      amount: FakeCryptoAsset[asset].amountFromString(amount),
     },
     new Map(tags),
   ] as const;

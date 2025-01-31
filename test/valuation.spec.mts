@@ -21,7 +21,7 @@ describe("Valuation", () => {
 
   describe("valueFromAmountAndRate()", () => {
     const bitcoin = FakeCryptoAsset.bitcoin;
-    const amount = bitcoin.fromString("100.5");
+    const amount = bitcoin.amountFromString("100.5");
     const fiat = FakeFiatCurrency.eur;
     const price = bitcoin.price(fiat, 100000);
 
@@ -44,8 +44,8 @@ describe("Valuation", () => {
     const fiat = FakeFiatCurrency.eur;
     const timeStamp = new Date("2024-12-30").getTime() / 1000;
     const amounts = [
-      FakeCryptoAsset.bitcoin.fromString("0.001"),
-      FakeCryptoAsset.ethereum.fromString("5"),
+      FakeCryptoAsset.bitcoin.amountFromString("0.001"),
+      FakeCryptoAsset.ethereum.amountFromString("5"),
     ];
 
     it("should create a Valuation instance from holdings", async () => {

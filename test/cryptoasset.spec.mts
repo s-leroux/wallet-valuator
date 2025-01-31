@@ -37,7 +37,7 @@ describe("CryptoAsset", () => {
     );
     const baseUnitValue = "12345678900000000000";
     //                     09876543210987654321
-    const amount = crypto.fromBaseUnit(baseUnitValue);
+    const amount = crypto.amountFromBaseUnit(baseUnitValue);
 
     assert.strictEqual(amount.crypto, crypto);
     assert.strictEqual(
@@ -49,14 +49,14 @@ describe("CryptoAsset", () => {
 
   it("should create an Amount from a string", () => {
     const crypto = FakeCryptoAsset.bitcoin;
-    const amount = crypto.fromString("100.5");
+    const amount = crypto.amountFromString("100.5");
 
     assert.strictEqual(amount.toString(), "100.5 BTC");
   });
 
   it("should create a Price instance from fiat and rate", () => {
     const crypto = FakeCryptoAsset.bitcoin;
-    const amount = crypto.fromString("100.5");
+    const amount = crypto.amountFromString("100.5");
     const fiat = FakeFiatCurrency.eur;
     const price = crypto.price(fiat, 100000);
 
