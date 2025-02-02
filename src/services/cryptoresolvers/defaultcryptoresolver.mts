@@ -191,6 +191,9 @@ export class DefaultCryptoResolver extends CryptoResolver {
     return crypto;
   }
 
+  /**
+   * @internal
+   */
   async get(crypto_id: string): Promise<CryptoAsset | null> {
     return this.cryptos.get(crypto_id) ?? null;
   }

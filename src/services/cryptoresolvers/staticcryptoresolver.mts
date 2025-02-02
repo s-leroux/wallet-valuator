@@ -1,0 +1,86 @@
+import { CryptoAsset } from "../../cryptoasset.mjs";
+import { CryptoResolver } from "../cryptoresolver.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+
+import { MMap } from "../../memoizer.mjs";
+
+// XXX We may factor out the ChainAddress utility
+type ChainAddress = string & { readonly brand: unique symbol };
+function ChainAddress(
+  chain: string,
+  smartContractAddress: string | null
+): ChainAddress {
+  return `${chain}:${smartContractAddress || ""}`.toLowerCase() as ChainAddress;
+}
+
+export type StaticCryptoAsset = readonly [
+  key: string,
+  chain: string,
+  contractAddress: string | null,
+  name: string,
+  symbol: string,
+  decimal: number
+];
+
+type Entry = {
+  key: string;
+  name: string;
+  symbol: string;
+  decimal: number;
+};
+
+/**
+ * A KISS class to support a hard-coded crypto-asset database.
+ */
+export class StaticCryptoResolver extends CryptoResolver {
+  private readonly cryptos: MMap<string, CryptoAsset>;
+  private readonly database: Map<ChainAddress, Entry>;
+
+  constructor(source: Iterable<StaticCryptoAsset>) {
+    super();
+    this.cryptos = new MMap();
+    const database = (this.database = new Map());
+
+    for (const [key, chain, contractAddress, name, symbol, decimal] of source) {
+      const chainAddress = ChainAddress(chain, contractAddress);
+      const entry = {
+        __proto__: null,
+        key,
+        name,
+        symbol,
+        decimal,
+      };
+      database.set(chainAddress, entry);
+    }
+  }
+
+  async resolve(
+    registry: CryptoRegistry,
+    chain: string,
+    block: number,
+    smartContractAddress: string,
+    name: string,
+    symbol: string,
+    decimal: number
+  ): Promise<CryptoAsset | null> {
+    const chainAddress = ChainAddress(chain, smartContractAddress);
+    const entry = this.database.get(chainAddress);
+    if (!entry) {
+      return null;
+    }
+    return this.cryptos.get(
+      entry.key,
+      () => new CryptoAsset(entry.key, entry.name, entry.symbol, entry.decimal)
+    );
+  }
+
+  /**
+   * @internal
+   * Utility to retrieve a cached crypto-asset by it key.
+   *
+   * For testing purposes only
+   */
+  async get(key: string): Promise<CryptoAsset | null> {
+    return this.cryptos.get(key) ?? null;
+  }
+}
