@@ -25,7 +25,7 @@ describe("GnosisScan", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
-  const cryptoResolver = new FakeCryptoResolver();
+  const cryptoResolver = FakeCryptoResolver.create();
   let provider: GnosisScanProvider | undefined;
   let gs: GnosisScanAPI | undefined;
 
