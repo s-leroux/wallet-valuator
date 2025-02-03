@@ -80,6 +80,9 @@ export abstract class ChainRecord {
         data.contractAddress
       );
     }
+
+    // FIXME The logic based on 'currency' seems to be broken (notably in case
+    // `resolve` returns `undefined` or `null`)
     const currency = this.contract
       ? await cryptoResolver.resolve(
           registry,

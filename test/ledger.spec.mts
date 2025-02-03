@@ -2,10 +2,10 @@ import { assert } from "chai";
 
 import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
+import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
 import { ChainRecord, ERC20TokenTransfer } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
-import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
@@ -65,7 +65,7 @@ describe("Ledger", () => {
   let swarm: Swarm;
   let explorer: Explorer;
   let transactions: ChainRecord[];
-  const cryptoResolver = new FakeCryptoResolver();
+  const cryptoResolver = new LazyCryptoResolver();
   let registry: CryptoRegistry;
 
   beforeEach(async () => {
