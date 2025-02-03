@@ -13,7 +13,7 @@ const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
 
 describe("Swarm", () => {
-  const cryptoResolver = new FakeCryptoResolver();
+  const cryptoResolver = FakeCryptoResolver.create();
   let explorer: Explorer;
   let registry: CryptoRegistry;
   let swarm: Swarm;

@@ -41,9 +41,13 @@ type Entry = {
 export class LazyCryptoResolver extends CryptoResolver {
   private readonly cryptos: MMap<ChainAddress, CryptoAsset>;
 
-  constructor() {
+  protected constructor() {
     super();
     this.cryptos = new MMap();
+  }
+
+  static create() {
+    return new LazyCryptoResolver();
   }
 
   async resolve(

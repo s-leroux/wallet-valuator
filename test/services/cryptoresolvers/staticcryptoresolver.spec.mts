@@ -41,7 +41,7 @@ describe("StaticCryptoResolver", function () {
   let cryptoResolver: StaticCryptoResolver;
 
   beforeEach(() => {
-    cryptoResolver = new StaticCryptoResolver(cryptoTable);
+    cryptoResolver = StaticCryptoResolver.create(cryptoTable);
   });
 
   describe("default database", function () {

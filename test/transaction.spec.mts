@@ -18,7 +18,7 @@ const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
 
 describe("Swarm and Transaction integration", () => {
-  const cryptoResolver = new LazyCryptoResolver();
+  const cryptoResolver = LazyCryptoResolver.create();
   let explorer: Explorer;
   let registry: CryptoRegistry;
   let swarm: Swarm;

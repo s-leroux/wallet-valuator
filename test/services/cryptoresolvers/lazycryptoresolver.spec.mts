@@ -10,7 +10,7 @@ describe("LazyCryptoResolver", function () {
   let cryptoResolver: LazyCryptoResolver;
 
   beforeEach(() => {
-    cryptoResolver = new LazyCryptoResolver();
+    cryptoResolver = LazyCryptoResolver.create();
   });
 
   it("Should cache tokens", async () => {

@@ -32,25 +32,41 @@ const cryptoTable = [
 ] as const;
 
 export class FakeCryptoResolver extends StaticCryptoResolver {
-  constructor() {
+  protected constructor() {
     super(cryptoTable);
+  }
+
+  static create(): FakeCryptoResolver {
+    return new this();
   }
 }
 
 export class GnosisCryptoResolver extends StaticCryptoResolver {
-  constructor() {
+  protected constructor() {
     super(cryptoTable.filter((item) => item[1] == "gnosis"));
+  }
+
+  static create(): GnosisCryptoResolver {
+    return new this();
   }
 }
 
 export class EthereumCryptoResolver extends StaticCryptoResolver {
-  constructor() {
+  protected constructor() {
     super(cryptoTable.filter((item) => item[1] == "ethereum"));
+  }
+
+  static create(): EthereumCryptoResolver {
+    return new this();
   }
 }
 
 export class PolygonCryptoResolver extends StaticCryptoResolver {
-  constructor() {
+  protected constructor() {
     super(cryptoTable.filter((item) => item[1] == "polygon"));
+  }
+
+  static create(): PolygonCryptoResolver {
+    return new this();
   }
 }

@@ -65,7 +65,7 @@ describe("Ledger", () => {
   let swarm: Swarm;
   let explorer: Explorer;
   let transactions: ChainRecord[];
-  const cryptoResolver = new LazyCryptoResolver();
+  const cryptoResolver = LazyCryptoResolver.create();
   let registry: CryptoRegistry;
 
   beforeEach(async () => {

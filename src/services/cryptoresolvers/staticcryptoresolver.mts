@@ -36,7 +36,7 @@ export class StaticCryptoResolver extends CryptoResolver {
   private readonly cryptos: MMap<string, CryptoAsset>;
   private readonly database: Map<ChainAddress, Entry>;
 
-  constructor(source: Iterable<StaticCryptoAsset>) {
+  protected constructor(source: Iterable<StaticCryptoAsset>) {
     super();
     this.cryptos = new MMap();
     const database = (this.database = new Map());
@@ -52,6 +52,10 @@ export class StaticCryptoResolver extends CryptoResolver {
       };
       database.set(chainAddress, entry);
     }
+  }
+
+  static create(source: Iterable<StaticCryptoAsset>): StaticCryptoResolver {
+    return new this(source);
   }
 
   async resolve(

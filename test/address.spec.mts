@@ -8,7 +8,7 @@ import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 describe("Address", function () {
   const registry = CryptoRegistry.create();
-  const cryptoResolver = new FakeCryptoResolver();
+  const cryptoResolver = FakeCryptoResolver.create();
 
   it("can be created from a chain and an address string", async function () {
     const test_cases: [string, string][] = [
