@@ -32,7 +32,7 @@ export class MMap<K, V> {
     const value = this.cache.get(key); // Single lookup
 
     if (value !== undefined) {
-      return value === UNDEFINED ? (undefined as any) : value;
+      return value === UNDEFINED ? (undefined as V) : value;
     }
 
     if (!factory) {
