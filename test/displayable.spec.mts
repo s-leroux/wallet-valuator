@@ -52,6 +52,7 @@ describe("tabular", function () {
       ["hello", "-10", "hello     ", "align left"],
       ["hello", "4", "…llo", "cut left"],
       ["hello", "-4", "hel…", "cut right"],
+      ["hello", "", "hello", "verbatim"],
     ] as const;
 
     for (const [input, format, expected, desc] of testcases) {

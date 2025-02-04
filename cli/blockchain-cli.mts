@@ -9,7 +9,7 @@ program
   .description("Command-line tool to display blockchain addresses")
   .version("1.0.0")
   .arguments("<addresses...>")
-  .action((addresses) => processAddresses(addresses));
+  .action(async (addresses) => processAddresses(addresses));
 
 // Parse and execute
 program.parse(process.argv);

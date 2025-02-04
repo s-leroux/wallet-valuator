@@ -72,8 +72,16 @@ function alignChar(width: number, dot: string, decimal: number) {
   };
 }
 
+function id(str: string) {
+  return str;
+}
+
 export function tabular(sep: string, ...formats: string[]) {
   const formaters = formats.map((format) => {
+    if (!format) {
+      return id;
+    }
+
     const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
     if (!match) {
       throw new ValueError(`Invalid format ${format}`);

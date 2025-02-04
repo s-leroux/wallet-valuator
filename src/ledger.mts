@@ -88,10 +88,8 @@ export class Entry implements Sortable {
   }
 
   toDisplayString(options: DisplayOptions): string {
-    const record = this.record;
-    const from = record.from.toDisplayString(options);
-    const to = record.to.toDisplayString(options);
-    return `${record.type[0]}:${this.key}:${from}:${to}:${record.amount}`;
+    const record = this.record.toDisplayString(options);
+    return record;
   }
 
   tag(name: string, data: any = true) {
@@ -136,6 +134,15 @@ export class Ledger implements Iterable<Entry> {
     }
 
     return new Ledger(join(a, b));
+  }
+
+  toDisplayString(options: DisplayOptions): string {
+    return this.list
+      .map(
+        (entry, idx) =>
+          `${String(idx).padStart(6)}:${entry.toDisplayString(options)}`
+      )
+      .join("\n");
   }
 
   *asCSV() {

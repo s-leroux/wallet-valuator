@@ -75,7 +75,7 @@ describe("Ledger", () => {
     explorer = new FakeExplorer();
     chain = explorer.chain;
     registry = CryptoRegistry.create();
-    swarm = new Swarm([explorer], registry, cryptoResolver);
+    swarm = Swarm.create([explorer], registry, cryptoResolver);
 
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {

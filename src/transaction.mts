@@ -8,11 +8,14 @@ import { Amount } from "./cryptoasset.mjs";
 import { CryptoResolver } from "./services/cryptoresolver.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { Blockchain } from "./blockchain.mjs";
+import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 
 type TransactionType =
   | "NORMAL" // a normal transaction
   | "INTERNAL" // an internal transaction
   | "ERC20"; // an ERC-20 token transfer
+
+const format = tabular(" | ", "", "10", "", "", "");
 
 /**
  * Abstract base class for all blockchain transfers and transactions.
@@ -39,6 +42,18 @@ export abstract class ChainRecord {
     this.type = type;
     this.explorer = swarm.getExplorer(chain);
     this.data = {};
+  }
+
+  toString(): string {
+    return toDisplayString(this);
+  }
+
+  toDisplayString(options: DisplayOptions): string {
+    const from = this.from.toDisplayString(options);
+    const to = this.to.toDisplayString(options);
+    const amount = this.amount.toDisplayString(options);
+
+    return format(this.type[0], this.blockNumber, from, to, amount);
   }
 
   abstract isValid(

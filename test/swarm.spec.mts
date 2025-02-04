@@ -24,7 +24,7 @@ describe("Swarm", () => {
     chain = Blockchain.create(CHAIN_NAME);
     explorer = new FakeExplorer(chain);
     registry = CryptoRegistry.create();
-    swarm = new Swarm([explorer], registry, cryptoResolver);
+    swarm = Swarm.create([explorer], registry, cryptoResolver);
   });
 
   describe("Addresses", () => {

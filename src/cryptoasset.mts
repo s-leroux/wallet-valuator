@@ -4,6 +4,7 @@ import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError } from "./error.mjs";
 
 import { register } from "./debug.mjs";
+import { DisplayOptions } from "./displayable.mjs";
 
 /**
  * Represents an amount of a CryptoAsset expressed in its display unit.
@@ -37,6 +38,10 @@ export class Amount {
    */
   toString(): string {
     return `${this.value} ${this.crypto.symbol}`;
+  }
+
+  toDisplayString(options: DisplayOptions): string {
+    return this.toString();
   }
 
   /**
