@@ -16,6 +16,7 @@ tmp/**/*
 *.swp
 
 # Vim
+.vimrc
 .editorconfig
 .viminfo
 .vimspector.json
