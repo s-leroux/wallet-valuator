@@ -6,6 +6,7 @@ import {
   InternalTransaction,
   ERC20TokenTransfer,
 } from "../transaction.mjs";
+import { Blockchain } from "../blockchain.mjs";
 import { CryptoAsset } from "../cryptoasset.mjs";
 import { CryptoResolver } from "./cryptoresolver.mjs";
 import type { CryptoRegistry } from "../cryptoregistry.mjs";
@@ -14,10 +15,10 @@ import type { CryptoRegistry } from "../cryptoregistry.mjs";
  * The high-level interface to explorer a blockchain
  */
 export class Explorer {
-  readonly chain: string;
+  readonly chain: Blockchain;
   readonly nativeCurrency: CryptoAsset;
 
-  constructor(chain: string, nativeCurrency: CryptoAsset) {
+  constructor(chain: Blockchain, nativeCurrency: CryptoAsset) {
     this.chain = chain;
     this.nativeCurrency = nativeCurrency;
   }

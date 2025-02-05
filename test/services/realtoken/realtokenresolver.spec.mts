@@ -10,14 +10,15 @@ import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 // Test data
 import { RealTokenAPI } from "../../../src/services/realtoken/realtokenapi.mjs";
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
+import { asBlockchain } from "../../../src/blockchain.mjs";
 
 describe("RealTokenResolver", function () {
   let resolver: CryptoResolver;
   let registry: CryptoRegistry;
 
-  const E = "ethereum";
-  const X = "xdai";
-  const G = "gnosis";
+  const E = asBlockchain("ethereum");
+  const X = asBlockchain("xdai");
+  const G = asBlockchain("gnosis");
 
   beforeEach(() => {
     registry = CryptoRegistry.create();

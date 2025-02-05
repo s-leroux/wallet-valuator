@@ -10,6 +10,7 @@ import {
 } from "../../transaction.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { CryptoResolver } from "../cryptoresolver.mjs";
+import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
 const GNOSISSCAN_DEFAULT_RETRY = Infinity;
@@ -168,8 +169,8 @@ export class GnosisScanAPI {
 export class GnosisScan extends CommonExplorer {
   readonly api: GnosisScanAPI;
 
-  constructor(api: GnosisScanAPI, chain?: string) {
-    const my_chain = chain ?? "gnosis";
+  constructor(api: GnosisScanAPI, chain?: Blockchain) {
+    const my_chain = chain ?? asBlockchain("gnosis");
     const my_nativeCurrency = new CryptoAsset("xDai", "xDai", "xDai", 18);
 
     super(my_chain, my_nativeCurrency);

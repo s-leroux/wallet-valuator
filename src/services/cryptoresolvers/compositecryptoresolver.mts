@@ -1,6 +1,7 @@
 import { CryptoResolver } from "../cryptoresolver.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import { Blockchain } from "../../blockchain.mjs";
 
 /**
  * A `CryptoResolver` that sequentially delegates resolution to multiple
@@ -17,7 +18,7 @@ export class CompositeCryptoResolver extends CryptoResolver {
    */
   async resolve(
     registry: CryptoRegistry,
-    chain: string,
+    chain: Blockchain,
     block: number,
     smartContractAddress: string,
     name: string,

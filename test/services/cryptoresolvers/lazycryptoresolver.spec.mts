@@ -5,9 +5,15 @@ import { prepare } from "../../support/register.helper.mjs";
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { asBlockchain } from "../../../src/blockchain.mjs";
 
 describe("LazyCryptoResolver", function () {
   let cryptoResolver: LazyCryptoResolver;
+
+  const E = asBlockchain("ethereum");
+  const G = asBlockchain("gnosis");
+  const P = asBlockchain("polygon");
+  const S = asBlockchain("solana");
 
   beforeEach(() => {
     cryptoResolver = LazyCryptoResolver.create();
@@ -25,7 +31,7 @@ describe("LazyCryptoResolver", function () {
     assert.notExists(await cryptoResolver.get("polygon", POLYGON_WBTC[0]));
     const wbtc = await cryptoResolver.resolve(
       registry,
-      "polygon",
+      P,
       1234,
       ...POLYGON_WBTC
     );
@@ -40,7 +46,7 @@ describe("LazyCryptoResolver", function () {
     );
     const wbtc2 = await cryptoResolver.resolve(
       registry,
-      "polygon",
+      P,
       1234,
       ...POLYGON_WBTC
     );
@@ -53,10 +59,10 @@ describe("LazyCryptoResolver", function () {
 
     // prettier-ignore
     const testcases = [
-        ["gnosis", "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83", ...USDC ],
-        ["polygon", "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", ...USDC ],
-        ["ethereum", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
-        ["solana", "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", ...USDC ],
+        [G, "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83", ...USDC ],
+        [P, "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", ...USDC ],
+        [E, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
+        [S, "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", ...USDC ],
       ] as const;
 
     for (const [chain, address, name, symbol, decimal] of testcases) {

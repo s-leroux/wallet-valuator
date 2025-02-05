@@ -1,6 +1,7 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import { Blockchain } from "../../blockchain.mjs";
 
 const wellKnownCryptos: [
   id: string,
@@ -154,7 +155,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
    *   be ignored.
    *
    * @param registry - The crypto-asset registry
-   * @param chain - The blockchain identifier (e.g., "Ethereum").
+   * @param chain - The blockchain
    * @param block - The block number for context.
    * @param smartContractAddress - The address of the smart contract.
    * @param name - The supposed name of the token.
@@ -165,14 +166,14 @@ export class DefaultCryptoResolver extends CryptoResolver {
    */
   async resolve(
     registry: CryptoRegistry,
-    chain: string,
+    chain: Blockchain,
     block: number,
     smartContractAddress: string,
     name: string,
     symbol: string,
     decimal: number
   ): Promise<CryptoAsset | null> {
-    const chainAddress = ChainAddress(chain, smartContractAddress);
+    const chainAddress = ChainAddress(chain.name, smartContractAddress);
     const transitions = this.transitions.get(chainAddress);
     if (!transitions) {
       return this.register(
@@ -197,7 +198,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
 
   register(
     chainAddress: ChainAddress,
-    chain: string,
+    chain: Blockchain,
     smartContractAddress: string,
     name: string,
     symbol: string,
@@ -209,7 +210,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
     this.transitions.set(chainAddress, [
       {
         crypto: crypto,
-        chain,
+        chain: chain.name,
         startBlock: 0,
         endBlock: Infinity,
         smartContractAddress,

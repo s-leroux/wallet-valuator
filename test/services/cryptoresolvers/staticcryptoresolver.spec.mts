@@ -5,6 +5,7 @@ import { prepare } from "../../support/register.helper.mjs";
 import { StaticCryptoResolver } from "../../../src/services/cryptoresolvers/staticcryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { asBlockchain } from "../../../src/blockchain.mjs";
 
 //prettier-ignore
 const cryptoTable = [
@@ -45,16 +46,21 @@ describe("StaticCryptoResolver", function () {
   });
 
   describe("default database", function () {
+    const E = asBlockchain("ethereum");
+    const G = asBlockchain("gnosis");
+    const P = asBlockchain("polygon");
+    const S = asBlockchain("solana");
+
     describe("should find well known token by chain, block, and address", function () {
       const register = prepare(this);
       const USDC = ["USD Coin", "USDC", 6] as const;
 
       // prettier-ignore
       const testcases = [
-        ["gnosis", "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83", ...USDC ],
-        ["polygon", "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", ...USDC ],
-        ["ethereum", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
-        ["solana", "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", ...USDC ],
+        [G, "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83", ...USDC ],
+        [P, "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", ...USDC ],
+        [E, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
+        [S, "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", ...USDC ],
       ] as const;
 
       for (const [chain, address, name, symbol, decimal] of testcases) {
@@ -79,9 +85,9 @@ describe("StaticCryptoResolver", function () {
 
       // prettier-ignore
       const testcases = [
-        ["gnosis", "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83", ...USDC ],
-        ["polygon", "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", ...USDC ],
-        ["ethereum", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
+        [G, "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83", ...USDC ],
+        [P, "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", ...USDC ],
+        [E, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
       ] as const;
 
       const registry = CryptoRegistry.create();

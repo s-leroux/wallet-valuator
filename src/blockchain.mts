@@ -1,5 +1,13 @@
 import { MMap } from "./memoizer.mjs";
 
+export function asBlockchain(chain: Blockchain | string): Blockchain {
+  if (typeof chain === "string") {
+    return Blockchain.create(chain);
+  }
+
+  return chain;
+}
+
 export class Blockchain {
   private static registry = new MMap<string, Blockchain>();
 

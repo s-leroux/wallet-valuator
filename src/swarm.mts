@@ -1,3 +1,4 @@
+import { asBlockchain, type Blockchain } from "./blockchain.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
 import type { DefaultCryptoResolver } from "./services/cryptoresolvers/defaultcryptoresolver.mjs";
@@ -27,7 +28,7 @@ export class Swarm {
   readonly addresses: Map<string, Address>;
   readonly records: ChainRecord[];
   readonly transactions: Map<string, NormalTransaction>;
-  readonly explorers: Map<string, Explorer>;
+  readonly explorers: Map<Blockchain, Explorer>;
 
   constructor(
     explorers: Explorer[],
@@ -49,8 +50,8 @@ export class Swarm {
     }
   }
 
-  explorer(chain: string): Explorer | undefined {
-    return this.explorers.get(chain);
+  explorer(chain: string | Blockchain): Explorer | undefined {
+    return this.explorers.get(asBlockchain(chain));
   }
 
   async store<T extends Storable, U extends T, OPT extends {}>(

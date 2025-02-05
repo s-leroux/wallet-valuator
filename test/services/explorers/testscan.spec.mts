@@ -24,7 +24,7 @@ describe("TestScan", function () {
   });
 
   it("should default to the fake Gnosis chain", () => {
-    assert.equal(explorer.chain, "gnosis-fake");
+    assert.equal(explorer.chain.name, "gnosis-fake");
   });
 
   describe("normalTransaction()", () => {

@@ -5,6 +5,7 @@ import { prepare } from "../../support/register.helper.mjs";
 import { ValueError } from "../../../src/error.mjs";
 import { DefaultCryptoResolver } from "../../../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { asBlockchain } from "../../../src/blockchain.mjs";
 
 describe("DefaultCryptoResolver", function () {
   it("can be created (no parameters)", function () {
@@ -36,14 +37,16 @@ describe("DefaultCryptoResolver", function () {
       const register = prepare(this);
       const MONERIUM = ["Monerium EUR emoney", "EURe", 18] as const;
       const EURe = "monerium-eur-money";
+      const G = asBlockchain("gnosis");
+
       // prettier-ignore
       const testcases = [
-        ["gnosis", 100, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", EURe ],
-        ["gnosis", 100, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", null ],
-        ["gnosis", 30000000, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", EURe ],
-        ["gnosis", 30000000, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", null ],
-        ["gnosis", 40000000, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", null ],
-        ["gnosis", 40000000, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", EURe ],
+        [G, 100, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", EURe ],
+        [G, 100, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", null ],
+        [G, 30000000, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", EURe ],
+        [G, 30000000, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", null ],
+        [G, 40000000, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", null ],
+        [G, 40000000, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", EURe ],
       ] as const;
 
       for (const [chain, block, address, expected] of testcases) {

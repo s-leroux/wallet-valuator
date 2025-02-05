@@ -13,6 +13,7 @@ import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 import { ERC20TokenTransfer } from "../src/transaction.mjs";
+import { asBlockchain } from "../src/blockchain.mjs";
 
 const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
@@ -24,7 +25,7 @@ describe("Swarm and Transaction integration", () => {
   let swarm: Swarm;
 
   beforeEach(() => {
-    explorer = new TestScan(CHAIN_NAME);
+    explorer = new TestScan(asBlockchain(CHAIN_NAME));
     registry = CryptoRegistry.create();
     swarm = new Swarm([explorer], registry, cryptoResolver);
   });
