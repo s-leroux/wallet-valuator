@@ -20,12 +20,13 @@ const CHAIN_NAME = "MyChain";
 
 describe("Swarm and Transaction integration", () => {
   const cryptoResolver = LazyCryptoResolver.create();
+  const chain = asBlockchain(CHAIN_NAME);
   let explorer: Explorer;
   let registry: CryptoRegistry;
   let swarm: Swarm;
 
   beforeEach(() => {
-    explorer = new TestScan(asBlockchain(CHAIN_NAME));
+    explorer = new TestScan(chain);
     registry = CryptoRegistry.create();
     swarm = new Swarm([explorer], registry, cryptoResolver);
   });
@@ -35,7 +36,7 @@ describe("Swarm and Transaction integration", () => {
       const TXHASH =
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
       const transaction = await swarm.normalTransaction(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         TXHASH
@@ -48,7 +49,7 @@ describe("Swarm and Transaction integration", () => {
       const TXHASH =
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
       const tr1 = await swarm.normalTransaction(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         TXHASH
@@ -80,7 +81,7 @@ describe("Swarm and Transaction integration", () => {
       ];
       for (const [hash, ok] of testCases) {
         const tr = await swarm.normalTransaction(
-          explorer,
+          chain,
           registry,
           cryptoResolver,
           hash
@@ -98,7 +99,7 @@ describe("Swarm and Transaction integration", () => {
     beforeEach(async () => {
       transactionData = ERC20TokenTransferEvents.result[0];
       transaction = await swarm.tokenTransfer(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         transactionData

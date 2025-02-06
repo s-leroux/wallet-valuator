@@ -144,7 +144,13 @@ export class CommonExplorer extends Explorer {
     return (
       await Promise.all(
         res.map((t) =>
-          swarm.normalTransaction(this, registry, cryptoResolver, t.hash, t)
+          swarm.normalTransaction(
+            this.chain,
+            registry,
+            cryptoResolver,
+            t.hash,
+            t
+          )
         )
       )
     ).filter((t) => t.data.isError === "0");
@@ -167,7 +173,7 @@ export class CommonExplorer extends Explorer {
 
     return await Promise.all(
       res.map((t) =>
-        swarm.internalTransaction(this, registry, cryptoResolver, t)
+        swarm.internalTransaction(this.chain, registry, cryptoResolver, t)
       )
     );
   }
@@ -186,7 +192,9 @@ export class CommonExplorer extends Explorer {
     const res = await this.accountTokenTransfers(address);
 
     return await Promise.all(
-      res.map((t) => swarm.tokenTransfer(this, registry, cryptoResolver, t))
+      res.map((t) =>
+        swarm.tokenTransfer(this.chain, registry, cryptoResolver, t)
+      )
     );
   }
 }

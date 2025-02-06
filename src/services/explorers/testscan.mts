@@ -26,7 +26,7 @@ export class TestScan extends CommonExplorer {
     // populate with well-known addresses
     super.register(swarm, registry, cryptoResolver);
     swarm.address(
-      this,
+      this.chain,
       registry,
       cryptoResolver,
       "0x0000000000000000000000000000000000000000",
@@ -45,7 +45,7 @@ export class TestScan extends CommonExplorer {
     for (const transaction of NormalTransactions.result) {
       if (transaction.hash === txhash) {
         return swarm.normalTransaction(
-          this,
+          this.chain,
           registry,
           cryptoResolver,
           txhash,

@@ -193,7 +193,7 @@ export class GnosisScan extends CommonExplorer {
     // populate with well-known addresses
     super.register(swarm, registry, cryptoResolver);
     swarm.address(
-      this,
+      this.chain,
       registry,
       cryptoResolver,
       "0x0000000000000000000000000000000000000000",
@@ -221,7 +221,7 @@ export class GnosisScan extends CommonExplorer {
 
     for (const record of records) {
       const t = await swarm.normalTransaction(
-        this,
+        this.chain,
         registry,
         cryptoResolver,
         record.hash,

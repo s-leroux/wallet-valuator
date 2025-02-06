@@ -12,6 +12,7 @@ import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 import NormalTransactions from "../fixtures/NormalTransactions.json" assert { type: "json" };
 import InternalTransactions from "../fixtures/InternalTransactions.json" assert { type: "json" };
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
+import { Blockchain } from "../src/blockchain.mjs";
 
 const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
 const DISPERSE_APP_ADDRESS = "0xd152f549545093347a162dce210e7293f1452150";
@@ -63,6 +64,7 @@ describe("Utilities", () => {
 describe("Ledger", () => {
   let ledger: Ledger;
   let swarm: Swarm;
+  let chain: Blockchain;
   let explorer: Explorer;
   let transactions: ChainRecord[];
   const cryptoResolver = LazyCryptoResolver.create();
@@ -71,22 +73,23 @@ describe("Ledger", () => {
   beforeEach(async () => {
     ledger = Ledger.create();
     explorer = new FakeExplorer();
+    chain = explorer.chain;
     registry = CryptoRegistry.create();
     swarm = new Swarm([explorer], registry, cryptoResolver);
 
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
-        return swarm.tokenTransfer(explorer, registry, cryptoResolver, tr);
+        return swarm.tokenTransfer(chain, registry, cryptoResolver, tr);
       })
     );
     const b = await Promise.all(
       NormalTransactions.result.map((tr) =>
-        swarm.normalTransaction(explorer, registry, cryptoResolver, tr.hash, tr)
+        swarm.normalTransaction(chain, registry, cryptoResolver, tr.hash, tr)
       )
     );
     const c = await Promise.all(
       InternalTransactions.result.map((tr) =>
-        swarm.internalTransaction(explorer, registry, cryptoResolver, tr)
+        swarm.internalTransaction(chain, registry, cryptoResolver, tr)
       )
     );
 
@@ -132,7 +135,7 @@ describe("Ledger", () => {
       */
       const ledger = Ledger.create(transactions);
       const address = await swarm.address(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         DISPERSE_APP_ADDRESS
