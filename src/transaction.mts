@@ -7,6 +7,7 @@ import { Explorer } from "./services/explorer.mjs";
 import { Amount } from "./cryptoasset.mjs";
 import { CryptoResolver } from "./services/cryptoresolver.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
+import { Blockchain } from "./blockchain.mjs";
 
 type TransactionType =
   | "NORMAL" // a normal transaction
@@ -34,9 +35,9 @@ export abstract class ChainRecord {
   fees: BigNumber;
   feesAsString: string;
 
-  constructor(swarm: Swarm, explorer: Explorer, type: TransactionType) {
+  constructor(swarm: Swarm, chain: Blockchain, type: TransactionType) {
     this.type = type;
-    this.explorer = explorer;
+    this.explorer = swarm.getExplorer(chain);
     this.data = {};
   }
 
@@ -60,13 +61,13 @@ export abstract class ChainRecord {
     this.timeStamp = toInteger(data.timeStamp);
 
     this.from = await swarm.address(
-      this.explorer,
+      this.explorer.chain,
       registry,
       cryptoResolver,
       data.from
     );
     this.to = await swarm.address(
-      this.explorer,
+      this.explorer.chain,
       registry,
       cryptoResolver,
       data.to
@@ -74,7 +75,7 @@ export abstract class ChainRecord {
 
     if (data.contractAddress) {
       this.contract = await swarm.address(
-        this.explorer,
+        this.explorer.chain,
         registry,
         cryptoResolver,
         data.contractAddress
@@ -127,8 +128,8 @@ export class NormalTransaction extends ChainRecord {
   hash: string;
   isError?: boolean;
 
-  constructor(swarm: Swarm, explorer: Explorer, hash: string) {
-    super(swarm, explorer, "NORMAL");
+  constructor(swarm: Swarm, chain: Blockchain, hash: string) {
+    super(swarm, chain, "NORMAL");
 
     this.hash = hash.toLowerCase();
   }
@@ -186,9 +187,9 @@ export class InternalTransaction extends ChainRecord {
   isError?: boolean;
   transaction?: NormalTransaction;
 
-  constructor(swarm: Swarm, explorer: Explorer) {
+  constructor(swarm: Swarm, chain: Blockchain) {
     debugger;
-    super(swarm, explorer, "INTERNAL");
+    super(swarm, chain, "INTERNAL");
   }
 
   async isValid(
@@ -210,7 +211,7 @@ export class InternalTransaction extends ChainRecord {
     this.isError = !!this.data.isError && this.data.isError !== "0";
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
-        this.explorer,
+        this.explorer.chain,
         registry,
         cryptoResolver,
         this.data.hash
@@ -227,8 +228,8 @@ export class ERC20TokenTransfer extends ChainRecord {
    */
   transaction?: NormalTransaction;
 
-  constructor(swarm: Swarm, explorer: Explorer) {
-    super(swarm, explorer, "ERC20");
+  constructor(swarm: Swarm, chain: Blockchain) {
+    super(swarm, chain, "ERC20");
   }
 
   async isValid(
@@ -252,7 +253,7 @@ export class ERC20TokenTransfer extends ChainRecord {
 
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
-        this.explorer,
+        this.explorer.chain,
         registry,
         cryptoResolver,
         this.data.hash

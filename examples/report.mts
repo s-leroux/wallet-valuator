@@ -40,7 +40,7 @@ const fiatConverter = new ImplicitFiatConverter(
 
 const swarm = new Swarm([explorer], registry, cryptoResolver);
 const address = await swarm.address(
-  explorer,
+  explorer.chain,
   registry,
   cryptoResolver,
   program.args[0]

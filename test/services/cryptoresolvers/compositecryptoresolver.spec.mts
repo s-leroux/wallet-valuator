@@ -11,6 +11,7 @@ import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycr
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { asBlockchain } from "../../../src/blockchain.mjs";
 
 describe("CompositeCryptoResolver", function () {
   let registry: CryptoRegistry;
@@ -38,10 +39,18 @@ describe("CompositeCryptoResolver", function () {
     ] as const;
 
     for (const [chain, sc] of testcases) {
-      register(`case ${chain} @s{sc}`, async () => {
+      register(`case ${chain} ${sc}`, async () => {
+        const resolvers = {
+          __proto__: null,
+
+          gnosis,
+          ethereum,
+          solana: lazy,
+        };
+
         const result = await composite.resolve(
           registry,
-          chain,
+          asBlockchain(chain),
           12345,
           sc,
           ...USDC
@@ -49,20 +58,13 @@ describe("CompositeCryptoResolver", function () {
 
         assert.exists(result);
 
-        let resolver: CryptoResolver;
-        switch (chain) {
-          case "gnosis":
-            resolver = gnosis;
-            break;
-          case "ethereum":
-            resolver = ethereum;
-            break;
-          case "solana":
-            resolver = lazy;
-            break;
-        }
-
-        const ref = await resolver.resolve(registry, chain, 12345, sc, ...USDC);
+        const ref = await resolvers[chain].resolve(
+          registry,
+          asBlockchain(chain),
+          12345,
+          sc,
+          ...USDC
+        );
 
         assert.strictEqual(result, ref);
       });

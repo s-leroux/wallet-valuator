@@ -6,6 +6,7 @@ import {
   InternalTransaction,
   ERC20TokenTransfer,
 } from "../transaction.mjs";
+import { Blockchain } from "../blockchain.mjs";
 import { CryptoAsset } from "../cryptoasset.mjs";
 import { CryptoResolver } from "./cryptoresolver.mjs";
 import type { CryptoRegistry } from "../cryptoregistry.mjs";
@@ -14,10 +15,10 @@ import type { CryptoRegistry } from "../cryptoregistry.mjs";
  * The high-level interface to explorer a blockchain
  */
 export class Explorer {
-  readonly chain: string;
+  readonly chain: Blockchain;
   readonly nativeCurrency: CryptoAsset;
 
-  constructor(chain: string, nativeCurrency: CryptoAsset) {
+  constructor(chain: Blockchain, nativeCurrency: CryptoAsset) {
     this.chain = chain;
     this.nativeCurrency = nativeCurrency;
   }
@@ -143,7 +144,13 @@ export class CommonExplorer extends Explorer {
     return (
       await Promise.all(
         res.map((t) =>
-          swarm.normalTransaction(this, registry, cryptoResolver, t.hash, t)
+          swarm.normalTransaction(
+            this.chain,
+            registry,
+            cryptoResolver,
+            t.hash,
+            t
+          )
         )
       )
     ).filter((t) => t.data.isError === "0");
@@ -166,7 +173,7 @@ export class CommonExplorer extends Explorer {
 
     return await Promise.all(
       res.map((t) =>
-        swarm.internalTransaction(this, registry, cryptoResolver, t)
+        swarm.internalTransaction(this.chain, registry, cryptoResolver, t)
       )
     );
   }
@@ -185,7 +192,9 @@ export class CommonExplorer extends Explorer {
     const res = await this.accountTokenTransfers(address);
 
     return await Promise.all(
-      res.map((t) => swarm.tokenTransfer(this, registry, cryptoResolver, t))
+      res.map((t) =>
+        swarm.tokenTransfer(this.chain, registry, cryptoResolver, t)
+      )
     );
   }
 }

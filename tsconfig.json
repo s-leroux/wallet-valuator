@@ -17,6 +17,7 @@
 
     "test/address.spec.mts",
     "test/bignumber.spec.mts",
+    "test/blockchain.spec.mts",
     "test/bsearch.spec.mts",
     "test/coofile.spec.mts",
     "test/cryptoasset.spec.mts",
@@ -69,6 +70,7 @@
 
     "src/address.mts",
     "src/bignumber.mts",
+    "src/blockchain.mts",
     "src/bsearch.mts",
     "src/coofile.mts",
     "src/cryptoasset.mts",

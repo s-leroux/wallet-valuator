@@ -8,10 +8,14 @@ import { CryptoAsset } from "../../cryptoasset.mjs";
 import NormalTransactions from "../../../fixtures/NormalTransactions.json" assert { type: "json" };
 import InternalTransactions from "../../../fixtures/InternalTransactions.json" assert { type: "json" };
 import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
+import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 
 export class TestScan extends CommonExplorer {
-  constructor(chain: string = "gnosis-fake") {
-    super(chain, new CryptoAsset("xdai", "xDai", "xDai", 18));
+  constructor(chain?: Blockchain) {
+    super(
+      chain ?? asBlockchain("gnosis-fake"),
+      new CryptoAsset("xdai", "xDai", "xDai", 18)
+    );
   }
 
   register(
@@ -22,7 +26,7 @@ export class TestScan extends CommonExplorer {
     // populate with well-known addresses
     super.register(swarm, registry, cryptoResolver);
     swarm.address(
-      this,
+      this.chain,
       registry,
       cryptoResolver,
       "0x0000000000000000000000000000000000000000",
@@ -41,7 +45,7 @@ export class TestScan extends CommonExplorer {
     for (const transaction of NormalTransactions.result) {
       if (transaction.hash === txhash) {
         return swarm.normalTransaction(
-          this,
+          this.chain,
           registry,
           cryptoResolver,
           txhash,

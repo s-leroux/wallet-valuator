@@ -8,18 +8,21 @@ import { Address } from "../src/address.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { Blockchain } from "../src/blockchain.mjs";
 
 const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
 
 describe("Swarm", () => {
   const cryptoResolver = FakeCryptoResolver.create();
+  let chain: Blockchain;
   let explorer: Explorer;
   let registry: CryptoRegistry;
   let swarm: Swarm;
 
   beforeEach(() => {
-    explorer = new FakeExplorer(CHAIN_NAME);
+    chain = Blockchain.create(CHAIN_NAME);
+    explorer = new FakeExplorer(chain);
     registry = CryptoRegistry.create();
     swarm = new Swarm([explorer], registry, cryptoResolver);
   });
@@ -28,13 +31,13 @@ describe("Swarm", () => {
     it("should return implement the flyweight pattern", async () => {
       // see https://en.wikipedia.org/wiki/Flyweight_pattern
       const objA = await swarm.address(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         ADDRESS
       );
       const objB = await swarm.address(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         ADDRESS
@@ -47,7 +50,7 @@ describe("Swarm", () => {
 
     it("should accumulate the added data", async () => {
       const objA = await swarm.address(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         ADDRESS,
@@ -56,7 +59,7 @@ describe("Swarm", () => {
         }
       );
       const objB = await swarm.address(
-        explorer,
+        chain,
         registry,
         cryptoResolver,
         ADDRESS,

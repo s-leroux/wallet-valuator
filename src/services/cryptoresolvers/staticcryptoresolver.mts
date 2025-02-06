@@ -3,6 +3,7 @@ import { CryptoResolver } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
+import { Blockchain } from "../../blockchain.mjs";
 
 // XXX We may factor out the ChainAddress utility
 type ChainAddress = string & { readonly brand: unique symbol };
@@ -60,14 +61,14 @@ export class StaticCryptoResolver extends CryptoResolver {
 
   async resolve(
     registry: CryptoRegistry,
-    chain: string,
+    chain: Blockchain,
     block: number,
     smartContractAddress: string,
     name: string,
     symbol: string,
     decimal: number
   ): Promise<CryptoAsset | null> {
-    const chainAddress = ChainAddress(chain, smartContractAddress);
+    const chainAddress = ChainAddress(chain.name, smartContractAddress);
     const entry = this.database.get(chainAddress);
     if (!entry) {
       return null;

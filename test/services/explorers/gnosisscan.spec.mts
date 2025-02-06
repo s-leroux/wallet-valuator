@@ -100,7 +100,7 @@ describe("GnosisScan", function () {
     });
 
     it("should default to the Gnosis chain", () => {
-      assert.equal(explorer.chain, "gnosis");
+      assert.equal(explorer.chain.name, "gnosis");
     });
     describe("normalTransaction()", () => {
       it("should load a transaction by its hash", async () => {

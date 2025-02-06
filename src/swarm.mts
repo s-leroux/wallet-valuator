@@ -1,3 +1,4 @@
+import { asBlockchain, type Blockchain } from "./blockchain.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
 import type { DefaultCryptoResolver } from "./services/cryptoresolvers/defaultcryptoresolver.mjs";
@@ -10,6 +11,7 @@ import {
   InternalTransaction,
   ERC20TokenTransfer,
 } from "./transaction.mjs";
+import { ValueError } from "./error.mjs";
 
 export interface Storable {
   assign(
@@ -27,7 +29,7 @@ export class Swarm {
   readonly addresses: Map<string, Address>;
   readonly records: ChainRecord[];
   readonly transactions: Map<string, NormalTransaction>;
-  readonly explorers: Map<string, Explorer>;
+  readonly explorers: Map<Blockchain, Explorer>;
 
   constructor(
     explorers: Explorer[],
@@ -49,23 +51,27 @@ export class Swarm {
     }
   }
 
-  explorer(chain: string): Explorer | undefined {
-    return this.explorers.get(chain);
+  getExplorer(chain: string | Blockchain): Explorer {
+    const explorer = this.explorers.get(asBlockchain(chain));
+    if (!explorer) {
+      throw new ValueError(`Can't find an explorer for ${chain}`);
+    }
+    return explorer;
   }
 
   async store<T extends Storable, U extends T, OPT extends {}>(
     storage: Map<string, T>,
-    ctor: new (swarm: Swarm, explorer: Explorer, id: string) => U,
-    explorer: Explorer,
+    ctor: new (swarm: Swarm, chain: Blockchain, id: string) => U,
+    chain: Blockchain,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     id: string,
     data?: OPT
   ): Promise<U> {
-    const key = `${explorer.chain}:${id}`.toLowerCase();
+    const key = `${chain.name}:${id}`.toLowerCase();
     let obj: U = storage.get(key) as U;
     if (!obj) {
-      obj = new ctor(this, explorer, id);
+      obj = new ctor(this, chain, id);
       // obj.__id = key;
       storage.set(key, obj);
     }
@@ -78,7 +84,7 @@ export class Swarm {
   }
 
   address(
-    chain: Explorer,
+    chain: Blockchain,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string,
@@ -96,7 +102,7 @@ export class Swarm {
   }
 
   contract(
-    chain: Explorer,
+    chain: Blockchain,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string,
@@ -117,7 +123,7 @@ export class Swarm {
    * Return the NormalTransaction corresponding to the hash
    */
   async normalTransaction(
-    chain: Explorer,
+    chain: Blockchain,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     hash: string,
@@ -141,12 +147,12 @@ export class Swarm {
    *  Returns a new ERC20 Token Transfer
    */
   async tokenTransfer(
-    explorer: Explorer,
+    chain: Blockchain,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<ERC20TokenTransfer> {
-    const result = await new ERC20TokenTransfer(this, explorer).assign(
+    const result = await new ERC20TokenTransfer(this, chain).assign(
       this,
       registry,
       cryptoResolver,
@@ -161,12 +167,12 @@ export class Swarm {
    * Return a new Internal Transaction
    */
   async internalTransaction(
-    explorer: Explorer,
+    chain: Blockchain,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<InternalTransaction> {
-    const result = await new InternalTransaction(this, explorer).assign(
+    const result = await new InternalTransaction(this, chain).assign(
       this,
       registry,
       cryptoResolver,

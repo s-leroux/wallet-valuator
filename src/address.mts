@@ -8,6 +8,7 @@ import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
+import { Blockchain } from "./blockchain.mjs";
 
 type ERC20TokenAddressData = {
   tokenName: string;
@@ -32,12 +33,12 @@ export class Address {
   readonly address: string;
   readonly data: Partial<AddressData>;
 
-  constructor(swarm: Swarm, explorer: Explorer, address: string) {
+  constructor(swarm: Swarm, chain: Blockchain, address: string) {
     if (!address) {
       throw new Error("Then empty string is not a valid address");
     }
 
-    this.explorer = explorer;
+    this.explorer = swarm.getExplorer(chain);
     this.address = address.toLowerCase();
     this.data = {};
   }

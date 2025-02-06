@@ -5,6 +5,7 @@ import { CryptoResolver } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
 import type { RealTokenAPI, RealToken } from "./realtokenapi.mjs";
+import { Blockchain } from "../../blockchain.mjs";
 
 type MappingEntry<T extends CryptoLike> = {
   crypto: T | null;
@@ -90,7 +91,7 @@ export class RealTokenResolver extends CryptoResolver {
 
   async resolve(
     registry: CryptoRegistry,
-    chain: string,
+    chain: Blockchain,
     block: number,
     smartContractAddress: string,
     name: string,
@@ -105,7 +106,7 @@ export class RealTokenResolver extends CryptoResolver {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
 
-    const chainAddress = ChainAddress(chain, smartContractAddress);
+    const chainAddress = ChainAddress(chain.name, smartContractAddress);
     const entry = this.tokens.get(chainAddress);
     if (!entry) {
       // Not our business
