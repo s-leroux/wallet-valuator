@@ -1,5 +1,8 @@
 import { assert } from "chai";
-import { toDisplayString, Displayable } from "../src/displayable.mjs";
+
+import { prepare } from "./support/register.helper.mjs";
+
+import { toDisplayString, Displayable, tabular } from "../src/displayable.mjs";
 import { NotImplementedError } from "../src/error.mjs";
 
 describe("toDisplayString", function () {
@@ -34,5 +37,28 @@ describe("toDisplayString", function () {
 
   it("should propagate options to toDisplayString()", function () {
     // TBD
+  });
+});
+
+describe("tabular", function () {
+  describe("format", function () {
+    const register = prepare(this);
+
+    // prettier-ignore
+    const testcases = [
+      ["123.456", "10.2", "    123.45", "align anchor"],
+      ["hello", "10", "     hello", "align right"],
+      ["hello", "+10", "     hello", "align right (explicit)"],
+      ["hello", "-10", "hello     ", "align left"],
+      ["hello", "4", "…llo", "cut left"],
+      ["hello", "-4", "hel…", "cut right"],
+    ] as const;
+
+    for (const [input, format, expected, desc] of testcases) {
+      register(desc, () => {
+        const t = tabular("", format);
+        assert.equal(t(input), expected);
+      });
+    }
   });
 });
