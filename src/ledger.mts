@@ -1,6 +1,7 @@
 import { NotImplementedError } from "./error.mjs";
 import { ChainRecord } from "./transaction.mjs";
 import { Address } from "./address.mjs";
+import { DisplayOptions } from "./displayable.mjs";
 
 type Sortable = { key: any };
 
@@ -84,6 +85,13 @@ export class Entry implements Sortable {
   toString(): string {
     const record = this.record;
     return `${record.type[0]}:${this.key}:${record.from}:${record.to}:${record.amount}`;
+  }
+
+  toDisplayString(options: DisplayOptions): string {
+    const record = this.record;
+    const from = record.from.toDisplayString(options);
+    const to = record.to.toDisplayString(options);
+    return `${record.type[0]}:${this.key}:${from}:${to}:${record.amount}`;
   }
 
   tag(name: string, data: any = true) {

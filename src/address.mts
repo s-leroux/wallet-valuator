@@ -4,6 +4,7 @@ import type {
   InternalTransaction,
   ERC20TokenTransfer,
 } from "./transaction.mjs";
+import type { DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
@@ -70,8 +71,12 @@ export class Address {
     Object.assign(this.data, data);
   }
 
-  toString(format?: { compact?: boolean }) {
-    const compact = format?.compact ?? true;
+  toString() {
+    return this.address;
+  }
+
+  toDisplayString(options: DisplayOptions) {
+    const compact = options["address.compact"] ?? false;
     if (!compact) {
       return this.address;
     }
