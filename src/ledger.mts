@@ -88,8 +88,7 @@ export class Entry implements Sortable {
   }
 
   toDisplayString(options: DisplayOptions): string {
-    const record = this.record.toDisplayString(options);
-    return record;
+    return this.record.toDisplayString(options);
   }
 
   tag(name: string, data: any = true) {
@@ -140,7 +139,7 @@ export class Ledger implements Iterable<Entry> {
     return this.list
       .map(
         (entry, idx) =>
-          `${String(idx).padStart(6)}:${entry.toDisplayString(options)}`
+          `${String(idx).padStart(6)} ${entry.toDisplayString(options)}`
       )
       .join("\n");
   }

@@ -6,8 +6,10 @@ export interface Displayable {
 
 export type DisplayOptions = Partial<{
   "address.compact": boolean;
-  "amount.value.format": (arg: string) => string;
+  "amount.separator": string;
   "amount.symbol.format": (arg: string) => string;
+  "amount.value.format": (arg: string) => string;
+  "record.format": (...obj: unknown[]) => string;
 }>;
 
 function noDisplayString(obj: object & {}, options: DisplayOptions): string {

@@ -15,7 +15,7 @@ type TransactionType =
   | "INTERNAL" // an internal transaction
   | "ERC20"; // an ERC-20 token transfer
 
-const format = tabular(" | ", "", "10", "", "", "");
+const defaultFormat = tabular(" | ", "", "10", "", "", "");
 
 /**
  * Abstract base class for all blockchain transfers and transactions.
@@ -53,7 +53,13 @@ export abstract class ChainRecord {
     const to = this.to.toDisplayString(options);
     const amount = this.amount.toDisplayString(options);
 
-    return format(this.type[0], this.blockNumber, from, to, amount);
+    return (options["record.format"] ?? defaultFormat)(
+      this.type[0],
+      this.blockNumber,
+      from,
+      to,
+      amount
+    );
   }
 
   abstract isValid(

@@ -14,7 +14,7 @@ import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
 import { DefaultCryptoResolver } from "../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
-import { toDisplayString } from "../src/displayable.mjs";
+import { tabular, toDisplayString } from "../src/displayable.mjs";
 
 const explorer = program.args.length
   ? GnosisScan.create(process.env.GNOSISSCAN_API_KEY ?? "")
@@ -40,6 +40,7 @@ for (const entry of ledger) {
     "%s",
     toDisplayString(entry, {
       "address.compact": true,
+      "record.format": tabular(" : ", "", "10", "", "", ""),
     })
   );
 }
