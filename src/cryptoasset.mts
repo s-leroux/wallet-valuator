@@ -41,7 +41,12 @@ export class Amount {
   }
 
   toDisplayString(options: DisplayOptions): string {
-    return this.toString();
+    const valueFormat = options["amount.value.format"] ?? ((x) => x);
+    const symbolFormat = options["amount.symbol.format"] ?? ((x) => x);
+
+    return `${valueFormat(this.value.toString())} ${symbolFormat(
+      this.crypto.symbol
+    )}`;
   }
 
   /**

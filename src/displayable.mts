@@ -6,6 +6,8 @@ export interface Displayable {
 
 export type DisplayOptions = Partial<{
   "address.compact": boolean;
+  "amount.value.format": (arg: string) => string;
+  "amount.symbol.format": (arg: string) => string;
 }>;
 
 function noDisplayString(obj: object & {}, options: DisplayOptions): string {
@@ -76,29 +78,31 @@ function id(str: string) {
   return str;
 }
 
+export function format(format: string) {
+  if (!format) {
+    return id;
+  }
+
+  const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
+  if (!match) {
+    throw new ValueError(`Invalid format ${format}`);
+  }
+
+  const [_, sign, width, dot, decimal] = match;
+
+  if (dot) {
+    return alignChar(parseInt(width), dot, parseInt(decimal) || 0);
+  }
+
+  if (sign === "-") {
+    return alignLeft(parseInt(width));
+  }
+
+  return alignRight(parseInt(width));
+}
+
 export function tabular(sep: string, ...formats: string[]) {
-  const formaters = formats.map((format) => {
-    if (!format) {
-      return id;
-    }
-
-    const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
-    if (!match) {
-      throw new ValueError(`Invalid format ${format}`);
-    }
-
-    const [_, sign, width, dot, decimal] = match;
-
-    if (dot) {
-      return alignChar(parseInt(width), dot, parseInt(decimal) || 0);
-    }
-
-    if (sign === "-") {
-      return alignLeft(parseInt(width));
-    }
-
-    return alignRight(parseInt(width));
-  });
+  const formaters = formats.map(format);
 
   return function (...obj: unknown[]) {
     return formaters

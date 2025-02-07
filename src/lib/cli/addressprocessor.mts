@@ -7,7 +7,7 @@ import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycr
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
-import { toDisplayString } from "../../displayable.mjs";
+import { format, toDisplayString } from "../../displayable.mjs";
 
 type ErrCode = "T0001";
 
@@ -63,6 +63,7 @@ export async function processAddresses(addresses: string[]): Promise<void> {
     "%s",
     toDisplayString(ledger, {
       "address.compact": true,
+      "amount.value.format": format("16.4"),
     })
   );
 }
