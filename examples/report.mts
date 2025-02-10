@@ -38,7 +38,7 @@ const fiatConverter = new ImplicitFiatConverter(
   await cryptoResolver.get("bitcoin")
 );
 
-const swarm = new Swarm([explorer], registry, cryptoResolver);
+const swarm = Swarm.create([explorer], registry, cryptoResolver);
 const address = await swarm.address(
   explorer.chain,
   registry,

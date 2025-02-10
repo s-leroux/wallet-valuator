@@ -1,3 +1,4 @@
+import { formatDate as dateUtilsFormatDate } from "./date.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
 
 export interface Displayable {
@@ -6,6 +7,10 @@ export interface Displayable {
 
 export type DisplayOptions = Partial<{
   "address.compact": boolean;
+  "amount.separator": string;
+  "amount.symbol.format": (arg: string) => string;
+  "amount.value.format": (arg: string) => string;
+  "record.format": (...obj: unknown[]) => string;
 }>;
 
 function noDisplayString(obj: object & {}, options: DisplayOptions): string {
@@ -72,25 +77,35 @@ function alignChar(width: number, dot: string, decimal: number) {
   };
 }
 
+function id(str: string) {
+  return str;
+}
+
+export function format(format: string) {
+  if (!format) {
+    return id;
+  }
+
+  const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
+  if (!match) {
+    throw new ValueError(`Invalid format ${format}`);
+  }
+
+  const [_, sign, width, dot, decimal] = match;
+
+  if (dot) {
+    return alignChar(parseInt(width), dot, parseInt(decimal) || 0);
+  }
+
+  if (sign === "-") {
+    return alignLeft(parseInt(width));
+  }
+
+  return alignRight(parseInt(width));
+}
+
 export function tabular(sep: string, ...formats: string[]) {
-  const formaters = formats.map((format) => {
-    const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
-    if (!match) {
-      throw new ValueError(`Invalid format ${format}`);
-    }
-
-    const [_, sign, width, dot, decimal] = match;
-
-    if (dot) {
-      return alignChar(parseInt(width), dot, parseInt(decimal) || 0);
-    }
-
-    if (sign === "-") {
-      return alignLeft(parseInt(width));
-    }
-
-    return alignRight(parseInt(width));
-  });
+  const formaters = formats.map(format);
 
   return function (...obj: unknown[]) {
     return formaters
@@ -98,3 +113,46 @@ export function tabular(sep: string, ...formats: string[]) {
       .join(sep);
   };
 }
+
+//========================================================================
+//  Common text formatting utilities
+//========================================================================
+type FormattingOptions = Partial<{
+  shiftWidth: number; // Defines Indentation Width
+  dateFormat: string; // Defines a date format as understood by formatDate
+}>;
+
+const defaultFormattingOptions: Required<FormattingOptions> = {
+  shiftWidth: 2,
+  dateFormat: "YYYY-MM-DD",
+};
+
+export const TextUtils = {
+  //========================================================================
+  //  Date formatting
+  //========================================================================
+  formatDate(date: Date | number, options = {} as FormattingOptions) {
+    const format = options.dateFormat ?? defaultFormattingOptions.dateFormat;
+    if (typeof date !== "object") {
+      date = new Date(date);
+    }
+
+    return dateUtilsFormatDate(format, date);
+  },
+
+  //========================================================================
+  //  Indentation
+  //========================================================================
+  indent(text: string[], n: number = 1, options = {} as FormattingOptions) {
+    if (!Number.isInteger(n) || n <= 0) {
+      throw new ValueError(
+        `indent(): "n" must be a positive integer. Received: ${n}`
+      );
+    }
+
+    const pad = "".padEnd(
+      n * (options.shiftWidth ?? defaultFormattingOptions.shiftWidth)
+    );
+    return text.map((str) => pad + str);
+  },
+} as const;

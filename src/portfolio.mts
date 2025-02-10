@@ -8,6 +8,7 @@ import { Valuation } from "./valuation.mjs";
 import type { FiatConverter } from "./services/fiatconverter.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import type { Oracle } from "./services/oracle.mjs";
+import { DisplayOptions, TextUtils } from "./displayable.mjs";
 
 interface CryptoAsset {
   symbol: string;
@@ -84,10 +85,22 @@ export class Snapshot {
     return Array.from(this.holdings.keys());
   }
 
+  //========================================================================
+  //  String conversion
+  //========================================================================
   toString(): string {
     const lines: string[] = [];
 
     this.holdings.forEach((amount, crypto) => lines.push(amount.toString()));
+    return lines.join("\n");
+  }
+
+  toDisplayString(options: DisplayOptions = {}) {
+    const lines: string[] = [TextUtils.formatDate(this.timeStamp * 1000)];
+    this.holdings.forEach((amount, crypto) =>
+      lines.push(amount.toDisplayString(options))
+    );
+
     return lines.join("\n");
   }
 }
@@ -133,6 +146,26 @@ export class Portfolio {
    */
   allAssetsEverOwned(): CryptoAsset[] {
     return this.snapshots.at(-1)?.assets() ?? [];
+  }
+
+  //========================================================================
+  //  String representation
+  //========================================================================
+  toString() {
+    const head = "Portfolio([";
+    const tail = "])";
+    const body = TextUtils.indent(this.snapshots.map(String));
+    if (body) {
+      return `${head}\n${body}\n${tail}`;
+    }
+
+    return `${head}${tail}`;
+  }
+
+  toDisplayString(options: DisplayOptions = {}) {
+    return this.snapshots
+      .map((snapshot) => snapshot.toDisplayString(options))
+      .join("\n");
   }
 
   asCSV(): string {

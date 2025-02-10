@@ -83,6 +83,7 @@
     "src/fiatcurrency.mts",
     "src/geckocoin.mts",
     "src/ledger.mts",
+    "src/lib/cli/addressprocessor.mts",
     "src/memoizer.mts",
     "src/portfolio.mts",
     "src/price.mts",
@@ -113,6 +114,8 @@
     "examples/balance.mts",
     "examples/find-address.mts",
     "examples/report.mts",
+
+    "cli/blockchain-cli.mts",
 
     "src/main.mts",
     "test/main.spec.mts"

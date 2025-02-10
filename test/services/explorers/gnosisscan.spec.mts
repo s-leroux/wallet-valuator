@@ -96,7 +96,7 @@ describe("GnosisScan", function () {
     beforeEach(() => {
       explorer = new GnosisScan(gs!);
       registry = CryptoRegistry.create();
-      sw = new Swarm([explorer], registry, cryptoResolver);
+      sw = Swarm.create([explorer], registry, cryptoResolver);
     });
 
     it("should default to the Gnosis chain", () => {

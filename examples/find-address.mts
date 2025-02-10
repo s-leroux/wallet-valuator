@@ -14,6 +14,7 @@ import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
 import { DefaultCryptoResolver } from "../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { tabular, toDisplayString } from "../src/displayable.mjs";
 
 const explorer = program.args.length
   ? GnosisScan.create(process.env.GNOSISSCAN_API_KEY ?? "")
@@ -21,7 +22,7 @@ const explorer = program.args.length
 const registry = CryptoRegistry.create();
 const cryptoResolver = new DefaultCryptoResolver();
 
-const swarm = new Swarm([explorer], registry, cryptoResolver);
+const swarm = Swarm.create([explorer], registry, cryptoResolver);
 
 // A "random" address found on GnosisScan
 const address = await swarm.address(
@@ -35,5 +36,11 @@ const ledger = Ledger.create(
   await address.allValidTransfers(swarm, registry, cryptoResolver)
 ).slice(0, 100); // keep only the 100 first transaction as this appears to be a live account
 for (const entry of ledger) {
-  console.log("%s", entry);
+  console.log(
+    "%s",
+    toDisplayString(entry, {
+      "address.compact": true,
+      "record.format": tabular(" : ", "", "10", "", "", ""),
+    })
+  );
 }

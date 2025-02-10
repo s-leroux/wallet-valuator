@@ -20,7 +20,7 @@ describe("TestScan", function () {
     registry = CryptoRegistry.create();
     cryptoResolver = FakeCryptoResolver.create();
     explorer = new TestScan();
-    sw = new Swarm([explorer], registry, cryptoResolver);
+    sw = Swarm.create([explorer], registry, cryptoResolver);
   });
 
   it("should default to the fake Gnosis chain", () => {

@@ -31,7 +31,7 @@ export class Swarm {
   readonly transactions: Map<string, NormalTransaction>;
   readonly explorers: Map<Blockchain, Explorer>;
 
-  constructor(
+  protected constructor(
     explorers: Explorer[],
     registry: CryptoRegistry,
     crypoResolver: CryptoResolver
@@ -49,6 +49,14 @@ export class Swarm {
       this.explorers.set(explorer.chain, explorer);
       explorer.register(this, registry, crypoResolver); // ISSUE #60 Check what exactly is the purpose of the `.register` method
     }
+  }
+
+  static create(
+    explorers: Explorer[],
+    registry: CryptoRegistry,
+    crypoResolver: CryptoResolver
+  ) {
+    return new Swarm(explorers, registry, crypoResolver);
   }
 
   getExplorer(chain: string | Blockchain): Explorer {

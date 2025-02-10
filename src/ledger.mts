@@ -1,4 +1,5 @@
 import { NotImplementedError } from "./error.mjs";
+import { Portfolio } from "./portfolio.mjs";
 import { ChainRecord } from "./transaction.mjs";
 import { Address } from "./address.mjs";
 import { DisplayOptions } from "./displayable.mjs";
@@ -88,10 +89,7 @@ export class Entry implements Sortable {
   }
 
   toDisplayString(options: DisplayOptions): string {
-    const record = this.record;
-    const from = record.from.toDisplayString(options);
-    const to = record.to.toDisplayString(options);
-    return `${record.type[0]}:${this.key}:${from}:${to}:${record.amount}`;
+    return this.record.toDisplayString(options);
   }
 
   tag(name: string, data: any = true) {
@@ -138,6 +136,18 @@ export class Ledger implements Iterable<Entry> {
     return new Ledger(join(a, b));
   }
 
+  //========================================================================
+  //  String representation
+  //========================================================================
+  toDisplayString(options: DisplayOptions): string {
+    return this.list
+      .map(
+        (entry, idx) =>
+          `${String(idx).padStart(6)} ${entry.toDisplayString(options)}`
+      )
+      .join("\n");
+  }
+
   *asCSV() {
     /**
      * Return a CSV representation of the ledger in a string
@@ -147,6 +157,13 @@ export class Ledger implements Iterable<Entry> {
     for (const tr of this.list) {
       yield fields.map((field) => (tr as any)[field]).join(sep);
     }
+  }
+
+  //========================================================================
+  //  Conversion
+  //========================================================================
+  portfolio() {
+    return Portfolio.createFromLedger(this);
   }
 
   //========================================================================
