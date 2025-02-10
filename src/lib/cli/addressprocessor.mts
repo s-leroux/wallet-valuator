@@ -43,25 +43,35 @@ function loadEnvironmentVariables() {
   return result;
 }
 
-export async function processAddresses(addresses: string[]): Promise<void> {
+export async function processAddresses(hexAddresses: string[]): Promise<void> {
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
   const explorers = createExplorers(envvars);
   const registry = CryptoRegistry.create();
   const swarm = Swarm.create(explorers, registry, resolver);
-
-  const transfers = await Promise.all(
-    addresses.map((address) =>
-      swarm
-        .address(asBlockchain("gnosis"), registry, resolver, address)
-        .then((address) => address.allValidTransfers(swarm, registry, resolver))
+  const chain = asBlockchain("gnosis");
+  const addresses = await Promise.all(
+    hexAddresses.map((hexAddress) =>
+      swarm.address(chain, registry, resolver, hexAddress)
     )
   );
 
+  const transfers = await Promise.all(
+    addresses.map((address) =>
+      address.allValidTransfers(swarm, registry, resolver)
+    )
+  );
   const ledger = Ledger.create(...transfers);
+  for (const address of addresses) {
+    ledger.from(address).tag("EGRESS");
+    ledger.to(address).tag("INGRESS");
+  }
+
+  const portfolio = ledger.portfolio();
+
   console.log(
     "%s",
-    toDisplayString(ledger, {
+    toDisplayString(portfolio, {
       "address.compact": true,
       "amount.value.format": format("16.4"),
     })

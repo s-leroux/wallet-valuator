@@ -1,4 +1,5 @@
 import { NotImplementedError } from "./error.mjs";
+import { Portfolio } from "./portfolio.mjs";
 import { ChainRecord } from "./transaction.mjs";
 import { Address } from "./address.mjs";
 import { DisplayOptions } from "./displayable.mjs";
@@ -135,6 +136,9 @@ export class Ledger implements Iterable<Entry> {
     return new Ledger(join(a, b));
   }
 
+  //========================================================================
+  //  String representation
+  //========================================================================
   toDisplayString(options: DisplayOptions): string {
     return this.list
       .map(
@@ -153,6 +157,13 @@ export class Ledger implements Iterable<Entry> {
     for (const tr of this.list) {
       yield fields.map((field) => (tr as any)[field]).join(sep);
     }
+  }
+
+  //========================================================================
+  //  Conversion
+  //========================================================================
+  portfolio() {
+    return Portfolio.createFromLedger(this);
   }
 
   //========================================================================

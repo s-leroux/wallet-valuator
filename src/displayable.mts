@@ -1,3 +1,4 @@
+import { formatDate as dateUtilsFormatDate } from "./date.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
 
 export interface Displayable {
@@ -112,3 +113,46 @@ export function tabular(sep: string, ...formats: string[]) {
       .join(sep);
   };
 }
+
+//========================================================================
+//  Common text formatting utilities
+//========================================================================
+type FormattingOptions = Partial<{
+  shiftWidth: number; // Defines Indentation Width
+  dateFormat: string; // Defines a date format as understood by formatDate
+}>;
+
+const defaultFormattingOptions: Required<FormattingOptions> = {
+  shiftWidth: 2,
+  dateFormat: "YYYY-MM-DD",
+};
+
+export const TextUtils = {
+  //========================================================================
+  //  Date formatting
+  //========================================================================
+  formatDate(date: Date | number, options = {} as FormattingOptions) {
+    const format = options.dateFormat ?? defaultFormattingOptions.dateFormat;
+    if (typeof date !== "object") {
+      date = new Date(date);
+    }
+
+    return dateUtilsFormatDate(format, date);
+  },
+
+  //========================================================================
+  //  Indentation
+  //========================================================================
+  indent(text: string[], n: number = 1, options = {} as FormattingOptions) {
+    if (!Number.isInteger(n) || n <= 0) {
+      throw new ValueError(
+        `indent(): "n" must be a positive integer. Received: ${n}`
+      );
+    }
+
+    const pad = "".padEnd(
+      n * (options.shiftWidth ?? defaultFormattingOptions.shiftWidth)
+    );
+    return text.map((str) => pad + str);
+  },
+} as const;
