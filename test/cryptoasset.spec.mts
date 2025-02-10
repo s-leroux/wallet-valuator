@@ -7,6 +7,7 @@ import { Price } from "../src/price.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
 import { debugId } from "../src/debug.mjs";
+import { ValueError } from "../src/error.mjs";
 
 const mockCrypto = FakeCryptoAsset.ethereum;
 
@@ -75,6 +76,41 @@ describe("Amount", () => {
       assert.strictEqual(amount.crypto, mockCrypto);
       assert.strictEqual(amount.value, value);
     });
+  });
+
+  it("should allow zero", function () {
+    const amount = new Amount(mockCrypto, new BigNumber("0"));
+    assert.strictEqual(amount.value.toString(), "0");
+  });
+
+  it("should default to zero when value is undefined", function () {
+    const amount = new Amount(mockCrypto);
+    assert.strictEqual(amount.value.toString(), "0");
+  });
+
+  it("should normalize -0 to +0", function () {
+    const amount = new Amount(mockCrypto, new BigNumber("-0"));
+    assert.strictEqual(amount.value.toString(), "0"); // Ensures normalization
+  });
+
+  it("should handle very large positive values", function () {
+    const amount = new Amount(mockCrypto, new BigNumber("1e50"));
+    assert.strictEqual(
+      amount.value.toString(),
+      "100000000000000000000000000000000000000000000000000"
+    );
+  });
+
+  it("should throw an error for a negative value", function () {
+    assert.throws(
+      () => new Amount(mockCrypto, new BigNumber("-1.5")),
+      ValueError,
+      /Amount value must be ≥ 0/
+    );
+  });
+
+  it("should reject NaN values", function () {
+    assert.throws(() => new Amount(mockCrypto, new BigNumber(NaN)), ValueError);
   });
 
   describe("toString() method", () => {
