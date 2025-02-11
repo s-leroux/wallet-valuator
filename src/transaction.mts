@@ -105,16 +105,19 @@ export abstract class ChainRecord {
 
     // FIXME The logic based on 'currency' seems to be broken (notably in case
     // `resolve` returns `undefined` or `null`)
+    const resolution =
+      this.contract &&
+      (await cryptoResolver.resolve(
+        registry,
+        this.explorer.chain,
+        this.blockNumber,
+        this.contract.address,
+        this.data.tokenName,
+        this.data.tokenSymbol,
+        toInteger(this.data.tokenDecimal)
+      ));
     const currency = this.contract
-      ? await cryptoResolver.resolve(
-          registry,
-          this.explorer.chain,
-          this.blockNumber,
-          this.contract.address,
-          this.data.tokenName,
-          this.data.tokenSymbol,
-          toInteger(this.data.tokenDecimal)
-        )
+      ? resolution && resolution.status === "resolved" && resolution.asset
       : this.explorer.nativeCurrency;
 
     if (currency) {

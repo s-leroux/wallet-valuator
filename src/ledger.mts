@@ -1,4 +1,3 @@
-import { NotImplementedError } from "./error.mjs";
 import { Portfolio } from "./portfolio.mjs";
 import { ChainRecord } from "./transaction.mjs";
 import { Address } from "./address.mjs";

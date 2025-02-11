@@ -1,5 +1,5 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CryptoResolver } from "../cryptoresolver.mjs";
+import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import { Blockchain } from "../../blockchain.mjs";
 
@@ -172,22 +172,27 @@ export class DefaultCryptoResolver extends CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Promise<CryptoAsset | null> {
+  ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.name, smartContractAddress);
     const transitions = this.transitions.get(chainAddress);
     if (!transitions) {
-      return this.register(
-        chainAddress,
-        chain,
-        smartContractAddress,
-        name,
-        symbol,
-        decimal
-      );
+      return {
+        status: "resolved",
+        asset: this.register(
+          chainAddress,
+          chain,
+          smartContractAddress,
+          name,
+          symbol,
+          decimal
+        ),
+      };
     }
     for (const transition of transitions) {
       if (block >= transition.startBlock && block <= transition.endBlock) {
-        return transition.crypto;
+        const crypto = transition.crypto;
+        if (crypto) return { status: "resolved", asset: crypto };
+        return { status: "obsolete" };
       }
     }
     return null;
@@ -223,7 +228,7 @@ export class DefaultCryptoResolver extends CryptoResolver {
   /**
    * @internal
    */
-  async get(crypto_id: string): Promise<CryptoAsset | null> {
+  get(crypto_id: string): CryptoAsset | null {
     return this.cryptos.get(crypto_id) ?? null;
   }
 }

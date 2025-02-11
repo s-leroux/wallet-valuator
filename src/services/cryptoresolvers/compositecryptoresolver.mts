@@ -1,4 +1,4 @@
-import { CryptoResolver } from "../cryptoresolver.mjs";
+import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import { Blockchain } from "../../blockchain.mjs";
@@ -24,7 +24,7 @@ export class CompositeCryptoResolver extends CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Promise<CryptoAsset | null> {
+  ): Promise<ResolutionResult> {
     for (const backend of this.backends) {
       const result = await backend.resolve(
         registry,

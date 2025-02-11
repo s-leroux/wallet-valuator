@@ -75,7 +75,10 @@ describe("StaticCryptoResolver", function () {
             symbol,
             decimal
           );
-          assert.strictEqual(result, await cryptoResolver.get("usdc"));
+          if (!result || result.status !== "resolved") {
+            assert.fail(`result was ${result}`);
+          }
+          assert.strictEqual(result.asset, cryptoResolver.get("usdc"));
         });
       }
     });
@@ -103,11 +106,13 @@ describe("StaticCryptoResolver", function () {
           symbol,
           decimal
         );
-        assert.exists(result);
+        if (!result || result.status !== "resolved") {
+          assert.fail(`result was ${result}`);
+        }
         if (prev) {
-          assert.strictEqual(result, prev);
+          assert.strictEqual(result.asset, prev);
         } else {
-          prev = result;
+          prev = result.asset;
         }
       }
     });

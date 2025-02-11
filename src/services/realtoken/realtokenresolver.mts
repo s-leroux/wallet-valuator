@@ -1,7 +1,7 @@
 import { NotImplementedError } from "../../error.mjs";
 
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CryptoResolver } from "../cryptoresolver.mjs";
+import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
 import type { RealTokenAPI, RealToken } from "./realtokenapi.mjs";
@@ -97,7 +97,7 @@ export class RealTokenResolver extends CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Promise<CryptoAsset | null> {
+  ): Promise<ResolutionResult> {
     if (!symbol.startsWith("REALTOKEN")) {
       // Not our business
       return null;
@@ -107,14 +107,17 @@ export class RealTokenResolver extends CryptoResolver {
     const tokens = await this.load();
 
     const chainAddress = ChainAddress(chain.name, smartContractAddress);
-    const entry = this.tokens.get(chainAddress);
+    const entry = tokens.get(chainAddress);
     if (!entry) {
       // Not our business
       // ISSUE #66 Log this event as it is suspicious.
       return null;
     }
 
-    return cryptoAssetFromEntry(registry, entry, name, symbol, decimal);
+    return {
+      status: "resolved",
+      asset: cryptoAssetFromEntry(registry, entry, name, symbol, decimal),
+    };
   }
 
   get(crypto_id: string): Promise<CryptoAsset | null> {

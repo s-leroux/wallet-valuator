@@ -28,21 +28,24 @@ describe("LazyCryptoResolver", function () {
       8,
     ] as const;
 
-    assert.notExists(await cryptoResolver.get("polygon", POLYGON_WBTC[0]));
+    assert.notExists(cryptoResolver.get("polygon", POLYGON_WBTC[0]));
     const wbtc = await cryptoResolver.resolve(
       registry,
       P,
       1234,
       ...POLYGON_WBTC
     );
-    assert.exists(wbtc);
-    assert.deepEqual(
-      [wbtc.name, wbtc.symbol, wbtc.decimal],
-      POLYGON_WBTC.slice(1)
-    );
+    if (!wbtc || wbtc.status !== "resolved") {
+      assert.fail(`wbtc was ${wbtc}`);
+    }
+    assert.include(wbtc.asset, {
+      name: POLYGON_WBTC[1],
+      symbol: POLYGON_WBTC[2],
+      decimal: POLYGON_WBTC[3],
+    });
     assert.strictEqual(
-      await cryptoResolver.get("polygon", POLYGON_WBTC[0]),
-      wbtc
+      cryptoResolver.get("polygon", POLYGON_WBTC[0]),
+      wbtc.asset
     );
     const wbtc2 = await cryptoResolver.resolve(
       registry,
@@ -50,7 +53,7 @@ describe("LazyCryptoResolver", function () {
       1234,
       ...POLYGON_WBTC
     );
-    assert.strictEqual(wbtc2, wbtc);
+    assert.deepEqual(wbtc2, wbtc);
   });
 
   describe("should create any token on demand", function () {
@@ -77,11 +80,10 @@ describe("LazyCryptoResolver", function () {
           symbol,
           decimal
         );
-        assert.exists(result);
-        assert.deepEqual(
-          [result.name, result.symbol, result.decimal],
-          [name, symbol, decimal]
-        );
+        if (!result || result.status !== "resolved") {
+          assert.fail(`result was ${result}`);
+        }
+        assert.include(result.asset, { name, symbol, decimal });
       });
     }
   });

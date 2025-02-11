@@ -45,7 +45,7 @@ describe("DefaultCryptoResolver", function () {
         [G, 100, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", null ],
         [G, 30000000, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", EURe ],
         [G, 30000000, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", null ],
-        [G, 40000000, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", null ],
+        [G, 40000000, "0xcB444e90D8198415266c6a2724b7900fb12FC56E", false ],
         [G, 40000000, "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", EURe ],
       ] as const;
 
@@ -60,8 +60,8 @@ describe("DefaultCryptoResolver", function () {
             ...MONERIUM
           );
           assert.strictEqual(
-            result,
-            expected && (await cryptoResolver.get(expected))
+            result && result.status === "resolved" && result.asset,
+            expected && cryptoResolver.get(expected)
           );
         });
       }

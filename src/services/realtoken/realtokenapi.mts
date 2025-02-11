@@ -1,5 +1,3 @@
-import type { CryptoAsset } from "../../cryptoasset.mjs";
-
 import { Provider } from "../../provider.mjs";
 
 const REALTOKEN_API_BASEADDRESS = "https://api.realtoken.community/";

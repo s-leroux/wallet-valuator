@@ -1,5 +1,5 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CryptoResolver } from "../cryptoresolver.mjs";
+import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
@@ -67,16 +67,20 @@ export class StaticCryptoResolver extends CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Promise<CryptoAsset | null> {
+  ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.name, smartContractAddress);
     const entry = this.database.get(chainAddress);
     if (!entry) {
       return null;
     }
-    return this.cryptos.get(
-      entry.key,
-      () => new CryptoAsset(entry.key, entry.name, entry.symbol, entry.decimal)
-    );
+    return {
+      status: "resolved",
+      asset: this.cryptos.get(
+        entry.key,
+        () =>
+          new CryptoAsset(entry.key, entry.name, entry.symbol, entry.decimal)
+      ),
+    };
   }
 
   /**
@@ -85,7 +89,7 @@ export class StaticCryptoResolver extends CryptoResolver {
    *
    * For testing purposes only
    */
-  async get(key: string): Promise<CryptoAsset | null> {
+  get(key: string): CryptoAsset | null {
     return this.cryptos.get(key) ?? null;
   }
 }

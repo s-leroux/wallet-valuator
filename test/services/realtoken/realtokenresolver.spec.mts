@@ -8,7 +8,6 @@ import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 
 // Test data
-import { RealTokenAPI } from "../../../src/services/realtoken/realtokenapi.mjs";
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 
@@ -40,7 +39,7 @@ describe("RealTokenResolver", function () {
 
       for (const [chain, contract, symbol] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
-          const crypto = await resolver.resolve(
+          const result = await resolver.resolve(
             registry,
             chain,
             0,
@@ -50,7 +49,10 @@ describe("RealTokenResolver", function () {
             18
           );
 
-          assert.instanceOf(crypto, CryptoAsset);
+          if (!result || result.status !== "resolved") {
+            assert.fail(`result was ${result}`);
+          }
+          assert.instanceOf(result.asset, CryptoAsset);
         });
       }
     });
@@ -69,7 +71,7 @@ describe("RealTokenResolver", function () {
 
       for (const [chain, contract, uuid] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
-          const crypto = await resolver.resolve(
+          const result = await resolver.resolve(
             registry,
             chain,
             0,
@@ -79,11 +81,11 @@ describe("RealTokenResolver", function () {
             18
           );
 
-          assert.isNotNull(crypto);
-
-          const result = registry.getDomainData(crypto, "REALTOKEN");
-          assert.isDefined(result);
-          assert.equal(result.uuid, uuid);
+          if (!result || result.status !== "resolved")
+            assert.fail(`result was ${result}`);
+          const metadata = registry.getDomainData(result.asset, "REALTOKEN");
+          assert.isDefined(metadata);
+          assert.equal(metadata.uuid, uuid);
         });
       }
     });

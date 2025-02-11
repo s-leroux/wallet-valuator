@@ -3,6 +3,14 @@ import { CryptoAsset } from "../cryptoasset.mjs";
 import type { CryptoRegistry } from "../cryptoregistry.mjs";
 
 /**
+ * Return type for the `resolve()` method.
+ */
+export type ResolutionResult =
+  | null // No match found.
+  | { status: "resolved"; asset: CryptoAsset } // Successfully mapped to a logical crypto-asset.
+  | { status: "obsolete" }; // Deprecated or replaced (at least at the given block).
+
+/**
  * Abstract class for resolving blockchain-specific token data to logical crypto assets.
  *
  * A `CryptoResolver` maps a given blockchain token (identified by its chain, block number,
@@ -29,7 +37,7 @@ export abstract class CryptoResolver {
    * @param name - The token's name (for reference, not a unique identifier).
    * @param symbol - The token's symbol (for reference, not a unique identifier).
    * @param decimal - The number of decimal places for the token.
-   * @returns A `CryptoAsset` instance if resolved, or `null` if no match is found.
+   * @returns A `ResolutionResult` promise.
    * @throws May throw an error in exceptional situations (e.g., invalidated contracts).
    */
   abstract resolve(
@@ -40,5 +48,5 @@ export abstract class CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Promise<CryptoAsset | null>; // ISSUE #43 Shouldn't we throw an exception instead of returning null?
+  ): Promise<ResolutionResult>; // ISSUE #43 Shouldn't we throw an exception instead of returning null?
 }

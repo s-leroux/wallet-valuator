@@ -66,7 +66,7 @@ describe("CompositeCryptoResolver", function () {
           ...USDC
         );
 
-        assert.strictEqual(result, ref);
+        assert.deepEqual(result, ref);
       });
     }
   });

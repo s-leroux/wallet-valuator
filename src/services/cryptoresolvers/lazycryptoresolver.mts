@@ -1,5 +1,5 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CryptoResolver } from "../cryptoresolver.mjs";
+import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
@@ -59,13 +59,16 @@ export class LazyCryptoResolver extends CryptoResolver {
     name: string,
     symbol: string,
     decimal: number
-  ): Promise<CryptoAsset | null> {
+  ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.name, smartContractAddress);
 
-    return this.cryptos.get(
-      chainAddress,
-      () => new CryptoAsset(chainAddress as string, name, symbol, decimal)
-    );
+    return {
+      status: "resolved",
+      asset: this.cryptos.get(
+        chainAddress,
+        () => new CryptoAsset(chainAddress as string, name, symbol, decimal)
+      ),
+    };
   }
 
   /**
@@ -74,10 +77,7 @@ export class LazyCryptoResolver extends CryptoResolver {
    *
    * For testing purposes only
    */
-  async get(
-    chain: string,
-    contractAddress: string
-  ): Promise<CryptoAsset | null> {
+  get(chain: string, contractAddress: string): CryptoAsset | null {
     return this.cryptos.get(ChainAddress(chain, contractAddress)) ?? null;
   }
 }
