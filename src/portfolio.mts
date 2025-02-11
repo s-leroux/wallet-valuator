@@ -1,6 +1,6 @@
 import os from "node:os";
 
-import type { NotImplementedError } from "./error.mjs";
+import { ValueError, type NotImplementedError } from "./error.mjs";
 import { Amount } from "./cryptoasset.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
@@ -46,23 +46,32 @@ export class Snapshot {
 
     // Basic implementation: just update the position
     const crypto = movement.amount.crypto;
-    const holding = this.holdings.get(crypto) ?? new Amount(crypto);
-    /*
-    console.log(
-      `${holding} ${ingress ? "+" : "-"} ${movement.amount} ${crypto} ${
-        (movement as any)["type"]
-      } ${(movement as any)["transaction"]?.hash}`
-    );
-    */
+    const holding = this.holdings.get(crypto);
+    let newAmount: Amount;
 
-    this.holdings.set(
-      crypto,
-      holding
-        ? ingress
-          ? holding.plus(movement.amount)
-          : holding.minus(movement.amount)
-        : movement.amount
-    );
+    if (ingress) {
+      newAmount = holding ? holding.plus(movement.amount) : movement.amount;
+    } else {
+      // problem: we may encounter an underflow!
+      try {
+        newAmount = (holding ? holding : new Amount(crypto)).minus(
+          movement.amount
+        );
+      } catch (err: unknown) {
+        if (err instanceof ValueError) {
+          console.log(
+            `Attempt to remove ${movement.amount} from ${holding ?? 0} at ${
+              movement.timeStamp
+            }`
+          );
+          newAmount = new Amount(crypto); // clamp to zero
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    this.holdings.set(crypto, newAmount);
   }
 
   evaluate(

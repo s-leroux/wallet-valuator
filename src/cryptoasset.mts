@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberSource } from "./bignumber.mjs";
 import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
-import { InconsistentUnitsError } from "./error.mjs";
+import { InconsistentUnitsError, ValueError } from "./error.mjs";
 
 import { register } from "./debug.mjs";
 import { DisplayOptions } from "./displayable.mjs";
@@ -22,10 +22,24 @@ export class Amount {
    *
    * @param crypto - The crypto associated with the amount.
    * @param value - The value of the amount expressed in the display unit.
+   *               The value must be **≥ 0** (including zero). Negative values are not allowed.
+   * @throws `ValueError` if `value` is negative.
    */
   constructor(crypto: CryptoAsset, value?: BigNumber) {
     this.crypto = crypto;
-    this.value = value ?? BigNumber.ZERO;
+
+    if (value) {
+      if (value.isPositive()) {
+        this.value = value;
+      } else if (value.isZero()) {
+        // Ensure `-0` is converted to `+0`
+        this.value = BigNumber.ZERO;
+      } else {
+        throw new ValueError(`Amount value must be ≥ 0. Received: ${value}`);
+      }
+    } else {
+      this.value = BigNumber.ZERO;
+    }
   }
 
   /**
