@@ -77,7 +77,7 @@ describe("TextUtils", function () {
     });
 
     it("should TextUtils.indent lines with a custom shift width", function () {
-      const result = TextUtils.indent(["Hello"], 3, { shiftWidth: 4 });
+      const result = TextUtils.indent(["Hello"], 3, { "shift.width": 4 });
       assert.deepEqual(result, ["            Hello"]); // 3*4 spaces
     });
 
@@ -88,7 +88,7 @@ describe("TextUtils", function () {
     });
 
     it("should apply no TextUtils.indentation when shiftWidth is 0", function () {
-      const result = TextUtils.indent(["No Indent"], 1, { shiftWidth: 0 });
+      const result = TextUtils.indent(["No Indent"], 1, { "shift.width": 0 });
       assert.deepEqual(result, ["No Indent"]);
     });
 

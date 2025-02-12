@@ -10,8 +10,26 @@ export type DisplayOptions = Partial<{
   "amount.separator": string;
   "amount.symbol.format": (arg: string) => string;
   "amount.value.format": (arg: string) => string;
+  "date.format": string; // Defines a date format as understood by formatDate
   "record.format": (...obj: unknown[]) => string;
+  "shift.width": number; // Defines the indentation width (in number of character)
 }>;
+
+function id<T>(x: T) {
+  return x;
+}
+
+export const defaultDisplayOptions: Required<DisplayOptions> = {
+  "shift.width": 2,
+  "date.format": "YYYY-MM-DD",
+  "address.compact": false,
+  "amount.separator": " ",
+  "amount.symbol.format": id,
+  "amount.value.format": id,
+  "record.format": (...obj: unknown[]) => {
+    throw new NotImplementedError();
+  },
+};
 
 function noDisplayString(obj: object & {}, options: DisplayOptions): string {
   throw new NotImplementedError(
@@ -77,10 +95,6 @@ function alignChar(width: number, dot: string, decimal: number) {
   };
 }
 
-function id(str: string) {
-  return str;
-}
-
 export function format(format: string) {
   if (!format) {
     return id;
@@ -117,22 +131,14 @@ export function tabular(sep: string, ...formats: string[]) {
 //========================================================================
 //  Common text formatting utilities
 //========================================================================
-type FormattingOptions = Partial<{
-  shiftWidth: number; // Defines Indentation Width
-  dateFormat: string; // Defines a date format as understood by formatDate
-}>;
-
-const defaultFormattingOptions: Required<FormattingOptions> = {
-  shiftWidth: 2,
-  dateFormat: "YYYY-MM-DD",
-};
 
 export const TextUtils = {
   //========================================================================
   //  Date formatting
   //========================================================================
-  formatDate(date: Date | number, options = {} as FormattingOptions) {
-    const format = options.dateFormat ?? defaultFormattingOptions.dateFormat;
+  formatDate(date: Date | number, options = {} as DisplayOptions) {
+    const format =
+      options["date.format"] ?? defaultDisplayOptions["date.format"];
     if (typeof date !== "object") {
       date = new Date(date);
     }
@@ -143,16 +149,17 @@ export const TextUtils = {
   //========================================================================
   //  Indentation
   //========================================================================
-  indent(text: string[], n: number = 1, options = {} as FormattingOptions) {
+  indent(text: string[], n: number = 1, options = {} as DisplayOptions) {
+    const shiftWidth =
+      options["shift.width"] ?? defaultDisplayOptions["shift.width"];
+
     if (!Number.isInteger(n) || n <= 0) {
       throw new ValueError(
         `indent(): "n" must be a positive integer. Received: ${n}`
       );
     }
 
-    const pad = "".padEnd(
-      n * (options.shiftWidth ?? defaultFormattingOptions.shiftWidth)
-    );
+    const pad = "".padEnd(n * shiftWidth);
     return text.map((str) => pad + str);
   },
 } as const;

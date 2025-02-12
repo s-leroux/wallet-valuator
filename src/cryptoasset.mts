@@ -4,7 +4,7 @@ import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError, ValueError } from "./error.mjs";
 
 import { register } from "./debug.mjs";
-import { DisplayOptions } from "./displayable.mjs";
+import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
 /**
  * Represents an amount of a CryptoAsset expressed in its display unit.
@@ -55,9 +55,14 @@ export class Amount {
   }
 
   toDisplayString(options: DisplayOptions): string {
-    const valueFormat = options["amount.value.format"] ?? ((x) => x);
-    const symbolFormat = options["amount.symbol.format"] ?? ((x) => x);
-    const sep = options["amount.separator"] ?? " ";
+    const valueFormat =
+      options["amount.value.format"] ??
+      defaultDisplayOptions["amount.value.format"];
+    const symbolFormat =
+      options["amount.symbol.format"] ??
+      defaultDisplayOptions["amount.symbol.format"];
+    const sep =
+      options["amount.separator"] ?? defaultDisplayOptions["amount.separator"];
 
     return `${valueFormat(this.value.toString())}${sep}${symbolFormat(
       this.crypto.symbol
