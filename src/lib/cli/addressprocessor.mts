@@ -6,6 +6,9 @@ import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/c
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
+import { FiatConverter } from "../../services/fiatconverter.mjs";
+import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -24,6 +27,10 @@ function createCryptoResolver(envvars: EnvVars) {
 
 function createExplorers(envvars: EnvVars) {
   return [GnosisScan.create(envvars["GNOSISSCAN_API_KEY"])];
+}
+
+function createOracle(envvars: EnvVars) {
+  return CompositeOracle.create([]);
 }
 
 function loadEnvironmentVariables() {
@@ -67,9 +74,17 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
 
   const portfolio = ledger.portfolio();
 
+  const oracle = createOracle(envvars);
+  const valuation = portfolio.evaluate(
+    registry,
+    oracle,
+    null as unknown as FiatConverter,
+    FiatCurrency("EUR")
+  );
+
   console.log(
     "%s",
-    toDisplayString(portfolio, {
+    toDisplayString(valuation, {
       "address.compact": true,
       "amount.value.format": format("16.4"),
     })

@@ -2,8 +2,10 @@ import { InvalidTreeStructureError } from "./error.mjs";
 import type { CryptoAsset } from "./cryptoasset.mjs";
 
 type Metadata = {
-  [key: string]: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
+  [K in string]?: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
 };
+
+type Domain = { [K in string]?: Metadata };
 
 export function deepCopyMetadata(metadata: Metadata): Metadata {
   const seen = new WeakSet<object>();
@@ -51,7 +53,7 @@ type CryptoAssetData = {
 };
 
 export class CryptoRegistry {
-  private registry = new WeakMap<CryptoAsset, CryptoAssetData>();
+  private registry = new WeakMap<CryptoAsset, Domain>();
 
   // Private constructor to enforce singleton-like behavior
   private constructor() {}
@@ -59,11 +61,21 @@ export class CryptoRegistry {
   /**
    * Associate domain-specific data with a CryptoAsset.
    * @param asset - The CryptoAsset to annotate.
-   * @param domain - A well-known domain identifier for the data.
-   * @param data - The domain-specific data to associate with the asset.
+   * @param domainName - A well-known domain identifier for the data.
+   * @param domainData - The domain-specific data to associate with the asset.
    */
-  setDomainData(asset: CryptoAsset, domain: string, data: Metadata = {}): void {
-    this.registry.set(asset, { domain, data: deepCopyMetadata(data) });
+  setDomainData(
+    asset: CryptoAsset,
+    domainName: string,
+    domainData: Metadata = {}
+  ): void {
+    let domain = this.registry.get(asset);
+    if (domain === undefined) {
+      domain = {};
+      this.registry.set(asset, domain);
+    }
+
+    domain[domainName] = deepCopyMetadata(domainData);
   }
 
   /**
@@ -71,7 +83,7 @@ export class CryptoRegistry {
    * @param asset - The CryptoAsset to query.
    * @returns The data entry for the asset, or undefined if no data exists.
    */
-  getAssetData(asset: CryptoAsset): CryptoAssetData | undefined {
+  getAssetData(asset: CryptoAsset): Domain | undefined {
     return this.registry.get(asset);
   }
 
@@ -81,12 +93,9 @@ export class CryptoRegistry {
    * @param domain - The expected domain for the data.
    * @returns The domain-specific data, or undefined if no matching entry exists.
    */
-  getDomainData(asset: CryptoAsset, domain: string): Metadata | undefined {
+  getDomainData(asset: CryptoAsset, domainName: string): Metadata | undefined {
     const entry = this.getAssetData(asset);
-    if (entry && entry.domain === domain) {
-      return entry.data;
-    }
-    return undefined;
+    return entry?.[domainName];
   }
 
   /**

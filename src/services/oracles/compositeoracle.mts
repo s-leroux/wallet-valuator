@@ -5,14 +5,32 @@ import type { Price } from "../../price.mjs";
 
 import { Oracle } from "../oracle.mjs";
 
+//========================================================================
+//  Composite oracle
+//========================================================================
+
+/**
+ * An Oracle that retrieves asset prices by sequentially querying multiple backend oracles.
+ * It stops as soon as all requested fiat prices are resolved.
+ */
 export class CompositeOracle extends Oracle {
   readonly backends: Oracle[];
 
+  //----------------------------------------------------------------------
+  //  Oracle creations
+  //----------------------------------------------------------------------
   constructor(backends: Oracle[]) {
     super();
     this.backends = backends.slice();
   }
 
+  static create(backends: Oracle[]) {
+    return new CompositeOracle(backends);
+  }
+
+  //----------------------------------------------------------------------
+  //  Price resolution
+  //----------------------------------------------------------------------
   async getPrice(
     registry: CryptoRegistry,
     crypto: CryptoAsset,

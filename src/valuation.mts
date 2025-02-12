@@ -118,8 +118,8 @@ export class SnapshotValuation {
         console.log(message);
         throw new MissingPriceError(crypto, fiatCurrency, date);
       }
-      const value = valueFromAmountAndPrice(amount, price);
 
+      const value = valueFromAmountAndPrice(amount, price);
       holdings.set(crypto, value);
     }
 
