@@ -7,12 +7,33 @@ import type { Amount } from "./cryptoasset.mjs";
 import type { Price } from "./price.mjs";
 import type { Oracle } from "./services/oracle.mjs";
 import type { FiatConverter } from "./services/fiatconverter.mjs";
+import {
+  defaultDisplayOptions,
+  DisplayOptions,
+  TextUtils,
+} from "./displayable.mjs";
+import { Portfolio, Snapshot } from "./portfolio.mjs";
 
 export class Value {
   constructor(readonly fiatCurrency: FiatCurrency, readonly value: BigNumber) {}
 
   toString(): string {
     return `${this.value} ${this.fiatCurrency}`;
+  }
+
+  toDisplayString(options: DisplayOptions): string {
+    const valueFormat =
+      options["amount.value.format"] ??
+      defaultDisplayOptions["amount.value.format"];
+    const symbolFormat =
+      options["amount.symbol.format"] ??
+      defaultDisplayOptions["amount.symbol.format"];
+    const sep =
+      options["amount.separator"] ?? defaultDisplayOptions["amount.separator"];
+
+    return `${valueFormat(this.value.toString())}${sep}${symbolFormat(
+      this.fiatCurrency
+    )}`;
   }
 }
 
@@ -27,7 +48,7 @@ export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
  * Represents the valuation of a set of crypto-assets
  * in terms of a specified fiat currency at a specific point in time.
  */
-export class Valuation {
+export class SnapshotValuation {
   readonly fiatCurrency: FiatCurrency;
   readonly timeStamp: number;
   readonly holdings: Map<CryptoAsset, Value>;
@@ -55,8 +76,23 @@ export class Valuation {
     );
   }
 
+  //========================================================================
+  //  String representation
+  //========================================================================
   toString(): string {
     return `${this.totalValue} ${this.fiatCurrency}`;
+  }
+
+  toDisplayString(options: DisplayOptions = {}): string {
+    const lines: string[] = [
+      TextUtils.formatDate(this.timeStamp * 1000, options),
+    ];
+
+    this.holdings.forEach((amount, crypto) =>
+      lines.push(amount.toDisplayString(options))
+    );
+
+    return lines.join("\n");
   }
 
   static async create(
@@ -66,7 +102,7 @@ export class Valuation {
     fiatCurrency: FiatCurrency,
     timeStamp: number,
     amounts: Iterable<Amount>
-  ): Promise<Valuation> {
+  ): Promise<SnapshotValuation> {
     const holdings: Map<CryptoAsset, Value> = new Map();
     const date = new Date(timeStamp * 1000);
 
@@ -80,6 +116,51 @@ export class Valuation {
       holdings.set(crypto, value);
     }
 
-    return new Valuation(fiatCurrency, timeStamp, holdings);
+    return new SnapshotValuation(fiatCurrency, timeStamp, holdings);
+  }
+}
+
+export class PortfolioValuation {
+  readonly snapshotValuations: SnapshotValuation[];
+
+  //========================================================================
+  //  Construction
+  //========================================================================
+  constructor(snapshotValuations: SnapshotValuation[]) {
+    this.snapshotValuations = snapshotValuations;
+  }
+
+  static create(
+    registry: CryptoRegistry,
+    oracle: Oracle,
+    fiatConverter: FiatConverter,
+    fiatCurrency: FiatCurrency,
+    snapshots: Snapshot[]
+  ): Promise<PortfolioValuation> {
+    return Promise.all(
+      snapshots.map((snapshot) =>
+        snapshot.evaluate(registry, oracle, fiatConverter, fiatCurrency)
+      )
+    ).then((snapshotValuations) => new PortfolioValuation(snapshotValuations));
+  }
+
+  //========================================================================
+  //  String representation
+  //========================================================================
+  toString() {
+    const head = "PortfolioValuation([";
+    const tail = "])";
+    const body = TextUtils.indent(this.snapshotValuations.map(String));
+    if (body) {
+      return `${head}\n${body}\n${tail}`;
+    }
+
+    return `${head}${tail}`;
+  }
+
+  toDisplayString(options: DisplayOptions = {}) {
+    return this.snapshotValuations
+      .map((snapshot) => snapshot.toDisplayString(options))
+      .join("\n");
   }
 }

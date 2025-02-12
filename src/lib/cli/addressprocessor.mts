@@ -1,7 +1,5 @@
 import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
-import { Portfolio } from "../../../src/portfolio.mjs";
-import { TestScan } from "../../../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";

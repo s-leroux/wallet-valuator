@@ -4,7 +4,7 @@ import { ValueError, type NotImplementedError } from "./error.mjs";
 import { Amount } from "./cryptoasset.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
-import { Valuation } from "./valuation.mjs";
+import { SnapshotValuation, PortfolioValuation } from "./valuation.mjs";
 import type { FiatConverter } from "./services/fiatconverter.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import type { Oracle } from "./services/oracle.mjs";
@@ -79,8 +79,8 @@ export class Snapshot {
     oracle: Oracle,
     fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency
-  ): Promise<Valuation> {
-    return Valuation.create(
+  ): Promise<SnapshotValuation> {
+    return SnapshotValuation.create(
       registry,
       oracle,
       fiatConverter,
@@ -205,5 +205,23 @@ export class Portfolio {
       lines.push(items.join(separator) + os.EOL);
     }
     return lines.join("");
+  }
+
+  //========================================================================
+  //  Evaluations
+  //========================================================================
+  evaluate(
+    registry: CryptoRegistry,
+    oracle: Oracle,
+    fiatConverter: FiatConverter,
+    fiatCurrency: FiatCurrency
+  ): Promise<PortfolioValuation> {
+    return PortfolioValuation.create(
+      registry,
+      oracle,
+      fiatConverter,
+      fiatCurrency,
+      this.snapshots
+    );
   }
 }

@@ -10,13 +10,14 @@ import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "./support/oracle.fake.mjs";
 import { FakeFiatConverter } from "./support/fiatconverter.fake.mjs";
 import {
-  Valuation,
+  PortfolioValuation,
+  SnapshotValuation,
   Value,
   valueFromAmountAndPrice,
 } from "../src/valuation.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
-describe("Valuation", () => {
+describe("SnapshotValuation", () => {
   const fiatConverter = new FakeFiatConverter();
 
   describe("valueFromAmountAndRate()", () => {
@@ -49,7 +50,7 @@ describe("Valuation", () => {
     ];
 
     it("should create a Valuation instance from holdings", async () => {
-      const valuation = await Valuation.create(
+      const valuation = await SnapshotValuation.create(
         registry,
         oracle,
         fiatConverter,
@@ -86,7 +87,8 @@ describe("Valuation", () => {
 
     const movements = [
       FakeMovement(INGRESS, "2024-12-02", "200000", "usd-coin"),
-      FakeMovement(EGRESS, "2024-12-03", "1", "bitcoin"),
+      FakeMovement(EGRESS, "2024-12-03", "95833.1362300365", "usd-coin"),
+      FakeMovement(INGRESS, "2024-12-03", "1", "bitcoin"),
     ];
 
     it("should create a Valuation instance from holdings", async () => {
@@ -109,9 +111,63 @@ describe("Valuation", () => {
 
       assert.strictEqual(
         valuations[1].totalValue.toString(),
-        "104286.57382058582"
+        "104229.2128726388532087224934266"
       );
       assert.strictEqual(valuations[1].fiatCurrency, fiat);
+
+      assert.strictEqual(
+        valuations[2].totalValue.toString(),
+        "200062.3491026753532087224934266"
+      );
+      assert.strictEqual(valuations[2].fiatCurrency, fiat);
+    });
+  });
+});
+
+describe("PortfolioValuation", () => {
+  const fiatConverter = new FakeFiatConverter();
+
+  describe("create()", () => {
+    const registry = CryptoRegistry.create();
+    const oracle = FakeOracle.create();
+    const fiat = FakeFiatCurrency.eur;
+    const timeStamp = new Date("2024-12-30").getTime() / 1000;
+    const amounts = [
+      FakeCryptoAsset.bitcoin.amountFromString("0.001"),
+      FakeCryptoAsset.ethereum.amountFromString("5"),
+    ];
+
+    it("should create a PortfolioValuation instance from snapshots", async () => {
+      const INGRESS = true;
+      const EGRESS = false;
+
+      const movements = [
+        FakeMovement(INGRESS, "2024-12-02", "200000", "usd-coin"),
+        FakeMovement(EGRESS, "2024-12-03", "95833.1362300365", "usd-coin"),
+        FakeMovement(INGRESS, "2024-12-03", "1", "bitcoin"),
+      ];
+      const snapshots = snapshotsFromMovements(movements);
+      const valuation = await PortfolioValuation.create(
+        registry,
+        oracle,
+        fiatConverter,
+        fiat,
+        snapshots
+      );
+
+      assert.strictEqual(valuation.snapshotValuations.length, 3);
+      assert.strictEqual(
+        valuation.snapshotValuations[0].totalValue.toString(),
+        "189643.12842672764"
+      );
+      assert.strictEqual(
+        valuation.snapshotValuations[1].totalValue.toString(),
+        "99253.8313961634461160286655519"
+      );
+      assert.strictEqual(
+        valuation.snapshotValuations[2].totalValue.toString(),
+        "190508.8270422186461160286655519"
+      );
     });
   });
 });
