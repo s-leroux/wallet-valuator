@@ -34,7 +34,7 @@ export class FiatConverterOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]
-  ): Promise<Record<FiatCurrency, Price>> {
+  ): Promise<Partial<Record<FiatCurrency, Price>>> {
     const result = {} as Record<FiatCurrency, Price>;
     let missing = fiat;
     let found = 0;

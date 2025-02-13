@@ -24,7 +24,7 @@ describe("Caching", function () {
   /**
    * Check the prices are what we expect from our fake oracle.
    */
-  function checkPrices(prices: Record<FiatCurrency, Price>) {
+  function checkPrices(prices: Partial<Record<FiatCurrency, Price>>) {
     assert.equal(Object.values(prices).length, fiatCurrencies.length);
     assert.deepEqual(
       Object.values(prices).map((price: Price) => ({

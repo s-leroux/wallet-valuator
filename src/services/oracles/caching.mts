@@ -31,12 +31,17 @@ export class Caching {
     this.db.exec(DB_INIT_SEQUENCE);
   }
 
-  insert(date: string, prices: Record<string, Price>): void {
+  insert(date: string, prices: Partial<Record<string, Price>>): void {
     const stmt = this.db.prepare(
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price) VALUES (?,?,?,?)"
     );
     for (const price of Object.values(prices)) {
-      stmt.run(price.crypto.id, date, price.fiatCurrency, price.rate.toFixed());
+      stmt.run(
+        price!.crypto.id,
+        date,
+        price!.fiatCurrency,
+        price!.rate.toFixed()
+      );
     }
   }
 
@@ -45,7 +50,7 @@ export class Caching {
     crypto: CryptoAsset,
     date: Date,
     currencies: FiatCurrency[]
-  ): Promise<Record<string, Price>> {
+  ): Promise<Partial<Record<string, Price>>> {
     const result: Record<string, Price> = Object.create(null);
     const dateYyyyMmDd = date.toISOString().substring(0, 10);
     const missing: FiatCurrency[] = [];

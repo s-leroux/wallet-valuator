@@ -1,3 +1,6 @@
+import type { CryptoAsset } from "./cryptoasset.mjs";
+import { FiatCurrency } from "./fiatcurrency.mjs";
+
 export class NotImplementedError extends Error {
   constructor(message: string = "Not implemented yet.") {
     super(message);
@@ -48,5 +51,12 @@ export class ProtocolError extends Error {
     super(message);
     this.name = "ProtocolError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
+
+export class MissingPriceError extends Error {
+  constructor(asset: CryptoAsset, fiat: FiatCurrency, date: Date) {
+    super(`No price found for ${asset}/${fiat} at ${date.toISOString()}`);
+    this.name = "MissingPriceError";
   }
 }

@@ -40,7 +40,7 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: FiatCurrency[]
-  ): Promise<Record<FiatCurrency, Price>> {
+  ): Promise<Partial<Record<FiatCurrency, Price>>> {
     const result = Object.create(null) as Record<FiatCurrency, Price>;
 
     // We do not handle that crypto

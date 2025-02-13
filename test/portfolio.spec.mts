@@ -31,7 +31,7 @@ describe("Snapshot", () => {
       assert.equal(snapshot.holdings.size, 1);
       assert.equal(
         snapshot.holdings.get(FakeCryptoAsset.ethereum)!.toString(),
-        `${value} ${FakeCryptoAsset.ethereum}`
+        `${value} ${FakeCryptoAsset.ethereum.symbol}`
       );
     });
 

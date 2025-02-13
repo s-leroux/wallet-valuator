@@ -32,17 +32,19 @@ describe("ImplicitFiatConverter", function () {
         FakeFiatCurrency.usd,
       ]);
 
+      assert.exists(prices[eur]);
+      assert.exists(prices[usd]);
       const result = await converter.convert(
         registry,
         date,
-        prices[eur],
+        prices[eur]!,
         FakeFiatCurrency.usd
       );
 
       assert.strictEqual(result.fiatCurrency, usd);
       assert.strictEqual(result.crypto, ethereum);
       assert.approximately(
-        +result.rate.mul(100).div(prices[usd].rate),
+        +result.rate.mul(100).div(prices[usd]!.rate),
         100,
         error
       );

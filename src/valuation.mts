@@ -1,4 +1,4 @@
-import { NotImplementedError, InconsistentUnitsError } from "./error.mjs";
+import { InconsistentUnitsError, MissingPriceError } from "./error.mjs";
 import { BigNumber } from "./bignumber.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { CryptoAsset } from "./cryptoasset.mjs";
@@ -105,12 +105,19 @@ export class SnapshotValuation {
   ): Promise<SnapshotValuation> {
     const holdings: Map<CryptoAsset, Value> = new Map();
     const date = new Date(timeStamp * 1000);
-
     for (const amount of amounts) {
       const crypto = amount.crypto;
-      const price = (
-        await oracle.getPrice(registry, crypto, date, [fiatCurrency])
-      )[fiatCurrency];
+      const prices = await oracle.getPrice(registry, crypto, date, [
+        fiatCurrency,
+      ]);
+      const price = prices[fiatCurrency];
+      if (price === undefined) {
+        // prettier-ignore
+        const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
+
+        console.log(message);
+        throw new MissingPriceError(crypto, fiatCurrency, date);
+      }
       const value = valueFromAmountAndPrice(amount, price);
 
       holdings.set(crypto, value);

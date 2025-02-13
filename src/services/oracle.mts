@@ -30,7 +30,7 @@ export abstract class Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]
-  ): Promise<Record<FiatCurrency, Price>>;
+  ): Promise<Partial<Record<FiatCurrency, Price>>>;
 
   /**
    * Enables caching for the Oracle.

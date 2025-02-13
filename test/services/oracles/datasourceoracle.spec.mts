@@ -7,6 +7,7 @@ import { FakeDataSource } from "../../support/datasource.fake.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
+import { Price } from "../../../src/price.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -38,9 +39,13 @@ describe("DataSource", function () {
         [eur]
       );
       const price = prices[eur];
-      assert.equal(+price.rate, 93_966.82);
-      assert.equal(price.fiatCurrency, eur);
-      assert.equal(price.crypto, bitcoin);
+      if (!price) {
+        assert.fail(`price is ${price}`);
+      } else {
+        assert.equal(+price.rate, 93_966.82);
+        assert.equal(price.fiatCurrency, eur);
+        assert.equal(price.crypto, bitcoin);
+      }
     });
   });
 });

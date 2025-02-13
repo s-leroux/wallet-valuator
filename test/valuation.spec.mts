@@ -1,6 +1,9 @@
-import { assert } from "chai";
+import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
 
-import { NotImplementedError } from "../src/error.mjs";
+chai.use(chaiAsPromised);
+const assert = chai.assert;
+
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import {
   FakeMovement,
@@ -16,6 +19,8 @@ import {
   valueFromAmountAndPrice,
 } from "../src/valuation.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { CompositeOracle } from "../src/services/oracles/compositeoracle.mjs";
+import { MissingPriceError } from "../src/error.mjs";
 
 describe("SnapshotValuation", () => {
   const fiatConverter = new FakeFiatConverter();
@@ -48,6 +53,22 @@ describe("SnapshotValuation", () => {
       FakeCryptoAsset.bitcoin.amountFromString("0.001"),
       FakeCryptoAsset.ethereum.amountFromString("5"),
     ];
+
+    it("should handle the case no price was found", () => {
+      const oracle = new CompositeOracle([]); // an Oracle which can't price anything...
+
+      assert.isRejected(
+        SnapshotValuation.create(
+          registry,
+          oracle,
+          fiatConverter,
+          fiat,
+          timeStamp,
+          amounts
+        ),
+        MissingPriceError
+      );
+    });
 
     it("should create a Valuation instance from holdings", async () => {
       const valuation = await SnapshotValuation.create(

@@ -86,7 +86,7 @@ export class CoinGecko extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     currencies: FiatCurrency[]
-  ): Promise<Record<FiatCurrency, Price>> {
+  ): Promise<Partial<Record<FiatCurrency, Price>>> {
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 
     let prices;

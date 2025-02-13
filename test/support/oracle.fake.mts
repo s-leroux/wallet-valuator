@@ -27,7 +27,7 @@ export class FakeOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[]
-  ): Promise<Record<FiatCurrency, Price>> {
+  ): Promise<Partial<Record<FiatCurrency, Price>>> {
     const cryptoId = crypto.id;
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 

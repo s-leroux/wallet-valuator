@@ -42,7 +42,16 @@ export class ImplicitFiatConverter implements FiatConverter {
       to,
     ]); // ISSUE #64 What to do if this fails?
 
-    const exchangeRage = ref[to].rate.div(ref[from].rate);
+    const toPrice = ref[to];
+    const fromPrice = ref[from];
+
+    if (toPrice === undefined || fromPrice === undefined) {
+      throw new NotImplementedError(
+        "Unable to find the reference prices.\nSee ISSUE #94"
+      );
+    }
+
+    const exchangeRage = toPrice.rate.div(fromPrice.rate);
 
     return price.to(to, exchangeRage);
   }
