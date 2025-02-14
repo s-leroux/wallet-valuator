@@ -2,13 +2,17 @@ import { assert } from "chai";
 
 import { prepare } from "../../support/register.helper.mjs";
 
-import { StaticCryptoResolver } from "../../../src/services/cryptoresolvers/staticcryptoresolver.mjs";
+import {
+  StaticCryptoAsset,
+  StaticCryptoResolver,
+  StaticDomains,
+} from "../../../src/services/cryptoresolvers/staticcryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 
 //prettier-ignore
-const cryptoTable = [
+const cryptoTable:StaticCryptoAsset[] = [
   ["binance coin", "bnb chain", null, "Binance Coin", "BNB", 18],
   ["bitcoin", "bitcoin", null, "Bitcoin", "BTC", 8],
   ["dai", "ethereum", "0x6B175474E89094C44Da98b954EedeAC495271d0F", "Dai Stablecoin", "DAI", 18],
@@ -38,11 +42,17 @@ const cryptoTable = [
   ["xdai", "gnosis", null, "xDai", "xDAI", 18],
 ] as const;
 
+const domainTable: StaticDomains[] = [
+  ["bitcoin", { STANDARD: { coingeckoId: "bitcoin" } }],
+  ["ethereum", { STANDARD: { coingeckoId: "ethereum" } }],
+  ["usdc", { STANDARD: { coingeckoId: "usd-coin" } }],
+] as const;
+
 describe("StaticCryptoResolver", function () {
   let cryptoResolver: StaticCryptoResolver;
 
   beforeEach(() => {
-    cryptoResolver = StaticCryptoResolver.create(cryptoTable);
+    cryptoResolver = StaticCryptoResolver.create(cryptoTable, domainTable);
   });
 
   describe("default database", function () {
@@ -50,6 +60,7 @@ describe("StaticCryptoResolver", function () {
     const G = asBlockchain("gnosis");
     const P = asBlockchain("polygon");
     const S = asBlockchain("solana");
+    const B = asBlockchain("bitcoin");
 
     describe("should find well known token by chain, block, and address", function () {
       const register = prepare(this);
@@ -85,6 +96,9 @@ describe("StaticCryptoResolver", function () {
 
     it("should return consistent result across chains", async function () {
       const USDC = ["USD Coin", "USDC", 6] as const;
+      const coingeckoId = {
+        USDC: "usd-coin",
+      };
 
       // prettier-ignore
       const testcases = [
@@ -94,7 +108,7 @@ describe("StaticCryptoResolver", function () {
       ] as const;
 
       const registry = CryptoRegistry.create();
-      let prev: CryptoAsset | undefined;
+      let first: CryptoAsset | undefined;
 
       for (const [chain, address, name, symbol, decimal] of testcases) {
         const result = await cryptoResolver.resolve(
@@ -109,12 +123,41 @@ describe("StaticCryptoResolver", function () {
         if (!result || result.status !== "resolved") {
           assert.fail(`result was ${result}`);
         }
-        if (prev) {
-          assert.strictEqual(result.asset, prev);
+        assert.include(registry.getDomainData(result.asset, "STANDARD"), {
+          coingeckoId: coingeckoId.USDC,
+        });
+        if (first) {
+          assert.strictEqual(result.asset, first);
         } else {
-          prev = result.asset;
+          first = result.asset;
         }
       }
+    });
+
+    it("should register metadata", async function () {
+      const USDC = ["USD Coin", "USDC", 6] as const;
+
+      // prettier-ignore
+      const testcase = [B,null, "Bitcoin", "BTC", 8] as const
+
+      const registry = CryptoRegistry.create();
+      const [chain, address, name, symbol, decimal] = testcase;
+      const result = await cryptoResolver.resolve(
+        registry,
+        chain,
+        12345,
+        address,
+        name,
+        symbol,
+        decimal
+      );
+      if (!result || result.status !== "resolved") {
+        assert.fail(`result was ${result}`);
+      }
+
+      assert.deepEqual(registry.getDomainData(result.asset, "STANDARD"), {
+        coingeckoId: "bitcoin",
+      });
     });
   });
 });

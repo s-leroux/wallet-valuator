@@ -75,7 +75,7 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
   const portfolio = ledger.portfolio();
 
   const oracle = createOracle(envvars);
-  const valuation = portfolio.evaluate(
+  const valuation = await portfolio.evaluate(
     registry,
     oracle,
     null as unknown as FiatConverter,

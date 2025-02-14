@@ -1,11 +1,18 @@
-import { InvalidTreeStructureError } from "./error.mjs";
+import { DuplicateKeyError, InvalidTreeStructureError } from "./error.mjs";
 import type { CryptoAsset } from "./cryptoasset.mjs";
 
-type Metadata = {
-  [K in string]?: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
+export type Metadata = {
+  [k: string]: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
 };
 
-type Domain = { [K in string]?: Metadata };
+type StandardDomain = {
+  coingeckoId?: string;
+};
+
+export type Domains = {
+  [k: string]: Metadata | undefined;
+  STANDARD?: StandardDomain;
+};
 
 export function deepCopyMetadata(metadata: Metadata): Metadata {
   const seen = new WeakSet<object>();
@@ -47,16 +54,46 @@ export function deepCopyMetadata(metadata: Metadata): Metadata {
   return copyRecursive(metadata);
 }
 
-type CryptoAssetData = {
-  domain: string; // A well-known domain identifier
-  data: Metadata; // Metadata related to the asset in this domain
-};
-
+/**
+ * The CryptoRegistry is a cache for the crypto-assets and their associated metadata.
+ */
 export class CryptoRegistry {
-  private registry = new WeakMap<CryptoAsset, Domain>();
+  private cryptos = new Map<string, CryptoAsset>();
+  private registry = new WeakMap<CryptoAsset, Domains>();
 
-  // Private constructor to enforce singleton-like behavior
+  // Private constructor to enforce factory method use
   private constructor() {}
+
+  /**
+   * Factory method to create a new CryptoRegistry instance.
+   */
+  static create(): CryptoRegistry {
+    return new CryptoRegistry();
+  }
+
+  /**
+   * Register a new crypto-asset with this registry.
+   * Raise an error if the key is already registered.
+   */
+  registerCryptoAsset(
+    key: string,
+    crypto: CryptoAsset,
+    domains: Domains | undefined
+  ) {
+    if (this.cryptos.has(key)) {
+      throw new DuplicateKeyError(key);
+    }
+    if (this.registry.has(crypto)) {
+      throw new DuplicateKeyError(crypto);
+    }
+
+    this.cryptos.set(key, crypto);
+    this.registry.set(crypto, domains ?? Object.create(null));
+  }
+
+  getCryptoAsset(key: string) {
+    return this.cryptos.get(key);
+  }
 
   /**
    * Associate domain-specific data with a CryptoAsset.
@@ -71,11 +108,14 @@ export class CryptoRegistry {
   ): void {
     let domain = this.registry.get(asset);
     if (domain === undefined) {
-      domain = {};
-      this.registry.set(asset, domain);
+      domain = {
+        // @ts-ignore
+        __proto__: null,
+      };
+      this.registry.set(asset, domain!);
     }
 
-    domain[domainName] = deepCopyMetadata(domainData);
+    domain![domainName] = deepCopyMetadata(domainData);
   }
 
   /**
@@ -83,7 +123,7 @@ export class CryptoRegistry {
    * @param asset - The CryptoAsset to query.
    * @returns The data entry for the asset, or undefined if no data exists.
    */
-  getAssetData(asset: CryptoAsset): Domain | undefined {
+  getAssetData(asset: CryptoAsset): Domains | undefined {
     return this.registry.get(asset);
   }
 
@@ -96,12 +136,5 @@ export class CryptoRegistry {
   getDomainData(asset: CryptoAsset, domainName: string): Metadata | undefined {
     const entry = this.getAssetData(asset);
     return entry?.[domainName];
-  }
-
-  /**
-   * Factory method to create a new CryptoRegistry instance.
-   */
-  static create(): CryptoRegistry {
-    return new CryptoRegistry();
   }
 }

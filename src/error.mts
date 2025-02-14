@@ -28,6 +28,17 @@ export class ValueError extends Error {
   }
 }
 
+/**
+ * A value was already present
+ */
+export class DuplicateKeyError extends Error {
+  constructor(key: any = "") {
+    super(String(key));
+    this.name = "DuplicateKeyError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
+
 export class InvalidTreeStructureError extends Error {
   constructor(keyPath: string[] = []) {
     const message = keyPath.length
@@ -58,5 +69,6 @@ export class MissingPriceError extends Error {
   constructor(asset: CryptoAsset, fiat: FiatCurrency, date: Date) {
     super(`No price found for ${asset}/${fiat} at ${date.toISOString()}`);
     this.name = "MissingPriceError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
 }
