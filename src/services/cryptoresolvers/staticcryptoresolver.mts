@@ -19,11 +19,16 @@ function ChainAddress(
   return `${chain}:${smartContractAddress || ""}`.toLowerCase() as ChainAddress;
 }
 
-export type PhysicalCryptoAsset = readonly [
+type BasePhysicalCryptoAsset = readonly [
   key: string,
   chain: string,
   contractAddress: string | null
 ];
+type BasePhysicalCryptoAssetLength = BasePhysicalCryptoAsset["length"];
+
+export type PhysicalCryptoAsset =
+  | BasePhysicalCryptoAsset
+  | [...BasePhysicalCryptoAsset, start: number, end: number];
 
 export type LogicalCryptoAsset = readonly [
   key: string,
@@ -56,12 +61,13 @@ export class StaticCryptoResolver extends CryptoResolver {
 
     // Populate the mapping from physical crypto-assets to logical crypto-assets
     this.physicalCryptoAssets = new Map();
-    for (const [key, chain, contractAddress] of physicalCryptoAssets) {
+    for (const [key, chain, contractAddress, ...data] of physicalCryptoAssets) {
       const chainAddress = ChainAddress(chain, contractAddress);
       this.physicalCryptoAssets.set(chainAddress, [
         key,
         chain,
         contractAddress,
+        ...data,
       ]);
     }
   }
@@ -83,26 +89,40 @@ export class StaticCryptoResolver extends CryptoResolver {
     _decimal: number
   ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.name, smartContractAddress); // XXX could this be done at higher level?
-    const cached = registry.getCryptoAsset(chainAddress);
-    if (cached) {
-      return { status: "resolved", asset: cached }; // XXX This may change for "obsolete" crypto-assets
-    }
 
+    // 1. Check that we know something about the crypto-asset
     const physicalCryptoAsset = this.physicalCryptoAssets.get(chainAddress);
     if (!physicalCryptoAsset) {
-      return null;
+      return null; // not our business
     }
 
-    const logicalCryptoAsset = this.logicalCryptoAssets.get(
-      physicalCryptoAsset[0]
-    );
+    // 2. Check that we are in the physical data specified [start, end) range if provided
+    const [key, , , start, end] = physicalCryptoAsset;
+    if (start !== undefined && end !== undefined) {
+      // Above: technically we do not need to check that both `start` and `end`
+      // are defined since the type's definition enforce "both or none". But
+      // this satisfies the TypeScript compiler.
+      if (block < start || block >= end) {
+        return { status: "obsolete" };
+      }
+    }
+
+    // 3. Maybe have we already cached the corresponding physical crypto-asset
+    const cached = registry.getCryptoAsset(chainAddress);
+    if (cached) {
+      return { status: "resolved", asset: cached };
+    }
+
+    // 4. We should find the corresponding logical crypto-asset in our database
+    const logicalCryptoAsset = this.logicalCryptoAssets.get(key);
     if (!logicalCryptoAsset) {
       throw new InternalError(
         `No matching logical crypto-asset for ${physicalCryptoAsset}`
       );
     }
 
-    const [key, name, symbol, decimal, domains] = logicalCryptoAsset;
+    // 5. Eventually create, cache, then return the logical crypto-asset
+    const [, name, symbol, decimal, domains] = logicalCryptoAsset;
     return {
       status: "resolved",
       asset: this.cache.get(key, () => {

@@ -15,10 +15,16 @@ import { asBlockchain } from "../../../src/blockchain.mjs";
 const cryptoTable:PhysicalCryptoAsset[] = [
   ["binance coin", "bnb chain", null],
   ["bitcoin", "bitcoin", null],
-  ["dai", "ethereum", "0x6B175474E89094C44Da98b954EedeAC495271d0F"],
+  ["dai", "ethereum", "0x6B175474E89094C44Da98b954EedeAC495271d0F", 0, Infinity],
   ["dai", "gnosis", "0x44FA8E6F47987339850636F88629646662444217"],
   ["dai", "polygon", "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"],
   ["ethereum", "ethereum", null],
+  ["monerium-eure", "ethereum", "0x3231Cb76718CDeF2155FC47b5286d82e6eDA273f", 0, 21419972],
+  ["monerium-eure", "ethereum", "0x39b8B6385416f4cA36a20319F70D28621895279D", 21419972, Infinity],
+  ["monerium-eure", "gnosis", "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", 35656951, Infinity],
+  ["monerium-eure", "gnosis", "0xcB444e90D8198415266c6a2724b7900fb12FC56E", 0, 35656951],
+  ["monerium-eure", "polygon", "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6", 0, 60733237],
+  ["monerium-eure", "polygon", "0xE0aEa583266584DafBB3f9C3211d5588c73fEa8d", 60733237, Infinity],
   ["solana", "solana", null],
   ["usdc", "arbitrum", "0xaf88d065e77c8cc2239327c5edb3a432268e5831"],
   ["usdc", "bnb chain", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"],
@@ -48,6 +54,7 @@ const domainTable: LogicalCryptoAsset[] = [
   ["bitcoin", "Bitcoin", "BTC", 8, { STANDARD: { coingeckoId: "bitcoin" } }],
   ["dai", "Dai Stablecoin", "DAI", 18, { STANDARD: { coingeckoId: "dai" } }],
   ["ethereum", "Ethereum", "ETH", 18, { STANDARD: { coingeckoId: "ethereum" } }],
+  ["monerium-eure","Monerium EURe", "EURе", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
   ["solana", "Solana", "SOL", 9, { STANDARD: { coingeckoId: "solana" } }],
   ["usdc", "USD Coin", "USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
   ["usdt", "Tether USD", "USDT", 6, { STANDARD: { coingeckoId: "tether" } }],
@@ -98,6 +105,47 @@ describe("StaticCryptoResolver", function () {
             assert.fail(`result was ${result}`);
           }
           assert.strictEqual(result.asset, cryptoResolver.get("usdc"));
+        });
+      }
+    });
+
+    describe("should honor the [start, end) validity block range", function () {
+      const register = prepare(this);
+      const EURe = ["Monerium EURe", "EURe", 18] as const;
+      const G_V1 = "0xcB444e90D8198415266c6a2724b7900fb12FC56E";
+      const G_V2 = "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430";
+
+      // prettier-ignore
+      const testcases = [
+        [G, G_V1, 35656950, ...EURe, "V1, before update", "resolved"],
+        [G, G_V1, 35656951, ...EURe, "V1, after update", "obsolete"],
+        [G, G_V2, 35656950, ...EURe, "V2, before update", "obsolete"],
+        [G, G_V2, 35656951, ...EURe, "V2, after update", "resolved"],
+      ] as const;
+
+      for (const [
+        chain,
+        address,
+        block,
+        name,
+        symbol,
+        decimal,
+        desc,
+        expected,
+      ] of testcases) {
+        register(`case of ${[chain, name]} ${desc}`, async () => {
+          const registry = CryptoRegistry.create();
+          const result = await cryptoResolver.resolve(
+            registry,
+            chain,
+            block,
+            address,
+            name,
+            symbol,
+            decimal
+          );
+          assert.exists(result);
+          assert.equal(result?.status, expected);
         });
       }
     });
