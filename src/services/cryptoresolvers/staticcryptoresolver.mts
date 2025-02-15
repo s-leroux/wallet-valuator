@@ -8,6 +8,7 @@ import type {
 
 import { MMap } from "../../memoizer.mjs";
 import { Blockchain } from "../../blockchain.mjs";
+import { InternalError } from "../../error.mjs";
 
 // XXX We may factor out the ChainAddress utility
 type ChainAddress = string & { readonly brand: unique symbol };
@@ -18,69 +19,56 @@ function ChainAddress(
   return `${chain}:${smartContractAddress || ""}`.toLowerCase() as ChainAddress;
 }
 
-export type StaticCryptoAsset = readonly [
+export type PhysicalCryptoAsset = readonly [
   key: string,
   chain: string,
-  contractAddress: string | null,
-  name: string,
-  symbol: string,
-  decimal: number
+  contractAddress: string | null
 ];
 
-export type StaticDomains = readonly [key: string, domains: Domains];
-
-type Entry = {
-  key: string;
-  name: string;
-  symbol: string;
-  decimal: number;
-};
+export type LogicalCryptoAsset = readonly [
+  key: string,
+  name: string,
+  symbol: string,
+  decimal: number,
+  domains: Domains
+];
 
 /**
  * A KISS class to support a hard-coded crypto-asset database.
  */
 export class StaticCryptoResolver extends CryptoResolver {
   private readonly cache: MMap<string, CryptoAsset>;
-  private readonly keyDomainMap: Map<string, Domains>;
-  private readonly cryptoDatabase: Map<ChainAddress, Entry>;
+  private readonly logicalCryptoAssets: Map<string, LogicalCryptoAsset>;
+  private readonly physicalCryptoAssets: Map<ChainAddress, PhysicalCryptoAsset>;
 
   protected constructor(
-    cryptoTable: Iterable<StaticCryptoAsset>,
-    keyDomainsMap: Iterable<StaticDomains> = []
+    physicalCryptoAssets: Iterable<PhysicalCryptoAsset>,
+    logicalCryptoAssets: Iterable<LogicalCryptoAsset>
   ) {
     super();
     this.cache = new MMap();
-    const cryptoDatabase = (this.cryptoDatabase = new Map());
 
-    for (const [
-      key,
-      chain,
-      contractAddress,
-      name,
-      symbol,
-      decimal,
-    ] of cryptoTable) {
-      const chainAddress = ChainAddress(chain, contractAddress);
-      const entry = {
-        // @ts-ignore
-        __proto__: null,
-        key,
-        name,
-        symbol,
-        decimal,
-      };
-      cryptoDatabase.set(chainAddress, entry);
+    // Populate the table of logical crypto-assets
+    this.logicalCryptoAssets = new Map();
+    for (const [key, ...data] of logicalCryptoAssets) {
+      this.logicalCryptoAssets.set(key, [key, ...data]);
     }
 
-    this.keyDomainMap = new Map();
-    for (const [key, domains] of keyDomainsMap) {
-      this.keyDomainMap.set(key, domains);
+    // Populate the mapping from physical crypto-assets to logical crypto-assets
+    this.physicalCryptoAssets = new Map();
+    for (const [key, chain, contractAddress] of physicalCryptoAssets) {
+      const chainAddress = ChainAddress(chain, contractAddress);
+      this.physicalCryptoAssets.set(chainAddress, [
+        key,
+        chain,
+        contractAddress,
+      ]);
     }
   }
 
   static create(
-    cryptoTable: Iterable<StaticCryptoAsset>,
-    keyDomainsMap: Iterable<StaticDomains> = []
+    cryptoTable: Iterable<PhysicalCryptoAsset>,
+    keyDomainsMap: Iterable<LogicalCryptoAsset> = []
   ): StaticCryptoResolver {
     return new this(cryptoTable, keyDomainsMap);
   }
@@ -90,9 +78,9 @@ export class StaticCryptoResolver extends CryptoResolver {
     chain: Blockchain,
     block: number,
     smartContractAddress: string | null,
-    name: string,
-    symbol: string,
-    decimal: number
+    _name: string,
+    _symbol: string,
+    _decimal: number
   ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.name, smartContractAddress); // XXX could this be done at higher level?
     const cached = registry.getCryptoAsset(chainAddress);
@@ -100,25 +88,26 @@ export class StaticCryptoResolver extends CryptoResolver {
       return { status: "resolved", asset: cached }; // XXX This may change for "obsolete" crypto-assets
     }
 
-    const entry = this.cryptoDatabase.get(chainAddress);
-    if (!entry) {
+    const physicalCryptoAsset = this.physicalCryptoAssets.get(chainAddress);
+    if (!physicalCryptoAsset) {
       return null;
     }
 
+    const logicalCryptoAsset = this.logicalCryptoAssets.get(
+      physicalCryptoAsset[0]
+    );
+    if (!logicalCryptoAsset) {
+      throw new InternalError(
+        `No matching logical crypto-asset for ${physicalCryptoAsset}`
+      );
+    }
+
+    const [key, name, symbol, decimal, domains] = logicalCryptoAsset;
     return {
       status: "resolved",
-      asset: this.cache.get(entry.key, () => {
-        const crypto = new CryptoAsset(
-          entry.key,
-          entry.name,
-          entry.symbol,
-          entry.decimal
-        );
-        registry.registerCryptoAsset(
-          chainAddress,
-          crypto,
-          this.keyDomainMap.get(entry.key)
-        );
+      asset: this.cache.get(key, () => {
+        const crypto = new CryptoAsset(key, name, symbol, decimal);
+        registry.registerCryptoAsset(chainAddress, crypto, domains);
 
         return crypto;
       }),

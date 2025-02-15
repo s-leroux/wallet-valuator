@@ -9,6 +9,14 @@ export class NotImplementedError extends Error {
   }
 }
 
+export class InternalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InternalError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
+
 export class InconsistentUnitsError extends Error {
   constructor(unitA: any, unitB: any) {
     super(`Imcompatible units ${unitA.toString()} and ${unitB.toString()}`);
