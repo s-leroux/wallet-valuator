@@ -38,7 +38,7 @@ export abstract class Oracle {
    * @param path - The path where the cache is stored. If undefined, a default path will be used.
    * @returns A new instance of the Oracle with caching enabled.
    */
-  cache(path: string | undefined): Oracle {
+  cache(path?: string): Oracle {
     return new Caching(this, path);
   }
 }

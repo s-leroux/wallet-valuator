@@ -22,7 +22,10 @@ const ENVVARS = ["GNOSISSCAN_API_KEY"] as const;
 type EnvVars = { [K in typeof ENVVARS[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
-  return CompositeCryptoResolver.create([LazyCryptoResolver.create()]);
+  return CompositeCryptoResolver.create([
+    // My resolvers
+    LazyCryptoResolver.create(),
+  ]);
 }
 
 function createExplorers(envvars: EnvVars) {
@@ -30,7 +33,9 @@ function createExplorers(envvars: EnvVars) {
 }
 
 function createOracle(envvars: EnvVars) {
-  return CompositeOracle.create([]);
+  return CompositeOracle.create([
+    // My oracles
+  ]).cache();
 }
 
 function loadEnvironmentVariables() {
