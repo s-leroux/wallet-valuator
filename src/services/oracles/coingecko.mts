@@ -26,6 +26,18 @@ function internalToCoinGeckoId(internalId: string): string {
   return internalId.toLowerCase();
 }
 
+function getCoinGeckoId(registry: CryptoRegistry, crypto: CryptoAsset): string {
+  // 1. Check the standard metadata
+  const metadata = registry.getAssetData(crypto);
+  const id = metadata?.STANDARD?.coingeckoId;
+  if (id) {
+    return id;
+  }
+
+  // 2. Use the internal table
+  return internalToCoinGeckoId(crypto.id);
+}
+
 /**
  * Handle the idiosyncrasies of the CoinGecko API server
  */
@@ -91,8 +103,9 @@ export class CoinGecko extends Oracle {
 
     let prices;
     try {
+      const coinGeckoId = getCoinGeckoId(registry, crypto);
       const historical_data = await this.provider.fetch(
-        `coins/${encodeURIComponent(internalToCoinGeckoId(crypto.id))}/history`,
+        `coins/${encodeURIComponent(coinGeckoId)}/history`,
         {
           date: dateDdMmYyyy,
         }

@@ -9,6 +9,7 @@ import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { FiatConverter } from "../../services/fiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
+import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 
 type ErrCode = "T0001";
 
@@ -18,7 +19,7 @@ class CLIError extends Error {
   }
 }
 
-const ENVVARS = ["GNOSISSCAN_API_KEY"] as const;
+const ENVVARS = ["GNOSISSCAN_API_KEY", "COINGECKO_API_KEY"] as const;
 type EnvVars = { [K in typeof ENVVARS[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
@@ -35,6 +36,7 @@ function createExplorers(envvars: EnvVars) {
 function createOracle(envvars: EnvVars) {
   return CompositeOracle.create([
     // My oracles
+    CoinGecko.create(envvars["COINGECKO_API_KEY"]),
   ]).cache();
 }
 
