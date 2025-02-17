@@ -8,35 +8,9 @@ import { Oracle } from "../oracle.mjs";
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
 
-const INTERNAL_TO_COINGECKO_ID: Record<string, string> = {
-  bitcoin: "bitcoin",
+export type InternalToCoinGeckoIdMapping = {
+  [K in string]?: string;
 };
-
-function internalToCoinGeckoId(internalId: string): string {
-  const coinGeckoId = INTERNAL_TO_COINGECKO_ID[internalId];
-
-  if (coinGeckoId !== undefined) {
-    return coinGeckoId;
-  }
-
-  console.log(
-    "CoinGecko id not known for %s. Returning unchanged.",
-    internalId
-  );
-  return internalId.toLowerCase();
-}
-
-function getCoinGeckoId(registry: CryptoRegistry, crypto: CryptoAsset): string {
-  // 1. Check the standard metadata
-  const metadata = registry.getAssetData(crypto);
-  const id = metadata?.STANDARD?.coingeckoId;
-  if (id) {
-    return id;
-  }
-
-  // 2. Use the internal table
-  return internalToCoinGeckoId(crypto.id);
-}
 
 /**
  * Handle the idiosyncrasies of the CoinGecko API server
@@ -61,11 +35,14 @@ export class CoinGeckoProvider extends Provider {
   }
 }
 
+type OptionBag = {};
+
 export class CoinGecko extends Oracle {
   readonly provider: Provider;
+  readonly idMapping;
   readonly ready;
 
-  constructor(provider?: Provider) {
+  constructor(provider?: Provider, idMapping?: InternalToCoinGeckoIdMapping) {
     super();
     if (!provider) {
       const api_key = process.env["COINGECKO_API_KEY"];
@@ -80,15 +57,23 @@ export class CoinGecko extends Oracle {
       provider = new CoinGeckoProvider(api_key);
     }
     this.provider = provider;
+    this.idMapping = idMapping;
     this.ready = this.init();
   }
 
   static create(
     api_key: string,
-    origin: string = COINGECKO_API_BASE_ADDRESS,
-    options = {} as any
+    idMapping: InternalToCoinGeckoIdMapping | undefined = undefined,
+    options = {} as OptionBag & { origin?: string }
   ) {
-    return new CoinGecko(new CoinGeckoProvider(api_key, origin, options));
+    return new CoinGecko(
+      new CoinGeckoProvider(
+        api_key,
+        options?.origin ?? COINGECKO_API_BASE_ADDRESS,
+        options
+      ),
+      idMapping
+    );
   }
 
   async init() {}
@@ -103,7 +88,7 @@ export class CoinGecko extends Oracle {
 
     let prices;
     try {
-      const coinGeckoId = getCoinGeckoId(registry, crypto);
+      const coinGeckoId = this.getCoinGeckoId(registry, crypto);
       const historical_data = await this.provider.fetch(
         `coins/${encodeURIComponent(coinGeckoId)}/history`,
         {
@@ -124,5 +109,31 @@ export class CoinGecko extends Oracle {
     }
 
     return result;
+  }
+
+  getCoinGeckoId(registry: CryptoRegistry, crypto: CryptoAsset): string {
+    // 1. Check the standard metadata
+    const metadata = registry.getAssetData(crypto);
+    const id = metadata?.STANDARD?.coingeckoId;
+    if (id) {
+      return id;
+    }
+
+    // 2. Use the internal table
+    return this.internalToCoinGeckoId(crypto.id);
+  }
+
+  internalToCoinGeckoId(internalId: string): string {
+    const coinGeckoId = this.idMapping?.[internalId];
+
+    if (coinGeckoId !== undefined) {
+      return coinGeckoId;
+    }
+
+    console.log(
+      "CoinGecko id not known for %s. Returning unchanged.",
+      internalId
+    );
+    return internalId.toLowerCase();
   }
 }
