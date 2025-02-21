@@ -1,10 +1,6 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type {
-  CryptoRegistry,
-  Domains,
-  Metadata,
-} from "../../cryptoregistry.mjs";
+import type { CryptoRegistry, Domains } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
 import { Blockchain } from "../../blockchain.mjs";
@@ -24,7 +20,6 @@ type BasePhysicalCryptoAsset = readonly [
   chain: string,
   contractAddress: string | null
 ];
-type BasePhysicalCryptoAssetLength = BasePhysicalCryptoAsset["length"];
 
 export type PhysicalCryptoAsset =
   | BasePhysicalCryptoAsset
