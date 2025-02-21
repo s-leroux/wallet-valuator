@@ -12,6 +12,8 @@ import {
   ERC20TokenTransfer,
 } from "./transaction.mjs";
 import { ValueError } from "./error.mjs";
+import { CompositeCryptoResolver } from "./services/cryptoresolvers/compositecryptoresolver.mjs";
+import { Block } from "./block.mjs";
 
 export interface Storable {
   assign(
@@ -26,6 +28,7 @@ export interface Storable {
  *  The swarm act as a repository that maps (chain, address) to Address objects.
  */
 export class Swarm {
+  readonly blocks: Map<string, Block>;
   readonly addresses: Map<string, Address>;
   readonly records: Transaction[];
   readonly transactions: Map<string, NormalTransaction>;
@@ -41,6 +44,7 @@ export class Swarm {
     // `Swarm` keep a reference to the `cryptoResolver` and possibly
     // `CryptoRegistry` to reduce the number of parameter to inject when
     // calling the individual methods.
+    this.blocks = new Map();
     this.addresses = new Map();
     this.records = [];
     this.transactions = new Map();
@@ -67,13 +71,13 @@ export class Swarm {
     return explorer;
   }
 
-  async store<T extends Storable, U extends T, OPT extends {}>(
+  async store<T extends Storable, U extends T, OPT extends {}, K>(
     storage: Map<string, T>,
-    ctor: new (swarm: Swarm, chain: Blockchain, id: string) => U,
+    ctor: new (swarm: Swarm, chain: Blockchain, id: K) => U,
     chain: Blockchain,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
-    id: string,
+    id: K,
     data?: OPT
   ): Promise<U> {
     const key = `${chain.name}:${id}`.toLowerCase();
@@ -85,10 +89,26 @@ export class Swarm {
     }
 
     if (data) {
-      await obj.assign(this, registry, cryptoResolver, data);
+      obj.assign(this, registry, cryptoResolver, data);
     }
 
     return obj;
+  }
+
+  block(
+    chain: Blockchain,
+    registry: CryptoRegistry,
+    cryptoResolver: CryptoResolver,
+    block: number
+  ): Promise<Block> {
+    return this.store(
+      this.blocks,
+      Block,
+      chain,
+      registry,
+      cryptoResolver,
+      block
+    );
   }
 
   address(

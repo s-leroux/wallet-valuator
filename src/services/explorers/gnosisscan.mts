@@ -174,6 +174,17 @@ export class GnosisScanAPI {
     };
   }
 
+  blockInternalTransactions(blockNumber: number) {
+    const params = {
+      module: "account",
+      action: "txlistinternal",
+      startBlock: blockNumber,
+      endBlock: blockNumber,
+      sort: "asc",
+    };
+    return this.provider.fetch("", params);
+  }
+
   accountNormalTransactions(address: string, block?: number) {
     const params = {
       module: "account",
@@ -293,6 +304,12 @@ export class GnosisScan extends CommonExplorer {
     throw new Error(
       `Transaction ${txhash} was not found in block ${blockNumber}`
     );
+  }
+
+  async blockInternalTransactions(
+    blockNumber: number
+  ): Promise<Record<string, any>[]> {
+    return (await this.api.blockInternalTransactions(blockNumber)).result;
   }
 
   async accountNormalTransactions(

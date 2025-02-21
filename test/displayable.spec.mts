@@ -43,6 +43,14 @@ describe("toDisplayString", function () {
   it("should propagate options to toDisplayString()", function () {
     // TBD
   });
+
+  it("should return '[]' for empty arrays", function () {
+    assert.strictEqual(toDisplayString([]), "[]");
+  });
+
+  it("should indent content of arrays", function () {
+    assert.strictEqual(toDisplayString([1, 2, 3]), "[\n  1\n  2\n  3\n]");
+  });
 });
 
 describe("tabular", function () {

@@ -17,6 +17,7 @@
 
     "test/address.spec.mts",
     "test/bignumber.spec.mts",
+    "test/block.spec.mts",
     "test/blockchain.spec.mts",
     "test/bsearch.spec.mts",
     "test/coofile.spec.mts",
@@ -71,6 +72,7 @@
 
     "src/address.mts",
     "src/bignumber.mts",
+    "src/block.mts",
     "src/blockchain.mts",
     "src/bsearch.mts",
     "src/coofile.mts",
@@ -85,6 +87,7 @@
     "src/geckocoin.mts",
     "src/ledger.mts",
     "src/lib/cli/addressprocessor.mts",
+    "src/lib/cli/blockexplorer.mts",
     "src/memoizer.mts",
     "src/portfolio.mts",
     "src/price.mts",
@@ -117,6 +120,7 @@
     "examples/report.mts",
 
     "cli/blockchain-cli.mts",
+    "cli/blockexplorer-cli.mts",
 
     "src/main.mts",
     "test/main.spec.mts"

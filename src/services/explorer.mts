@@ -29,6 +29,15 @@ export class Explorer {
     cryptoResolver: CryptoResolver
   ): void {}
 
+  async getInternalTransactionsByBlockNumber(
+    swarm: Swarm,
+    registry: CryptoRegistry,
+    cryptoResolver: CryptoResolver,
+    blockNumber: number
+  ): Promise<Array<InternalTransaction>> {
+    throw new NotImplementedError();
+  }
+
   async getNormalTransactionByHash(
     swarm: Swarm,
     registry: CryptoRegistry,
@@ -126,6 +135,28 @@ export class Explorer {
 }
 
 export class CommonExplorer extends Explorer {
+  async blockInternalTransactions(
+    blockNumber: number
+  ): Promise<Record<string, any>[]> {
+    // OVERRIDE ME
+    return [];
+  }
+
+  async getInternalTransactionsByBlockNumber(
+    swarm: Swarm,
+    registry: CryptoRegistry,
+    cryptoResolver: CryptoResolver,
+    blockNumber: number
+  ): Promise<Array<InternalTransaction>> {
+    const res = await this.blockInternalTransactions(blockNumber);
+
+    return await Promise.all(
+      res.map((t) =>
+        swarm.internalTransaction(this.chain, registry, cryptoResolver, t)
+      )
+    );
+  }
+
   async accountNormalTransactions(
     address: string
   ): Promise<Record<string, any>[]> {
