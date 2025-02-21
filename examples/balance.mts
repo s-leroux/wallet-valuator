@@ -13,13 +13,13 @@ import { Ledger } from "../src/ledger.mjs";
 import { Portfolio } from "../src/portfolio.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
-import { DefaultCryptoResolver } from "../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 
 const explorer = program.args.length
   ? GnosisScan.create(process.env.GNOSISSCAN_API_KEY ?? "")
   : new TestScan();
-const cryptoResolver = new DefaultCryptoResolver();
+const cryptoResolver = LazyCryptoResolver.create();
 const registry = CryptoRegistry.create();
 const swarm = Swarm.create([explorer], registry, cryptoResolver);
 

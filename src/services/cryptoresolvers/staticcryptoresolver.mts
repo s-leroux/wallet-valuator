@@ -42,8 +42,8 @@ export class StaticCryptoResolver extends CryptoResolver {
   private readonly physicalCryptoAssets: Map<ChainAddress, PhysicalCryptoAsset>;
 
   protected constructor(
-    physicalCryptoAssets: Iterable<PhysicalCryptoAsset>,
-    logicalCryptoAssets: Iterable<LogicalCryptoAsset>
+    physicalCryptoAssets: Iterable<Readonly<PhysicalCryptoAsset>>,
+    logicalCryptoAssets: Iterable<Readonly<LogicalCryptoAsset>>
   ) {
     super();
     this.cache = new MMap();

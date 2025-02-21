@@ -1,234 +1,66 @@
-import { CryptoAsset } from "../../cryptoasset.mjs";
-import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import { Blockchain } from "../../blockchain.mjs";
+import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
-const wellKnownCryptos: [
-  id: string,
-  name: string,
-  symbol: string,
-  decimal: number
-][] = [
-  ["monerium-eur-money", "Monerium EUR emoney", "EURe", 18],
-  ["binancecoin", "Binance Coin", "BNB", 18],
-  ["bitcoin", "bitcoin", "BTC", 8],
-  ["dai", "Dai Stablecoin", "DAI", 18],
-  ["ethereum", "ethereum", "ETH", 18],
-  ["solana", "Solana", "SOL", 9],
-  ["tether", "Tether USD", "USDT", 6],
-  ["usd-coin", "USDC", "USDC", 6],
-];
+//prettier-ignore
+const defaultCryptoTable = [
+  ["binance-coin", "bnb chain", null],
+  ["bitcoin", "bitcoin", null],
+  ["dai", "ethereum", "0x6B175474E89094C44Da98b954EedeAC495271d0F", 0, Infinity],
+  ["dai", "gnosis", "0x44FA8E6F47987339850636F88629646662444217"],
+  ["dai", "polygon", "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"],
+  ["ethereum", "ethereum", null],
+  ["monerium-eure", "ethereum", "0x3231Cb76718CDeF2155FC47b5286d82e6eDA273f", 0, 21419972],
+  ["monerium-eure", "ethereum", "0x39b8B6385416f4cA36a20319F70D28621895279D", 21419972, Infinity],
+  ["monerium-eure", "gnosis", "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430", 35656951, Infinity],
+  ["monerium-eure", "gnosis", "0xcB444e90D8198415266c6a2724b7900fb12FC56E", 0, 35656951],
+  ["monerium-eure", "polygon", "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6", 0, 60733237],
+  ["monerium-eure", "polygon", "0xE0aEa583266584DafBB3f9C3211d5588c73fEa8d", 60733237, Infinity],
+  ["solana", "solana", null],
+  ["usdc", "arbitrum", "0xaf88d065e77c8cc2239327c5edb3a432268e5831"],
+  ["usdc", "bnb chain", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"],
+  ["usdc", "ethereum", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+  ["usdc", "gnosis", "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83"],
+  ["usdc", "polygon", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
+  ["usdc", "solana", "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"],
+  ["usdt", "ethereum", "0xdAC17F958D2ee523a2206206994597C13D831ec7"],
+  ["usdt", "gnosis", "0x4ECaBa5870353805A9F068101A40E0f32ED605C6"],
+  ["usdt", "polygon", "0xC2132D05D31c914a87C6611C10748aeb04B58E8F"],
+  ["wbtc" , "polygon" ,"0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"],
+  ["wbtc" ,"gnosis", "0x8e5bBbb09Ed1ebd8674Cda39A0c169401db4252"],
+  ["wbtc", "arbitrum", "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f"],
+  ["wbtc", "bnb chain", "0x0555e30da8f98308edb960aa94c0db47230d2b9c"],
+  ["wbtc", "ethereum", "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"],
+  ["wbtc", "gnosis", "0x8e5bbbb09ed1ebde8674cda39a0c169401db4252"],
+  ["wbtc", "polygon", "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"],
+  ["weth", "ethereum", "0xC02aaA39b223FE8D0A0E5C4F27eAD9083C756Cc2"],
+  ["weth", "gnosis", "0x6a023ccDd60aE47eB5cB7035863e25eDc1ea8287"],
+  ["weth", "polygon", "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"],
+  ["xdai", "gnosis", null],
+] as const;
 
-export const wellKnownTransitions: [
-  crypto_id: string | null,
-  chain: string,
-  startBlock: number,
-  endBlock: number,
-  smartContractAddress: string
-][] = [
-  ["ethereum", "ethereum", 0, Infinity, ""],
-  [
-    "monerium-eur-money",
-    "ethereum",
-    0,
-    21419971,
-    "0x3231Cb76718CDeF2155FC47b5286d82e6eDA273f",
-  ],
-  [
-    "monerium-eur-money",
-    "ethereum",
-    21419972,
-    Infinity,
-    "0x39b8B6385416f4cA36a20319F70D28621895279D",
-  ],
-  [
-    "monerium-eur-money",
-    "polygon",
-    0,
-    60733236,
-    "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6",
-  ],
-  [
-    "monerium-eur-money",
-    "polygon",
-    60733237,
-    Infinity,
-    "0xE0aEa583266584DafBB3f9C3211d5588c73fEa8d",
-  ],
-  [
-    "monerium-eur-money",
-    "gnosis",
-    0,
-    35656950,
-    "0xcB444e90D8198415266c6a2724b7900fb12FC56E",
-  ],
-  [
-    null,
-    "gnosis",
-    35656951,
-    Infinity,
-    "0xcB444e90D8198415266c6a2724b7900fb12FC56E",
-  ],
-  [
-    "monerium-eur-money",
-    "gnosis",
-    35656951,
-    Infinity,
-    "0x420CA0f9B9b604cE0fd9C18EF134C705e5Fa3430",
-  ],
-];
-
-export type CryptoLike = Pick<CryptoAsset, "symbol">;
-
-type MappingEntry<T extends CryptoLike> = {
-  crypto: T | null;
-  chain: string;
-  startBlock: number;
-  endBlock: number;
-  smartContractAddress: string; // empty string for native currencies
-};
-
-type ChainAddress = string & { readonly brand: unique symbol };
-function ChainAddress(
-  chain: string,
-  smartContractAddress: string
-): ChainAddress {
-  return `${chain}:${smartContractAddress}`.toLowerCase() as ChainAddress;
-}
+//prettier-ignore
+const defaultKeyDomainsMap = [
+  ["binance-coin", "Binance Coin", "BNB", 18, { STANDARD: { coingeckoId: "binancecoin" } }],
+  ["bitcoin", "Bitcoin", "BTC", 8, { STANDARD: { coingeckoId: "bitcoin" } }],
+  ["dai", "Dai Stablecoin", "DAI", 18, { STANDARD: { coingeckoId: "dai" } }],
+  ["ethereum", "Ethereum", "ETH", 18, { STANDARD: { coingeckoId: "ethereum" } }],
+  ["monerium-eure","Monerium EURe", "EURе", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
+  ["solana", "Solana", "SOL", 9, { STANDARD: { coingeckoId: "solana" } }],
+  ["usdc", "USD Coin", "USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
+  ["usdt", "Tether USD", "USDT", 6, { STANDARD: { coingeckoId: "tether" } }],
+  ["wbtc","Wrapped Bitcoin","WBTC" ,8 , { STANDARD: { coingeckoId: "wrapped-bitcoin" } }],
+  ["weth", "Wrapped Ether", "WETH", 18, { STANDARD: { coingeckoId: "weth" } }],
+  ["xdai", "xDai", "xDAI", 18 , { STANDARD: { coingeckoId: "xdai" } }],
+] as const;
 
 /**
- * Default crypto resolver implementation.
+ * The default crypto-resolver, rewritten as a sub-class of StaticCryptoResolver.
  */
-export class DefaultCryptoResolver extends CryptoResolver {
-  private cryptos: Map<string, CryptoAsset>;
-  private transitions: Map<ChainAddress, MappingEntry<CryptoAsset>[]>;
-  private seq: number;
-
-  constructor() {
-    super();
-    this.transitions = new Map();
-    this.seq = 0;
-
-    const cryptos = (this.cryptos = new Map());
-    for (const [id, name, symbol, decimal] of wellKnownCryptos) {
-      cryptos.set(id, new CryptoAsset(id, name, symbol, decimal));
-    }
-
-    // register chain:address => (crypto, ...) for all known transitions
-    for (const [
-      crypto_id,
-      chain,
-      startBlock,
-      endBlock,
-      smartContractAddress,
-    ] of wellKnownTransitions) {
-      const key = ChainAddress(chain, smartContractAddress);
-      let transitions = this.transitions.get(key);
-      if (!transitions) {
-        transitions = [];
-        this.transitions.set(key, transitions);
-      }
-
-      transitions.push({
-        crypto: crypto_id ? cryptos.get(crypto_id) || null : null,
-        chain,
-        startBlock,
-        endBlock,
-        smartContractAddress,
-      });
-    }
+export class DefaultCryptoResolver extends StaticCryptoResolver {
+  protected constructor() {
+    super(defaultCryptoTable, defaultKeyDomainsMap);
   }
 
-  /**
-   * Resolves a smart contract address to a logical crypto-asset.
-   *
-   * This function determines the logical crypto-asset associated with a given
-   * smart contract address on a specific chain and block number. The behavior
-   * depends on the state of the smart contract address:
-   *
-   * - If the smart contract address is unknown, a dedicated logical crypto-asset
-   *   is created dynamically.
-   * - If the smart contract address is known, but the block number falls outside
-   *   any defined range, an error is raised.
-   * - If the smart contract address is disabled at the specified block, this
-   *   function returns `null`. Transactions involving a disabled address should
-   *   be ignored.
-   *
-   * @param registry - The crypto-asset registry
-   * @param chain - The blockchain
-   * @param block - The block number for context.
-   * @param smartContractAddress - The address of the smart contract.
-   * @param name - The supposed name of the token.
-   * @param symbol - The supposed symbol of the token.
-   * @param decimal - The number of decimals used by the token.
-   * @returns The resolved `Currency` instance or `null` if the address is disabled.
-   * @throws An error if the block number is outside any defined range for the address.
-   */
-  async resolve(
-    registry: CryptoRegistry,
-    chain: Blockchain,
-    block: number,
-    smartContractAddress: string,
-    name: string,
-    symbol: string,
-    decimal: number
-  ): Promise<ResolutionResult> {
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
-    const transitions = this.transitions.get(chainAddress);
-    if (!transitions) {
-      return {
-        status: "resolved",
-        asset: this.register(
-          chainAddress,
-          chain,
-          smartContractAddress,
-          name,
-          symbol,
-          decimal
-        ),
-      };
-    }
-    for (const transition of transitions) {
-      if (block >= transition.startBlock && block <= transition.endBlock) {
-        const crypto = transition.crypto;
-        if (crypto) return { status: "resolved", asset: crypto };
-        return { status: "obsolete" };
-      }
-    }
-    return null;
-    throw new Error(
-      `Cannot resolve crypto-asset ${symbol}(?) address ${chainAddress} at block ${block}`
-    );
-  }
-
-  register(
-    chainAddress: ChainAddress,
-    chain: Blockchain,
-    smartContractAddress: string,
-    name: string,
-    symbol: string,
-    decimal: number
-  ): CryptoAsset {
-    const id = `unknown-${this.seq++}-${symbol.toLowerCase()}`;
-    const crypto = new CryptoAsset(id, name, symbol, decimal);
-    this.cryptos.set(id, crypto);
-    this.transitions.set(chainAddress, [
-      {
-        crypto: crypto,
-        chain: chain.name,
-        startBlock: 0,
-        endBlock: Infinity,
-        smartContractAddress,
-      },
-    ]);
-
-    return crypto;
-  }
-
-  /**
-   * @internal
-   */
-  get(crypto_id: string): CryptoAsset | null {
-    return this.cryptos.get(crypto_id) ?? null;
+  static create() {
+    return new this();
   }
 }

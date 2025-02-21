@@ -32,7 +32,7 @@ const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache(
   "historical-data.db"
 );
 const registry = CryptoRegistry.create();
-const cryptoResolver = new DefaultCryptoResolver();
+const cryptoResolver = DefaultCryptoResolver.create();
 const fiatConverter = new ImplicitFiatConverter(
   oracle,
   await cryptoResolver.get("bitcoin")
