@@ -9,6 +9,7 @@ import { CryptoResolver } from "./services/cryptoresolver.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
+import { ValueError } from "./error.mjs";
 
 type TransactionType =
   | "NORMAL" // a normal transaction
@@ -34,8 +35,8 @@ export abstract class Transaction {
   from: Address;
   to: Address;
   contract: Address;
-  amount: Amount;
-  fees: BigNumber;
+  amount: Amount; // Transfered amount. In ERC20 toen unit or blockchain native currency
+  fees: BigNumber; // fees are always expressed in the blockchain native currency
   feesAsString: string;
 
   constructor(swarm: Swarm, chain: Blockchain, type: TransactionType) {
@@ -106,35 +107,6 @@ export abstract class Transaction {
       );
     }
 
-    // FIXME The logic based on 'currency' seems to be broken (notably in case
-    // `resolve` returns `undefined` or `null`)
-    const resolution =
-      this.contract &&
-      this.data.tokenDecimal && // Hack: filter out type:create internal transations (see https://gnosisscan.io/txsInternal?block=28600042)
-      // tools/gnosisscan.sh module=account action=txlistinternal startblock=28600042 endblock=28600042
-      (await cryptoResolver.resolve(
-        registry,
-        this.explorer.chain,
-        this.blockNumber,
-        this.contract.address,
-        this.data.tokenName,
-        this.data.tokenSymbol,
-        toInteger(this.data.tokenDecimal)
-      ));
-    const currency = this.contract
-      ? resolution && resolution.status === "resolved" && resolution.asset
-      : this.explorer.nativeCurrency;
-
-    if (currency) {
-      // EC20 Token code specific
-      const value = data.value;
-      if (value === undefined) {
-        this.amount = currency.amountFromBaseUnit("0");
-      } else {
-        this.amount = currency.amountFromBaseUnit(value);
-      }
-    }
-
     const gasPrice = data.gasPrice;
     if (gasPrice === undefined) {
       this.fees = BigNumber.ZERO;
@@ -197,9 +169,13 @@ export class NormalTransaction extends Transaction {
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<NormalTransaction> {
-    super.assign(swarm, registry, cryptoResolver, data);
+    await super.assign(swarm, registry, cryptoResolver, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
+
+    this.amount = this.explorer.nativeCurrency.amountFromBaseUnit(
+      data.value ?? "0"
+    );
 
     return this;
   }
@@ -235,9 +211,10 @@ export class InternalTransaction extends Transaction {
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<this> {
-    super.assign(swarm, registry, cryptoResolver, data);
+    await super.assign(swarm, registry, cryptoResolver, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
+
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
         this.explorer.chain,
@@ -246,6 +223,10 @@ export class InternalTransaction extends Transaction {
         this.data.hash
       );
     }
+
+    this.amount = this.explorer.nativeCurrency.amountFromBaseUnit(
+      data.value ?? "0"
+    );
 
     return this;
   }
@@ -256,6 +237,7 @@ export class ERC20TokenTransfer extends Transaction {
    * An ERC-20 token transfer;
    */
   transaction?: NormalTransaction;
+  ignore: boolean = false;
 
   constructor(swarm: Swarm, chain: Blockchain) {
     super(swarm, chain, "ERC20");
@@ -269,7 +251,7 @@ export class ERC20TokenTransfer extends Transaction {
     // It was confirmed by the GnosisScan support that
     // only valid transafers are reported. No need to check
     // for the parent's transaction status
-    return this.amount != undefined;
+    return this.amount !== undefined && this.ignore === false;
   }
 
   async assign(
@@ -278,7 +260,7 @@ export class ERC20TokenTransfer extends Transaction {
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<this> {
-    super.assign(swarm, registry, cryptoResolver, data);
+    await super.assign(swarm, registry, cryptoResolver, data);
 
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
@@ -287,6 +269,38 @@ export class ERC20TokenTransfer extends Transaction {
         cryptoResolver,
         this.data.hash
       );
+    }
+
+    if (!this.contract) {
+      throw new ValueError(
+        `The contract must be defined in an ERC20 token tranfer (was ${this.contract}`
+      );
+    }
+
+    const resolution = await cryptoResolver.resolve(
+      registry,
+      this.explorer.chain,
+      this.blockNumber,
+      this.contract.address,
+      this.data.tokenName,
+      this.data.tokenSymbol,
+      toInteger(this.data.tokenDecimal)
+    );
+
+    if (!resolution) {
+      throw new ValueError(
+        `Unable to resolve the ERC20 token ${this.data.tokenName} (${this.data.tokenSymbol})`
+      );
+    }
+
+    switch (resolution.status) {
+      case "obsolete":
+      case "ignore":
+        this.ignore = true;
+        break;
+      case "resolved":
+        this.amount = resolution.asset.amountFromBaseUnit(data.value ?? "0");
+        break;
     }
 
     return this;

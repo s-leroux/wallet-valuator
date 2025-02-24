@@ -11,8 +11,15 @@ import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
-import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
-import { ERC20TokenTransfer } from "../src/transaction.mjs";
+import ERC20TokenTransfers from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
+import InternalTransactions from "../fixtures/InternalTransactions.json" assert { type: "json" };
+import NormalTransactions from "../fixtures/NormalTransactions.json" assert { type: "json" };
+
+import {
+  ERC20TokenTransfer,
+  InternalTransaction,
+  NormalTransaction,
+} from "../src/transaction.mjs";
 import { asBlockchain } from "../src/blockchain.mjs";
 
 const ADDRESS = "0xAddress";
@@ -90,32 +97,75 @@ describe("Swarm and Transaction integration", () => {
         assert.equal(await tr.isValid(swarm, registry, cryptoResolver), ok);
       }
     });
+
+    describe("", () => {
+      let transactions: NormalTransaction[];
+
+      beforeEach(async () => {
+        const transactionData = ERC20TokenTransfers.result;
+        transactions = await Promise.all(
+          transactionData.map((tr) =>
+            swarm.normalTransaction(
+              chain,
+              registry,
+              cryptoResolver,
+              tr.hash,
+              tr
+            )
+          )
+        );
+      });
+
+      it("should have an amount", () => {
+        for (const transaction of transactions)
+          assert.notEqual(transaction.amount, undefined);
+      });
+    });
+  });
+
+  describe("InternalTransaction", () => {
+    let transactions: InternalTransaction[];
+
+    beforeEach(async () => {
+      const transactionData = InternalTransactions.result;
+      transactions = await Promise.all(
+        transactionData.map((tr) =>
+          swarm.normalTransaction(chain, registry, cryptoResolver, tr.hash, tr)
+        )
+      );
+    });
+
+    it("should have an amount", () => {
+      for (const transaction of transactions)
+        assert.notEqual(transaction.amount, undefined);
+    });
   });
 
   describe("ERC20TokenTransfer", () => {
-    let transaction: ERC20TokenTransfer;
-    let transactionData: Record<string, any>;
+    let transactions: ERC20TokenTransfer[];
 
     beforeEach(async () => {
-      transactionData = ERC20TokenTransferEvents.result[0];
-      transaction = await swarm.tokenTransfer(
-        chain,
-        registry,
-        cryptoResolver,
-        transactionData
+      const transactionData = ERC20TokenTransfers.result;
+      transactions = await Promise.all(
+        transactionData.map((tr) =>
+          swarm.tokenTransfer(chain, registry, cryptoResolver, tr)
+        )
       );
     });
 
     it("should load transactions from data", () => {
-      assert.deepEqual(transaction.data, transactionData);
+      for (let i = 0; i < transactions.length; ++i)
+        assert.deepEqual(transactions[i].data, ERC20TokenTransfers.result[i]);
     });
 
     it("should have a contract address", () => {
-      assert.notEqual(transaction.contract, undefined);
+      for (const transaction of transactions)
+        assert.notEqual(transaction.contract, undefined);
     });
 
     it("should have an amount", () => {
-      assert.notEqual(transaction.amount, undefined);
+      for (const transaction of transactions)
+        assert.notEqual(transaction.amount, undefined);
     });
     /*
     it("should load data on demand", async function () {
