@@ -1,7 +1,6 @@
 import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
-import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
@@ -10,6 +9,7 @@ import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { FiatConverter } from "../../services/fiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
+import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
 
 type ErrCode = "T0001";
 
@@ -25,7 +25,7 @@ type EnvVars = { [K in typeof ENVVARS[number]]: string };
 function createCryptoResolver(envvars: EnvVars) {
   return CompositeCryptoResolver.create([
     // My resolvers
-    LazyCryptoResolver.create(),
+    IgnoreCryptoResolver.create(),
   ]);
 }
 

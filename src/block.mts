@@ -1,4 +1,4 @@
-import type { ChainRecord } from "./transaction.mjs";
+import type { Transaction } from "./transaction.mjs";
 import { defaultDisplayOptions, type DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
@@ -51,7 +51,7 @@ export class Block {
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     return this.explorer.getInternalTransactionsByBlockNumber(
       swarm,
       registry,

@@ -6,7 +6,7 @@ import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { Address } from "../../address.mjs";
-import { ChainRecord } from "../../transaction.mjs";
+import { Transaction } from "../../transaction.mjs";
 
 type ErrCode = "T0001";
 
