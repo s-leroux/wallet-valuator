@@ -16,6 +16,7 @@ tmp/**/*
 *.swp
 
 # Vim
+*.vim
 .vimrc
 .editorconfig
 .viminfo
