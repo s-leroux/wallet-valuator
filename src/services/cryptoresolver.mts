@@ -8,7 +8,8 @@ import type { CryptoRegistry } from "../cryptoregistry.mjs";
 export type ResolutionResult =
   | null // No match found.
   | { status: "resolved"; asset: CryptoAsset } // Successfully mapped to a logical crypto-asset.
-  | { status: "obsolete" }; // Deprecated or replaced (at least at the given block).
+  | { status: "obsolete" } // Deprecated or replaced (at least at the given block).
+  | { status: "ignore" }; // Ignore that crypto-asset (imply a zero value)
 
 /**
  * Abstract class for resolving blockchain-specific token data to logical crypto assets.
