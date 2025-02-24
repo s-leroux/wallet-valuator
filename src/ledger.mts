@@ -1,5 +1,5 @@
 import { Portfolio } from "./portfolio.mjs";
-import { ChainRecord } from "./transaction.mjs";
+import { Transaction } from "./transaction.mjs";
 import { Address } from "./address.mjs";
 import { DisplayOptions } from "./displayable.mjs";
 
@@ -66,12 +66,12 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
  * in another unrelated ledger.
  */
 export class Entry implements Sortable {
-  record: ChainRecord;
+  record: Transaction;
   tags: Map<string, any>;
 
   key: string;
 
-  constructor(record: ChainRecord) {
+  constructor(record: Transaction) {
     this.record = record;
     this.tags = new Map();
     const data = record.data as any;
@@ -109,7 +109,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    *  Create a ledger from zero, one, or more iterables
    */
-  static create(...lists: Array<Iterable<ChainRecord>>) {
+  static create(...lists: Array<Iterable<Transaction>>) {
     const arrays: Array<Array<Entry>> = lists.map((it) =>
       Array.from(it, (tr) => new Entry(tr))
     );
@@ -121,7 +121,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    *`Create the union of thwo ledgers.
    */
-  union(other: Ledger | Array<ChainRecord>) {
+  union(other: Ledger | Array<Transaction>) {
     const a = this.list;
     let b: Array<Entry>;
 

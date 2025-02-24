@@ -4,7 +4,7 @@ import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
-import { ChainRecord, ERC20TokenTransfer } from "../src/transaction.mjs";
+import { Transaction, ERC20TokenTransfer } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
@@ -66,7 +66,7 @@ describe("Ledger", () => {
   let swarm: Swarm;
   let chain: Blockchain;
   let explorer: Explorer;
-  let transactions: ChainRecord[];
+  let transactions: Transaction[];
   const cryptoResolver = LazyCryptoResolver.create();
   let registry: CryptoRegistry;
 
@@ -93,7 +93,7 @@ describe("Ledger", () => {
       )
     );
 
-    transactions = (a as ChainRecord[]).concat(b, c);
+    transactions = (a as Transaction[]).concat(b, c);
   });
 
   describe("constructor", () => {

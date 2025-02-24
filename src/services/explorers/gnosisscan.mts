@@ -3,7 +3,7 @@ import { Swarm } from "../../swarm.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import {
-  ChainRecord,
+  Transaction,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,

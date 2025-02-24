@@ -23,7 +23,7 @@ const defaultFormat = tabular(" | ", "", "10", "", "", "");
  * Instance of this class or any of it sub-classes should be considered as immutable.
  */
 
-export abstract class ChainRecord {
+export abstract class Transaction {
   readonly explorer: Explorer;
   readonly data: Record<string, string>;
   readonly type: TransactionType;
@@ -73,7 +73,7 @@ export abstract class ChainRecord {
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
-  ): Promise<ChainRecord> {
+  ): Promise<Transaction> {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
       console.dir(data);
@@ -87,12 +87,15 @@ export abstract class ChainRecord {
       cryptoResolver,
       data.from
     );
-    this.to = await swarm.address(
-      this.explorer.chain,
-      registry,
-      cryptoResolver,
-      data.to
-    );
+    if (data.to) {
+      // The `to` field is empty for a contract creation
+      this.to = await swarm.address(
+        this.explorer.chain,
+        registry,
+        cryptoResolver,
+        data.to
+      );
+    }
 
     if (data.contractAddress) {
       this.contract = await swarm.address(
@@ -107,6 +110,8 @@ export abstract class ChainRecord {
     // `resolve` returns `undefined` or `null`)
     const resolution =
       this.contract &&
+      this.data.tokenDecimal && // Hack: filter out type:create internal transations (see https://gnosisscan.io/txsInternal?block=28600042)
+      // tools/gnosisscan.sh module=account action=txlistinternal startblock=28600042 endblock=28600042
       (await cryptoResolver.resolve(
         registry,
         this.explorer.chain,
@@ -144,7 +149,7 @@ export abstract class ChainRecord {
   }
 }
 
-export class NormalTransaction extends ChainRecord {
+export class NormalTransaction extends Transaction {
   /**
    * A normal transaction is a a transaction where an Externally Owned Address (EOA) sends
    * ETH directly to another EOA.
@@ -200,7 +205,7 @@ export class NormalTransaction extends ChainRecord {
   }
 }
 
-export class InternalTransaction extends ChainRecord {
+export class InternalTransaction extends Transaction {
   /**
    * Internal transactions are not initiated by a user. Instead, theyare initiated by smart
    * contract code when certain conditions within the contract are met.
@@ -246,7 +251,7 @@ export class InternalTransaction extends ChainRecord {
   }
 }
 
-export class ERC20TokenTransfer extends ChainRecord {
+export class ERC20TokenTransfer extends Transaction {
   /**
    * An ERC-20 token transfer;
    */

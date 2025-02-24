@@ -6,7 +6,7 @@ import type { CryptoAsset } from "./cryptoasset.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { Address } from "./address.mjs";
 import {
-  ChainRecord,
+  Transaction,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,
@@ -27,7 +27,7 @@ export interface Storable {
  */
 export class Swarm {
   readonly addresses: Map<string, Address>;
-  readonly records: ChainRecord[];
+  readonly records: Transaction[];
   readonly transactions: Map<string, NormalTransaction>;
   readonly explorers: Map<Blockchain, Explorer>;
 

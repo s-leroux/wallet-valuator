@@ -1,7 +1,7 @@
 import { Swarm } from "../swarm.mjs";
 import { NotImplementedError } from "../error.mjs";
 import {
-  ChainRecord,
+  Transaction,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,
@@ -74,7 +74,7 @@ export class Explorer {
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     const allTransfers = await this.getAllTransactionsByAddress(
       swarm,
       registry,
@@ -98,7 +98,7 @@ export class Explorer {
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     /*
      * Merge {normal, internal, token} transfers in one single list ordered by timestamp.
      */
@@ -119,7 +119,7 @@ export class Explorer {
       ),
       this.getTokenTransfersByAddress(swarm, registry, cryptoResolver, address),
     ]);
-    const result: ChainRecord[] = [];
+    const result: Transaction[] = [];
 
     return result.concat(normal, internal, erc20);
   }

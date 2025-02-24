@@ -1,5 +1,5 @@
 import type {
-  ChainRecord,
+  Transaction,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,
@@ -100,7 +100,7 @@ export class Address {
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     return this.explorer.getNormalTransactionsByAddress(
       swarm,
       registry,
@@ -113,7 +113,7 @@ export class Address {
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     return this.explorer.getInternalTransactionsByAddress(
       swarm,
       registry,
@@ -126,7 +126,7 @@ export class Address {
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     return this.explorer.getTokenTransfersByAddress(
       swarm,
       registry,
@@ -139,7 +139,7 @@ export class Address {
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     return this.explorer.getAllTransactionsByAddress(
       swarm,
       registry,
@@ -152,7 +152,7 @@ export class Address {
     swarm: Swarm,
     registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
-  ): Promise<Array<ChainRecord>> {
+  ): Promise<Array<Transaction>> {
     return this.explorer.getAllValidTransactionsByAddress(
       swarm,
       registry,
