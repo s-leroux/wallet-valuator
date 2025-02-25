@@ -1,5 +1,5 @@
 import { DuplicateKeyError, InvalidTreeStructureError } from "./error.mjs";
-import type { CryptoAsset } from "./cryptoasset.mjs";
+import { CryptoAsset } from "./cryptoasset.mjs";
 
 export type Metadata = {
   [k: string]: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
@@ -69,6 +69,34 @@ export class CryptoRegistry {
    */
   static create(): CryptoRegistry {
     return new CryptoRegistry();
+  }
+
+  /**
+   * Creates a new CryptoAsset, ensuring that no conflicting key exists,
+   * registers it in the internal cache, and returns the created asset.
+   * @param key - Unique identifier for the asset.
+   * @param name - Name of the crypto asset.
+   * @param symbol - Symbol of the crypto asset.
+   * @param decimals - Decimal precision of the crypto asset.
+   * @param namespaces - (Optional) The metadata container (namespaces) associated with the asset.
+   * @throws {DuplicateKeyError} if an asset with the same key already exists.
+   */
+  newCryptoAsset(
+    key: string,
+    name: string,
+    symbol: string,
+    decimals: number,
+    namespaces: Namespaces = Object.create(null)
+  ): CryptoAsset {
+    if (this.cryptos.has(key)) {
+      throw new DuplicateKeyError(key);
+    }
+    // Create the CryptoAsset instance.
+    const crypto = new CryptoAsset(key, name, symbol, decimals);
+    // Register the asset in both caches.
+    this.cryptos.set(key, crypto);
+    this.registry.set(crypto, namespaces);
+    return crypto;
   }
 
   /**
