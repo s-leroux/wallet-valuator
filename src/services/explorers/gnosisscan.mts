@@ -8,7 +8,6 @@ import {
   ERC20TokenTransfer,
 } from "../../transaction.mjs";
 import { CommonExplorer } from "../explorer.mjs";
-import { CryptoResolver } from "../cryptoresolver.mjs";
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
@@ -248,22 +247,16 @@ export class GnosisScan extends CommonExplorer {
     return new GnosisScan(GnosisScanAPI.create(api_key, origin, options));
   }
 
-  register(swarm: Swarm, cryptoResolver: CryptoResolver): void {
+  register(swarm: Swarm): void {
     // populate with well-known addresses
-    super.register(swarm, cryptoResolver);
-    swarm.address(
-      this.chain,
-      cryptoResolver,
-      "0x0000000000000000000000000000000000000000",
-      {
-        name: "Null",
-      }
-    );
+    super.register(swarm);
+    swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
+      name: "Null",
+    });
   }
 
   async getNormalTransactionByHash(
     swarm: Swarm,
-    cryptoResolver: CryptoResolver,
     txhash: string
   ): Promise<NormalTransaction> {
     const ethTransaction = (await this.api.normalTransaction(txhash)).result;
@@ -277,12 +270,7 @@ export class GnosisScan extends CommonExplorer {
     ).result;
 
     for (const record of records) {
-      const t = await swarm.normalTransaction(
-        this.chain,
-        cryptoResolver,
-        record.hash,
-        record
-      );
+      const t = await swarm.normalTransaction(this.chain, record.hash, record);
       if (t.hash.toLowerCase() === txhash.toLowerCase()) {
         result = t;
       }

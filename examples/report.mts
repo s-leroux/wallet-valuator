@@ -38,14 +38,8 @@ const fiatConverter = new ImplicitFiatConverter(
 );
 
 const swarm = Swarm.create([explorer], registry, cryptoResolver);
-const address = await swarm.address(
-  explorer.chain,
-  cryptoResolver,
-  program.args[0]
-);
-const ledger = Ledger.create(
-  await address.allValidTransfers(swarm, cryptoResolver)
-);
+const address = await swarm.address(explorer.chain, program.args[0]);
+const ledger = Ledger.create(await address.allValidTransfers(swarm));
 ledger.from(address).tag("EGRESS");
 ledger.to(address).tag("INGRESS");
 

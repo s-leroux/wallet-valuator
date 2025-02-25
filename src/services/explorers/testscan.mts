@@ -1,7 +1,6 @@
 import { Swarm } from "../../swarm.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { NormalTransaction } from "../../transaction.mjs";
-import { CryptoResolver } from "../cryptoresolver.mjs";
 
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import NormalTransactions from "../../../fixtures/NormalTransactions.json" assert { type: "json" };
@@ -17,32 +16,21 @@ export class TestScan extends CommonExplorer {
     );
   }
 
-  register(swarm: Swarm, cryptoResolver: CryptoResolver): void {
+  register(swarm: Swarm): void {
     // populate with well-known addresses
-    super.register(swarm, cryptoResolver);
-    swarm.address(
-      this.chain,
-      cryptoResolver,
-      "0x0000000000000000000000000000000000000000",
-      {
-        name: "Null",
-      }
-    );
+    super.register(swarm);
+    swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
+      name: "Null",
+    });
   }
 
   async getNormalTransactionByHash(
     swarm: Swarm,
-    cryptoResolver: CryptoResolver,
     txhash: string
   ): Promise<NormalTransaction> {
     for (const transaction of NormalTransactions.result) {
       if (transaction.hash === txhash) {
-        return swarm.normalTransaction(
-          this.chain,
-          cryptoResolver,
-          txhash,
-          transaction
-        );
+        return swarm.normalTransaction(this.chain, txhash, transaction);
       }
     }
     throw new Error(`Transaction with hash ${txhash} not found`);

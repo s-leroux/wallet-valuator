@@ -41,11 +41,7 @@ describe("Swarm and Transaction integration", () => {
     it("should lazy load", async () => {
       const TXHASH =
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
-      const transaction = await swarm.normalTransaction(
-        chain,
-        cryptoResolver,
-        TXHASH
-      );
+      const transaction = await swarm.normalTransaction(chain, TXHASH);
 
       assert.deepEqual(transaction.data, {});
     });
@@ -53,8 +49,8 @@ describe("Swarm and Transaction integration", () => {
     it("should load data on demand", async function () {
       const TXHASH =
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
-      const tr1 = await swarm.normalTransaction(chain, cryptoResolver, TXHASH);
-      const tr2 = await tr1.load(swarm, cryptoResolver);
+      const tr1 = await swarm.normalTransaction(chain, TXHASH);
+      const tr2 = await tr1.load(swarm);
 
       assert.equal(tr1, tr2);
       assert.include(tr1.data, {
@@ -80,9 +76,9 @@ describe("Swarm and Transaction integration", () => {
         ],
       ];
       for (const [hash, ok] of testCases) {
-        const tr = await swarm.normalTransaction(chain, cryptoResolver, hash);
+        const tr = await swarm.normalTransaction(chain, hash);
 
-        assert.equal(await tr.isValid(swarm, cryptoResolver), ok);
+        assert.equal(await tr.isValid(swarm), ok);
       }
     });
 
@@ -93,7 +89,7 @@ describe("Swarm and Transaction integration", () => {
         const transactionData = ERC20TokenTransfers.result;
         transactions = await Promise.all(
           transactionData.map((tr) =>
-            swarm.normalTransaction(chain, cryptoResolver, tr.hash, tr)
+            swarm.normalTransaction(chain, tr.hash, tr)
           )
         );
       });
@@ -111,9 +107,7 @@ describe("Swarm and Transaction integration", () => {
     beforeEach(async () => {
       const transactionData = InternalTransactions.result;
       transactions = await Promise.all(
-        transactionData.map((tr) =>
-          swarm.normalTransaction(chain, cryptoResolver, tr.hash, tr)
-        )
+        transactionData.map((tr) => swarm.normalTransaction(chain, tr.hash, tr))
       );
     });
 
@@ -129,9 +123,7 @@ describe("Swarm and Transaction integration", () => {
     beforeEach(async () => {
       const transactionData = ERC20TokenTransfers.result;
       transactions = await Promise.all(
-        transactionData.map((tr) =>
-          swarm.tokenTransfer(chain, cryptoResolver, tr)
-        )
+        transactionData.map((tr) => swarm.tokenTransfer(chain, tr))
       );
     });
 
@@ -155,10 +147,9 @@ describe("Swarm and Transaction integration", () => {
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
       const tr1 = await swarm.normalTransaction(
         explorer,
-        cryptoResolver,
         TXHASH
       );
-      const tr2 = await tr1.load(swarm, cryptoResolver);
+      const tr2 = await tr1.load(swarm);
 
       assert.equal(tr1, tr2);
       assert.include(tr1.data, {
@@ -186,11 +177,10 @@ describe("Swarm and Transaction integration", () => {
       for (const [hash, ok] of testCases) {
         const tr = await swarm.normalTransaction(
           explorer,
-          cryptoResolver,
           hash
         );
 
-        assert.equal(await tr.isValid(swarm, cryptoResolver), ok);
+        assert.equal(await tr.isValid(swarm), ok);
       }
     });
   */

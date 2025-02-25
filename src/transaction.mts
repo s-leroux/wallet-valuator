@@ -1,11 +1,8 @@
-const GNOSIS_NATIVE_COIN_DECIMALS = 18;
-
 import { BigNumber, toInteger } from "./bignumber.mjs";
-import { Swarm, Storable } from "./swarm.mjs";
+import { Swarm } from "./swarm.mjs";
 import { Address } from "./address.mjs";
 import { Explorer } from "./services/explorer.mjs";
 import { Amount } from "./cryptoasset.mjs";
-import { CryptoResolver } from "./services/cryptoresolver.mjs";
 import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
@@ -62,16 +59,9 @@ export abstract class Transaction {
     );
   }
 
-  abstract isValid(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<boolean>;
+  abstract isValid(swarm: Swarm): Promise<boolean>;
 
-  async assign(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver,
-    data: Record<string, any>
-  ): Promise<Transaction> {
+  async assign(swarm: Swarm, data: Record<string, any>): Promise<Transaction> {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
       console.dir(data);
@@ -79,24 +69,15 @@ export abstract class Transaction {
     this.blockNumber = toInteger(data.blockNumber);
     this.timeStamp = toInteger(data.timeStamp);
 
-    this.from = await swarm.address(
-      this.explorer.chain,
-      cryptoResolver,
-      data.from
-    );
+    this.from = await swarm.address(this.explorer.chain, data.from);
     if (data.to) {
       // The `to` field is empty for a contract creation
-      this.to = await swarm.address(
-        this.explorer.chain,
-        cryptoResolver,
-        data.to
-      );
+      this.to = await swarm.address(this.explorer.chain, data.to);
     }
 
     if (data.contractAddress) {
       this.contract = await swarm.address(
         this.explorer.chain,
-        cryptoResolver,
         data.contractAddress
       );
     }
@@ -129,32 +110,24 @@ export class NormalTransaction extends Transaction {
     this.hash = hash.toLowerCase();
   }
 
-  async load(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<NormalTransaction> {
+  async load(swarm: Swarm): Promise<NormalTransaction> {
     if (this.timeStamp === undefined) {
       // The transaction data are not already loaded
-      return this.explorer.getNormalTransactionByHash(
-        swarm,
-        cryptoResolver,
-        this.hash
-      );
+      return this.explorer.getNormalTransactionByHash(swarm, this.hash);
     }
 
     return this;
   }
 
-  isValid(swarm: Swarm, cryptoResolver: CryptoResolver): Promise<boolean> {
-    return this.load(swarm, cryptoResolver).then((tr) => tr.isError === false);
+  isValid(swarm: Swarm): Promise<boolean> {
+    return this.load(swarm).then((tr) => tr.isError === false);
   }
 
   async assign(
     swarm: Swarm,
-    cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<NormalTransaction> {
-    await super.assign(swarm, cryptoResolver, data);
+    await super.assign(swarm, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
 
@@ -182,26 +155,18 @@ export class InternalTransaction extends Transaction {
     super(swarm, chain, "INTERNAL");
   }
 
-  async isValid(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<boolean> {
+  async isValid(swarm: Swarm): Promise<boolean> {
     return this.isError === false;
   }
 
-  async assign(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver,
-    data: Record<string, any>
-  ): Promise<this> {
-    await super.assign(swarm, cryptoResolver, data);
+  async assign(swarm: Swarm, data: Record<string, any>): Promise<this> {
+    await super.assign(swarm, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
 
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
         this.explorer.chain,
-        cryptoResolver,
         this.data.hash
       );
     }
@@ -225,27 +190,19 @@ export class ERC20TokenTransfer extends Transaction {
     super(swarm, chain, "ERC20");
   }
 
-  async isValid(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<boolean> {
+  async isValid(swarm: Swarm): Promise<boolean> {
     // It was confirmed by the GnosisScan support that
     // only valid transafers are reported. No need to check
     // for the parent's transaction status
     return this.amount !== undefined && this.ignore === false;
   }
 
-  async assign(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver,
-    data: Record<string, any>
-  ): Promise<this> {
-    await super.assign(swarm, cryptoResolver, data);
+  async assign(swarm: Swarm, data: Record<string, any>): Promise<this> {
+    await super.assign(swarm, data);
 
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
         this.explorer.chain,
-        cryptoResolver,
         this.data.hash
       );
     }
@@ -256,8 +213,7 @@ export class ERC20TokenTransfer extends Transaction {
       );
     }
 
-    const resolution = await cryptoResolver.resolve(
-      swarm,
+    const resolution = await swarm.resolve(
       this.explorer.chain,
       this.blockNumber,
       this.contract.address,

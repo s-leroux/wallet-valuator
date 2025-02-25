@@ -79,17 +79,17 @@ describe("Ledger", () => {
 
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
-        return swarm.tokenTransfer(chain, cryptoResolver, tr);
+        return swarm.tokenTransfer(chain, tr);
       })
     );
     const b = await Promise.all(
       NormalTransactions.result.map((tr) =>
-        swarm.normalTransaction(chain, cryptoResolver, tr.hash, tr)
+        swarm.normalTransaction(chain, tr.hash, tr)
       )
     );
     const c = await Promise.all(
       InternalTransactions.result.map((tr) =>
-        swarm.internalTransaction(chain, cryptoResolver, tr)
+        swarm.internalTransaction(chain, tr)
       )
     );
 
@@ -134,11 +134,7 @@ describe("Ledger", () => {
               length' fixtures/*.json
       */
       const ledger = Ledger.create(transactions);
-      const address = await swarm.address(
-        chain,
-        cryptoResolver,
-        DISPERSE_APP_ADDRESS
-      );
+      const address = await swarm.address(chain, DISPERSE_APP_ADDRESS);
       const subset = ledger.from(address);
 
       assert.notEqual(subset, ledger);

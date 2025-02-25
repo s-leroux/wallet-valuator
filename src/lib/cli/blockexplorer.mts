@@ -52,13 +52,13 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
   const swarm = Swarm.create(explorers, registry, resolver);
   const chain = asBlockchain("gnosis");
   const blocks = await Promise.all(
-    blockNumbers.map((blockNumber) => swarm.block(chain, resolver, blockNumber))
+    blockNumbers.map((blockNumber) => swarm.block(chain, blockNumber))
   );
 
   const addresses = new Map<Address, number>();
   await Promise.all(
     blocks.map((block) =>
-      block.internalTransactions(swarm, resolver).then((transfers) =>
+      block.internalTransactions(swarm).then((transfers) =>
         transfers.forEach((transfer) => {
           addresses.set(transfer.from, 0);
           if (transfer.to) addresses.set(transfer.to, 0);
@@ -70,7 +70,7 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
   await Promise.all(
     Array.from(addresses.keys()).map(async (address: Address) => {
       try {
-        const transfers = await address.tokenTransfers(swarm, resolver);
+        const transfers = await address.tokenTransfers(swarm);
         addresses.set(address, transfers.length);
       } catch {
         addresses.set(address, Infinity);

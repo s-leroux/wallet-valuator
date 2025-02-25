@@ -2,7 +2,6 @@ import type { Transaction } from "./transaction.mjs";
 import { defaultDisplayOptions, type DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
-import type { CryptoResolver } from "./services/cryptoresolver.mjs";
 import { Blockchain } from "./blockchain.mjs";
 
 type ERC20TokenAddressData = {
@@ -56,11 +55,7 @@ export class Address {
     return transition.currency;
   }
 */
-  assign(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver,
-    data: Partial<AddressData>
-  ) {
+  assign(swarm: Swarm, data: Partial<AddressData>) {
     Object.assign(this.data, data);
   }
 
@@ -89,58 +84,23 @@ export class Address {
     );
   }
 
-  normalTransactions(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<Array<Transaction>> {
-    return this.explorer.getNormalTransactionsByAddress(
-      swarm,
-      cryptoResolver,
-      this.address
-    );
+  normalTransactions(swarm: Swarm): Promise<Array<Transaction>> {
+    return this.explorer.getNormalTransactionsByAddress(swarm, this.address);
   }
 
-  internalTransactions(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<Array<Transaction>> {
-    return this.explorer.getInternalTransactionsByAddress(
-      swarm,
-      cryptoResolver,
-      this.address
-    );
+  internalTransactions(swarm: Swarm): Promise<Array<Transaction>> {
+    return this.explorer.getInternalTransactionsByAddress(swarm, this.address);
   }
 
-  tokenTransfers(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<Array<Transaction>> {
-    return this.explorer.getTokenTransfersByAddress(
-      swarm,
-      cryptoResolver,
-      this.address
-    );
+  tokenTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+    return this.explorer.getTokenTransfersByAddress(swarm, this.address);
   }
 
-  allTransfers(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<Array<Transaction>> {
-    return this.explorer.getAllTransactionsByAddress(
-      swarm,
-      cryptoResolver,
-      this.address
-    );
+  allTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+    return this.explorer.getAllTransactionsByAddress(swarm, this.address);
   }
 
-  allValidTransfers(
-    swarm: Swarm,
-    cryptoResolver: CryptoResolver
-  ): Promise<Array<Transaction>> {
-    return this.explorer.getAllValidTransactionsByAddress(
-      swarm,
-      cryptoResolver,
-      this.address
-    );
+  allValidTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+    return this.explorer.getAllValidTransactionsByAddress(swarm, this.address);
   }
 }

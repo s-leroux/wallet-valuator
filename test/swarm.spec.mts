@@ -28,8 +28,8 @@ describe("Swarm", () => {
   describe("Addresses", () => {
     it("should return implement the flyweight pattern", async () => {
       // see https://en.wikipedia.org/wiki/Flyweight_pattern
-      const objA = await swarm.address(chain, cryptoResolver, ADDRESS);
-      const objB = await swarm.address(chain, cryptoResolver, ADDRESS);
+      const objA = await swarm.address(chain, ADDRESS);
+      const objB = await swarm.address(chain, ADDRESS);
 
       assert.isObject(objA);
       assert.isObject(objB);
@@ -37,10 +37,10 @@ describe("Swarm", () => {
     });
 
     it("should accumulate the added data", async () => {
-      const objA = await swarm.address(chain, cryptoResolver, ADDRESS, {
+      const objA = await swarm.address(chain, ADDRESS, {
         from: "0x11111111",
       });
-      const objB = await swarm.address(chain, cryptoResolver, ADDRESS, {
+      const objB = await swarm.address(chain, ADDRESS, {
         to: "0x22222222",
       });
 
