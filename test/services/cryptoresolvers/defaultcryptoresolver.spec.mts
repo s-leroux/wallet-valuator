@@ -6,6 +6,7 @@ import { DefaultCryptoResolver } from "../../../src/services/cryptoresolvers/def
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 import { ResolutionResult } from "../../../src/services/cryptoresolver.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 
 describe("DefaultCryptoResolver", function () {
   it("can be created (no parameters)", function () {
@@ -15,9 +16,13 @@ describe("DefaultCryptoResolver", function () {
 
   describe("default database", function () {
     let cryptoResolver: DefaultCryptoResolver;
+    let registry: CryptoRegistry;
+    let swarm: Swarm;
 
     beforeEach(() => {
       cryptoResolver = DefaultCryptoResolver.create();
+      registry = CryptoRegistry.create();
+      swarm = Swarm.create([], registry, cryptoResolver);
     });
 
     describe("should find well known token by chain, block, and address", function () {
@@ -43,6 +48,7 @@ describe("DefaultCryptoResolver", function () {
         register(`case of ${[chain, block, address]}`, async () => {
           const registry = CryptoRegistry.create();
           const result = await cryptoResolver.resolve(
+            swarm,
             registry,
             chain,
             block,

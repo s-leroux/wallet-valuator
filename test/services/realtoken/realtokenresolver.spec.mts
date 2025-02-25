@@ -10,18 +10,21 @@ import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 // Test data
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 
 describe("RealTokenResolver", function () {
   let resolver: CryptoResolver;
   let registry: CryptoRegistry;
+  let swarm: Swarm;
 
   const E = asBlockchain("ethereum");
   const X = asBlockchain("xdai");
   const G = asBlockchain("gnosis");
 
   beforeEach(() => {
-    registry = CryptoRegistry.create();
     resolver = new RealTokenResolver(FakeRealTokenAPI.create());
+    registry = CryptoRegistry.create();
+    swarm = Swarm.create([], registry, resolver);
   });
 
   describe("resolve()", function () {
@@ -40,6 +43,7 @@ describe("RealTokenResolver", function () {
       for (const [chain, contract, symbol] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
+            swarm,
             registry,
             chain,
             0,
@@ -72,6 +76,7 @@ describe("RealTokenResolver", function () {
       for (const [chain, contract, uuid] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
+            swarm,
             registry,
             chain,
             0,

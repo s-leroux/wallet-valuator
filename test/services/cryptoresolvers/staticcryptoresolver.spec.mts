@@ -8,8 +8,9 @@ import {
   LogicalCryptoAsset,
 } from "../../../src/services/cryptoresolvers/staticcryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import type { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 
 //prettier-ignore
 const cryptoTable:PhysicalCryptoAsset[] = [
@@ -65,9 +66,13 @@ const domainTable: LogicalCryptoAsset[] = [
 
 describe("StaticCryptoResolver", function () {
   let cryptoResolver: StaticCryptoResolver;
+  let registry: CryptoRegistry;
+  let swarm: Swarm;
 
   beforeEach(() => {
     cryptoResolver = StaticCryptoResolver.create(cryptoTable, domainTable);
+    swarm = Swarm.create([], registry, cryptoResolver);
+    registry = CryptoRegistry.create();
   });
 
   describe("default database", function () {
@@ -91,8 +96,8 @@ describe("StaticCryptoResolver", function () {
 
       for (const [chain, address, name, symbol, decimal] of testcases) {
         register(`case of ${[chain, name]}`, async () => {
-          const registry = CryptoRegistry.create();
           const result = await cryptoResolver.resolve(
+            swarm,
             registry,
             chain,
             12345,
@@ -134,8 +139,8 @@ describe("StaticCryptoResolver", function () {
         expected,
       ] of testcases) {
         register(`case of ${[chain, name]} ${desc}`, async () => {
-          const registry = CryptoRegistry.create();
           const result = await cryptoResolver.resolve(
+            swarm,
             registry,
             chain,
             block,
@@ -163,11 +168,11 @@ describe("StaticCryptoResolver", function () {
         [E, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
       ] as const;
 
-      const registry = CryptoRegistry.create();
       let first: CryptoAsset | undefined;
 
       for (const [chain, address, name, symbol, decimal] of testcases) {
         const result = await cryptoResolver.resolve(
+          swarm,
           registry,
           chain,
           12345,
@@ -196,9 +201,9 @@ describe("StaticCryptoResolver", function () {
       // prettier-ignore
       const testcase = [B,null, "Bitcoin", "BTC", 8] as const
 
-      const registry = CryptoRegistry.create();
       const [chain, address, name, symbol, decimal] = testcase;
       const result = await cryptoResolver.resolve(
+        swarm,
         registry,
         chain,
         12345,

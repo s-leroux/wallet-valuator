@@ -1,6 +1,7 @@
 import { Blockchain } from "../blockchain.mjs";
 import { CryptoAsset } from "../cryptoasset.mjs";
 import type { CryptoRegistry } from "../cryptoregistry.mjs";
+import { Swarm } from "../swarm.mjs";
 
 /**
  * Return type for the `resolve()` method.
@@ -42,6 +43,7 @@ export abstract class CryptoResolver {
    * @throws May throw an error in exceptional situations (e.g., invalidated contracts).
    */
   abstract resolve(
+    swarm: Swarm,
     registry: CryptoRegistry,
     chain: Blockchain,
     block: number,

@@ -3,17 +3,11 @@ import { NotImplementedError } from "../../error.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-export type CryptoLike = Pick<CryptoAsset, "symbol">;
 import type { RealTokenAPI, RealToken } from "./realtokenapi.mjs";
-import { Blockchain } from "../../blockchain.mjs";
+import type { Blockchain } from "../../blockchain.mjs";
+import type { Swarm } from "../../swarm.mjs";
 
-type MappingEntry<T extends CryptoLike> = {
-  crypto: T | null;
-  chain: string;
-  startBlock: number;
-  endBlock: number;
-  smartContractAddress: string; // empty string for native currencies
-};
+export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
@@ -90,6 +84,7 @@ export class RealTokenResolver extends CryptoResolver {
   }
 
   async resolve(
+    swarm: Swarm,
     registry: CryptoRegistry,
     chain: Blockchain,
     block: number,

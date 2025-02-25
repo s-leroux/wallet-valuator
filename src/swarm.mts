@@ -1,8 +1,6 @@
 import { asBlockchain, type Blockchain } from "./blockchain.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
-import type { DefaultCryptoResolver } from "./services/cryptoresolvers/defaultcryptoresolver.mjs";
-import type { CryptoAsset } from "./cryptoasset.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { Address } from "./address.mjs";
 import {
@@ -12,7 +10,6 @@ import {
   ERC20TokenTransfer,
 } from "./transaction.mjs";
 import { ValueError } from "./error.mjs";
-import { CompositeCryptoResolver } from "./services/cryptoresolvers/compositecryptoresolver.mjs";
 import { Block } from "./block.mjs";
 
 export interface Storable {
@@ -58,9 +55,9 @@ export class Swarm {
   static create(
     explorers: Explorer[],
     registry: CryptoRegistry,
-    crypoResolver: CryptoResolver
+    cryptoResolver: CryptoResolver
   ) {
-    return new Swarm(explorers, registry, crypoResolver);
+    return new Swarm(explorers, registry, cryptoResolver);
   }
 
   getExplorer(chain: string | Blockchain): Explorer {

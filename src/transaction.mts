@@ -278,6 +278,7 @@ export class ERC20TokenTransfer extends Transaction {
     }
 
     const resolution = await cryptoResolver.resolve(
+      swarm,
       registry,
       this.explorer.chain,
       this.blockNumber,

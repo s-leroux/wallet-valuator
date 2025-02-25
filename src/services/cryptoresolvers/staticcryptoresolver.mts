@@ -3,8 +3,9 @@ import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry, Domains } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
-import { Blockchain } from "../../blockchain.mjs";
+import type { Blockchain } from "../../blockchain.mjs";
 import { InternalError } from "../../error.mjs";
+import { Swarm } from "../../swarm.mjs";
 
 // XXX We may factor out the ChainAddress utility
 type ChainAddress = string & { readonly brand: unique symbol };
@@ -75,6 +76,7 @@ export class StaticCryptoResolver extends CryptoResolver {
   }
 
   async resolve(
+    swarm: Swarm,
     registry: CryptoRegistry,
     chain: Blockchain,
     block: number,

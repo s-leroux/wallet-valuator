@@ -4,11 +4,13 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 
 describe("LazyCryptoResolver", function () {
   let cryptoResolver: LazyCryptoResolver;
+  let registry: CryptoRegistry;
+  let swarm: Swarm;
 
   const E = asBlockchain("ethereum");
   const G = asBlockchain("gnosis");
@@ -16,7 +18,9 @@ describe("LazyCryptoResolver", function () {
   const S = asBlockchain("solana");
 
   beforeEach(() => {
+    registry = CryptoRegistry.create();
     cryptoResolver = LazyCryptoResolver.create();
+    swarm = Swarm.create([], registry, cryptoResolver);
   });
 
   it("Should cache tokens", async () => {
@@ -30,6 +34,7 @@ describe("LazyCryptoResolver", function () {
 
     assert.notExists(cryptoResolver.get("polygon", POLYGON_WBTC[0]));
     const wbtc = await cryptoResolver.resolve(
+      swarm,
       registry,
       P,
       1234,
@@ -48,6 +53,7 @@ describe("LazyCryptoResolver", function () {
       wbtc.asset
     );
     const wbtc2 = await cryptoResolver.resolve(
+      swarm,
       registry,
       P,
       1234,
@@ -72,6 +78,7 @@ describe("LazyCryptoResolver", function () {
       register(`case of ${[chain, name]}`, async () => {
         const registry = CryptoRegistry.create();
         const result = await cryptoResolver.resolve(
+          swarm,
           registry,
           chain,
           12345,
