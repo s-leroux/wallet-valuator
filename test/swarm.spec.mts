@@ -1,10 +1,8 @@
 import { assert } from "chai";
 
 import { Swarm } from "../src/swarm.mjs";
-import { CryptoAsset } from "../src/cryptoasset.mjs";
 
 import { Explorer } from "../src/services/explorer.mjs";
-import { Address } from "../src/address.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
@@ -72,6 +70,38 @@ describe("Swarm", () => {
       assert.isObject(objB);
       assert.strictEqual(objA, objB);
       assert.include(objA.data, { from: "0x11111111", to: "0x22222222" });
+    });
+  });
+
+  describe("getExplorer", () => {
+    it("should return the explorer by its chain name", () => {
+      const result = swarm.getExplorer(CHAIN_NAME);
+
+      assert.exists(result);
+      assert.equal(result.chain, chain);
+      assert.strictEqual(result.chain, chain);
+    });
+
+    it("should throw if the blockchain is unknown", () => {
+      assert.throws(() => {
+        swarm.getExplorer(CHAIN_NAME + "X");
+      });
+    });
+  });
+
+  describe("getNativeCurrency", () => {
+    it("should return the native currency for a blockchain", () => {
+      const result = swarm.getNativeCurrency(CHAIN_NAME);
+
+      assert.exists(result);
+      assert.equal(result, explorer.nativeCurrency);
+      assert.strictEqual(result, explorer.nativeCurrency);
+    });
+
+    it("should throw if the blockchain is unknown", () => {
+      assert.throws(() => {
+        swarm.getNativeCurrency(CHAIN_NAME + "X");
+      });
     });
   });
 });

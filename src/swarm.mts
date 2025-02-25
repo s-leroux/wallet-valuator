@@ -71,6 +71,10 @@ export class Swarm {
     return explorer;
   }
 
+  getNativeCurrency(chain: string | Blockchain) {
+    return this.getExplorer(chain).nativeCurrency;
+  }
+
   async store<T extends Storable, U extends T, OPT extends {}, K>(
     storage: Map<string, T>,
     ctor: new (swarm: Swarm, chain: Blockchain, id: K) => U,
