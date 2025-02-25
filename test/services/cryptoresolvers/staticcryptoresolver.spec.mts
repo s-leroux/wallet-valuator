@@ -181,9 +181,12 @@ describe("StaticCryptoResolver", function () {
         if (!result || result.status !== "resolved") {
           assert.fail(`result was ${result}`);
         }
-        assert.include(swarm.registry.getDomainData(result.asset, "STANDARD"), {
-          coingeckoId: coingeckoId.USDC,
-        });
+        assert.include(
+          swarm.registry.getNamespaceData(result.asset, "STANDARD"),
+          {
+            coingeckoId: coingeckoId.USDC,
+          }
+        );
         if (first) {
           assert.strictEqual(result.asset, first);
         } else {
@@ -212,9 +215,12 @@ describe("StaticCryptoResolver", function () {
         assert.fail(`result was ${result}`);
       }
 
-      assert.deepEqual(swarm.registry.getDomainData(result.asset, "STANDARD"), {
-        coingeckoId: "bitcoin",
-      });
+      assert.deepEqual(
+        swarm.registry.getNamespaceData(result.asset, "STANDARD"),
+        {
+          coingeckoId: "bitcoin",
+        }
+      );
     });
   });
 });

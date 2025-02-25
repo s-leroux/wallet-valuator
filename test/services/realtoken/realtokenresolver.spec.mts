@@ -86,7 +86,7 @@ describe("RealTokenResolver", function () {
 
           if (!result || result.status !== "resolved")
             assert.fail(`result was ${result}`);
-          const metadata = swarm.registry.getDomainData(
+          const metadata = swarm.registry.getNamespaceData(
             result.asset,
             "REALTOKEN"
           );

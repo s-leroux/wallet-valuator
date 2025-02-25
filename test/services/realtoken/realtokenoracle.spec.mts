@@ -155,7 +155,7 @@ describe("RealTokenOracle", function () {
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
           const registry = CryptoRegistry.create();
-          registry.setDomainData(crypto, "REALTOKEN", { uuid });
+          registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
 
           const prices = await oracle.getPrice(
             registry,

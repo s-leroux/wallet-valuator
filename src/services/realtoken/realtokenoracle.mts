@@ -90,7 +90,7 @@ export class RealTokenOracle extends Oracle {
     fiats: FiatCurrency[]
   ): Promise<Record<FiatCurrency, Price>> {
     const result = {} as Record<FiatCurrency, Price>;
-    const metadata = registry.getDomainData(crypto, "REALTOKEN");
+    const metadata = registry.getNamespaceData(crypto, "REALTOKEN");
 
     if (!metadata) {
       // We do not handle that crypto

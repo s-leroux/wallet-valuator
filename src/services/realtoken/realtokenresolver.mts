@@ -43,7 +43,7 @@ function cryptoAssetFromEntry(
   crypto = entry.crypto = new CryptoAsset(uuid, fullName, symbol, decimal);
 
   // Record domain specific metadata
-  registry.setDomainData(crypto, "REALTOKEN", { uuid });
+  registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
 
   return crypto;
 }

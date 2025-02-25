@@ -1,6 +1,6 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type { Domains } from "../../cryptoregistry.mjs";
+import type { Namespaces } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
@@ -31,7 +31,7 @@ export type LogicalCryptoAsset = readonly [
   name: string,
   symbol: string,
   decimal: number,
-  domains: Domains
+  domains: Namespaces
 ];
 
 /**

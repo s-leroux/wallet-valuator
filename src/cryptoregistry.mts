@@ -5,13 +5,13 @@ export type Metadata = {
   [k: string]: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
 };
 
-type StandardDomain = {
+type StandardNamespace = {
   coingeckoId?: string;
 };
 
-export type Domains = {
+export type Namespaces = {
   [k: string]: Metadata | undefined;
-  STANDARD?: StandardDomain;
+  STANDARD?: StandardNamespace;
 };
 
 export function deepCopyMetadata(metadata: Metadata): Metadata {
@@ -59,7 +59,7 @@ export function deepCopyMetadata(metadata: Metadata): Metadata {
  */
 export class CryptoRegistry {
   private cryptos = new Map<string, CryptoAsset>();
-  private registry = new WeakMap<CryptoAsset, Domains>();
+  private registry = new WeakMap<CryptoAsset, Namespaces>();
 
   // Private constructor to enforce factory method use
   private constructor() {}
@@ -78,7 +78,7 @@ export class CryptoRegistry {
   registerCryptoAsset(
     key: string,
     crypto: CryptoAsset,
-    domains: Domains | undefined
+    namespaces: Namespaces | undefined
   ) {
     if (this.cryptos.has(key)) {
       throw new DuplicateKeyError(key);
@@ -88,7 +88,7 @@ export class CryptoRegistry {
     }
 
     this.cryptos.set(key, crypto);
-    this.registry.set(crypto, domains ?? Object.create(null));
+    this.registry.set(crypto, namespaces ?? Object.create(null));
   }
 
   getCryptoAsset(key: string) {
@@ -96,26 +96,26 @@ export class CryptoRegistry {
   }
 
   /**
-   * Associate domain-specific data with a CryptoAsset.
+   * Associate namespace-specific data with a CryptoAsset.
    * @param asset - The CryptoAsset to annotate.
-   * @param domainName - A well-known domain identifier for the data.
-   * @param domainData - The domain-specific data to associate with the asset.
+   * @param namespaceName - A well-known namespace identifier for the data.
+   * @param namespaceData - The namespace-specific data to associate with the asset.
    */
-  setDomainData(
+  setNamespaceData(
     asset: CryptoAsset,
-    domainName: string,
-    domainData: Metadata = {}
+    namespaceName: string,
+    namespaceData: Metadata = {}
   ): void {
-    let domain = this.registry.get(asset);
-    if (domain === undefined) {
-      domain = {
+    let namespace = this.registry.get(asset);
+    if (namespace === undefined) {
+      namespace = {
         // @ts-ignore
         __proto__: null,
       };
-      this.registry.set(asset, domain!);
+      this.registry.set(asset, namespace!);
     }
 
-    domain![domainName] = deepCopyMetadata(domainData);
+    namespace![namespaceName] = deepCopyMetadata(namespaceData);
   }
 
   /**
@@ -123,18 +123,21 @@ export class CryptoRegistry {
    * @param asset - The CryptoAsset to query.
    * @returns The data entry for the asset, or undefined if no data exists.
    */
-  getAssetData(asset: CryptoAsset): Domains | undefined {
+  getAssetData(asset: CryptoAsset): Namespaces | undefined {
     return this.registry.get(asset);
   }
 
   /**
-   * Retrieve domain-specific data for a CryptoAsset, if it matches the provided domain.
+   * Retrieve namespace-specific data for a CryptoAsset.
    * @param asset - The CryptoAsset to query.
-   * @param domain - The expected domain for the data.
-   * @returns The domain-specific data, or undefined if no matching entry exists.
+   * @param namespace - The expected namespace for the data.
+   * @returns The namespace-specific data, or undefined if no matching entry exists.
    */
-  getDomainData(asset: CryptoAsset, domainName: string): Metadata | undefined {
+  getNamespaceData(
+    asset: CryptoAsset,
+    namespaceName: string
+  ): Metadata | undefined {
     const entry = this.getAssetData(asset);
-    return entry?.[domainName];
+    return entry?.[namespaceName];
   }
 }
