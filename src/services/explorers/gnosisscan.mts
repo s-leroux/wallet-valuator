@@ -18,6 +18,10 @@ const GNOSISSCAN_DEFAULT_COOLDOWN = 1000;
 
 const GNOSIS_NATIVE_COIN_DECIMALS = 18;
 
+//==========================================================================
+//  Provider interface
+//==========================================================================
+
 /**
  * Handle the idiosyncrasies of the GnosisScan API server
  */
@@ -42,25 +46,68 @@ export class GnosisScanProvider extends Provider {
     search_params.set("apiKey", this.api_key);
   }
 
-  isError(res: any, json: any) {
-    // GnosisScan returns errors with the 200 status code, but a status set to "0"
+  /**
+   * Private static helper to determine if the JSON response indicates an error.
+   *
+   * GnosisScan returns HTTP 200 even for error conditions.
+   * Instead, errors are indicated by a combination of status set to "0" and a null result.
+   * The '__' prefix signals that this method is internal and should not be used directly.
+   */
+  static __isError(json: any): boolean {
+    if (json.status === "1" || (json.jsonrpc && json.result !== null))
+      return false;
+
+    // GnosisScan also return a "0" status for empty results
+    if (Array.isArray(json.result) && json.result.length === 0) return false;
+
+    // Everything else is an error
+    return true;
+  }
+
+  /**
+   * Instance method that checks for errors in the response.
+   *
+   * It delegates first to the base provider's isError() method,
+   * and if that returns false, it further checks using the static __isError helper.
+   */
+  isError(res: any, json: any): boolean {
+    return super.isError(res, json) || GnosisScanProvider.__isError(json);
+  }
+
+  /**
+   * Private static helper to determine whether the request should be retried.
+   *
+   * GnosisScan does not use the HTTP 429 status for rate limiting.
+   * Instead, rate limiting is indicated by either:
+   *   - A payload that is a string (e.g., an HTML error page), or
+   *   - An error message in the payload's result that starts with "Max ",
+   *     suggesting that the API has been overloaded.
+   *
+   * The '__' prefix indicates that this helper is meant for internal use only.
+   */
+  static __shouldRetry(payload: any): boolean {
     return (
-      super.isError(res, json) || json.status === "0" || json.result === null
+      typeof payload === "string" || // May return an error page (HTTP 200 with error text when unavailable
+      (typeof payload.result === "string" && payload.result.startsWith("Max ")) // Indicates API overload conditions
     );
   }
 
-  shouldRetry(res: any, payload: any) {
-    // GnosisScan does not signal rate limiting with a 429 status. We should examine the error message.
+  /**
+   * Instance method to decide whether a request should be retried.
+   *
+   * It first delegates to the base provider's shouldRetry() logic.
+   * If that doesn't trigger a retry, it then checks using the internal __shouldRetry helper.
+   * Any errors encountered during the check are logged and rethrown.
+   */
+  shouldRetry(res: any, payload: any): boolean {
     try {
       return (
         super.shouldRetry(res, payload) ||
-        typeof payload === "string" || // the server may return an error page (still with status 200)
-        payload.result?.startsWith("Max ") // We have overloaded te API
+        GnosisScanProvider.__shouldRetry(payload)
       );
     } catch (err) {
-      console.log("An error occured:", err);
+      console.log("An error occurred:", err);
       console.dir(payload);
-
       throw err;
     }
   }
@@ -74,6 +121,10 @@ export class GnosisScanProvider extends Provider {
     );
   }
 }
+
+//==========================================================================
+//  API
+//==========================================================================
 
 /**
  * Provides an interface to the GnosisScan API functions we need.
@@ -159,6 +210,10 @@ export class GnosisScanAPI {
     return this.provider.fetch("", params);
   }
 }
+
+//==========================================================================
+//  Explorer
+//==========================================================================
 
 /**
  * The high-level interface to retrieve transactions.

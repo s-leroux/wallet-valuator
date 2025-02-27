@@ -4,7 +4,6 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
-import { as_coin } from "../../../src/geckocoin.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
 import {
   GnosisScanProvider,
@@ -13,9 +12,43 @@ import {
 } from "../../../src/services/explorers/gnosisscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { prepare } from "../../support/register.helper.mjs";
+
+import RateLimit from "../../../fixtures/GnosisScan/RateLimit.json" assert { type: "json" };
+import ClientError from "../../../fixtures/GnosisScan/ClientError.json" assert { type: "json" };
+import NoTransactionFound from "../../../fixtures/GnosisScan/NoTransactionsFound.json" assert { type: "json" };
+import TokenTransfer from "../../../fixtures/GnosisScan/TokenTransfer.json" assert { type: "json" };
+import Proxy from "../../../fixtures/GnosisScan/Proxy.json" assert { type: "json" };
+import ProxyError from "../../../fixtures/GnosisScan/ProxyError.json" assert { type: "json" };
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["GNOSISSCAN_API_KEY"];
+
+describe("GnosisScanProvider", function () {
+  describe("Identify GnosisScan errors and OK reponse", function () {
+    const register = prepare(this);
+    const RETRY = [true, true] as const;
+    const ABORT = [true, false] as const;
+    const OK = [false, undefined] as const;
+    // prettier-ignore
+    const testCases: [response: object, desc: string, error: boolean, retry?: boolean ][] = [
+      [TokenTransfer, "Successful token transfer query", ...OK],
+      [NoTransactionFound, "No transaction found", ...OK],
+      [Proxy, "Successful query to the Ethereum JSON-RPC proxy", ...OK],
+      [ProxyError, "Unsuccessful query to the Ethereum JSON-RPC proxy", ...ABORT],
+      [RateLimit, "Rate limiting response", ...RETRY],
+      [ClientError, "Invalid request", ...ABORT],
+    ];
+
+    for (const [payload, desc, error, retry] of testCases) {
+      register(desc, () => {
+        assert.deepEqual(GnosisScanProvider.__isError(payload), error);
+        if (retry !== undefined)
+          assert.deepEqual(GnosisScanProvider.__shouldRetry(payload), retry);
+      });
+    }
+  });
+});
 
 describe("GnosisScan", function () {
   if (!API_KEY) {
@@ -26,7 +59,7 @@ describe("GnosisScan", function () {
   this.slow(MOCHA_TEST_TIMEOUT);
 
   const cryptoResolver = FakeCryptoResolver.create();
-  let provider: GnosisScanProvider | undefined;
+  let provider: GnosisScanProvider;
   let gs: GnosisScanAPI | undefined;
 
   beforeEach(function () {
@@ -34,10 +67,10 @@ describe("GnosisScan", function () {
     gs = new GnosisScanAPI(provider);
   });
 
-  describe("GnosisScanProvider", () => {
+  describe("GnosisScanProvider (live)", () => {
     it("should retry query if we hit the rate limit", async function () {
       this.timeout(0);
-      assert.equal(provider!.retries, 0);
+      assert.equal(provider.retries, 0);
       await Promise.all([
         gs!.blockNoByTime(1578638524),
         gs!.blockNoByTime(1578638524),
@@ -47,7 +80,7 @@ describe("GnosisScan", function () {
         gs!.blockNoByTime(1578638524),
         gs!.blockNoByTime(1578638524),
       ]);
-      assert.isAbove(provider!.retries, 0);
+      assert.isAbove(provider.retries, 0);
     });
   });
 
