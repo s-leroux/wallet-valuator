@@ -99,12 +99,14 @@ export class CoinGecko extends Oracle {
       );
       prices = historical_data.market_data.current_price;
     } catch (err) {
+      console.log("getPrice ERR", date, currencies, err);
       prices = Object.create(null);
     }
     const result: Record<string, Price> = Object.create(null);
     for (const currency of currencies) {
-      if (Object.hasOwn(prices, currency)) {
-        result[currency] = new Price(crypto, currency, prices[currency]);
+      const key = currency.toLowerCase(); // Don't make any assumption regarding the FiatCurrency case
+      if (Object.hasOwn(prices, key)) {
+        result[currency] = new Price(crypto, currency, prices[key]);
       }
     }
 

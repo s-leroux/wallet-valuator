@@ -6,7 +6,7 @@ const assert = chai.assert;
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
-import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
+import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { Price } from "../../../src/price.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
@@ -54,7 +54,7 @@ describe("CoinGecko", function () {
             registry,
             bitcoin,
             new Date(date),
-            Object.keys(expected) as FiatCurrency[]
+            Object.keys(expected).map(FiatCurrency)
           );
           assert.equal(
             Object.keys(prices).length,
@@ -63,7 +63,7 @@ describe("CoinGecko", function () {
           assert.deepEqual(
             Object.values(prices).reduce<Partial<typeof expected>>(
               (acc, price: Price) => {
-                acc[price.fiatCurrency] = +price.rate;
+                acc[price.fiatCurrency.toLowerCase()] = +price.rate;
                 return acc;
               },
               {}
