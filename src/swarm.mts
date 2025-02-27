@@ -13,12 +13,7 @@ import { ValueError } from "./error.mjs";
 import { Block } from "./block.mjs";
 
 export interface Storable {
-  assign(
-    swarm: Swarm,
-    registry: CryptoRegistry,
-    cryptoResolver: CryptoResolver,
-    data: object
-  ): void;
+  assign(swarm: Swarm, cryptoResolver: CryptoResolver, data: object): void;
 }
 
 /**
@@ -33,8 +28,8 @@ export class Swarm {
 
   protected constructor(
     explorers: Explorer[],
-    registry: CryptoRegistry,
-    crypoResolver: CryptoResolver
+    readonly registry: CryptoRegistry,
+    cryptoResolver: CryptoResolver
   ) {
     // ISSUE #59 `cryptoResolver` is curious in the constructor's parameter list, as
     // it is both given to the constructor and injected as a dependency. May
@@ -48,7 +43,7 @@ export class Swarm {
     this.explorers = new Map();
     for (const explorer of explorers) {
       this.explorers.set(explorer.chain, explorer);
-      explorer.register(this, registry, crypoResolver); // ISSUE #60 Check what exactly is the purpose of the `.register` method
+      explorer.register(this, cryptoResolver); // ISSUE #60 Check what exactly is the purpose of the `.register` method
     }
   }
 
@@ -76,7 +71,6 @@ export class Swarm {
     storage: Map<string, T>,
     ctor: new (swarm: Swarm, chain: Blockchain, id: K) => U,
     chain: Blockchain,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     id: K,
     data?: OPT
@@ -90,7 +84,7 @@ export class Swarm {
     }
 
     if (data) {
-      obj.assign(this, registry, cryptoResolver, data);
+      obj.assign(this, cryptoResolver, data);
     }
 
     return obj;
@@ -98,23 +92,14 @@ export class Swarm {
 
   block(
     chain: Blockchain,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     block: number
   ): Promise<Block> {
-    return this.store(
-      this.blocks,
-      Block,
-      chain,
-      registry,
-      cryptoResolver,
-      block
-    );
+    return this.store(this.blocks, Block, chain, cryptoResolver, block);
   }
 
   address(
     chain: Blockchain,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string,
     data?: object
@@ -123,7 +108,6 @@ export class Swarm {
       this.addresses,
       Address,
       chain,
-      registry,
       cryptoResolver,
       address,
       data
@@ -132,7 +116,6 @@ export class Swarm {
 
   contract(
     chain: Blockchain,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     address: string,
     data?: object
@@ -141,7 +124,6 @@ export class Swarm {
       this.addresses,
       Address,
       chain,
-      registry,
       cryptoResolver,
       address,
       data
@@ -153,7 +135,6 @@ export class Swarm {
    */
   async normalTransaction(
     chain: Blockchain,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     hash: string,
     data?: Record<string, any>
@@ -162,7 +143,6 @@ export class Swarm {
       this.transactions,
       NormalTransaction,
       chain,
-      registry,
       cryptoResolver,
       hash,
       data
@@ -177,13 +157,11 @@ export class Swarm {
    */
   async tokenTransfer(
     chain: Blockchain,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<ERC20TokenTransfer> {
     const result = await new ERC20TokenTransfer(this, chain).assign(
       this,
-      registry,
       cryptoResolver,
       data
     );
@@ -197,13 +175,11 @@ export class Swarm {
    */
   async internalTransaction(
     chain: Blockchain,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Record<string, any>
   ): Promise<InternalTransaction> {
     const result = await new InternalTransaction(this, chain).assign(
       this,
-      registry,
       cryptoResolver,
       data
     );

@@ -6,7 +6,6 @@ import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { Address } from "../../address.mjs";
-import { Transaction } from "../../transaction.mjs";
 
 type ErrCode = "T0001";
 
@@ -53,15 +52,13 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
   const swarm = Swarm.create(explorers, registry, resolver);
   const chain = asBlockchain("gnosis");
   const blocks = await Promise.all(
-    blockNumbers.map((blockNumber) =>
-      swarm.block(chain, registry, resolver, blockNumber)
-    )
+    blockNumbers.map((blockNumber) => swarm.block(chain, resolver, blockNumber))
   );
 
   const addresses = new Map<Address, number>();
   await Promise.all(
     blocks.map((block) =>
-      block.internalTransactions(swarm, registry, resolver).then((transfers) =>
+      block.internalTransactions(swarm, resolver).then((transfers) =>
         transfers.forEach((transfer) => {
           addresses.set(transfer.from, 0);
           if (transfer.to) addresses.set(transfer.to, 0);
@@ -73,11 +70,7 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
   await Promise.all(
     Array.from(addresses.keys()).map(async (address: Address) => {
       try {
-        const transfers = await address.tokenTransfers(
-          swarm,
-          registry,
-          resolver
-        );
+        const transfers = await address.tokenTransfers(swarm, resolver);
         addresses.set(address, transfers.length);
       } catch {
         addresses.set(address, Infinity);

@@ -13,7 +13,6 @@ import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 import ERC20TokenTransfers from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 import InternalTransactions from "../fixtures/InternalTransactions.json" assert { type: "json" };
-import NormalTransactions from "../fixtures/NormalTransactions.json" assert { type: "json" };
 
 import {
   ERC20TokenTransfer,
@@ -44,7 +43,6 @@ describe("Swarm and Transaction integration", () => {
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
       const transaction = await swarm.normalTransaction(
         chain,
-        registry,
         cryptoResolver,
         TXHASH
       );
@@ -55,13 +53,8 @@ describe("Swarm and Transaction integration", () => {
     it("should load data on demand", async function () {
       const TXHASH =
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
-      const tr1 = await swarm.normalTransaction(
-        chain,
-        registry,
-        cryptoResolver,
-        TXHASH
-      );
-      const tr2 = await tr1.load(swarm, registry, cryptoResolver);
+      const tr1 = await swarm.normalTransaction(chain, cryptoResolver, TXHASH);
+      const tr2 = await tr1.load(swarm, cryptoResolver);
 
       assert.equal(tr1, tr2);
       assert.include(tr1.data, {
@@ -87,14 +80,9 @@ describe("Swarm and Transaction integration", () => {
         ],
       ];
       for (const [hash, ok] of testCases) {
-        const tr = await swarm.normalTransaction(
-          chain,
-          registry,
-          cryptoResolver,
-          hash
-        );
+        const tr = await swarm.normalTransaction(chain, cryptoResolver, hash);
 
-        assert.equal(await tr.isValid(swarm, registry, cryptoResolver), ok);
+        assert.equal(await tr.isValid(swarm, cryptoResolver), ok);
       }
     });
 
@@ -105,13 +93,7 @@ describe("Swarm and Transaction integration", () => {
         const transactionData = ERC20TokenTransfers.result;
         transactions = await Promise.all(
           transactionData.map((tr) =>
-            swarm.normalTransaction(
-              chain,
-              registry,
-              cryptoResolver,
-              tr.hash,
-              tr
-            )
+            swarm.normalTransaction(chain, cryptoResolver, tr.hash, tr)
           )
         );
       });
@@ -130,7 +112,7 @@ describe("Swarm and Transaction integration", () => {
       const transactionData = InternalTransactions.result;
       transactions = await Promise.all(
         transactionData.map((tr) =>
-          swarm.normalTransaction(chain, registry, cryptoResolver, tr.hash, tr)
+          swarm.normalTransaction(chain, cryptoResolver, tr.hash, tr)
         )
       );
     });
@@ -148,7 +130,7 @@ describe("Swarm and Transaction integration", () => {
       const transactionData = ERC20TokenTransfers.result;
       transactions = await Promise.all(
         transactionData.map((tr) =>
-          swarm.tokenTransfer(chain, registry, cryptoResolver, tr)
+          swarm.tokenTransfer(chain, cryptoResolver, tr)
         )
       );
     });
@@ -173,11 +155,10 @@ describe("Swarm and Transaction integration", () => {
         "0x88a1301507e92a98d25f36fc2378905f3cb86b0baac1164d1cda007a924636e7";
       const tr1 = await swarm.normalTransaction(
         explorer,
-        registry,
         cryptoResolver,
         TXHASH
       );
-      const tr2 = await tr1.load(swarm, registry, cryptoResolver);
+      const tr2 = await tr1.load(swarm, cryptoResolver);
 
       assert.equal(tr1, tr2);
       assert.include(tr1.data, {
@@ -205,12 +186,11 @@ describe("Swarm and Transaction integration", () => {
       for (const [hash, ok] of testCases) {
         const tr = await swarm.normalTransaction(
           explorer,
-          registry,
           cryptoResolver,
           hash
         );
 
-        assert.equal(await tr.isValid(swarm, registry, cryptoResolver), ok);
+        assert.equal(await tr.isValid(swarm, cryptoResolver), ok);
       }
     });
   */

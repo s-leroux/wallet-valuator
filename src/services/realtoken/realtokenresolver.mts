@@ -85,7 +85,6 @@ export class RealTokenResolver extends CryptoResolver {
 
   async resolve(
     swarm: Swarm,
-    registry: CryptoRegistry,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
@@ -111,7 +110,7 @@ export class RealTokenResolver extends CryptoResolver {
 
     return {
       status: "resolved",
-      asset: cryptoAssetFromEntry(registry, entry, name, symbol, decimal),
+      asset: cryptoAssetFromEntry(swarm.registry, entry, name, symbol, decimal),
     };
   }
 

@@ -63,15 +63,11 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
   const swarm = Swarm.create(explorers, registry, resolver);
   const chain = asBlockchain("gnosis");
   const addresses = await Promise.all(
-    hexAddresses.map((hexAddress) =>
-      swarm.address(chain, registry, resolver, hexAddress)
-    )
+    hexAddresses.map((hexAddress) => swarm.address(chain, resolver, hexAddress))
   );
 
   const transfers = await Promise.all(
-    addresses.map((address) =>
-      address.allValidTransfers(swarm, registry, resolver)
-    )
+    addresses.map((address) => address.allValidTransfers(swarm, resolver))
   );
   const ledger = Ledger.create(...transfers);
   for (const address of addresses) {

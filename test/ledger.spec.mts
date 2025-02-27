@@ -4,7 +4,7 @@ import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
-import { Transaction, ERC20TokenTransfer } from "../src/transaction.mjs";
+import { Transaction } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
@@ -79,17 +79,17 @@ describe("Ledger", () => {
 
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
-        return swarm.tokenTransfer(chain, registry, cryptoResolver, tr);
+        return swarm.tokenTransfer(chain, cryptoResolver, tr);
       })
     );
     const b = await Promise.all(
       NormalTransactions.result.map((tr) =>
-        swarm.normalTransaction(chain, registry, cryptoResolver, tr.hash, tr)
+        swarm.normalTransaction(chain, cryptoResolver, tr.hash, tr)
       )
     );
     const c = await Promise.all(
       InternalTransactions.result.map((tr) =>
-        swarm.internalTransaction(chain, registry, cryptoResolver, tr)
+        swarm.internalTransaction(chain, cryptoResolver, tr)
       )
     );
 
@@ -136,7 +136,6 @@ describe("Ledger", () => {
       const ledger = Ledger.create(transactions);
       const address = await swarm.address(
         chain,
-        registry,
         cryptoResolver,
         DISPERSE_APP_ADDRESS
       );

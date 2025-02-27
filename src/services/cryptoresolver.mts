@@ -1,6 +1,5 @@
 import { Blockchain } from "../blockchain.mjs";
 import { CryptoAsset } from "../cryptoasset.mjs";
-import type { CryptoRegistry } from "../cryptoregistry.mjs";
 import { Swarm } from "../swarm.mjs";
 
 /**
@@ -32,7 +31,6 @@ export abstract class CryptoResolver {
    * Implementations may throw an error in exceptional cases, such as when encountering
    * a known invalid or "cancelled" smart contract (specific cases to be defined).
    *
-   * @param registry - The `CryptoRegistry` used to store crypto asset's metadata.
    * @param chain - The blockchain
    * @param block - The block number at which the resolution is performed.
    * @param smartContractAddress - The contract address of the token.
@@ -44,7 +42,6 @@ export abstract class CryptoResolver {
    */
   abstract resolve(
     swarm: Swarm,
-    registry: CryptoRegistry,
     chain: Blockchain,
     block: number,
     smartContractAddress: string, // XXX Do we have a special value for native coins?

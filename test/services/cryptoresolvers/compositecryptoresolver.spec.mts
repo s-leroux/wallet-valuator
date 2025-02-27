@@ -52,7 +52,6 @@ describe("CompositeCryptoResolver", function () {
 
         const result = await composite.resolve(
           swarm,
-          registry,
           asBlockchain(chain),
           12345,
           sc,
@@ -63,7 +62,6 @@ describe("CompositeCryptoResolver", function () {
 
         const ref = await resolvers[chain].resolve(
           swarm,
-          registry,
           asBlockchain(chain),
           12345,
           sc,

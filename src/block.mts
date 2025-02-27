@@ -1,9 +1,8 @@
 import type { Transaction } from "./transaction.mjs";
-import { defaultDisplayOptions, type DisplayOptions } from "./displayable.mjs";
+import { type DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import type { CryptoResolver } from "./services/cryptoresolver.mjs";
-import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { Blockchain } from "./blockchain.mjs";
 
 export type BlockData = {};
@@ -32,7 +31,6 @@ export class Block {
 
   assign(
     swarm: Swarm,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver,
     data: Partial<BlockData>
   ) {
@@ -49,12 +47,10 @@ export class Block {
 
   internalTransactions(
     swarm: Swarm,
-    registry: CryptoRegistry,
     cryptoResolver: CryptoResolver
   ): Promise<Array<Transaction>> {
     return this.explorer.getInternalTransactionsByBlockNumber(
       swarm,
-      registry,
       cryptoResolver,
       this.blockNumber
     );

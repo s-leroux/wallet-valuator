@@ -4,7 +4,6 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
-import { as_coin } from "../../../src/geckocoin.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
 import { TestScan } from "../../../src/services/explorers/testscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
@@ -33,7 +32,6 @@ describe("TestScan", function () {
         "0xc732d2593a010bace7333493dee5292fbb1aa1a6892c0dae420453a205825dcf";
       const transaction = await explorer.getNormalTransactionByHash(
         sw,
-        registry,
         cryptoResolver,
         txhash
       );
@@ -53,7 +51,6 @@ describe("TestScan", function () {
       const address = "0x89344efa2d9953accd3e907eab27b33542ed9e25";
       const transactions = await explorer.getInternalTransactionsByAddress(
         sw,
-        registry,
         cryptoResolver,
         address
       );

@@ -1,6 +1,6 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type { CryptoRegistry, Domains } from "../../cryptoregistry.mjs";
+import type { Domains } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
@@ -77,7 +77,6 @@ export class StaticCryptoResolver extends CryptoResolver {
 
   async resolve(
     swarm: Swarm,
-    registry: CryptoRegistry,
     chain: Blockchain,
     block: number,
     smartContractAddress: string | null,
@@ -105,7 +104,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     }
 
     // 3. Maybe have we already cached the corresponding physical crypto-asset
-    const cached = registry.getCryptoAsset(chainAddress);
+    const cached = swarm.registry.getCryptoAsset(chainAddress);
     if (cached) {
       return { status: "resolved", asset: cached };
     }
@@ -124,7 +123,7 @@ export class StaticCryptoResolver extends CryptoResolver {
       status: "resolved",
       asset: this.cache.get(key, () => {
         const crypto = new CryptoAsset(key, name, symbol, decimal);
-        registry.registerCryptoAsset(chainAddress, crypto, domains);
+        swarm.registry.registerCryptoAsset(chainAddress, crypto, domains);
 
         return crypto;
       }),

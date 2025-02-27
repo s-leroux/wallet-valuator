@@ -49,7 +49,6 @@ describe("DefaultCryptoResolver", function () {
           const registry = CryptoRegistry.create();
           const result = await cryptoResolver.resolve(
             swarm,
-            registry,
             chain,
             block,
             address,

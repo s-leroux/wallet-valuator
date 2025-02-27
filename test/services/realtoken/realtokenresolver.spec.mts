@@ -44,7 +44,6 @@ describe("RealTokenResolver", function () {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
             swarm,
-            registry,
             chain,
             0,
             contract,
@@ -77,7 +76,6 @@ describe("RealTokenResolver", function () {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
             swarm,
-            registry,
             chain,
             0,
             contract,
@@ -88,7 +86,10 @@ describe("RealTokenResolver", function () {
 
           if (!result || result.status !== "resolved")
             assert.fail(`result was ${result}`);
-          const metadata = registry.getDomainData(result.asset, "REALTOKEN");
+          const metadata = swarm.registry.getDomainData(
+            result.asset,
+            "REALTOKEN"
+          );
           assert.isDefined(metadata);
           assert.equal(metadata.uuid, uuid);
         });

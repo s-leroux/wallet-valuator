@@ -71,8 +71,8 @@ describe("StaticCryptoResolver", function () {
 
   beforeEach(() => {
     cryptoResolver = StaticCryptoResolver.create(cryptoTable, domainTable);
-    swarm = Swarm.create([], registry, cryptoResolver);
     registry = CryptoRegistry.create();
+    swarm = Swarm.create([], registry, cryptoResolver);
   });
 
   describe("default database", function () {
@@ -98,7 +98,6 @@ describe("StaticCryptoResolver", function () {
         register(`case of ${[chain, name]}`, async () => {
           const result = await cryptoResolver.resolve(
             swarm,
-            registry,
             chain,
             12345,
             address,
@@ -141,7 +140,6 @@ describe("StaticCryptoResolver", function () {
         register(`case of ${[chain, name]} ${desc}`, async () => {
           const result = await cryptoResolver.resolve(
             swarm,
-            registry,
             chain,
             block,
             address,
@@ -173,7 +171,6 @@ describe("StaticCryptoResolver", function () {
       for (const [chain, address, name, symbol, decimal] of testcases) {
         const result = await cryptoResolver.resolve(
           swarm,
-          registry,
           chain,
           12345,
           address,
@@ -184,7 +181,7 @@ describe("StaticCryptoResolver", function () {
         if (!result || result.status !== "resolved") {
           assert.fail(`result was ${result}`);
         }
-        assert.include(registry.getDomainData(result.asset, "STANDARD"), {
+        assert.include(swarm.registry.getDomainData(result.asset, "STANDARD"), {
           coingeckoId: coingeckoId.USDC,
         });
         if (first) {
@@ -204,7 +201,6 @@ describe("StaticCryptoResolver", function () {
       const [chain, address, name, symbol, decimal] = testcase;
       const result = await cryptoResolver.resolve(
         swarm,
-        registry,
         chain,
         12345,
         address,
@@ -216,7 +212,7 @@ describe("StaticCryptoResolver", function () {
         assert.fail(`result was ${result}`);
       }
 
-      assert.deepEqual(registry.getDomainData(result.asset, "STANDARD"), {
+      assert.deepEqual(swarm.registry.getDomainData(result.asset, "STANDARD"), {
         coingeckoId: "bitcoin",
       });
     });

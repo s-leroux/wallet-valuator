@@ -27,13 +27,12 @@ const swarm = Swarm.create([explorer], registry, cryptoResolver);
 // A "random" address found on GnosisScan
 const address = await swarm.address(
   explorer.chain,
-  registry,
   cryptoResolver,
   program.args[0] ?? "0x89344efA2d9953accd3e907EAb27B33542eD9E25"
 );
 
 const ledger = Ledger.create(
-  await address.allValidTransfers(swarm, registry, cryptoResolver)
+  await address.allValidTransfers(swarm, cryptoResolver)
 ).slice(0, 100); // keep only the 100 first transaction as this appears to be a live account
 for (const entry of ledger) {
   console.log(

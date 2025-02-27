@@ -28,18 +28,8 @@ describe("Swarm", () => {
   describe("Addresses", () => {
     it("should return implement the flyweight pattern", async () => {
       // see https://en.wikipedia.org/wiki/Flyweight_pattern
-      const objA = await swarm.address(
-        chain,
-        registry,
-        cryptoResolver,
-        ADDRESS
-      );
-      const objB = await swarm.address(
-        chain,
-        registry,
-        cryptoResolver,
-        ADDRESS
-      );
+      const objA = await swarm.address(chain, cryptoResolver, ADDRESS);
+      const objB = await swarm.address(chain, cryptoResolver, ADDRESS);
 
       assert.isObject(objA);
       assert.isObject(objB);
@@ -47,24 +37,12 @@ describe("Swarm", () => {
     });
 
     it("should accumulate the added data", async () => {
-      const objA = await swarm.address(
-        chain,
-        registry,
-        cryptoResolver,
-        ADDRESS,
-        {
-          from: "0x11111111",
-        }
-      );
-      const objB = await swarm.address(
-        chain,
-        registry,
-        cryptoResolver,
-        ADDRESS,
-        {
-          to: "0x22222222",
-        }
-      );
+      const objA = await swarm.address(chain, cryptoResolver, ADDRESS, {
+        from: "0x11111111",
+      });
+      const objB = await swarm.address(chain, cryptoResolver, ADDRESS, {
+        to: "0x22222222",
+      });
 
       assert.isObject(objA);
       assert.isObject(objB);
@@ -73,7 +51,7 @@ describe("Swarm", () => {
     });
   });
 
-  describe("getExplorer", () => {
+  describe("getExplorer()", () => {
     it("should return the explorer by its chain name", () => {
       const result = swarm.getExplorer(CHAIN_NAME);
 
@@ -89,7 +67,7 @@ describe("Swarm", () => {
     });
   });
 
-  describe("getNativeCurrency", () => {
+  describe("getNativeCurrency()", () => {
     it("should return the native currency for a blockchain", () => {
       const result = swarm.getNativeCurrency(CHAIN_NAME);
 
@@ -102,6 +80,12 @@ describe("Swarm", () => {
       assert.throws(() => {
         swarm.getNativeCurrency(CHAIN_NAME + "X");
       });
+    });
+  });
+
+  describe("registry", () => {
+    it("should be stored and accessible in the swarm", () => {
+      assert.strictEqual(swarm.registry, registry);
     });
   });
 });

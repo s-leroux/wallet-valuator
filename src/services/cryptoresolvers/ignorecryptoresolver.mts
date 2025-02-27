@@ -1,5 +1,4 @@
 import { CryptoResolver, type ResolutionResult } from "../cryptoresolver.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 
@@ -19,7 +18,6 @@ export class IgnoreCryptoResolver extends CryptoResolver {
 
   async resolve(
     swarm: Swarm,
-    registry: CryptoRegistry,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
