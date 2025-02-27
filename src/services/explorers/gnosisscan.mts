@@ -9,6 +9,7 @@ import {
 } from "../../transaction.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
+import { ChainAddress } from "../../chainaddress.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
 const GNOSISSCAN_DEFAULT_RETRY = Infinity;
@@ -247,9 +248,21 @@ export class GnosisScan extends CommonExplorer {
     return new GnosisScan(GnosisScanAPI.create(api_key, origin, options));
   }
 
+  /**
+   * Pre-populate a `Swarm` instance with well-known data for the blockchain associated with this explorer.
+   */
   register(swarm: Swarm): void {
     // populate with well-known addresses
     super.register(swarm);
+    swarm.registry.registerCryptoAsset(
+      ChainAddress(this.chain.name, null),
+      this.nativeCurrency,
+      {
+        STANDARD: {
+          coingeckoId: "xdai",
+        },
+      }
+    );
     swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
       name: "Null",
     });

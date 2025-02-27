@@ -75,6 +75,7 @@
     "src/block.mts",
     "src/blockchain.mts",
     "src/bsearch.mts",
+    "src/chainaddress.mts",
     "src/coofile.mts",
     "src/cryptoasset.mts",
     "src/cryptoregistry.mts",

@@ -58,8 +58,8 @@ export function deepCopyMetadata(metadata: Metadata): Metadata {
  * The CryptoRegistry is a cache for the crypto-assets and their associated metadata.
  */
 export class CryptoRegistry {
-  private cryptos = new Map<string, CryptoAsset>();
-  private registry = new WeakMap<CryptoAsset, Namespaces>();
+  private cryptos = new Map<string, CryptoAsset>(); // A mapping from physical to logical crypto assets
+  private metadatas = new WeakMap<CryptoAsset, Namespaces>(); // Metadata associated with a logical crypto asset
 
   // Private constructor to enforce factory method use
   private constructor() {}
@@ -72,55 +72,27 @@ export class CryptoRegistry {
   }
 
   /**
-   * Creates a new CryptoAsset, ensuring that no conflicting key exists,
-   * registers it in the internal cache, and returns the created asset.
-   * @param key - Unique identifier for the asset.
-   * @param name - Name of the crypto asset.
-   * @param symbol - Symbol of the crypto asset.
-   * @param decimals - Decimal precision of the crypto asset.
-   * @param namespaces - (Optional) The metadata container (namespaces) associated with the asset.
-   * @throws {DuplicateKeyError} if an asset with the same key already exists.
-   */
-  newCryptoAsset(
-    key: string,
-    name: string,
-    symbol: string,
-    decimals: number,
-    namespaces: Namespaces = Object.create(null)
-  ): CryptoAsset {
-    if (this.cryptos.has(key)) {
-      throw new DuplicateKeyError(key);
-    }
-    // Create the CryptoAsset instance.
-    const crypto = new CryptoAsset(key, name, symbol, decimals);
-    // Register the asset in both caches.
-    this.cryptos.set(key, crypto);
-    this.registry.set(crypto, namespaces);
-    return crypto;
-  }
-
-  /**
    * Register a new crypto-asset with this registry.
    * Raise an error if the key is already registered.
    */
   registerCryptoAsset(
-    key: string,
+    chainAddress: string,
     crypto: CryptoAsset,
     namespaces: Namespaces | undefined
   ) {
-    if (this.cryptos.has(key)) {
-      throw new DuplicateKeyError(key);
+    if (this.cryptos.has(chainAddress)) {
+      throw new DuplicateKeyError(chainAddress);
     }
-    if (this.registry.has(crypto)) {
+    if (this.metadatas.has(crypto)) {
       throw new DuplicateKeyError(crypto);
     }
 
-    this.cryptos.set(key, crypto);
-    this.registry.set(crypto, namespaces ?? Object.create(null));
+    this.cryptos.set(chainAddress, crypto);
+    this.metadatas.set(crypto, namespaces ?? Object.create(null));
   }
 
-  getCryptoAsset(key: string) {
-    return this.cryptos.get(key);
+  getCryptoAsset(chainAddress: string) {
+    return this.cryptos.get(chainAddress);
   }
 
   /**
@@ -134,13 +106,13 @@ export class CryptoRegistry {
     namespaceName: string,
     namespaceData: Metadata = {}
   ): void {
-    let namespace = this.registry.get(asset);
+    let namespace = this.metadatas.get(asset);
     if (namespace === undefined) {
       namespace = {
         // @ts-ignore
         __proto__: null,
       };
-      this.registry.set(asset, namespace!);
+      this.metadatas.set(asset, namespace!);
     }
 
     namespace![namespaceName] = deepCopyMetadata(namespaceData);
@@ -152,7 +124,7 @@ export class CryptoRegistry {
    * @returns The data entry for the asset, or undefined if no data exists.
    */
   getAssetData(asset: CryptoAsset): Namespaces | undefined {
-    return this.registry.get(asset);
+    return this.metadatas.get(asset);
   }
 
   /**

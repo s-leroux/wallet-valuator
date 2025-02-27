@@ -6,15 +6,7 @@ import { MMap } from "../../memoizer.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import { InternalError } from "../../error.mjs";
 import { Swarm } from "../../swarm.mjs";
-
-// XXX We may factor out the ChainAddress utility
-type ChainAddress = string & { readonly brand: unique symbol };
-function ChainAddress(
-  chain: string,
-  smartContractAddress: string | null
-): ChainAddress {
-  return `${chain}:${smartContractAddress || ""}`.toLowerCase() as ChainAddress;
-}
+import { ChainAddress } from "../../chainaddress.mjs";
 
 type BasePhysicalCryptoAsset = readonly [
   key: string,
@@ -93,7 +85,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     }
 
     // 2. Check that we are in the physical data specified [start, end) range if provided
-    const [key, , , start, end] = physicalCryptoAsset;
+    const [id, , , start, end] = physicalCryptoAsset;
     if (start !== undefined && end !== undefined) {
       // Above: technically we do not need to check that both `start` and `end`
       // are defined since the type's definition enforce "both or none". But
@@ -110,7 +102,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     }
 
     // 4. We should find the corresponding logical crypto-asset in our database
-    const logicalCryptoAsset = this.logicalCryptoAssets.get(key);
+    const logicalCryptoAsset = this.logicalCryptoAssets.get(id);
     if (!logicalCryptoAsset) {
       throw new InternalError(
         `No matching logical crypto-asset for ${physicalCryptoAsset}`
@@ -118,12 +110,12 @@ export class StaticCryptoResolver extends CryptoResolver {
     }
 
     // 5. Eventually create, cache, then return the logical crypto-asset
-    const [, name, symbol, decimal, domains] = logicalCryptoAsset;
+    const [, name, symbol, decimals, namespaces] = logicalCryptoAsset;
     return {
       status: "resolved",
-      asset: this.cache.get(key, () => {
-        const crypto = new CryptoAsset(key, name, symbol, decimal);
-        swarm.registry.registerCryptoAsset(chainAddress, crypto, domains);
+      asset: this.cache.get(id, () => {
+        const crypto = new CryptoAsset(id, name, symbol, decimals);
+        swarm.registry.registerCryptoAsset(chainAddress, crypto, namespaces);
 
         return crypto;
       }),
