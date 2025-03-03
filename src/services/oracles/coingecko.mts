@@ -25,6 +25,7 @@ export class CoinGeckoProvider extends Provider {
   ) {
     const defaults = {
       retry: 40,
+      concurrency: 3,
     };
     super(origin, Object.assign(defaults, options));
     this.api_key = api_key;

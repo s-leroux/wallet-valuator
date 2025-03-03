@@ -1,3 +1,4 @@
+import { Semaphore } from "./semaphore.mjs";
 import { logger as logger } from "./debug.mjs";
 
 const log = logger("provider");
@@ -5,9 +6,6 @@ const log = logger("provider");
 export interface ProviderInterface {
   fetch(endpoint: string, params: Record<string, string>): Promise<object>;
 }
-
-const DEFAULT_RETRY = 5;
-const DEFAULT_COOLDOWN = 100;
 
 function is_json(res: any): boolean {
   const content_type = res.headers.get("content-type");
@@ -18,6 +16,14 @@ function is_json(res: any): boolean {
   return false;
 }
 
+const defaultOptions = {
+  retry: 5, // How many time should we retry the request?
+  cooldown: 100, // Initial time to wait (in ms) before a new attempt
+  concurrency: Infinity, // How many concurrent request do we allow?
+};
+
+export type OptionBag = Partial<typeof defaultOptions>;
+
 export type Payload = Record<string, any> | string;
 
 export class Provider implements ProviderInterface {
@@ -25,17 +31,18 @@ export class Provider implements ProviderInterface {
    * Interface to the webservice provider.
    */
   readonly base: string;
-  readonly retry: number;
-  readonly cooldown: number;
+  readonly options: Required<OptionBag>;
+  readonly semaphore: Semaphore;
 
   // statistics
-  retries: number; // How many time did we retry a request because or rate-limit
+  retries: number; // How many time did we retry a request
 
-  constructor(base: string, options = {} as any) {
-    // ISSUE #67 Create a type for the option bag
+  constructor(base: string, options: OptionBag = {}) {
+    // FIXED #67 Create a type for the option bag
     this.base = base;
-    this.retry = options.retry ?? DEFAULT_RETRY;
-    this.cooldown = options.cooldown ?? DEFAULT_COOLDOWN;
+    this.options = Object.assign(Object.create(null), defaultOptions, options);
+
+    this.semaphore = new Semaphore(this.options.concurrency);
     this.retries = 0;
   }
 
@@ -72,12 +79,11 @@ export class Provider implements ProviderInterface {
   }
 
   async fetch(endpoint: string, params: Record<string, any> = {}) {
-    let cooldown = this.cooldown;
-    let retry = this.retry;
+    let { cooldown, retry } = this.options;
     const url = this.buildUrl(endpoint, params);
 
     while (true) {
-      const res = await fetch(url);
+      const res = await this.semaphore.do(fetch, url);
 
       const result = await (is_json(res) ? res.json() : res.text());
       const is_error = this.isError(res, result);

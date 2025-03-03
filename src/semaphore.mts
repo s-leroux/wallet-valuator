@@ -40,4 +40,14 @@ export class Semaphore {
       throw new ProtocolError("release() called more times than get()");
     }
   }
+
+  // prettier-ignore
+  public async do<T, P extends any[]>(fn: (...args: P) => T, ...rest: P): Promise<T> {
+    await this.get();
+    try {
+      return await fn(...rest);
+    } finally {
+      this.release();
+    }
+  }
 }

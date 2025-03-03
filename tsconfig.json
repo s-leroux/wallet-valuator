@@ -93,6 +93,7 @@
     "src/memoizer.mts",
     "src/portfolio.mts",
     "src/price.mts",
+    "src/promise.mts",
     "src/provider.mts",
     "src/semaphore.mts",
     "src/services/cryptoresolver.mts",
