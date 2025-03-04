@@ -34,6 +34,7 @@ const defaultCryptoTable = [
   ["weth", "ethereum", "0xC02aaA39b223FE8D0A0E5C4F27eAD9083C756Cc2"],
   ["weth", "gnosis", "0x6a023ccDd60aE47eB5cB7035863e25eDc1ea8287"],
   ["weth", "polygon", "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"],
+  ["xdai", "gnosis", "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"],
   ["xdai", "gnosis", null],
 ] as const;
 

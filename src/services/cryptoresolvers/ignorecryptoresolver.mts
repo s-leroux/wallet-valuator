@@ -28,7 +28,11 @@ export class IgnoreCryptoResolver extends CryptoResolver {
     symbol: string,
     decimal: number
   ): Promise<ResolutionResult> {
-    log.warn("C2001", "%s", `Ignoring token ${name} (${symbol})`);
+    log.warn(
+      "C2001",
+      "%s",
+      `Ignoring token ${name} (${symbol}) ${chain}:${smartContractAddress} @ ${block}`
+    );
     return { status: "ignore" };
   }
 }
