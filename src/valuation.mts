@@ -92,7 +92,7 @@ export class SnapshotValuation {
     ];
 
     this.holdings.forEach((amount, crypto) =>
-      lines.push(amount.toDisplayString(options))
+      lines.push("  " + crypto.symbol + " " + amount.toDisplayString(options))
     );
 
     return lines.join("\n");
