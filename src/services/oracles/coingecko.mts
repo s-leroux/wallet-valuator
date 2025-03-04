@@ -2,7 +2,7 @@ import { formatDate } from "../../date.mjs";
 import { Price } from "../../price.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { FiatCurrency } from "../../fiatcurrency.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
@@ -101,12 +101,17 @@ export class CoinGecko extends Oracle {
       console.log("getPrice ERR", date, currencies, err);
       prices = Object.create(null);
     }
-    const result: Record<string, Price> = Object.create(null);
-    for (const currency of currencies) {
-      const key = currency.toLowerCase(); // Don't make any assumption regarding the FiatCurrency case
-      if (Object.hasOwn(prices, key)) {
-        result[currency] = new Price(crypto, currency, prices[key]);
+
+    const result: Record<FiatCurrency, Price> = Object.create(null);
+    console.log(prices);
+    for (const [key, value] of Object.entries(prices)) {
+      let currency;
+      try {
+        currency = FiatCurrency(key);
+      } catch {
+        continue;
       }
+      result[currency] = new Price(crypto, currency, value as string);
     }
 
     return result;

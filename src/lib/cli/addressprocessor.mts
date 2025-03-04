@@ -19,7 +19,11 @@ class CLIError extends Error {
   }
 }
 
-const ENVVARS = ["GNOSISSCAN_API_KEY", "COINGECKO_API_KEY"] as const;
+const ENVVARS = [
+  "GNOSISSCAN_API_KEY",
+  "COINGECKO_API_KEY",
+  "CACHE_PATH",
+] as const;
 type EnvVars = { [K in typeof ENVVARS[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
@@ -37,7 +41,7 @@ function createOracle(envvars: EnvVars) {
   return CompositeOracle.create([
     // My oracles
     CoinGecko.create(envvars["COINGECKO_API_KEY"]),
-  ]).cache();
+  ]).cache(envvars["CACHE_PATH"]);
 }
 
 function loadEnvironmentVariables() {

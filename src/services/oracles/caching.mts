@@ -2,7 +2,6 @@ import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Price } from "../../price.mjs";
-import type { Provider } from "../../provider.mjs";
 import type { Oracle } from "../oracle.mjs";
 
 import Database from "better-sqlite3";
@@ -75,6 +74,7 @@ export class Caching {
       date,
       missing
     );
+    console.log("caching", new_values);
     this.backend_calls += 1;
     this.insert(dateYyyyMmDd, new_values);
 

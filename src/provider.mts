@@ -1,3 +1,4 @@
+import { Promise } from "./promise.mjs";
 import { Semaphore } from "./semaphore.mjs";
 import { logger as logger } from "./debug.mjs";
 
@@ -91,7 +92,7 @@ export class Provider implements ProviderInterface {
       if (is_error) {
         // it's an error
         if (retry-- > 0 && this.shouldRetry(res, result)) {
-          await new Promise((r) => setTimeout(r, cooldown));
+          await Promise.timeout(cooldown);
           cooldown *= 1.4 + 0.2 * Math.random();
 
           ++this.retries; // for stats

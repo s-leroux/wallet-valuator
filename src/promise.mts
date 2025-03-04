@@ -1,8 +1,10 @@
-type ExtendedPromise = typeof Promise & {
-  timeout: (delay: number) => Promise<void>;
-};
+declare global {
+  interface PromiseConstructor {
+    timeout: (delay: number) => Promise<void>;
+  }
+}
 
-const ExtendedPromise = Promise as ExtendedPromise;
+const ExtendedPromise = Promise;
 
 ExtendedPromise.timeout = function (delay: number) {
   return new Promise((resolve) => setTimeout(resolve, delay));

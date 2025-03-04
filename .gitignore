@@ -30,6 +30,7 @@ tmp/**/*
 
 # Sqlite3
 /*.db
+/*.sqlite3
 
 # Heroku
 /heroku/
