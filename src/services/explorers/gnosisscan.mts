@@ -234,7 +234,7 @@ export class GnosisScan extends CommonExplorer {
 
   constructor(api: GnosisScanAPI, chain?: Blockchain) {
     const my_chain = chain ?? asBlockchain("gnosis");
-    const my_nativeCurrency = new CryptoAsset("xDai", "xDai", "xDai", 18);
+    const my_nativeCurrency = new CryptoAsset("xdai", "xDai", "xDai", 18);
 
     super(my_chain, my_nativeCurrency);
     this.api = api;

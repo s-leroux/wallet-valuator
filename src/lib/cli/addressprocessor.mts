@@ -10,6 +10,7 @@ import { FiatConverter } from "../../services/fiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
+import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 
 type ErrCode = "T0001";
 
@@ -29,6 +30,7 @@ type EnvVars = { [K in typeof ENVVARS[number]]: string };
 function createCryptoResolver(envvars: EnvVars) {
   return CompositeCryptoResolver.create([
     // My resolvers
+    DefaultCryptoResolver.create(),
     IgnoreCryptoResolver.create(),
   ]);
 }
