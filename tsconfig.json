@@ -79,6 +79,7 @@
     "src/date.mts",
     "src/debug.mts",
     "src/displayable.mts",
+    "src/errcode.mts",
     "src/error.mts",
     "src/fiatcurrency.mts",
     "src/geckocoin.mts",

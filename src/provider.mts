@@ -1,3 +1,7 @@
+import { logger as logger } from "./debug.mjs";
+
+const log = logger("provider");
+
 export interface ProviderInterface {
   fetch(endpoint: string, params: Record<string, string>): Promise<object>;
 }
@@ -85,7 +89,8 @@ export class Provider implements ProviderInterface {
           cooldown *= 1.4 + 0.2 * Math.random();
 
           ++this.retries; // for stats
-          console.log(
+          log.info(
+            "C1001",
             `${url} retrying ${retry} (${res.status} ${res.statusText})`
           );
           continue;
