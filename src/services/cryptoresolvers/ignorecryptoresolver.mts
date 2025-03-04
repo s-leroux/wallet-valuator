@@ -2,6 +2,9 @@ import { CryptoResolver, type ResolutionResult } from "../cryptoresolver.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 
+import { logger as logger } from "../../debug.mjs";
+const log = logger("provider");
+
 /**
  * `IgnoreCryptoResolver`
  *
@@ -25,7 +28,7 @@ export class IgnoreCryptoResolver extends CryptoResolver {
     symbol: string,
     decimal: number
   ): Promise<ResolutionResult> {
-    console.log("%s", `Ignoring token ${name} (${symbol})`);
+    log.warn("C2001", "%s", `Ignoring token ${name} (${symbol})`);
     return { status: "ignore" };
   }
 }

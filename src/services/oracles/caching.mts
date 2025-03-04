@@ -4,6 +4,9 @@ import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Price } from "../../price.mjs";
 import type { Oracle } from "../oracle.mjs";
 
+import { logger as logger } from "../../debug.mjs";
+const log = logger("provider");
+
 import Database from "better-sqlite3";
 
 const DB_INIT_SEQUENCE = `
@@ -72,13 +75,13 @@ export class Caching {
       registry,
       crypto,
       date,
-      missing
+      missing // request only missing data!
     );
-    console.log("caching", new_values);
+    log.trace("C9999", "caching", new_values);
     this.backend_calls += 1;
     this.insert(dateYyyyMmDd, new_values);
 
-    return Object.assign(result, new_values); // XXX Why noot just `return new_values` ?
+    return Object.assign(result, new_values);
   }
 
   cache(path?: string): Oracle {

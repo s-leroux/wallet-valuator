@@ -6,6 +6,10 @@ import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
+import { logger as logger } from "../../debug.mjs";
+
+const log = logger("provider");
+
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
 
 export type InternalToCoinGeckoIdMapping = {
@@ -98,7 +102,7 @@ export class CoinGecko extends Oracle {
       );
       prices = historical_data.market_data.current_price;
     } catch (err) {
-      console.log("getPrice ERR", date, currencies, err);
+      log.trace("C9999", "getPrice ERR", date, currencies, err);
       prices = Object.create(null);
     }
 

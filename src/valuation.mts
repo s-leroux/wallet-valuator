@@ -12,7 +12,10 @@ import {
   DisplayOptions,
   TextUtils,
 } from "./displayable.mjs";
-import { Portfolio, Snapshot } from "./portfolio.mjs";
+import { Snapshot } from "./portfolio.mjs";
+
+import { logger as logger } from "./debug.mjs";
+const log = logger("provider");
 
 export class Value {
   constructor(readonly fiatCurrency: FiatCurrency, readonly value: BigNumber) {}
@@ -115,7 +118,7 @@ export class SnapshotValuation {
         // prettier-ignore
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
 
-        console.log(message);
+        log.warn("C3001", message);
         throw new MissingPriceError(crypto, fiatCurrency, date);
       }
 
