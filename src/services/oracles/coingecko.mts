@@ -8,7 +8,7 @@ import { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
 
-const log = logger("provider");
+const log = logger("coingecko");
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
 
@@ -107,7 +107,7 @@ export class CoinGecko extends Oracle {
     }
 
     const result: Record<FiatCurrency, Price> = Object.create(null);
-    console.log(prices);
+    log.info("C1002", `Found price for ${crypto} at ${date.toISOString()}`);
     for (const [key, value] of Object.entries(prices)) {
       let currency;
       try {

@@ -77,7 +77,7 @@ export class Caching {
       date,
       missing // request only missing data!
     );
-    log.trace("C9999", "caching", new_values);
+    log.trace("C9999", `caching price for ${crypto} at ${date.toISOString()}`);
     this.backend_calls += 1;
     this.insert(dateYyyyMmDd, new_values);
 

@@ -2,6 +2,8 @@ import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
 //prettier-ignore
 const defaultCryptoTable = [
+  ["armm-v3-usdc", "gnosis", "0xeD56F76E9cBC6A64b821e9c016eAFbd3db5436D1"],
+  ["armm-v3-wxdai", "gnosis", "0x0cA4f5554Dd9Da6217d62D8df2816c82bba4157b"],
   ["binance-coin", "bnb chain", null],
   ["bitcoin", "bitcoin", null],
   ["dai", "ethereum", "0x6B175474E89094C44Da98b954EedeAC495271d0F", 0, Infinity],
@@ -14,6 +16,9 @@ const defaultCryptoTable = [
   ["monerium-eure", "gnosis", "0xcB444e90D8198415266c6a2724b7900fb12FC56E", 0, 35656951],
   ["monerium-eure", "polygon", "0x18ec0A6E18E5bc3784fDd3a3634b31245ab704F6", 0, 60733237],
   ["monerium-eure", "polygon", "0xE0aEa583266584DafBB3f9C3211d5588c73fEa8d", 60733237, Infinity],
+  ["reg", "ethereum", "0x0aa1e96d2a46ec6beb2923de1e61addf5f5f1dce"],
+  ["reg", "gnosis", "0x0aa1e96d2a46ec6beb2923de1e61addf5f5f1dce"],
+  ["reg", "polygon", "0x0aa1e96d2a46ec6beb2923de1e61addf5f5f1dce"],
   ["solana", "solana", null],
   ["usdc", "arbitrum", "0xaf88d065e77c8cc2239327c5edb3a432268e5831"],
   ["usdc", "bnb chain", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"],
@@ -40,11 +45,14 @@ const defaultCryptoTable = [
 
 //prettier-ignore
 const defaultKeyDomainsMap = [
+  ["armm-v3-usdc", "RealT RMM V3 USDC", "armmv3USDC", 18, { STANDARD: { coingeckoId: "usd-coin" } }],
+  ["armm-v3-wxdai", "RealT RMM V3 WXDAI", "armmv3WXDAI", 18, { STANDARD: { coingeckoId: "xdai" } }],
   ["binance-coin", "Binance Coin", "BNB", 18, { STANDARD: { coingeckoId: "binancecoin" } }],
   ["bitcoin", "Bitcoin", "BTC", 8, { STANDARD: { coingeckoId: "bitcoin" } }],
   ["dai", "Dai Stablecoin", "DAI", 18, { STANDARD: { coingeckoId: "dai" } }],
   ["ethereum", "Ethereum", "ETH", 18, { STANDARD: { coingeckoId: "ethereum" } }],
   ["monerium-eure","Monerium EURe", "EURе", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
+  ["reg", "RealToken Ecosystem Governance", "REG", 18, { STANDARD: { coingeckoId: "realtoken-ecosystem-governance" } }],
   ["solana", "Solana", "SOL", 9, { STANDARD: { coingeckoId: "solana" } }],
   ["usdc", "USD Coin", "USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
   ["usdt", "Tether USD", "USDT", 6, { STANDARD: { coingeckoId: "tether" } }],
