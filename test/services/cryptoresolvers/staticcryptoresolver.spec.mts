@@ -108,7 +108,10 @@ describe("StaticCryptoResolver", function () {
           if (!result || result.status !== "resolved") {
             assert.fail(`result was ${result}`);
           }
-          assert.strictEqual(result.asset, cryptoResolver.get("usdc"));
+          assert.strictEqual(
+            result.asset,
+            swarm.registry.getCryptoAsset("usdc")
+          );
         });
       }
     });

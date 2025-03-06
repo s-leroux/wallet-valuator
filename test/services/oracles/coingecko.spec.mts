@@ -48,7 +48,7 @@ describe("CoinGecko", function () {
         [
           "bitcoin",
           "2024-12-30",
-          { btc: 1, usd: 93663.44751964067, eur: 89809.00932731242 },
+          { BTC: 1, USD: 93663.44751964067, EUR: 89809.00932731242 },
         ],
       ];
 
@@ -60,20 +60,13 @@ describe("CoinGecko", function () {
             new Date(date),
             Object.keys(expected).map(FiatCurrency)
           );
-          assert.equal(
-            Object.keys(prices).length,
-            Object.keys(expected).length
-          );
-          assert.deepEqual(
-            Object.values(prices).reduce<Partial<typeof expected>>(
-              (acc, price: Price) => {
-                acc[price.fiatCurrency.toLowerCase()] = +price.rate;
-                return acc;
-              },
-              {}
-            ),
-            expected
-          );
+          assert.containsAllKeys(prices, Object.keys(expected));
+          for (const [currency, value] of Object.entries(expected)) {
+            assert.equal(
+              prices[FiatCurrency(currency)]?.rate.toNumber(),
+              value
+            );
+          }
         });
       }
     });

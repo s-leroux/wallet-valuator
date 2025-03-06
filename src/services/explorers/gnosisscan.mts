@@ -254,15 +254,11 @@ export class GnosisScan extends CommonExplorer {
   register(swarm: Swarm): void {
     // populate with well-known addresses
     super.register(swarm);
-    swarm.registry.registerCryptoAsset(
-      ChainAddress(this.chain.name, null),
-      this.nativeCurrency,
-      {
-        STANDARD: {
-          coingeckoId: "xdai",
-        },
-      }
-    );
+    swarm.registry.registerCryptoAsset(this.nativeCurrency, {
+      STANDARD: {
+        coingeckoId: "xdai",
+      },
+    });
     swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
       name: "Null",
     });

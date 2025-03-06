@@ -149,7 +149,7 @@ describe("RealTokenOracle", function () {
         ["20220611", 52.46],
         ["20220711", 52.46],
       ] as const;
-      const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
+      const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4".toLowerCase();
       const fiat = FiatCurrency("USD");
       const crypto = new CryptoAsset(uuid, "REALTOKEN-X", "REALTOKEN-X", 18);
       for (const [date, value] of testcases) {

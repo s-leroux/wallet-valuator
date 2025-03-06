@@ -90,6 +90,7 @@
     "src/ledger.mts",
     "src/lib/cli/addressprocessor.mts",
     "src/lib/cli/blockexplorer.mts",
+    "src/lib/cli/loader.mts",
     "src/memoizer.mts",
     "src/portfolio.mts",
     "src/price.mts",
@@ -126,6 +127,7 @@
 
     "cli/blockchain-cli.mts",
     "cli/blockexplorer-cli.mts",
+    "cli/load.mts",
 
     "src/main.mts",
     "test/main.spec.mts"

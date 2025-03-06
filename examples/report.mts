@@ -34,7 +34,7 @@ const registry = CryptoRegistry.create();
 const cryptoResolver = DefaultCryptoResolver.create();
 const fiatConverter = new ImplicitFiatConverter(
   oracle,
-  cryptoResolver.get("bitcoin")
+  cryptoResolver.getCryptoAsset(registry, "bitcoin")
 );
 
 const swarm = Swarm.create([explorer], registry, cryptoResolver);

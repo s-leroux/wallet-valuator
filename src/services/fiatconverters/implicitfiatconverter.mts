@@ -6,7 +6,6 @@ import { Oracle } from "../oracle.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { CryptoResolver } from "../cryptoresolver.mjs";
 
 export class ImplicitFiatConverter implements FiatConverter {
   readonly oracle: Oracle;
@@ -14,7 +13,7 @@ export class ImplicitFiatConverter implements FiatConverter {
 
   constructor(
     oracle: Oracle,
-    crypto: CryptoAsset | null // ISSUE #45 Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
+    crypto: CryptoAsset | undefined // ISSUE #45 Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
   ) {
     if (!crypto) {
       throw new ValueError(`The reference crypto-asset must be defined`);

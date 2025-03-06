@@ -92,17 +92,28 @@ export class CoinGecko extends Oracle {
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 
     let prices;
+    let historical_data;
+    const coinGeckoId = this.getCoinGeckoId(registry, crypto);
     try {
-      const coinGeckoId = this.getCoinGeckoId(registry, crypto);
-      const historical_data = await this.provider.fetch(
+      historical_data = await this.provider.fetch(
         `coins/${encodeURIComponent(coinGeckoId)}/history`,
         {
           date: dateDdMmYyyy,
         }
       );
+      // XXX market_data may be undefined if there was no price at the given date
       prices = historical_data.market_data.current_price;
     } catch (err) {
-      log.trace("C9999", "getPrice ERR", date, currencies, err);
+      log.trace(
+        "C9999",
+        "getPrice ERR",
+        date,
+        currencies,
+        crypto,
+        coinGeckoId,
+        historical_data,
+        err
+      );
       prices = Object.create(null);
     }
 
@@ -123,7 +134,7 @@ export class CoinGecko extends Oracle {
 
   getCoinGeckoId(registry: CryptoRegistry, crypto: CryptoAsset): string {
     // 1. Check the standard metadata
-    const metadata = registry.getAssetData(crypto);
+    const metadata = registry.getNamespaces(crypto);
     const id = metadata?.STANDARD?.coingeckoId;
     if (id) {
       return id;

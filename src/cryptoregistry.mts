@@ -1,8 +1,14 @@
-import { DuplicateKeyError, InvalidTreeStructureError } from "./error.mjs";
+import {
+  DuplicateKeyError,
+  InconsistentUnitsError,
+  InvalidTreeStructureError,
+} from "./error.mjs";
 import { CryptoAsset } from "./cryptoasset.mjs";
+import { logger } from "./debug.mjs";
+const log = logger("crypto-registry");
 
 export type Metadata = {
-  [k: string]: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
+  [k: string]: string | number | boolean | null; // restricted to JSON-compatible types
 };
 
 type StandardNamespace = {
@@ -14,52 +20,12 @@ export type Namespaces = {
   STANDARD?: StandardNamespace;
 };
 
-export function deepCopyMetadata(metadata: Metadata): Metadata {
-  const seen = new WeakSet<object>();
-  const path: string[] = [];
-
-  function copyRecursive(value: Metadata): Metadata {
-    if (value === null || typeof value !== "object") {
-      return value;
-    }
-
-    if (seen.has(value)) {
-      throw new InvalidTreeStructureError(path);
-    }
-
-    seen.add(value);
-
-    //  // Array are not supported in this version
-    //  if (Array.isArray(value)) {
-    //    return value.map((item, index) => {
-    //      path.push(`[${index}]`);
-    //      const result = copyRecursive(item);
-    //      path.pop();
-    //      return result;
-    //    }) as Metadata;
-    //  }
-
-    const copy: Metadata = {};
-    for (const key of Object.getOwnPropertyNames(metadata)) {
-      path.push(key);
-      copy[key] = deepCopyMetadata((metadata as Record<string, Metadata>)[key]);
-      path.pop();
-    }
-
-    // seen.delete(value); // Keep the object in the weak map: DAG are also invalid data structures here
-
-    return copy;
-  }
-
-  return copyRecursive(metadata);
-}
-
 /**
  * The CryptoRegistry is a cache for the crypto-assets and their associated metadata.
  */
 export class CryptoRegistry {
-  private cryptos = new Map<string, CryptoAsset>(); // A mapping from physical to logical crypto assets
-  private metadatas = new WeakMap<CryptoAsset, Namespaces>(); // Metadata associated with a logical crypto asset
+  private readonly cryptoAssets = new Map<string, CryptoAsset>(); // A mapping from crypto-asset id to logical crypto assets
+  private readonly namespaces = new WeakMap<CryptoAsset, Namespaces>(); // Metadata associated with a logical crypto asset
 
   // Private constructor to enforce factory method use
   private constructor() {}
@@ -71,28 +37,56 @@ export class CryptoRegistry {
     return new CryptoRegistry();
   }
 
-  /**
-   * Register a new crypto-asset with this registry.
-   * Raise an error if the key is already registered.
-   */
-  registerCryptoAsset(
-    chainAddress: string,
-    crypto: CryptoAsset,
-    namespaces: Namespaces | undefined
-  ) {
-    if (this.cryptos.has(chainAddress)) {
-      throw new DuplicateKeyError(chainAddress);
-    }
-    if (this.metadatas.has(crypto)) {
-      throw new DuplicateKeyError(crypto);
-    }
-
-    this.cryptos.set(chainAddress, crypto);
-    this.metadatas.set(crypto, namespaces ?? Object.create(null));
+  getCryptoAsset(id: string) {
+    return this.cryptoAssets.get(id);
   }
 
-  getCryptoAsset(chainAddress: string) {
-    return this.cryptos.get(chainAddress);
+  findCryptoAsset(id: string, name: string, symbol: string, decimal: number) {
+    const existing = this.cryptoAssets.get(id);
+    if (existing) {
+      // consistency check
+      if (name !== existing.name || symbol !== existing.symbol) {
+        log.warn(
+          "C2003",
+          `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
+        );
+      }
+      if (decimal !== existing.decimal) {
+        log.error(
+          "C3003",
+          `existing precision ${decimal} different from ${existing.decimal} for ${name}`
+        );
+        throw new InconsistentUnitsError(decimal, existing.decimal);
+      }
+
+      return existing;
+    }
+
+    const crypto = new CryptoAsset(id, name, symbol, decimal);
+    this.cryptoAssets.set(id, crypto);
+
+    return crypto;
+  }
+
+  /**
+   * Register a pre-existing crypto-asset with optional metadata
+   */
+  registerCryptoAsset(asset: CryptoAsset, namespaces?: Namespaces) {
+    if (this.cryptoAssets.has(asset.id)) {
+      log.error("C3004", `Crypto-asset ${asset} already registered`);
+      throw new DuplicateKeyError(asset);
+    }
+
+    this.cryptoAssets.set(asset.id, asset);
+    if (namespaces) {
+      this.setNamespaces(asset, namespaces);
+    }
+  }
+
+  setNamespaces(asset: CryptoAsset, namespaces: Namespaces) {
+    for (const [key, value] of Object.entries(namespaces)) {
+      this.setNamespaceData(asset, key, value);
+    }
   }
 
   /**
@@ -104,18 +98,23 @@ export class CryptoRegistry {
   setNamespaceData(
     asset: CryptoAsset,
     namespaceName: string,
-    namespaceData: Metadata = {}
+    namespaceData: Metadata = Object.create(null)
   ): void {
-    let namespace = this.metadatas.get(asset);
+    let namespace = this.namespaces.get(asset);
     if (namespace === undefined) {
       namespace = {
         // @ts-ignore
         __proto__: null,
+
+        [namespaceName]: Object.assign(Object.create(null), namespaceData),
       };
-      this.metadatas.set(asset, namespace!);
+      this.namespaces.set(asset, namespace);
     }
 
-    namespace![namespaceName] = deepCopyMetadata(namespaceData);
+    namespace[namespaceName] = Object.assign(
+      namespace[namespaceName] ?? Object.create(null),
+      namespaceData
+    );
   }
 
   /**
@@ -123,8 +122,8 @@ export class CryptoRegistry {
    * @param asset - The CryptoAsset to query.
    * @returns The data entry for the asset, or undefined if no data exists.
    */
-  getAssetData(asset: CryptoAsset): Namespaces | undefined {
-    return this.metadatas.get(asset);
+  getNamespaces(asset: CryptoAsset): Namespaces | undefined {
+    return this.namespaces.get(asset);
   }
 
   /**
@@ -137,7 +136,7 @@ export class CryptoRegistry {
     asset: CryptoAsset,
     namespaceName: string
   ): Metadata | undefined {
-    const entry = this.getAssetData(asset);
+    const entry = this.getNamespaces(asset);
     return entry?.[namespaceName];
   }
 }

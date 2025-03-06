@@ -19,7 +19,7 @@ export class InternalError extends Error {
 
 export class InconsistentUnitsError extends Error {
   constructor(unitA: any, unitB: any) {
-    super(`Imcompatible units ${unitA.toString()} and ${unitB.toString()}`);
+    super(`Imcompatible units ${unitA} and ${unitB}`);
     this.name = "InconsistentUnitsError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }

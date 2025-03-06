@@ -40,7 +40,12 @@ function cryptoAssetFromEntry(
   }
 
   const { uuid, fullName, symbol } = entry.data;
-  crypto = entry.crypto = new CryptoAsset(uuid, fullName, symbol, decimal);
+  crypto = entry.crypto = registry.findCryptoAsset(
+    uuid.toLowerCase(),
+    fullName,
+    symbol,
+    decimal
+  );
 
   // Record domain specific metadata
   registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
