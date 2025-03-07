@@ -55,16 +55,19 @@ export class SnapshotValuation {
   readonly fiatCurrency: FiatCurrency;
   readonly timeStamp: number;
   readonly holdings: Map<CryptoAsset, Value>;
+  readonly origins: WeakMap<Value, Amount>;
   readonly totalValue: BigNumber;
 
   private constructor(
     fiatCurrency: FiatCurrency,
     timeStamp: number,
-    holdings: Map<CryptoAsset, Value>
+    holdings: Map<CryptoAsset, Value>,
+    origins: WeakMap<Value, Amount>
   ) {
     this.fiatCurrency = fiatCurrency;
     this.timeStamp = timeStamp;
     this.holdings = holdings;
+    this.origins = origins;
 
     let acc = BigNumber.ZERO;
     for (const value of holdings.values()) {
@@ -91,9 +94,15 @@ export class SnapshotValuation {
       TextUtils.formatDate(this.timeStamp * 1000, options),
     ];
 
-    this.holdings.forEach((amount, crypto) =>
-      lines.push("  " + crypto.symbol + " " + amount.toDisplayString(options))
-    );
+    this.holdings.forEach((value, crypto) => {
+      const origin = this.origins.get(value);
+      lines.push(
+        "  " +
+          origin?.toDisplayString(options) +
+          " " +
+          value.toDisplayString(options)
+      );
+    });
 
     return lines.join("\n");
   }
@@ -106,7 +115,8 @@ export class SnapshotValuation {
     timeStamp: number,
     amounts: Iterable<Amount>
   ): Promise<SnapshotValuation> {
-    const holdings: Map<CryptoAsset, Value> = new Map();
+    const holdings = new Map<CryptoAsset, Value>();
+    const origins = new WeakMap<Value, Amount>();
     const date = new Date(timeStamp * 1000);
     for (const amount of amounts) {
       const crypto = amount.crypto;
@@ -124,9 +134,10 @@ export class SnapshotValuation {
 
       const value = valueFromAmountAndPrice(amount, price);
       holdings.set(crypto, value);
+      origins.set(value, amount);
     }
 
-    return new SnapshotValuation(fiatCurrency, timeStamp, holdings);
+    return new SnapshotValuation(fiatCurrency, timeStamp, holdings, origins);
   }
 }
 
