@@ -55,7 +55,7 @@ const domainTable: LogicalCryptoAsset[] = [
   ["bitcoin", "Bitcoin", "BTC", 8, { STANDARD: { coingeckoId: "bitcoin" } }],
   ["dai", "Dai Stablecoin", "DAI", 18, { STANDARD: { coingeckoId: "dai" } }],
   ["ethereum", "Ethereum", "ETH", 18, { STANDARD: { coingeckoId: "ethereum" } }],
-  ["monerium-eure","Monerium EURe", "EURе", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
+  ["monerium-eure","Monerium EURe", "EURe", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
   ["solana", "Solana", "SOL", 9, { STANDARD: { coingeckoId: "solana" } }],
   ["usdc", "USD Coin", "USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
   ["usdt", "Tether USD", "USDT", 6, { STANDARD: { coingeckoId: "tether" } }],

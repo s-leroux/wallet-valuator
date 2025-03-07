@@ -66,7 +66,7 @@ const defaultKeyDomainsMap = [
   ["dai", "Dai Stablecoin", "DAI", 18, { STANDARD: { coingeckoId: "dai" } }],
   ["ethereum", "Ethereum", "ETH", 18, { STANDARD: { coingeckoId: "ethereum" } }],
   ["matic", "MATIC", "MATIC", 18 , { STANDARD: { coingeckoId: "matic-network" } }],
-  ["monerium-eure","Monerium EURe", "EURе", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
+  ["monerium-eure","Monerium EURe", "EURe", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
   ["pol", "POL (ex-MATIC)", "POL", 18 , { STANDARD: { coingeckoId: "polygon-ecosystem-token" } }],
   ["reg", "RealToken Ecosystem Governance", "REG", 18, { STANDARD: { coingeckoId: "realtoken-ecosystem-governance" } }],
   ["ripple", "XRP", "XRP", 6 , { STANDARD: { coingeckoId: "ripple" } }],
