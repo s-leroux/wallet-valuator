@@ -11,5 +11,6 @@ export const ERRORS = {
   "C3001": "Report missing data", // first error
   "C3003": "Inconsistent precision",
   "C3004": "Duplicate data",
+  "C3005": "Cannot open database",
   "C9999": "Report generic tracing information",
-};
+} as const;
