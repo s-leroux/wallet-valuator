@@ -38,4 +38,4 @@ ledger.to(address).tag("INGRESS");
 const portfolio = Portfolio.createFromLedger(ledger);
 const [snapshot] = portfolio.snapshots.slice(-1);
 console.log("%s", snapshot);
-console.log("%d", ledger.list.length);
+console.log("%d", ledger.entries.length);

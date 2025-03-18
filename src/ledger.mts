@@ -3,6 +3,13 @@ import { Transaction } from "./transaction.mjs";
 import { Address } from "./address.mjs";
 import { DisplayOptions } from "./displayable.mjs";
 
+import { logger } from "./debug.mjs";
+import { Ensure } from "./type.mjs";
+const log = logger("ledger");
+
+// =========================================================================
+// Utilities
+// =========================================================================
 type Sortable = { key: any };
 
 /**
@@ -58,6 +65,35 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
   return dst;
 }
 
+// =========================================================================
+// Ledger and entries
+// =========================================================================
+
+type Filter = (entries: Entry[], value: any) => Entry[];
+const FILTERS: Record<string, Filter> = {
+  // @ts-ignore
+  __proto__: null,
+
+  // NB: All filters SHOULD be "arrow" functions
+
+  from(entries: Entry[], address: any) {
+    if (address === null) {
+      address = "0x0000000000000000000000000000000000000000";
+    } else {
+      address = Ensure.isString(address).toLowerCase();
+    }
+
+    return entries.filter((entry) => entry.record.from.address === address);
+  },
+
+  "crypto-asset"(entries: Entry[], cryptoId: any) {
+    cryptoId = Ensure.isString(cryptoId);
+    return entries.filter(
+      (entry) => entry.record.amount.crypto.id === cryptoId
+    );
+  },
+} as const;
+
 /**
  * An entry in the ledger.
  *
@@ -100,10 +136,10 @@ export class Entry implements Sortable {
  * A Ledger is an ordered list of transactions.
  */
 export class Ledger implements Iterable<Entry> {
-  list: Array<Entry>;
+  entries: Array<Entry>;
 
   constructor(list: Array<Entry>) {
-    this.list = sort(list); // Enforce the list to be sorted
+    this.entries = sort(list); // Enforce the list to be sorted
   }
 
   /**
@@ -122,11 +158,11 @@ export class Ledger implements Iterable<Entry> {
    *`Create the union of thwo ledgers.
    */
   union(other: Ledger | Array<Transaction>) {
-    const a = this.list;
+    const a = this.entries;
     let b: Array<Entry>;
 
     if (other instanceof Ledger) {
-      b = other.list;
+      b = other.entries;
     } else {
       // Assume an _unsorted_ array of transactions.
       b = sort(other.map((item) => new Entry(item)));
@@ -139,7 +175,7 @@ export class Ledger implements Iterable<Entry> {
   //  String representation
   //========================================================================
   toDisplayString(options: DisplayOptions): string {
-    return this.list
+    return this.entries
       .map(
         (entry, idx) =>
           `${String(idx).padStart(6)} ${entry.toDisplayString(options)}`
@@ -153,7 +189,7 @@ export class Ledger implements Iterable<Entry> {
      */
     const sep = ",";
     const fields = ["timestamp", "blockNumber", "from", "to", "unit", "amount"];
-    for (const tr of this.list) {
+    for (const tr of this.entries) {
       yield fields.map((field) => (tr as any)[field]).join(sep);
     }
   }
@@ -169,7 +205,7 @@ export class Ledger implements Iterable<Entry> {
   //  Tagging
   //========================================================================
   tag(name: string, data?: any) {
-    for (const entry of this.list) {
+    for (const entry of this.entries) {
       entry.tag(name, data);
     }
   }
@@ -178,6 +214,19 @@ export class Ledger implements Iterable<Entry> {
   //  Transaction selection
   //========================================================================
 
+  filter(selector: Record<string, any>): Ledger {
+    let entries = this.entries;
+    for (const key of Object.keys(selector)) {
+      const fn = FILTERS[key];
+
+      if (fn) {
+        entries = fn(entries, selector[key]);
+      } else {
+        log.warn("C2004", "Ignoring unknown filter key:", key);
+      }
+    }
+    return new Ledger(entries);
+  }
   /**
    * Return a new Ledger containing only events from the given address.
    */
@@ -185,7 +234,9 @@ export class Ledger implements Iterable<Entry> {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object
-    const entries = this.list.filter((entry) => entry.record.from === address);
+    const entries = this.entries.filter(
+      (entry) => entry.record.from === address
+    );
 
     return new Ledger(entries);
   }
@@ -197,7 +248,7 @@ export class Ledger implements Iterable<Entry> {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object
-    const entries = this.list.filter((entry) => entry.record.to === address);
+    const entries = this.entries.filter((entry) => entry.record.to === address);
 
     return new Ledger(entries);
   }
@@ -206,14 +257,14 @@ export class Ledger implements Iterable<Entry> {
   //  Array-like interface
   //========================================================================
   slice(start?: number, end?: number) {
-    return new Ledger(this.list.slice(start, end));
+    return new Ledger(this.entries.slice(start, end));
   }
 
   reduce(fn: Function, acc: any) {
     // ISSUE #30 Fix types
     let idx = 0;
 
-    for (const tr of this.list) {
+    for (const tr of this.entries) {
       acc = fn(acc, tr, idx++, this);
     }
 
@@ -221,6 +272,6 @@ export class Ledger implements Iterable<Entry> {
   }
 
   *[Symbol.iterator](): IterableIterator<Entry> {
-    for (const tr of this.list) yield tr;
+    for (const tr of this.entries) yield tr;
   }
 }

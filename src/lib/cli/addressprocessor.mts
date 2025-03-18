@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
@@ -11,6 +13,8 @@ import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
+import { Value } from "../../valuation.mjs";
+import { ValueError } from "../../error.mjs";
 
 type ErrCode = "T0001";
 
@@ -61,7 +65,12 @@ function loadEnvironmentVariables() {
   return result;
 }
 
-export async function processAddresses(hexAddresses: string[]): Promise<void> {
+export async function processAddresses(
+  hexAddresses: string[],
+  configPath?: string
+): Promise<void> {
+  let config = configPath ? JSON.parse(await readFile(configPath, "utf8")) : {};
+
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
   const explorers = createExplorers(envvars);
@@ -82,6 +91,11 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
   }
 
   const portfolio = ledger.portfolio();
+  for (const item of config.filters ?? []) {
+    const [filter, tag, value] = item;
+    let partition = ledger.filter(filter);
+    partition.tag(tag, value);
+  }
 
   const oracle = createOracle(envvars);
   const valuation = await portfolio.evaluate(

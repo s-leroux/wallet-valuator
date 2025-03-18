@@ -102,7 +102,7 @@ describe("Ledger", () => {
 
       // According to:
       // jq '.result | length' fixtures/*.json
-      assert.equal(ledger.list.length, 745);
+      assert.equal(ledger.entries.length, 745);
     });
   });
 
@@ -121,7 +121,7 @@ describe("Ledger", () => {
     it("should return a slice of the same entries", () => {
       const ledger = Ledger.create(transactions);
       const other = ledger.slice(10, 20);
-      assert.deepEqual(other.list, ledger.list.slice(10, 20));
+      assert.deepEqual(other.entries, ledger.entries.slice(10, 20));
     });
   });
 
@@ -138,7 +138,7 @@ describe("Ledger", () => {
       const subset = ledger.from(address);
 
       assert.notEqual(subset, ledger);
-      assert.equal(subset.list.length, 48);
+      assert.equal(subset.entries.length, 48);
       for (const entry of subset) {
         assert.equal(entry.record.from, address);
       }

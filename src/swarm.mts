@@ -105,7 +105,7 @@ export class Swarm {
     }
 
     if (data) {
-      obj.assign(this, data);
+      await obj.assign(this, data); // Potentially obj.assign is an async function
     }
 
     return obj;

@@ -58,6 +58,7 @@
     "test/services/realtoken/realtokenresolver.spec.mts",
     "test/swarm.spec.mts",
     "test/transaction.spec.mts",
+    "test/type.spec.mts",
     "test/valuation.spec.mts",
     "test/walk.d.ts",
 
@@ -119,6 +120,7 @@
     "src/services/realtoken/realtokenresolver.mts",
     "src/swarm.mts",
     "src/transaction.mts",
+    "src/type.mts",
     "src/valuation.mts",
 
     "examples/balance.mts",

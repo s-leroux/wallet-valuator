@@ -24,7 +24,7 @@ export type AddressData = AnyAddressData & ERC20TokenAddressData;
  */
 export class Address {
   readonly explorer: Explorer;
-  readonly address: string;
+  readonly address: string; // this is guaranteed to be lowercase!
   readonly data: Partial<AddressData>;
 
   constructor(swarm: Swarm, chain: Blockchain, address: string) {
