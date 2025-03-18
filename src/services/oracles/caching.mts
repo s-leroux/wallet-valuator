@@ -27,9 +27,20 @@ export class Caching {
   backend_calls: number;
 
   constructor(backend: Oracle, path: string | undefined) {
+    path ??= ":memory:";
+
     this.backend = backend;
     this.backend_calls = 0;
-    this.db = new Database(path ?? ":memory:");
+    try {
+      this.db = new Database(path);
+    } catch (err) {
+      log.error(
+        "C3005",
+        `Cannot open the database ${path}`,
+        `(${process.cwd()})`
+      );
+      throw err;
+    }
     this.db.exec(DB_INIT_SEQUENCE);
   }
 
