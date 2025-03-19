@@ -83,14 +83,16 @@ const FILTERS: Record<string, Filter> = {
       address = Ensure.isString(address).toLowerCase();
     }
 
-    return entries.filter((entry) => entry.record.from.address === address);
+    return entries.filter((entry) => {
+      return entry.record.from.address === address;
+    });
   },
 
   "crypto-asset"(entries: Entry[], cryptoId: any) {
     cryptoId = Ensure.isString(cryptoId);
-    return entries.filter(
-      (entry) => entry.record.amount.crypto.id === cryptoId
-    );
+    return entries.filter((entry) => {
+      return entry.record.amount.crypto.id === cryptoId;
+    });
   },
 } as const;
 

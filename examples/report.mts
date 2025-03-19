@@ -45,14 +45,12 @@ ledger.to(address).tag("INGRESS");
 
 const portfolio = Portfolio.createFromLedger(ledger);
 console.log("%s", portfolio.asCSV()); // ISSUE #23 Actually this shows the portfolio _history_
-const valuations = await Promise.all(
-  portfolio.snapshots.map(
-    (snapshot) =>
-      snapshot.evaluate(registry, oracle, fiatConverter, FiatCurrency("usd"))
-    // ISSUE #22 Check: fiat curencies are compared by _value_, cryptoassets are
-    // compared by _identity_. Is this coherent?
-  )
+const valuations = await portfolio.evaluate(
+  registry,
+  oracle,
+  fiatConverter,
+  FiatCurrency("usd")
 );
-for (const valuation of valuations) {
+for (const valuation of valuations.snapshotValuations) {
   console.log("%s", valuation);
 }

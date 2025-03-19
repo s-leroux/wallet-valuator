@@ -1,7 +1,6 @@
 import os from "node:os";
 
-import { ValueError, type NotImplementedError } from "./error.mjs";
-import { Amount } from "./cryptoasset.mjs";
+import { type CryptoAsset, Amount } from "./cryptoasset.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
 import { SnapshotValuation, PortfolioValuation } from "./valuation.mjs";
@@ -9,10 +8,7 @@ import type { FiatConverter } from "./services/fiatconverter.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import type { Oracle } from "./services/oracle.mjs";
 import { DisplayOptions, TextUtils } from "./displayable.mjs";
-
-interface CryptoAsset {
-  symbol: string;
-}
+import { ValueError } from "./error.mjs";
 
 interface Movement {
   timeStamp: number;
@@ -21,8 +17,10 @@ interface Movement {
 }
 
 export class Snapshot {
-  timeStamp: number;
-  holdings: Map<CryptoAsset, Amount>;
+  readonly timeStamp: number;
+  readonly amount: Amount; // Keep track of the movement's amount
+  readonly holdings: Map<CryptoAsset, Amount>; // Portfolio balance _after_ update
+  readonly tags: Map<string, any>; // Copy of the transaction's tags
 
   constructor(
     ingress: boolean,
@@ -31,8 +29,10 @@ export class Snapshot {
     parent: Snapshot | null = null
   ) {
     this.timeStamp = movement.timeStamp;
+    this.amount = movement.amount;
     // Naive implementation: just clone the whole map
     this.holdings = new Map(parent?.holdings);
+    this.tags = new Map(tags);
     this.update(ingress, movement, tags);
   }
 
@@ -40,17 +40,19 @@ export class Snapshot {
     /*
      * This is where all the "magic" happens.
      * This function uses a set of well-known tags and heuristics to
-     * update the current snapshot to reflect the portfolio value
+     * update the current snapshot to reflect the portfolio balance
      * after a movement
      */
 
     // Basic implementation: just update the position
-    const crypto = movement.amount.crypto;
+    const amount = movement.amount;
+    const crypto = amount.crypto;
     const holding = this.holdings.get(crypto);
     let newAmount: Amount;
 
     if (ingress) {
       newAmount = holding ? holding.plus(movement.amount) : movement.amount;
+      this.tags.set("INGRESS", amount);
     } else {
       // problem: we may encounter an underflow!
       try {
@@ -69,11 +71,15 @@ export class Snapshot {
           throw err;
         }
       }
+      this.tags.set("EGRESS", amount);
     }
 
     this.holdings.set(crypto, newAmount);
   }
 
+  // XXX I am not sure this is meaningful without the previous snapshot valuation,
+  // notably to update the total deposits (in fiat currency).
+  /*
   evaluate(
     registry: CryptoRegistry,
     oracle: Oracle,
@@ -86,9 +92,11 @@ export class Snapshot {
       fiatConverter,
       fiatCurrency,
       this.timeStamp,
-      this.holdings.values()
+      this.holdings.values(),
+      this.tags
     );
   }
+  */
 
   assets(): CryptoAsset[] {
     return Array.from(this.holdings.keys());
@@ -135,7 +143,9 @@ export class Portfolio {
       const egress = entry.tags.get("EGRESS") ?? false;
 
       if (ingress && egress) {
-        // should we throw an error here?
+        // This is an inter-account transfer
+        // Ignoring
+        continue;
       } else if (ingress || egress) {
         curr = new Snapshot(ingress, entry.record, entry.tags, curr);
         snapshots.push(curr);

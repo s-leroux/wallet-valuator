@@ -44,64 +44,6 @@ describe("SnapshotValuation", () => {
     });
   });
 
-  describe("create()", () => {
-    const registry = CryptoRegistry.create();
-    const oracle = FakeOracle.create();
-    const fiat = FakeFiatCurrency.eur;
-    const timeStamp = new Date("2024-12-30").getTime() / 1000;
-    const amounts = [
-      FakeCryptoAsset.bitcoin.amountFromString("0.001"),
-      FakeCryptoAsset.ethereum.amountFromString("5"),
-    ];
-
-    it("should handle the case no price was found", () => {
-      const oracle = new CompositeOracle([]); // an Oracle which can't price anything...
-
-      assert.isRejected(
-        SnapshotValuation.create(
-          registry,
-          oracle,
-          fiatConverter,
-          fiat,
-          timeStamp,
-          amounts
-        ),
-        MissingPriceError
-      );
-    });
-
-    it("should create a Valuation instance from holdings", async () => {
-      const valuation = await SnapshotValuation.create(
-        registry,
-        oracle,
-        fiatConverter,
-        fiat,
-        timeStamp,
-        amounts
-      );
-
-      assert.strictEqual(valuation.fiatCurrency, fiat);
-      assert.strictEqual(valuation.timeStamp, timeStamp);
-      assert.strictEqual(valuation.timeStamp, timeStamp);
-      assert.strictEqual(
-        valuation.get(FakeCryptoAsset.bitcoin).toString(),
-        "89.80900932731242 EUR"
-      );
-      assert.strictEqual(
-        valuation.get(FakeCryptoAsset.ethereum).toString(),
-        "16095.84934118351 EUR"
-      );
-      assert.strictEqual(
-        valuation.get(FakeCryptoAsset.solana).toString(),
-        "0 EUR"
-      );
-      assert.strictEqual(
-        valuation.totalValue.toString(),
-        "16185.65835051082242"
-      );
-    });
-  });
-
   describe("from Snapshot", () => {
     const INGRESS = true;
     const EGRESS = false;
@@ -114,33 +56,40 @@ describe("SnapshotValuation", () => {
 
     it("should create a Valuation instance from holdings", async () => {
       const registry = CryptoRegistry.create();
-      const fiat = FakeFiatCurrency.usd;
+      const fiatCurrency = FakeFiatCurrency.usd;
       const oracle = new FakeOracle();
       const snapshots = snapshotsFromMovements(movements);
       const valuations = await Promise.all(
         snapshots.map((snapshot) =>
-          snapshot.evaluate(registry, oracle, fiatConverter, fiat)
+          SnapshotValuation.createFromSnapshot(
+            registry,
+            oracle,
+            fiatConverter,
+            fiatCurrency,
+            snapshot,
+            null
+          )
         )
       );
 
       // Check that total valuation is properly computed
       assert.strictEqual(
         valuations[0].totalValue.toString(),
-        "199930.97669449622"
+        "199930.97669449622 USD"
       );
-      assert.strictEqual(valuations[0].fiatCurrency, fiat);
+      assert.strictEqual(valuations[0].fiatCurrency, fiatCurrency);
 
       assert.strictEqual(
         valuations[1].totalValue.toString(),
-        "104229.2128726388532087224934266"
+        "104229.2128726388532087224934266 USD"
       );
-      assert.strictEqual(valuations[1].fiatCurrency, fiat);
+      assert.strictEqual(valuations[1].fiatCurrency, fiatCurrency);
 
       assert.strictEqual(
         valuations[2].totalValue.toString(),
-        "200062.3491026753532087224934266"
+        "200062.3491026753532087224934266 USD"
       );
-      assert.strictEqual(valuations[2].fiatCurrency, fiat);
+      assert.strictEqual(valuations[2].fiatCurrency, fiatCurrency);
     });
   });
 });
@@ -179,15 +128,15 @@ describe("PortfolioValuation", () => {
       assert.strictEqual(valuation.snapshotValuations.length, 3);
       assert.strictEqual(
         valuation.snapshotValuations[0].totalValue.toString(),
-        "189643.12842672764"
+        "189643.12842672764 EUR"
       );
       assert.strictEqual(
         valuation.snapshotValuations[1].totalValue.toString(),
-        "99253.8313961634461160286655519"
+        "99253.8313961634461160286655519 EUR"
       );
       assert.strictEqual(
         valuation.snapshotValuations[2].totalValue.toString(),
-        "190508.8270422186461160286655519"
+        "190508.8270422186461160286655519 EUR"
       );
     });
   });

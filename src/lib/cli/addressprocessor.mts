@@ -90,12 +90,10 @@ export async function processAddresses(
     ledger.to(address).tag("INGRESS");
   }
 
-  const portfolio = ledger.portfolio();
-  for (const item of config.filters ?? []) {
-    const [filter, tag, value] = item;
-    let partition = ledger.filter(filter);
-    partition.tag(tag, value);
+  for (const [selector, tag, value] of config.filters ?? []) {
+    ledger.filter(selector).tag(tag, value);
   }
+  const portfolio = ledger.portfolio();
 
   const oracle = createOracle(envvars);
   const valuation = await portfolio.evaluate(
