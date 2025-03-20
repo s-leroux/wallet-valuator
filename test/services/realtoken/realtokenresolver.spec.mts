@@ -10,18 +10,21 @@ import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 // Test data
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 
 describe("RealTokenResolver", function () {
   let resolver: CryptoResolver;
   let registry: CryptoRegistry;
+  let swarm: Swarm;
 
   const E = asBlockchain("ethereum");
   const X = asBlockchain("xdai");
   const G = asBlockchain("gnosis");
 
   beforeEach(() => {
-    registry = CryptoRegistry.create();
     resolver = new RealTokenResolver(FakeRealTokenAPI.create());
+    registry = CryptoRegistry.create();
+    swarm = Swarm.create([], registry, resolver);
   });
 
   describe("resolve()", function () {
@@ -40,7 +43,7 @@ describe("RealTokenResolver", function () {
       for (const [chain, contract, symbol] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
-            registry,
+            swarm,
             chain,
             0,
             contract,
@@ -72,7 +75,7 @@ describe("RealTokenResolver", function () {
       for (const [chain, contract, uuid] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
-            registry,
+            swarm,
             chain,
             0,
             contract,
@@ -83,7 +86,10 @@ describe("RealTokenResolver", function () {
 
           if (!result || result.status !== "resolved")
             assert.fail(`result was ${result}`);
-          const metadata = registry.getDomainData(result.asset, "REALTOKEN");
+          const metadata = swarm.registry.getNamespaceData(
+            result.asset,
+            "REALTOKEN"
+          );
           assert.isDefined(metadata);
           assert.equal(metadata.uuid, uuid);
         });

@@ -2,8 +2,10 @@ import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Price } from "../../price.mjs";
-import type { Provider } from "../../provider.mjs";
 import type { Oracle } from "../oracle.mjs";
+
+import { logger as logger } from "../../debug.mjs";
+const log = logger("provider");
 
 import Database from "better-sqlite3";
 
@@ -25,9 +27,20 @@ export class Caching {
   backend_calls: number;
 
   constructor(backend: Oracle, path: string | undefined) {
+    path ??= ":memory:";
+
     this.backend = backend;
     this.backend_calls = 0;
-    this.db = new Database(path ?? ":memory:");
+    try {
+      this.db = new Database(path);
+    } catch (err) {
+      log.error(
+        "C3005",
+        `Cannot open the database ${path}`,
+        `(${process.cwd()})`
+      );
+      throw err;
+    }
     this.db.exec(DB_INIT_SEQUENCE);
   }
 
@@ -73,12 +86,13 @@ export class Caching {
       registry,
       crypto,
       date,
-      missing
+      missing // request only missing data!
     );
+    log.trace("C9999", `caching price for ${crypto} at ${date.toISOString()}`);
     this.backend_calls += 1;
     this.insert(dateYyyyMmDd, new_values);
 
-    return Object.assign(result, new_values); // XXX Why noot just `return new_values` ?
+    return Object.assign(result, new_values);
   }
 
   cache(path?: string): Oracle {

@@ -7,9 +7,13 @@ const program = new Command();
 program
   .name("blockchain-cli")
   .description("Command-line tool to display blockchain addresses")
-  .version("1.0.0")
+  .showHelpAfterError()
+  .version("1.1.0")
+  .option("-c, --config <config.json>", "JSON configuration")
   .arguments("<addresses...>")
-  .action(async (addresses) => processAddresses(addresses));
+  .action(async (addresses, options) =>
+    processAddresses(addresses, options.config)
+  );
 
 // Parse and execute
 program.parse(process.argv);

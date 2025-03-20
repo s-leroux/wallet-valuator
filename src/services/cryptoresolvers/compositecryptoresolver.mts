@@ -1,7 +1,6 @@
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import { Blockchain } from "../../blockchain.mjs";
+import type { Blockchain } from "../../blockchain.mjs";
+import { Swarm } from "../../swarm.mjs";
 
 /**
  * A `CryptoResolver` that sequentially delegates resolution to multiple
@@ -17,7 +16,7 @@ export class CompositeCryptoResolver extends CryptoResolver {
    * Resolves a token to its corresponding logical `CryptoAsset`.
    */
   async resolve(
-    registry: CryptoRegistry,
+    swarm: Swarm,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
@@ -27,7 +26,7 @@ export class CompositeCryptoResolver extends CryptoResolver {
   ): Promise<ResolutionResult> {
     for (const backend of this.backends) {
       const result = await backend.resolve(
-        registry,
+        swarm,
         chain,
         block,
         smartContractAddress,

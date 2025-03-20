@@ -10,8 +10,8 @@ import {
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 
 describe("CompositeCryptoResolver", function () {
   let registry: CryptoRegistry;
@@ -19,6 +19,7 @@ describe("CompositeCryptoResolver", function () {
   let gnosis: CryptoResolver;
   let ethereum: CryptoResolver;
   let composite: CryptoResolver;
+  let swarm: Swarm;
 
   beforeEach(() => {
     registry = CryptoRegistry.create();
@@ -26,6 +27,7 @@ describe("CompositeCryptoResolver", function () {
     gnosis = GnosisCryptoResolver.create();
     ethereum = EthereumCryptoResolver.create();
     composite = CompositeCryptoResolver.create([gnosis, ethereum, lazy]);
+    swarm = Swarm.create([], registry, composite);
   });
 
   describe("should forward to the backends", function () {
@@ -49,7 +51,7 @@ describe("CompositeCryptoResolver", function () {
         };
 
         const result = await composite.resolve(
-          registry,
+          swarm,
           asBlockchain(chain),
           12345,
           sc,
@@ -59,7 +61,7 @@ describe("CompositeCryptoResolver", function () {
         assert.exists(result);
 
         const ref = await resolvers[chain].resolve(
-          registry,
+          swarm,
           asBlockchain(chain),
           12345,
           sc,

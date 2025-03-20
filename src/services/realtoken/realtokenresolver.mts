@@ -3,17 +3,11 @@ import { NotImplementedError } from "../../error.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-export type CryptoLike = Pick<CryptoAsset, "symbol">;
 import type { RealTokenAPI, RealToken } from "./realtokenapi.mjs";
-import { Blockchain } from "../../blockchain.mjs";
+import type { Blockchain } from "../../blockchain.mjs";
+import type { Swarm } from "../../swarm.mjs";
 
-type MappingEntry<T extends CryptoLike> = {
-  crypto: T | null;
-  chain: string;
-  startBlock: number;
-  endBlock: number;
-  smartContractAddress: string; // empty string for native currencies
-};
+export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
@@ -46,10 +40,15 @@ function cryptoAssetFromEntry(
   }
 
   const { uuid, fullName, symbol } = entry.data;
-  crypto = entry.crypto = new CryptoAsset(uuid, fullName, symbol, decimal);
+  crypto = entry.crypto = registry.findCryptoAsset(
+    uuid.toLowerCase(),
+    fullName,
+    symbol,
+    decimal
+  );
 
   // Record domain specific metadata
-  registry.setDomainData(crypto, "REALTOKEN", { uuid });
+  registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
 
   return crypto;
 }
@@ -90,7 +89,7 @@ export class RealTokenResolver extends CryptoResolver {
   }
 
   async resolve(
-    registry: CryptoRegistry,
+    swarm: Swarm,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
@@ -116,7 +115,7 @@ export class RealTokenResolver extends CryptoResolver {
 
     return {
       status: "resolved",
-      asset: cryptoAssetFromEntry(registry, entry, name, symbol, decimal),
+      asset: cryptoAssetFromEntry(swarm.registry, entry, name, symbol, decimal),
     };
   }
 

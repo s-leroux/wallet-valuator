@@ -1,9 +1,6 @@
-import { readFile } from "node:fs/promises";
-
 import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
-import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
@@ -11,10 +8,8 @@ import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { FiatConverter } from "../../services/fiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
-import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
-import { Value } from "../../valuation.mjs";
-import { ValueError } from "../../error.mjs";
+import { parseDate } from "../../date.mjs";
 
 type ErrCode = "T0001";
 
@@ -32,11 +27,7 @@ const ENVVARS = [
 type EnvVars = { [K in typeof ENVVARS[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
-  return CompositeCryptoResolver.create([
-    // My resolvers
-    DefaultCryptoResolver.create(),
-    IgnoreCryptoResolver.create(),
-  ]);
+  return DefaultCryptoResolver.create();
 }
 
 function createExplorers(envvars: EnvVars) {
@@ -65,12 +56,41 @@ function loadEnvironmentVariables() {
   return result;
 }
 
-export async function processAddresses(
-  hexAddresses: string[],
-  configPath?: string
-): Promise<void> {
-  let config = configPath ? JSON.parse(await readFile(configPath, "utf8")) : {};
+function notFound(id: string): never {
+  throw new CLIError("T0001", `Crypto ${id} not found`);
+}
 
+export async function load(start: string, end: string, cryptoids: string[]) {
+  let currDate = parseDate("YYYY-MM-DD", start);
+  const endDate = parseDate("YYYY-MM-DD", end);
+
+  const envvars = loadEnvironmentVariables();
+  const resolver = createCryptoResolver(envvars);
+  const registry = CryptoRegistry.create();
+  const oracle = createOracle(envvars);
+
+  if (!cryptoids.length) {
+    cryptoids = Array.from(resolver.getCryptoIds());
+  }
+
+  const cryptos = cryptoids.map(
+    (id) => resolver.getCryptoAsset(registry, id) ?? notFound(id)
+  );
+
+  while (currDate <= endDate) {
+    await Promise.all(
+      cryptos.map((crypto) => {
+        return oracle.getPrice(registry, crypto, currDate, [
+          FiatCurrency("EUR"),
+        ]);
+      })
+    );
+
+    currDate.setDate(currDate.getDate() + 1);
+  }
+}
+
+export async function processAddresses(hexAddresses: string[]): Promise<void> {
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
   const explorers = createExplorers(envvars);
@@ -90,9 +110,6 @@ export async function processAddresses(
     ledger.to(address).tag("INGRESS");
   }
 
-  for (const [selector, tag, value] of config.filters ?? []) {
-    ledger.filter(selector).tag(tag, value);
-  }
   const portfolio = ledger.portfolio();
 
   const oracle = createOracle(envvars);

@@ -149,6 +149,12 @@ export class CryptoAsset {
    * ISSUE #68 Make the constructor private and provide a CryptoAsset.create static method
    */
   constructor(id: string, name: string, symbol: string, decimal: number) {
+    if (id != id.toLowerCase()) {
+      throw new ValueError(
+        `The id for crypto-assets must be written in all lowercase (was ${id})`
+      );
+    }
+
     register(this);
 
     this.id = id;

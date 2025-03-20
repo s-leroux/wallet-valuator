@@ -1,7 +1,6 @@
 import { Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import {
   Transaction,
   NormalTransaction,
@@ -9,14 +8,12 @@ import {
   ERC20TokenTransfer,
 } from "../../transaction.mjs";
 import { CommonExplorer } from "../explorer.mjs";
-import { CryptoResolver } from "../cryptoresolver.mjs";
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
+import { ChainAddress } from "../../chainaddress.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
 const GNOSISSCAN_DEFAULT_RETRY = Infinity;
 const GNOSISSCAN_DEFAULT_COOLDOWN = 1000;
-
-const GNOSIS_NATIVE_COIN_DECIMALS = 18;
 
 //==========================================================================
 //  Provider interface
@@ -174,6 +171,17 @@ export class GnosisScanAPI {
     };
   }
 
+  blockInternalTransactions(blockNumber: number) {
+    const params = {
+      module: "account",
+      action: "txlistinternal",
+      startBlock: blockNumber,
+      endBlock: blockNumber,
+      sort: "asc",
+    };
+    return this.provider.fetch("", params);
+  }
+
   accountNormalTransactions(address: string, block?: number) {
     const params = {
       module: "account",
@@ -226,7 +234,7 @@ export class GnosisScan extends CommonExplorer {
 
   constructor(api: GnosisScanAPI, chain?: Blockchain) {
     const my_chain = chain ?? asBlockchain("gnosis");
-    const my_nativeCurrency = new CryptoAsset("xDai", "xDai", "xDai", 18);
+    const my_nativeCurrency = new CryptoAsset("xdai", "xDai", "xDai", 18);
 
     super(my_chain, my_nativeCurrency);
     this.api = api;
@@ -240,28 +248,24 @@ export class GnosisScan extends CommonExplorer {
     return new GnosisScan(GnosisScanAPI.create(api_key, origin, options));
   }
 
-  register(
-    swarm: Swarm,
-    registry: CryptoRegistry,
-    cryptoResolver: CryptoResolver
-  ): void {
+  /**
+   * Pre-populate a `Swarm` instance with well-known data for the blockchain associated with this explorer.
+   */
+  register(swarm: Swarm): void {
     // populate with well-known addresses
-    super.register(swarm, registry, cryptoResolver);
-    swarm.address(
-      this.chain,
-      registry,
-      cryptoResolver,
-      "0x0000000000000000000000000000000000000000",
-      {
-        name: "Null",
-      }
-    );
+    super.register(swarm);
+    swarm.registry.registerCryptoAsset(this.nativeCurrency, {
+      STANDARD: {
+        coingeckoId: "xdai",
+      },
+    });
+    swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
+      name: "Null",
+    });
   }
 
   async getNormalTransactionByHash(
     swarm: Swarm,
-    registry: CryptoRegistry,
-    cryptoResolver: CryptoResolver,
     txhash: string
   ): Promise<NormalTransaction> {
     const ethTransaction = (await this.api.normalTransaction(txhash)).result;
@@ -275,13 +279,7 @@ export class GnosisScan extends CommonExplorer {
     ).result;
 
     for (const record of records) {
-      const t = await swarm.normalTransaction(
-        this.chain,
-        registry,
-        cryptoResolver,
-        record.hash,
-        record
-      );
+      const t = await swarm.normalTransaction(this.chain, record.hash, record);
       if (t.hash.toLowerCase() === txhash.toLowerCase()) {
         result = t;
       }
@@ -293,6 +291,12 @@ export class GnosisScan extends CommonExplorer {
     throw new Error(
       `Transaction ${txhash} was not found in block ${blockNumber}`
     );
+  }
+
+  async blockInternalTransactions(
+    blockNumber: number
+  ): Promise<Record<string, any>[]> {
+    return (await this.api.blockInternalTransactions(blockNumber)).result;
   }
 
   async accountNormalTransactions(

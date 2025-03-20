@@ -2,29 +2,19 @@ import { formatDate } from "../../date.mjs";
 import { Price } from "../../price.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { FiatCurrency } from "../../fiatcurrency.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
+import { logger as logger } from "../../debug.mjs";
+
+const log = logger("coingecko");
+
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
 
-const INTERNAL_TO_COINGECKO_ID: Record<string, string> = {
-  bitcoin: "bitcoin",
+export type InternalToCoinGeckoIdMapping = {
+  [K in string]?: string;
 };
-
-function internalToCoinGeckoId(internalId: string): string {
-  const coinGeckoId = INTERNAL_TO_COINGECKO_ID[internalId];
-
-  if (coinGeckoId !== undefined) {
-    return coinGeckoId;
-  }
-
-  console.log(
-    "CoinGecko id not known for %s. Returning unchanged.",
-    internalId
-  );
-  return internalId.toLowerCase();
-}
 
 /**
  * Handle the idiosyncrasies of the CoinGecko API server
@@ -39,6 +29,7 @@ export class CoinGeckoProvider extends Provider {
   ) {
     const defaults = {
       retry: 40,
+      concurrency: 3,
     };
     super(origin, Object.assign(defaults, options));
     this.api_key = api_key;
@@ -49,11 +40,14 @@ export class CoinGeckoProvider extends Provider {
   }
 }
 
+type OptionBag = {};
+
 export class CoinGecko extends Oracle {
   readonly provider: Provider;
+  readonly idMapping;
   readonly ready;
 
-  constructor(provider?: Provider) {
+  constructor(provider?: Provider, idMapping?: InternalToCoinGeckoIdMapping) {
     super();
     if (!provider) {
       const api_key = process.env["COINGECKO_API_KEY"];
@@ -68,15 +62,23 @@ export class CoinGecko extends Oracle {
       provider = new CoinGeckoProvider(api_key);
     }
     this.provider = provider;
+    this.idMapping = idMapping;
     this.ready = this.init();
   }
 
   static create(
     api_key: string,
-    origin: string = COINGECKO_API_BASE_ADDRESS,
-    options = {} as any
+    idMapping: InternalToCoinGeckoIdMapping | undefined = undefined,
+    options = {} as OptionBag & { origin?: string }
   ) {
-    return new CoinGecko(new CoinGeckoProvider(api_key, origin, options));
+    return new CoinGecko(
+      new CoinGeckoProvider(
+        api_key,
+        options?.origin ?? COINGECKO_API_BASE_ADDRESS,
+        options
+      ),
+      idMapping
+    );
   }
 
   async init() {}
@@ -90,26 +92,69 @@ export class CoinGecko extends Oracle {
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 
     let prices;
+    let historical_data;
+    const coinGeckoId = this.getCoinGeckoId(registry, crypto);
     try {
-      const historical_data = await this.provider.fetch(
-        `coins/${encodeURIComponent(internalToCoinGeckoId(crypto.id))}/history`,
+      historical_data = await this.provider.fetch(
+        `coins/${encodeURIComponent(coinGeckoId)}/history`,
         {
           date: dateDdMmYyyy,
         }
       );
+      // XXX market_data may be undefined if there was no price at the given date
       prices = historical_data.market_data.current_price;
     } catch (err) {
-      console.log("getPrice ERR", date, currencies, err);
+      log.trace(
+        "C9999",
+        "getPrice ERR",
+        date,
+        currencies,
+        crypto,
+        coinGeckoId,
+        historical_data,
+        err
+      );
       prices = Object.create(null);
     }
-    const result: Record<string, Price> = Object.create(null);
-    for (const currency of currencies) {
-      const key = currency.toLowerCase(); // Don't make any assumption regarding the FiatCurrency case
-      if (Object.hasOwn(prices, key)) {
-        result[currency] = new Price(crypto, currency, prices[key]);
+
+    const result: Record<FiatCurrency, Price> = Object.create(null);
+    log.info("C1002", `Found price for ${crypto} at ${date.toISOString()}`);
+    for (const [key, value] of Object.entries(prices)) {
+      let currency;
+      try {
+        currency = FiatCurrency(key);
+      } catch {
+        continue;
       }
+      result[currency] = new Price(crypto, currency, value as string);
     }
 
     return result;
+  }
+
+  getCoinGeckoId(registry: CryptoRegistry, crypto: CryptoAsset): string {
+    // 1. Check the standard metadata
+    const metadata = registry.getNamespaces(crypto);
+    const id = metadata?.STANDARD?.coingeckoId;
+    if (id) {
+      return id;
+    }
+
+    // 2. Use the internal table
+    return this.internalToCoinGeckoId(crypto.id);
+  }
+
+  internalToCoinGeckoId(internalId: string): string {
+    const coinGeckoId = this.idMapping?.[internalId];
+
+    if (coinGeckoId !== undefined) {
+      return coinGeckoId;
+    }
+
+    console.log(
+      "CoinGecko id not known for %s. Returning unchanged.",
+      internalId
+    );
+    return internalId.toLowerCase();
   }
 }

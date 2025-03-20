@@ -9,9 +9,17 @@ export class NotImplementedError extends Error {
   }
 }
 
+export class InternalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InternalError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
+
 export class InconsistentUnitsError extends Error {
   constructor(unitA: any, unitB: any) {
-    super(`Imcompatible units ${unitA.toString()} and ${unitB.toString()}`);
+    super(`Imcompatible units ${unitA} and ${unitB}`);
     this.name = "InconsistentUnitsError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
@@ -24,6 +32,17 @@ export class ValueError extends Error {
   constructor(message: string = "") {
     super(`Value error: ${message}`);
     this.name = "ValueError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
+
+/**
+ * A value was already present
+ */
+export class DuplicateKeyError extends Error {
+  constructor(key: any = "") {
+    super(String(key));
+    this.name = "DuplicateKeyError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
 }
@@ -58,5 +77,6 @@ export class MissingPriceError extends Error {
   constructor(asset: CryptoAsset, fiat: FiatCurrency, date: Date) {
     super(`No price found for ${asset}/${fiat} at ${date.toISOString()}`);
     this.name = "MissingPriceError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
 }

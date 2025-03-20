@@ -1,6 +1,9 @@
 import { ERRORS } from "./errcode.mjs";
 import { ValueError } from "./error.mjs";
 
+// =====================================================================
+// Utility types
+// =====================================================================
 const id = <T extends any>(x: T) => x;
 
 // =====================================================================
@@ -137,6 +140,7 @@ function logLevel() {
 }
 const LOG_LEVEL = logLevel();
 
+/*
 type ErrorCode = string & { readonly brand: unique symbol };
 function ErrorCode(errCode: string) {
   if (!(errCode in ERRORS)) {
@@ -146,6 +150,8 @@ function ErrorCode(errCode: string) {
   // if all is ok, return the parameter as a branded string
   return errCode as ErrorCode;
 }
+*/
+type ErrorCode = keyof typeof ERRORS;
 
 type Severity = readonly [
   name: string,
@@ -208,44 +214,20 @@ class DebugFacade {
     public readonly module: string
   ) {}
 
-  public error(errorCode: string, message: string, ...rest: any[]): void {
-    this.console.log(
-      severity.error,
-      this.module,
-      ErrorCode(errorCode),
-      message,
-      ...rest
-    );
+  public error(errorCode: ErrorCode, message: string, ...rest: any[]): void {
+    this.console.log(severity.error, this.module, errorCode, message, ...rest);
   }
 
-  public warn(errorCode: string, message: string, ...rest: any[]): void {
-    this.console.log(
-      severity.warn,
-      this.module,
-      ErrorCode(errorCode),
-      message,
-      ...rest
-    );
+  public warn(errorCode: ErrorCode, message: string, ...rest: any[]): void {
+    this.console.log(severity.warn, this.module, errorCode, message, ...rest);
   }
 
-  public info(errorCode: string, message: string, ...rest: any[]): void {
-    this.console.log(
-      severity.info,
-      this.module,
-      ErrorCode(errorCode),
-      message,
-      ...rest
-    );
+  public info(errorCode: ErrorCode, message: string, ...rest: any[]): void {
+    this.console.log(severity.info, this.module, errorCode, message, ...rest);
   }
 
-  public trace(errorCode: string, message: string, ...rest: any[]) {
-    this.console.log(
-      severity.trace,
-      this.module,
-      ErrorCode(errorCode),
-      message,
-      ...rest
-    );
+  public trace(errorCode: ErrorCode, message: string, ...rest: any[]) {
+    this.console.log(severity.trace, this.module, errorCode, message, ...rest);
   }
 }
 

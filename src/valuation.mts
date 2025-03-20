@@ -1,9 +1,8 @@
 import { InconsistentUnitsError, MissingPriceError } from "./error.mjs";
 import { BigNumber } from "./bignumber.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
-import type { CryptoAsset } from "./cryptoasset.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
-import type { Amount } from "./cryptoasset.mjs";
+import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
 import type { Price } from "./price.mjs";
 import type { Oracle } from "./services/oracle.mjs";
 import type { FiatConverter } from "./services/fiatconverter.mjs";
@@ -12,10 +11,29 @@ import {
   DisplayOptions,
   TextUtils,
 } from "./displayable.mjs";
-import { Portfolio, Snapshot } from "./portfolio.mjs";
+import { Snapshot } from "./portfolio.mjs";
+
+import { logger as logger } from "./debug.mjs";
+const log = logger("provider");
 
 export class Value {
   constructor(readonly fiatCurrency: FiatCurrency, readonly value: BigNumber) {}
+
+  plus(other: Value) {
+    if (this.fiatCurrency != other.fiatCurrency) {
+      throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
+    }
+
+    return new Value(this.fiatCurrency, this.value.plus(other.value));
+  }
+
+  minus(other: Value) {
+    if (this.fiatCurrency != other.fiatCurrency) {
+      throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
+    }
+
+    return new Value(this.fiatCurrency, this.value.minus(other.value));
+  }
 
   toString(): string {
     return `${this.value} ${this.fiatCurrency}`;
@@ -51,29 +69,108 @@ export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
 export class SnapshotValuation {
   readonly fiatCurrency: FiatCurrency;
   readonly timeStamp: number;
-  readonly holdings: Map<CryptoAsset, Value>;
-  readonly totalValue: BigNumber;
+  readonly holdings: Map<Amount, Value>;
+  readonly deposits: Value;
+  readonly tags: Map<string, any>;
+  readonly totalValue: Value;
 
   private constructor(
     fiatCurrency: FiatCurrency,
     timeStamp: number,
-    holdings: Map<CryptoAsset, Value>
+    holdings: Map<Amount, Value>,
+    deposits: Value,
+    tags: Map<string, any>
   ) {
     this.fiatCurrency = fiatCurrency;
     this.timeStamp = timeStamp;
     this.holdings = holdings;
+    this.deposits = deposits;
+    this.tags = tags;
 
-    let acc = BigNumber.ZERO;
+    let acc = new Value(fiatCurrency, BigNumber.ZERO);
     for (const value of holdings.values()) {
-      acc = acc.plus(value.value); // ISSUE #33 It is unclear if totalValue should be a BigNumber or a Value
+      acc = acc.plus(value); // FIX #33 It is unclear if totalValue should be a BigNumber or a Value
     }
     this.totalValue = acc;
   }
 
-  get(crypto: CryptoAsset): Value {
-    return (
-      this.holdings.get(crypto) ?? new Value(this.fiatCurrency, BigNumber.ZERO)
+  static async createFromSnapshot(
+    registry: CryptoRegistry,
+    oracle: Oracle,
+    fiatConverter: FiatConverter,
+    fiatCurrency: FiatCurrency,
+    snapshot: Snapshot,
+    parent: SnapshotValuation | null
+  ): Promise<SnapshotValuation> {
+    const date = new Date(snapshot.timeStamp * 1000);
+
+    // Helper function
+    async function getPrice(crypto: CryptoAsset) {
+      const prices = await oracle.getPrice(registry, crypto, date, [
+        fiatCurrency,
+      ]);
+
+      const price = prices[fiatCurrency];
+      if (price === undefined) {
+        // prettier-ignore
+        const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
+
+        log.warn("C3001", message);
+        throw new MissingPriceError(crypto, fiatCurrency, date);
+      }
+
+      return price;
+    }
+
+    // Pre-load all the required prices. This could be parallelized.
+    const rates = new Map<CryptoAsset, Price>();
+    for (const crypto of snapshot.holdings.keys()) {
+      rates.set(crypto, await getPrice(crypto));
+    }
+    if (!rates.has(snapshot.amount.crypto)) {
+      rates.set(snapshot.amount.crypto, await getPrice(snapshot.amount.crypto));
+    }
+
+    // We have all the prices now. Calculate our holdings.
+    const holdings = new Map<Amount, Value>();
+    for (const [crypto, amount] of snapshot.holdings) {
+      const value = valueFromAmountAndPrice(amount, rates.get(crypto)!);
+      holdings.set(amount, value);
+    }
+
+    // Copy tags
+    const tags = new Map<string, any>(snapshot.tags);
+
+    // Calculate the delta deposit
+    let deposits = parent
+      ? parent.deposits
+      : new Value(fiatCurrency, BigNumber.ZERO);
+
+    if (tags.get("RAMP-UP")) {
+      const value = valueFromAmountAndPrice(
+        snapshot.amount,
+        rates.get(snapshot.amount.crypto)!
+      );
+      deposits = deposits.plus(value);
+    }
+
+    // All done. Create the instance.
+    return new SnapshotValuation(
+      fiatCurrency,
+      snapshot.timeStamp,
+      holdings,
+      deposits,
+      tags
     );
+  }
+
+  get(crypto: CryptoAsset): Value {
+    for (const [amount, value] of this.holdings) {
+      if (amount.crypto === crypto) {
+        return value;
+      }
+    }
+    return new Value(this.fiatCurrency, BigNumber.ZERO);
   }
 
   //========================================================================
@@ -88,42 +185,36 @@ export class SnapshotValuation {
       TextUtils.formatDate(this.timeStamp * 1000, options),
     ];
 
-    this.holdings.forEach((amount, crypto) =>
-      lines.push(amount.toDisplayString(options))
-    );
-
-    return lines.join("\n");
-  }
-
-  static async create(
-    registry: CryptoRegistry,
-    oracle: Oracle,
-    fiatConverter: FiatConverter,
-    fiatCurrency: FiatCurrency,
-    timeStamp: number,
-    amounts: Iterable<Amount>
-  ): Promise<SnapshotValuation> {
-    const holdings: Map<CryptoAsset, Value> = new Map();
-    const date = new Date(timeStamp * 1000);
-    for (const amount of amounts) {
-      const crypto = amount.crypto;
-      const prices = await oracle.getPrice(registry, crypto, date, [
-        fiatCurrency,
-      ]);
-      const price = prices[fiatCurrency];
-      if (price === undefined) {
-        // prettier-ignore
-        const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
-
-        console.log(message);
-        throw new MissingPriceError(crypto, fiatCurrency, date);
+    // Add a line for the tags
+    if (this.tags.size) {
+      const tags = [] as String[];
+      for (const [key, value] of this.tags) {
+        if (value !== true) {
+          tags.push(`${key}=${value}`);
+        } else {
+          tags.push(String(key));
+        }
       }
-      const value = valueFromAmountAndPrice(amount, price);
-
-      holdings.set(crypto, value);
+      lines.push(tags.join(" "));
     }
 
-    return new SnapshotValuation(fiatCurrency, timeStamp, holdings);
+    // Add a line for the total deposit
+    lines.push("D:" + this.deposits.toDisplayString(options));
+
+    // Add a line for the total valuation
+    lines.push("V:" + this.totalValue.toDisplayString(options));
+
+    // Now our holdings
+    this.holdings.forEach((value, amount) => {
+      lines.push(
+        "  " +
+          value.toDisplayString(options) +
+          " " +
+          amount.toDisplayString(options)
+      );
+    });
+
+    return lines.join("\n");
   }
 }
 
@@ -137,18 +228,30 @@ export class PortfolioValuation {
     this.snapshotValuations = snapshotValuations;
   }
 
-  static create(
+  static async create(
     registry: CryptoRegistry,
     oracle: Oracle,
     fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency,
     snapshots: Snapshot[]
   ): Promise<PortfolioValuation> {
-    return Promise.all(
-      snapshots.map((snapshot) =>
-        snapshot.evaluate(registry, oracle, fiatConverter, fiatCurrency)
-      )
-    ).then((snapshotValuations) => new PortfolioValuation(snapshotValuations));
+    const snapshotValuations = [] as SnapshotValuation[];
+
+    // we need a bit of serialization here to keep track of the deposits
+    let curr: SnapshotValuation | null = null;
+    for (const snapshot of snapshots) {
+      curr = await SnapshotValuation.createFromSnapshot(
+        registry,
+        oracle,
+        fiatConverter,
+        fiatCurrency,
+        snapshot,
+        curr
+      );
+      snapshotValuations.push(curr);
+    }
+
+    return new PortfolioValuation(snapshotValuations);
   }
 
   //========================================================================

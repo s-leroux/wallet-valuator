@@ -32,6 +32,23 @@ export const defaultDisplayOptions: Required<DisplayOptions> = {
 };
 
 function noDisplayString(obj: object & {}, options: DisplayOptions): string {
+  if (Array.isArray(obj)) {
+    const body = (obj as Array<any>)
+      .map((item) => toDisplayString(item, options))
+      .join("\n");
+    if (body) {
+      return `[\n${TextUtils.indent(body, 1, options)}\n]`;
+    }
+    return "[]";
+  }
+
+  // Other standard container?
+  const values = (obj as any).values?.();
+  if (values) {
+    const classname = obj.constructor?.name ?? "[null prototype]";
+    return `${classname}(${noDisplayString(Array.from(values), options)})`;
+  }
+
   throw new NotImplementedError(
     `Missing toDisplayString() in ${obj.constructor.name}`
   );
@@ -149,7 +166,16 @@ export const TextUtils = {
   //========================================================================
   //  Indentation
   //========================================================================
-  indent(text: string[], n: number = 1, options = {} as DisplayOptions) {
+  indent(
+    text: string[] | string, // FIXME Accept only strings
+    n: number = 1,
+    options = {} as DisplayOptions
+  ) {
+    let isString = false;
+    if (typeof text === "string") {
+      text = text.split("\n");
+      isString = true;
+    }
     const shiftWidth =
       options["shift.width"] ?? defaultDisplayOptions["shift.width"];
 
@@ -160,6 +186,11 @@ export const TextUtils = {
     }
 
     const pad = "".padEnd(n * shiftWidth);
-    return text.map((str) => pad + str);
+    const res = text.map((str) => pad + str);
+    if (isString) {
+      return res.join("\n");
+    } else {
+      return res;
+    }
   },
 } as const;

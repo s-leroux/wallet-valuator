@@ -4,7 +4,7 @@ import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
-import { Transaction, ERC20TokenTransfer } from "../src/transaction.mjs";
+import { Transaction } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
@@ -79,17 +79,17 @@ describe("Ledger", () => {
 
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
-        return swarm.tokenTransfer(chain, registry, cryptoResolver, tr);
+        return swarm.tokenTransfer(chain, tr);
       })
     );
     const b = await Promise.all(
       NormalTransactions.result.map((tr) =>
-        swarm.normalTransaction(chain, registry, cryptoResolver, tr.hash, tr)
+        swarm.normalTransaction(chain, tr.hash, tr)
       )
     );
     const c = await Promise.all(
       InternalTransactions.result.map((tr) =>
-        swarm.internalTransaction(chain, registry, cryptoResolver, tr)
+        swarm.internalTransaction(chain, tr)
       )
     );
 
@@ -102,7 +102,7 @@ describe("Ledger", () => {
 
       // According to:
       // jq '.result | length' fixtures/*.json
-      assert.equal(ledger.list.length, 745);
+      assert.equal(ledger.entries.length, 745);
     });
   });
 
@@ -121,7 +121,7 @@ describe("Ledger", () => {
     it("should return a slice of the same entries", () => {
       const ledger = Ledger.create(transactions);
       const other = ledger.slice(10, 20);
-      assert.deepEqual(other.list, ledger.list.slice(10, 20));
+      assert.deepEqual(other.entries, ledger.entries.slice(10, 20));
     });
   });
 
@@ -134,16 +134,11 @@ describe("Ledger", () => {
               length' fixtures/*.json
       */
       const ledger = Ledger.create(transactions);
-      const address = await swarm.address(
-        chain,
-        registry,
-        cryptoResolver,
-        DISPERSE_APP_ADDRESS
-      );
+      const address = await swarm.address(chain, DISPERSE_APP_ADDRESS);
       const subset = ledger.from(address);
 
       assert.notEqual(subset, ledger);
-      assert.equal(subset.list.length, 48);
+      assert.equal(subset.entries.length, 48);
       for (const entry of subset) {
         assert.equal(entry.record.from, address);
       }

@@ -16,6 +16,10 @@ import { prepare } from "../../support/register.helper.mjs";
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["COINGECKO_API_KEY"];
 
+const INTERNAL_TO_COINGECKO_ID = {
+  bitcoin: "bitcoin",
+};
+
 describe("CoinGecko", function () {
   if (!API_KEY) {
     throw Error("You must define the COINGECKO_API_KEY environment variable");
@@ -28,7 +32,7 @@ describe("CoinGecko", function () {
   let registry: CryptoRegistry;
 
   beforeEach(function () {
-    coingecko = CoinGecko.create(API_KEY);
+    coingecko = CoinGecko.create(API_KEY, INTERNAL_TO_COINGECKO_ID);
     registry = CryptoRegistry.create();
   });
 
@@ -44,7 +48,7 @@ describe("CoinGecko", function () {
         [
           "bitcoin",
           "2024-12-30",
-          { btc: 1, usd: 93663.44751964067, eur: 89809.00932731242 },
+          { BTC: 1, USD: 93663.44751964067, EUR: 89809.00932731242 },
         ],
       ];
 
@@ -56,20 +60,13 @@ describe("CoinGecko", function () {
             new Date(date),
             Object.keys(expected).map(FiatCurrency)
           );
-          assert.equal(
-            Object.keys(prices).length,
-            Object.keys(expected).length
-          );
-          assert.deepEqual(
-            Object.values(prices).reduce<Partial<typeof expected>>(
-              (acc, price: Price) => {
-                acc[price.fiatCurrency.toLowerCase()] = +price.rate;
-                return acc;
-              },
-              {}
-            ),
-            expected
-          );
+          assert.containsAllKeys(prices, Object.keys(expected));
+          for (const [currency, value] of Object.entries(expected)) {
+            assert.equal(
+              prices[FiatCurrency(currency)]?.rate.toNumber(),
+              value
+            );
+          }
         });
       }
     });
@@ -91,6 +88,26 @@ describe("CoinGecko", function () {
       );
       const expected = {};
       assert.deepEqual(price, expected);
+    });
+
+    describe("should convert from internal id to CoinGecko id", function () {
+      const register = prepare(this);
+      const idMapping = {
+        usdc: "usd-coin",
+      };
+
+      // prettier-ignore
+      const testcases = [
+        [ "usdc", "usd-coin" ]
+      ]
+      for (const [internalId, expected] of testcases) {
+        register(`case ${internalId} ⏵ ${expected}`, () => {
+          const coingecko = CoinGecko.create(API_KEY, idMapping);
+          const crypto = new CryptoAsset("usdc", "USDC", "USDC", 18);
+          const coinGeckoId = coingecko.getCoinGeckoId(registry, crypto);
+          assert.equal(coinGeckoId, expected);
+        });
+      }
     });
   });
 });

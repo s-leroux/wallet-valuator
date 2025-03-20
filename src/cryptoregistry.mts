@@ -1,69 +1,120 @@
-import { InvalidTreeStructureError } from "./error.mjs";
-import type { CryptoAsset } from "./cryptoasset.mjs";
+import {
+  DuplicateKeyError,
+  InconsistentUnitsError,
+  InvalidTreeStructureError,
+} from "./error.mjs";
+import { CryptoAsset } from "./cryptoasset.mjs";
+import { logger } from "./debug.mjs";
+const log = logger("crypto-registry");
 
-type Metadata = {
-  [key: string]: string | number | boolean | null | Metadata; // restricted to JSON-compatible types
+export type Metadata = {
+  [k: string]: string | number | boolean | null; // restricted to JSON-compatible types
 };
 
-export function deepCopyMetadata(metadata: Metadata): Metadata {
-  const seen = new WeakSet<object>();
-  const path: string[] = [];
-
-  function copyRecursive(value: Metadata): Metadata {
-    if (value === null || typeof value !== "object") {
-      return value;
-    }
-
-    if (seen.has(value)) {
-      throw new InvalidTreeStructureError(path);
-    }
-
-    seen.add(value);
-
-    //  // Array are not supported in this version
-    //  if (Array.isArray(value)) {
-    //    return value.map((item, index) => {
-    //      path.push(`[${index}]`);
-    //      const result = copyRecursive(item);
-    //      path.pop();
-    //      return result;
-    //    }) as Metadata;
-    //  }
-
-    const copy: Metadata = {};
-    for (const key of Object.getOwnPropertyNames(metadata)) {
-      path.push(key);
-      copy[key] = deepCopyMetadata((metadata as Record<string, Metadata>)[key]);
-      path.pop();
-    }
-
-    // seen.delete(value); // Keep the object in the weak map: DAG are also invalid data structures here
-
-    return copy;
-  }
-
-  return copyRecursive(metadata);
-}
-
-type CryptoAssetData = {
-  domain: string; // A well-known domain identifier
-  data: Metadata; // Metadata related to the asset in this domain
+type StandardNamespace = {
+  coingeckoId?: string;
 };
 
+export type Namespaces = {
+  [k: string]: Metadata | undefined;
+  STANDARD?: StandardNamespace;
+};
+
+/**
+ * The CryptoRegistry is a cache for the crypto-assets and their associated metadata.
+ */
 export class CryptoRegistry {
-  private registry = new WeakMap<CryptoAsset, CryptoAssetData>();
+  private readonly cryptoAssets = new Map<string, CryptoAsset>(); // A mapping from crypto-asset id to logical crypto assets
+  private readonly namespaces = new WeakMap<CryptoAsset, Namespaces>(); // Metadata associated with a logical crypto asset
 
-  // Private constructor to enforce singleton-like behavior
+  // Private constructor to enforce factory method use
   private constructor() {}
 
   /**
-   * Associate domain-specific data with a CryptoAsset.
-   * @param asset - The CryptoAsset to annotate.
-   * @param domain - A well-known domain identifier for the data.
-   * @param data - The domain-specific data to associate with the asset.
+   * Factory method to create a new CryptoRegistry instance.
    */
-  setDomainData(asset: CryptoAsset, domain: string, data: Metadata = {}): void {
-    this.registry.set(asset, { domain, data: deepCopyMetadata(data) });
+  static create(): CryptoRegistry {
+    return new CryptoRegistry();
+  }
+
+  getCryptoAsset(id: string) {
+    return this.cryptoAssets.get(id);
+  }
+
+  findCryptoAsset(id: string, name: string, symbol: string, decimal: number) {
+    const existing = this.cryptoAssets.get(id);
+    if (existing) {
+      // consistency check
+      if (name !== existing.name || symbol !== existing.symbol) {
+        log.warn(
+          "C2003",
+          `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
+        );
+      }
+      if (decimal !== existing.decimal) {
+        log.error(
+          "C3003",
+          `existing precision ${decimal} different from ${existing.decimal} for ${name}`
+        );
+        throw new InconsistentUnitsError(decimal, existing.decimal);
+      }
+
+      return existing;
+    }
+
+    const crypto = new CryptoAsset(id, name, symbol, decimal);
+    this.cryptoAssets.set(id, crypto);
+
+    return crypto;
+  }
+
+  /**
+   * Register a pre-existing crypto-asset with optional metadata
+   */
+  registerCryptoAsset(asset: CryptoAsset, namespaces?: Namespaces) {
+    if (this.cryptoAssets.has(asset.id)) {
+      log.error("C3004", `Crypto-asset ${asset} already registered`);
+      throw new DuplicateKeyError(asset);
+    }
+
+    this.cryptoAssets.set(asset.id, asset);
+    if (namespaces) {
+      this.setNamespaces(asset, namespaces);
+    }
+  }
+
+  setNamespaces(asset: CryptoAsset, namespaces: Namespaces) {
+    for (const [key, value] of Object.entries(namespaces)) {
+      this.setNamespaceData(asset, key, value);
+    }
+  }
+
+  /**
+   * Associate namespace-specific data with a CryptoAsset.
+   * @param asset - The CryptoAsset to annotate.
+   * @param namespaceName - A well-known namespace identifier for the data.
+   * @param namespaceData - The namespace-specific data to associate with the asset.
+   */
+  setNamespaceData(
+    asset: CryptoAsset,
+    namespaceName: string,
+    namespaceData: Metadata = Object.create(null)
+  ): void {
+    let namespace = this.namespaces.get(asset);
+    if (namespace === undefined) {
+      namespace = {
+        // @ts-ignore
+        __proto__: null,
+
+        [namespaceName]: Object.assign(Object.create(null), namespaceData),
+      };
+      this.namespaces.set(asset, namespace);
+    }
+
+    namespace[namespaceName] = Object.assign(
+      namespace[namespaceName] ?? Object.create(null),
+      namespaceData
+    );
   }
 
   /**
@@ -71,28 +122,21 @@ export class CryptoRegistry {
    * @param asset - The CryptoAsset to query.
    * @returns The data entry for the asset, or undefined if no data exists.
    */
-  getAssetData(asset: CryptoAsset): CryptoAssetData | undefined {
-    return this.registry.get(asset);
+  getNamespaces(asset: CryptoAsset): Namespaces | undefined {
+    return this.namespaces.get(asset);
   }
 
   /**
-   * Retrieve domain-specific data for a CryptoAsset, if it matches the provided domain.
+   * Retrieve namespace-specific data for a CryptoAsset.
    * @param asset - The CryptoAsset to query.
-   * @param domain - The expected domain for the data.
-   * @returns The domain-specific data, or undefined if no matching entry exists.
+   * @param namespace - The expected namespace for the data.
+   * @returns The namespace-specific data, or undefined if no matching entry exists.
    */
-  getDomainData(asset: CryptoAsset, domain: string): Metadata | undefined {
-    const entry = this.getAssetData(asset);
-    if (entry && entry.domain === domain) {
-      return entry.data;
-    }
-    return undefined;
-  }
-
-  /**
-   * Factory method to create a new CryptoRegistry instance.
-   */
-  static create(): CryptoRegistry {
-    return new CryptoRegistry();
+  getNamespaceData(
+    asset: CryptoAsset,
+    namespaceName: string
+  ): Metadata | undefined {
+    const entry = this.getNamespaces(asset);
+    return entry?.[namespaceName];
   }
 }

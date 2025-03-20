@@ -4,11 +4,13 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
+import { Swarm } from "../../../src/swarm.mjs";
 
 describe("LazyCryptoResolver", function () {
   let cryptoResolver: LazyCryptoResolver;
+  let registry: CryptoRegistry;
+  let swarm: Swarm;
 
   const E = asBlockchain("ethereum");
   const G = asBlockchain("gnosis");
@@ -16,11 +18,12 @@ describe("LazyCryptoResolver", function () {
   const S = asBlockchain("solana");
 
   beforeEach(() => {
+    registry = CryptoRegistry.create();
     cryptoResolver = LazyCryptoResolver.create();
+    swarm = Swarm.create([], registry, cryptoResolver);
   });
 
   it("Should cache tokens", async () => {
-    const registry = CryptoRegistry.create();
     const POLYGON_WBTC = [
       "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",
       "Wrapped Bitcoin",
@@ -29,12 +32,7 @@ describe("LazyCryptoResolver", function () {
     ] as const;
 
     assert.notExists(cryptoResolver.get("polygon", POLYGON_WBTC[0]));
-    const wbtc = await cryptoResolver.resolve(
-      registry,
-      P,
-      1234,
-      ...POLYGON_WBTC
-    );
+    const wbtc = await cryptoResolver.resolve(swarm, P, 1234, ...POLYGON_WBTC);
     if (!wbtc || wbtc.status !== "resolved") {
       assert.fail(`wbtc was ${wbtc}`);
     }
@@ -47,12 +45,7 @@ describe("LazyCryptoResolver", function () {
       cryptoResolver.get("polygon", POLYGON_WBTC[0]),
       wbtc.asset
     );
-    const wbtc2 = await cryptoResolver.resolve(
-      registry,
-      P,
-      1234,
-      ...POLYGON_WBTC
-    );
+    const wbtc2 = await cryptoResolver.resolve(swarm, P, 1234, ...POLYGON_WBTC);
     assert.deepEqual(wbtc2, wbtc);
   });
 
@@ -70,9 +63,8 @@ describe("LazyCryptoResolver", function () {
 
     for (const [chain, address, name, symbol, decimal] of testcases) {
       register(`case of ${[chain, name]}`, async () => {
-        const registry = CryptoRegistry.create();
         const result = await cryptoResolver.resolve(
-          registry,
+          swarm,
           chain,
           12345,
           address,

@@ -1,9 +1,9 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 import { MMap } from "../../memoizer.mjs";
-import { Blockchain } from "../../blockchain.mjs";
+import type { Blockchain } from "../../blockchain.mjs";
+import type { Swarm } from "../../swarm.mjs";
 
 // XXX We may factor out the ChainAddress utility
 type ChainAddress = string & { readonly brand: unique symbol };
@@ -52,7 +52,7 @@ export class LazyCryptoResolver extends CryptoResolver {
   }
 
   async resolve(
-    registry: CryptoRegistry,
+    swarm: Swarm,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
