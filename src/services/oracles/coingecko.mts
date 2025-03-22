@@ -94,6 +94,9 @@ export class CoinGecko extends Oracle {
     let prices;
     let historical_data;
     const coinGeckoId = this.getCoinGeckoId(registry, crypto);
+    if (!coinGeckoId) {
+      return Object.create(null);
+    }
     try {
       historical_data = await this.provider.fetch(
         `coins/${encodeURIComponent(coinGeckoId)}/history`,
@@ -132,7 +135,10 @@ export class CoinGecko extends Oracle {
     return result;
   }
 
-  getCoinGeckoId(registry: CryptoRegistry, crypto: CryptoAsset): string {
+  getCoinGeckoId(
+    registry: CryptoRegistry,
+    crypto: CryptoAsset
+  ): string | undefined {
     // 1. Check the standard metadata
     const metadata = registry.getNamespaces(crypto);
     const id = metadata?.STANDARD?.coingeckoId;
@@ -144,17 +150,14 @@ export class CoinGecko extends Oracle {
     return this.internalToCoinGeckoId(crypto.id);
   }
 
-  internalToCoinGeckoId(internalId: string): string {
+  internalToCoinGeckoId(internalId: string): string | undefined {
     const coinGeckoId = this.idMapping?.[internalId];
 
     if (coinGeckoId !== undefined) {
       return coinGeckoId;
     }
 
-    console.log(
-      "CoinGecko id not known for %s. Returning unchanged.",
-      internalId
-    );
-    return internalId.toLowerCase();
+    console.log("CoinGecko id not known for %s.", internalId);
+    return undefined;
   }
 }

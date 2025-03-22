@@ -5,6 +5,7 @@ import { DisplayOptions } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
 import { Ensure } from "./type.mjs";
+import { CryptoRegistry } from "./cryptoregistry.mjs";
 const log = logger("ledger");
 
 // =========================================================================
@@ -69,14 +70,18 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
 // Ledger and entries
 // =========================================================================
 
-type Filter = (entries: Entry[], value: any) => Entry[];
+type Filter = (
+  registry: CryptoRegistry,
+  entries: Entry[],
+  value: any
+) => Entry[];
 const FILTERS: Record<string, Filter> = {
   // @ts-ignore
   __proto__: null,
 
   // NB: All filters SHOULD be "arrow" functions
 
-  from(entries: Entry[], address: any) {
+  from(registry: CryptoRegistry, entries: Entry[], address: any) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
     } else {
@@ -88,10 +93,24 @@ const FILTERS: Record<string, Filter> = {
     });
   },
 
-  "crypto-asset"(entries: Entry[], cryptoId: any) {
+  "crypto-asset"(registry: CryptoRegistry, entries: Entry[], cryptoId: any) {
     cryptoId = Ensure.isString(cryptoId);
     return entries.filter((entry) => {
       return entry.record.amount.crypto.id === cryptoId;
+    });
+  },
+
+  "crypto-resolver"(
+    registry: CryptoRegistry,
+    entries: Entry[],
+    resolverName: any
+  ) {
+    resolverName = Ensure.isString(resolverName);
+    return entries.filter((entry) => {
+      return (
+        registry.getNamespaceData(entry.record.amount.crypto, "STANDARD")
+          ?.resolver === resolverName
+      );
     });
   },
 } as const;
@@ -216,13 +235,13 @@ export class Ledger implements Iterable<Entry> {
   //  Transaction selection
   //========================================================================
 
-  filter(selector: Record<string, any>): Ledger {
+  filter(registry: CryptoRegistry, selector: Record<string, any>): Ledger {
     let entries = this.entries;
     for (const key of Object.keys(selector)) {
       const fn = FILTERS[key];
 
       if (fn) {
-        entries = fn(entries, selector[key]);
+        entries = fn(registry, entries, selector[key]);
       } else {
         log.warn("C2004", "Ignoring unknown filter key:", key);
       }

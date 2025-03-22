@@ -106,6 +106,7 @@ export class SnapshotValuation {
 
     // Helper function
     async function getPrice(crypto: CryptoAsset) {
+      // This is a regular crypto-asset. Use the oracle to get the price.
       const prices = await oracle.getPrice(registry, crypto, date, [
         fiatCurrency,
       ]);

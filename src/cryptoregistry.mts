@@ -8,11 +8,12 @@ import { logger } from "./debug.mjs";
 const log = logger("crypto-registry");
 
 export type Metadata = {
-  [k: string]: string | number | boolean | null; // restricted to JSON-compatible types
+  [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
 };
 
 type StandardNamespace = {
   coingeckoId?: string;
+  resolver?: string;
 };
 
 export type Namespaces = {
@@ -90,7 +91,9 @@ export class CryptoRegistry {
   }
 
   /**
-   * Associate namespace-specific data with a CryptoAsset.
+   * Associate (upsert) namespace-specific data with a CryptoAsset.
+   * If the namespace doesn't exist, it will be created. If it exists,
+   * the new data will be merged with the existing data.
    * @param asset - The CryptoAsset to annotate.
    * @param namespaceName - A well-known namespace identifier for the data.
    * @param namespaceData - The namespace-specific data to associate with the asset.
@@ -100,19 +103,20 @@ export class CryptoRegistry {
     namespaceName: string,
     namespaceData: Metadata = Object.create(null)
   ): void {
-    let namespace = this.namespaces.get(asset);
-    if (namespace === undefined) {
-      namespace = {
+    let namespaces = this.namespaces.get(asset);
+    if (namespaces === undefined) {
+      namespaces = {
         // @ts-ignore
         __proto__: null,
 
         [namespaceName]: Object.assign(Object.create(null), namespaceData),
       };
-      this.namespaces.set(asset, namespace);
+      this.namespaces.set(asset, namespaces);
+      return;
     }
 
-    namespace[namespaceName] = Object.assign(
-      namespace[namespaceName] ?? Object.create(null),
+    namespaces[namespaceName] = Object.assign(
+      namespaces[namespaceName] ?? Object.create(null),
       namespaceData
     );
   }

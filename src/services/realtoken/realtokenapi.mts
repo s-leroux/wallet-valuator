@@ -42,6 +42,10 @@ export interface RealTokenAPI {
 export class DefaultRealTokenAPI implements RealTokenAPI {
   constructor(readonly provider: Provider) {}
 
+  static create(base: string = REALTOKEN_API_BASEADDRESS) {
+    return new DefaultRealTokenAPI(new RealTokenProvider(base));
+  }
+
   token() {
     return this.provider.fetch("/v1/token") as Promise<RealToken[]>;
   }
