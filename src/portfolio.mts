@@ -18,7 +18,6 @@ interface Movement {
 
 export class Snapshot {
   readonly timeStamp: number;
-  readonly amount: Amount; // Keep track of the movement's amount
   readonly holdings: Map<CryptoAsset, Amount>; // Portfolio balance _after_ update
   readonly tags: Map<string, any>; // Copy of the transaction's tags
 
@@ -29,7 +28,6 @@ export class Snapshot {
     parent: Snapshot | null = null
   ) {
     this.timeStamp = movement.timeStamp;
-    this.amount = movement.amount;
     // Naive implementation: just clone the whole map
     this.holdings = new Map(parent?.holdings);
     this.tags = new Map(tags);

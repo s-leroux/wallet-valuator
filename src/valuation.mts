@@ -128,9 +128,6 @@ export class SnapshotValuation {
     for (const crypto of snapshot.holdings.keys()) {
       rates.set(crypto, await getPrice(crypto));
     }
-    if (!rates.has(snapshot.amount.crypto)) {
-      rates.set(snapshot.amount.crypto, await getPrice(snapshot.amount.crypto));
-    }
 
     // We have all the prices now. Calculate our holdings.
     const holdings = new Map<Amount, Value>();
@@ -142,17 +139,28 @@ export class SnapshotValuation {
     // Copy tags
     const tags = new Map<string, any>(snapshot.tags);
 
-    // Calculate the delta deposit
+    // Get the actual deposits
     let deposits = parent
       ? parent.deposits
       : new Value(fiatCurrency, BigNumber.ZERO);
 
-    if (tags.get("RAMP-UP")) {
-      const value = valueFromAmountAndPrice(
-        snapshot.amount,
-        rates.get(snapshot.amount.crypto)!
-      );
-      deposits = deposits.plus(value);
+    // Handle the INGRESS/EGRESS tags
+    const ingress = tags.get("INGRESS");
+    const egress = tags.get("EGRESS");
+    const amount = ingress ? ingress : egress ? egress : null;
+    if (amount) {
+      if (!rates.has(amount.crypto)) {
+        rates.set(amount.crypto, await getPrice(amount.crypto));
+      }
+
+      // Calculate the delta deposit
+      const delta = valueFromAmountAndPrice(amount, rates.get(amount.crypto)!);
+
+      if (tags.get("RAMP-UP")) {
+        deposits = deposits.plus(delta);
+      } else if (tags.get("RAMP-DOWN")) {
+        deposits = deposits.minus(delta);
+      }
     }
 
     // All done. Create the instance.
