@@ -23,6 +23,7 @@ export class Snapshot {
 
   constructor(
     ingress: boolean,
+    egress: boolean,
     movement: Movement,
     tags: Map<string, any>,
     parent: Snapshot | null = null
@@ -31,10 +32,15 @@ export class Snapshot {
     // Naive implementation: just clone the whole map
     this.holdings = new Map(parent?.holdings);
     this.tags = new Map(tags);
-    this.update(ingress, movement, tags);
+    this.update(ingress, egress, movement, tags);
   }
 
-  update(ingress: boolean, movement: Movement, tags: Map<string, any>): void {
+  update(
+    ingress: boolean,
+    egress: boolean,
+    movement: Movement,
+    tags: Map<string, any>
+  ): void {
     /*
      * This is where all the "magic" happens.
      * This function uses a set of well-known tags and heuristics to
@@ -46,12 +52,15 @@ export class Snapshot {
     const amount = movement.amount;
     const crypto = amount.crypto;
     const holding = this.holdings.get(crypto);
-    let newAmount: Amount;
+    let newAmount = holding;
 
+    // Note: we may have a transaction with both ingress and egress tags
+    // for inter-account transfers.
     if (ingress) {
       newAmount = holding ? holding.plus(movement.amount) : movement.amount;
       this.tags.set("INGRESS", amount);
-    } else {
+    }
+    if (egress) {
       // problem: we may encounter an underflow!
       try {
         newAmount = (holding ? holding : new Amount(crypto)).minus(
@@ -72,7 +81,7 @@ export class Snapshot {
       this.tags.set("EGRESS", amount);
     }
 
-    this.holdings.set(crypto, newAmount);
+    this.holdings.set(crypto, newAmount ?? new Amount(crypto));
   }
 
   // XXX I am not sure this is meaningful without the previous snapshot valuation,
@@ -145,7 +154,7 @@ export class Portfolio {
         // Ignoring
         continue;
       } else if (ingress || egress) {
-        curr = new Snapshot(ingress, entry.record, entry.tags, curr);
+        curr = new Snapshot(ingress, egress, entry.record, entry.tags, curr);
         snapshots.push(curr);
       } else {
         // Not our business
