@@ -1,6 +1,7 @@
 import os from "node:os";
 
 import { type CryptoAsset, Amount } from "./cryptoasset.mjs";
+import type { Address } from "./address.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
 import { SnapshotValuation, PortfolioValuation } from "./valuation.mjs";
@@ -9,10 +10,14 @@ import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import type { Oracle } from "./services/oracle.mjs";
 import { DisplayOptions, TextUtils } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
+import type { Explorer } from "./services/explorer.mjs";
 
 interface Movement {
+  explorer?: Explorer;
   timeStamp: number;
   amount: Amount;
+  from?: Address;
+  to?: Address;
   hash?: string;
 }
 
@@ -82,6 +87,17 @@ export class Snapshot {
     }
 
     this.holdings.set(crypto, newAmount ?? new Amount(crypto));
+
+    // Keep track of some additional information
+    if (movement.explorer) {
+      this.tags.set("CHAIN", movement.explorer.chain);
+    }
+    if (movement.from) {
+      this.tags.set("FROM", movement.from);
+    }
+    if (movement.to) {
+      this.tags.set("TO", movement.to);
+    }
   }
 
   // XXX I am not sure this is meaningful without the previous snapshot valuation,

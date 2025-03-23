@@ -2,11 +2,11 @@
 import type { CryptoAsset, Amount } from "../../src/cryptoasset.mjs";
 import { FakeCryptoAsset } from "./cryptoasset.fake.mjs";
 import { Snapshot } from "../../src/portfolio.mjs";
-
+import type { Address } from "../../src/address.mjs";
 type Movement = [
   ingress: boolean,
   egress: boolean,
-  { timeStamp: number; amount: Amount },
+  { timeStamp: number; amount: Amount; from?: Address; to?: Address },
   Map<string, any>
 ];
 
