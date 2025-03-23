@@ -57,7 +57,7 @@ const defaultCryptoTable = [
 
 //prettier-ignore
 const defaultKeyDomainsMap = [
-  ["armm-v3-usdc", "RealT RMM V3 USDC", "armmv3USDC", 18, { STANDARD: { coingeckoId: "usd-coin" } }],
+  ["armm-v3-usdc", "RealT RMM V3 USDC", "armmv3USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
   ["armm-v3-wxdai", "RealT RMM V3 WXDAI", "armmv3WXDAI", 18, { STANDARD: { coingeckoId: "xdai" } }],
   ["binance-coin", "Binance Coin", "BNB", 18, { STANDARD: { coingeckoId: "binancecoin" } }],
   ["bitcoin", "Bitcoin", "BTC", 8, { STANDARD: { coingeckoId: "bitcoin" } }],
