@@ -6,6 +6,7 @@ import { DisplayOptions } from "./displayable.mjs";
 import { logger } from "./debug.mjs";
 import { Ensure } from "./type.mjs";
 import { CryptoRegistry } from "./cryptoregistry.mjs";
+import { ValueError } from "./error.mjs";
 const log = logger("ledger");
 
 // =========================================================================
@@ -80,17 +81,18 @@ const FILTERS: Record<string, Filter> = {
   __proto__: null,
 
   // NB: All filters SHOULD be "arrow" functions
+  // Keep the entries in alphabetical order
 
-  from(registry: CryptoRegistry, entries: Entry[], address: any) {
-    if (address === null) {
-      address = "0x0000000000000000000000000000000000000000";
-    } else {
-      address = Ensure.isString(address).toLowerCase();
-    }
-
+  chain(registry: CryptoRegistry, entries: Entry[], chainName: any) {
+    chainName = Ensure.isString(chainName);
     return entries.filter((entry) => {
-      return entry.record.from.address === address;
+      return entry.record.explorer.chain.name === chainName;
     });
+  },
+
+  comment(registry: CryptoRegistry, entries: Entry[], chainName: any) {
+    // NOOP
+    return entries;
   },
 
   "crypto-asset"(registry: CryptoRegistry, entries: Entry[], cryptoId: any) {
@@ -111,6 +113,30 @@ const FILTERS: Record<string, Filter> = {
         registry.getNamespaceData(entry.record.amount.crypto, "STANDARD")
           ?.resolver === resolverName
       );
+    });
+  },
+
+  from(registry: CryptoRegistry, entries: Entry[], address: any) {
+    if (address === null) {
+      address = "0x0000000000000000000000000000000000000000";
+    } else {
+      address = Ensure.isString(address).toLowerCase();
+    }
+
+    return entries.filter((entry) => {
+      return entry.record.from.address === address;
+    });
+  },
+
+  to(registry: CryptoRegistry, entries: Entry[], address: any) {
+    if (address === null) {
+      address = "0x0000000000000000000000000000000000000000";
+    } else {
+      address = Ensure.isString(address).toLowerCase();
+    }
+
+    return entries.filter((entry) => {
+      return entry.record.to.address === address;
     });
   },
 } as const;
@@ -243,7 +269,8 @@ export class Ledger implements Iterable<Entry> {
       if (fn) {
         entries = fn(registry, entries, selector[key]);
       } else {
-        log.warn("C2004", "Ignoring unknown filter key:", key);
+        log.error("C2004", "Ignoring unknown filter key:", key);
+        throw new ValueError(`Unknown filter key: ${key}`);
       }
     }
     return new Ledger(entries);
