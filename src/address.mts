@@ -3,6 +3,7 @@ import { defaultDisplayOptions, type DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import { Blockchain } from "./blockchain.mjs";
+import { ValueError } from "./error.mjs";
 
 type ERC20TokenAddressData = {
   tokenName: string;
@@ -11,8 +12,7 @@ type ERC20TokenAddressData = {
 };
 
 type AnyAddressData = {
-  from: string;
-  to: string;
+  name: string;
 };
 
 export type AddressData = AnyAddressData & ERC20TokenAddressData;
@@ -29,7 +29,7 @@ export class Address {
 
   constructor(swarm: Swarm, chain: Blockchain, address: string) {
     if (!address) {
-      throw new Error("Then empty string is not a valid address");
+      throw new ValueError("The empty string is not a valid address");
     }
 
     this.explorer = swarm.getExplorer(chain);
@@ -64,9 +64,15 @@ export class Address {
   }
 
   toDisplayString(options: DisplayOptions) {
-    const compact =
+    const useName =
+      options["address.name"] ?? defaultDisplayOptions["address.name"];
+    if (useName && this.data.name) {
+      return this.data.name;
+    }
+
+    const useCompactAddress =
       options["address.compact"] ?? defaultDisplayOptions["address.compact"];
-    if (!compact) {
+    if (!useCompactAddress) {
       return this.address;
     }
 

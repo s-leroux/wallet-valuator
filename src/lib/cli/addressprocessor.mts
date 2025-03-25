@@ -13,6 +13,8 @@ import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
+import { ChainAddress } from "../../chainaddress.mjs";
+import { Address } from "../../address.mjs";
 
 type ErrCode = "T0001";
 
@@ -27,7 +29,7 @@ const ENVVARS = [
   "COINGECKO_API_KEY",
   "CACHE_PATH",
 ] as const;
-type EnvVars = { [K in typeof ENVVARS[number]]: string };
+type EnvVars = { [K in (typeof ENVVARS)[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
   return CompositeCryptoResolver.create([
@@ -63,11 +65,17 @@ function loadEnvironmentVariables() {
   return result;
 }
 
+type Config = {
+  addresses?: [chain: string, address: string, data: object][];
+  filters?: [filter: object, key: string, value?: unknown][];
+};
 export async function processAddresses(
   hexAddresses: string[],
   configPath?: string
 ): Promise<void> {
-  let config = configPath ? JSON.parse(await readFile(configPath, "utf8")) : {};
+  const config = (
+    configPath ? JSON.parse(await readFile(configPath, "utf8")) : {}
+  ) as Config;
 
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
@@ -77,6 +85,12 @@ export async function processAddresses(
   const chain = asBlockchain("gnosis");
   const addresses = await Promise.all(
     hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress))
+  );
+
+  await Promise.all(
+    (config.addresses ?? []).map(([chain, address, data]) =>
+      swarm.address(asBlockchain(chain), address, data)
+    )
   );
 
   const transfers = await Promise.all(
@@ -104,7 +118,8 @@ export async function processAddresses(
   console.log(
     "%s",
     toDisplayString(valuation, {
-      "address.compact": true,
+      "address.compact": false,
+      "address.name": true,
       "amount.value.format": format("16.4"),
     })
   );

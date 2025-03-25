@@ -38,16 +38,16 @@ describe("Swarm", () => {
 
     it("should accumulate the added data", async () => {
       const objA = await swarm.address(chain, ADDRESS, {
-        from: "0x11111111",
+        tokenName: "USDC",
       });
       const objB = await swarm.address(chain, ADDRESS, {
-        to: "0x22222222",
+        tokenDecimal: 6,
       });
 
       assert.isObject(objA);
       assert.isObject(objB);
       assert.strictEqual(objA, objB);
-      assert.include(objA.data, { from: "0x11111111", to: "0x22222222" });
+      assert.include(objA.data, { tokenName: "USDC", tokenDecimal: 6 });
     });
   });
 

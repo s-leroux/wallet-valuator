@@ -10,6 +10,7 @@ import {
   defaultDisplayOptions,
   DisplayOptions,
   TextUtils,
+  toDisplayString,
 } from "./displayable.mjs";
 import { Snapshot } from "./portfolio.mjs";
 
@@ -199,7 +200,7 @@ export class SnapshotValuation {
       const tags = [] as String[];
       for (const [key, value] of this.tags) {
         if (value !== true) {
-          tags.push(`${key}=${value}`);
+          tags.push(`${key}=${toDisplayString(value, options)}`);
         } else {
           tags.push(String(key));
         }

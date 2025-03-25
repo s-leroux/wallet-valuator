@@ -6,7 +6,8 @@ export interface Displayable {
 }
 
 export type DisplayOptions = Partial<{
-  "address.compact": boolean;
+  "address.compact": boolean; // Display numeric address in compact form
+  "address.name": boolean; // Display address name instead of numeric address
   "amount.separator": string;
   "amount.symbol.format": (arg: string) => string;
   "amount.value.format": (arg: string) => string;
@@ -23,6 +24,7 @@ export const defaultDisplayOptions: Required<DisplayOptions> = {
   "shift.width": 2,
   "date.format": "YYYY-MM-DD",
   "address.compact": false,
+  "address.name": false,
   "amount.separator": " ",
   "amount.symbol.format": id,
   "amount.value.format": id,

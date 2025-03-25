@@ -1,3 +1,4 @@
+import { DisplayOptions } from "./displayable.mjs";
 import { MMap } from "./memoizer.mjs";
 
 export function asBlockchain(chain: Blockchain | string): Blockchain {
@@ -39,6 +40,10 @@ export class Blockchain {
   }
 
   toString() {
+    return this.name;
+  }
+
+  toDisplayString(options: DisplayOptions) {
     return this.name;
   }
 
