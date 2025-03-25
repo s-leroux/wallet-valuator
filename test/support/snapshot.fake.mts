@@ -2,10 +2,11 @@
 import type { CryptoAsset, Amount } from "../../src/cryptoasset.mjs";
 import { FakeCryptoAsset } from "./cryptoasset.fake.mjs";
 import { Snapshot } from "../../src/portfolio.mjs";
-
+import type { Address } from "../../src/address.mjs";
 type Movement = [
-  boolean,
-  { timeStamp: number; amount: Amount },
+  ingress: boolean,
+  egress: boolean,
+  { timeStamp: number; amount: Amount; from?: Address; to?: Address },
   Map<string, any>
 ];
 
@@ -15,6 +16,7 @@ function timeStampFromDate(YYYY_MM_DD: string) {
 
 export function FakeMovement( // Capitalized to pretend we are a class. Hin! Hin!
   ingress: boolean,
+  egress: boolean,
   timeStampOrDate: number | string,
   amount: string,
   asset: keyof typeof FakeCryptoAsset,
@@ -22,6 +24,7 @@ export function FakeMovement( // Capitalized to pretend we are a class. Hin! Hin
 ): Movement {
   return [
     ingress,
+    egress,
     {
       timeStamp:
         typeof timeStampOrDate === "string"

@@ -3,7 +3,11 @@ import { NotImplementedError } from "../../error.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { RealTokenAPI, RealToken } from "./realtokenapi.mjs";
+import {
+  type RealTokenAPI,
+  type RealToken,
+  DefaultRealTokenAPI,
+} from "./realtokenapi.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 
@@ -49,6 +53,7 @@ function cryptoAssetFromEntry(
 
   // Record domain specific metadata
   registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
+  registry.setNamespaceData(crypto, "STANDARD", { resolver: "realtoken" });
 
   return crypto;
 }
@@ -59,6 +64,10 @@ export class RealTokenResolver extends CryptoResolver {
   constructor(readonly api: RealTokenAPI) {
     super();
     this.tokens = new Map();
+  }
+
+  static create(api?: RealTokenAPI) {
+    return new RealTokenResolver(api ?? DefaultRealTokenAPI.create());
   }
 
   async load() {

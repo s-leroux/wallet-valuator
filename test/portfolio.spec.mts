@@ -12,8 +12,8 @@ import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 import { Portfolio, Snapshot } from "../src/portfolio.mjs";
 
-const INGRESS = true;
-const EGRESS = false;
+const INGRESS = [true, false] as const;
+const EGRESS = [false, true] as const;
 
 describe("Snapshot", () => {
   describe("constructor", () => {
@@ -21,6 +21,7 @@ describe("Snapshot", () => {
       const value = "100.5";
       const movement = FakeMovement(
         true,
+        false,
         10,
         value,
         "ethereum",
@@ -37,10 +38,10 @@ describe("Snapshot", () => {
 
     it("should correctly initialize an instance from a parent", () => {
       const movements = [
-        FakeMovement(INGRESS, 10, "100", "dai"),
-        FakeMovement(INGRESS, 20, "200", "ethereum"),
-        FakeMovement(EGRESS, 30, "25", "dai"),
-        FakeMovement(INGRESS, 40, "300", "ethereum"),
+        FakeMovement(...INGRESS, 10, "100", "dai"),
+        FakeMovement(...INGRESS, 20, "200", "ethereum"),
+        FakeMovement(...EGRESS, 30, "25", "dai"),
+        FakeMovement(...INGRESS, 40, "300", "ethereum"),
       ];
 
       let snapshot = snapshotFromMovements(movements);
@@ -60,10 +61,10 @@ describe("Snapshot", () => {
 
   describe("assets()", () => {
     const movements = [
-      FakeMovement(INGRESS, 10, "100", "dai"),
-      FakeMovement(INGRESS, 20, "200", "ethereum"),
-      FakeMovement(EGRESS, 30, "25", "dai"),
-      FakeMovement(INGRESS, 40, "300", "ethereum"),
+      FakeMovement(...INGRESS, 10, "100", "dai"),
+      FakeMovement(...INGRESS, 20, "200", "ethereum"),
+      FakeMovement(...EGRESS, 30, "25", "dai"),
+      FakeMovement(...INGRESS, 40, "300", "ethereum"),
     ];
 
     let snapshot = snapshotFromMovements(movements);
@@ -83,12 +84,12 @@ describe("Portfolio", () => {
   });
 
   const movements = [
-    FakeMovement(INGRESS, 5, "50", "solana"),
-    FakeMovement(INGRESS, 10, "100", "dai"),
-    FakeMovement(INGRESS, 20, "200", "ethereum"),
-    FakeMovement(EGRESS, 30, "25", "dai"),
-    FakeMovement(EGRESS, 35, "50", "solana"),
-    FakeMovement(INGRESS, 40, "300", "bitcoin"),
+    FakeMovement(...INGRESS, 5, "50", "solana"),
+    FakeMovement(...INGRESS, 10, "100", "dai"),
+    FakeMovement(...INGRESS, 20, "200", "ethereum"),
+    FakeMovement(...EGRESS, 30, "25", "dai"),
+    FakeMovement(...EGRESS, 35, "50", "solana"),
+    FakeMovement(...INGRESS, 40, "300", "bitcoin"),
   ];
 
   let portfolio = new Portfolio(snapshotsFromMovements(movements));

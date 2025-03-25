@@ -13,8 +13,6 @@ import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
-import { Value } from "../../valuation.mjs";
-import { ValueError } from "../../error.mjs";
 
 type ErrCode = "T0001";
 
@@ -91,7 +89,7 @@ export async function processAddresses(
   }
 
   for (const [selector, tag, value] of config.filters ?? []) {
-    ledger.filter(selector).tag(tag, value);
+    ledger.filter(registry, selector).tag(tag, value);
   }
   const portfolio = ledger.portfolio();
 

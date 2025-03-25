@@ -45,13 +45,13 @@ describe("SnapshotValuation", () => {
   });
 
   describe("from Snapshot", () => {
-    const INGRESS = true;
-    const EGRESS = false;
+    const INGRESS = [true, false] as const;
+    const EGRESS = [false, true] as const;
 
     const movements = [
-      FakeMovement(INGRESS, "2024-12-02", "200000", "usd-coin"),
-      FakeMovement(EGRESS, "2024-12-03", "95833.1362300365", "usd-coin"),
-      FakeMovement(INGRESS, "2024-12-03", "1", "bitcoin"),
+      FakeMovement(...INGRESS, "2024-12-02", "200000", "usd-coin"),
+      FakeMovement(...EGRESS, "2024-12-03", "95833.1362300365", "usd-coin"),
+      FakeMovement(...INGRESS, "2024-12-03", "1", "bitcoin"),
     ];
 
     it("should create a Valuation instance from holdings", async () => {
@@ -108,13 +108,13 @@ describe("PortfolioValuation", () => {
     ];
 
     it("should create a PortfolioValuation instance from snapshots", async () => {
-      const INGRESS = true;
-      const EGRESS = false;
+      const INGRESS = [true, false] as const;
+      const EGRESS = [false, true] as const;
 
       const movements = [
-        FakeMovement(INGRESS, "2024-12-02", "200000", "usd-coin"),
-        FakeMovement(EGRESS, "2024-12-03", "95833.1362300365", "usd-coin"),
-        FakeMovement(INGRESS, "2024-12-03", "1", "bitcoin"),
+        FakeMovement(...INGRESS, "2024-12-02", "200000", "usd-coin"),
+        FakeMovement(...EGRESS, "2024-12-03", "95833.1362300365", "usd-coin"),
+        FakeMovement(...INGRESS, "2024-12-03", "1", "bitcoin"),
       ];
       const snapshots = snapshotsFromMovements(movements);
       const valuation = await PortfolioValuation.create(
