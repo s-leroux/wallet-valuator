@@ -28,11 +28,11 @@ export type CurvePriceHistory = {
 //  API
 //==========================================================================
 
-export class CurveAPI {
+export class DefaultCurveAPI {
   constructor(readonly provider: Provider) {}
 
-  static create(base: string = CURVE_API_BASEADDRESS) {
-    return new CurveAPI(new CurveProvider(base));
+  static create(base: string = CURVE_API_BASEADDRESS): CurveAPI {
+    return new DefaultCurveAPI(new CurveProvider(base));
   }
 
   async getUSDPrice(
@@ -56,3 +56,5 @@ export class CurveAPI {
     }) as Promise<CurvePriceHistory>;
   }
 }
+
+export type CurveAPI = Pick<DefaultCurveAPI, "getUSDPrice">;
