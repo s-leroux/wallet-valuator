@@ -28,6 +28,20 @@ export type CurveChainList = {
   data: { name: string }[];
 };
 
+type Pagination = {
+  count: number;
+  page: number;
+  per_page: number;
+};
+
+export type CurveContractList = {
+  chain: string;
+  data: {
+    name: string;
+    address: string;
+  }[];
+};
+
 //==========================================================================
 //  API
 //==========================================================================
@@ -42,6 +56,36 @@ export class DefaultCurveAPI {
   getChains(): Promise<CurveChainList> {
     const url = "/v1/chains/";
     return this.provider.fetch(url) as Promise<CurveChainList>;
+  }
+
+  async getChainContracts(chainName: string): Promise<CurveContractList> {
+    const url = ["/v1/chains", encodeURIComponent(chainName)].join("/");
+
+    const result: CurveContractList = {
+      chain: chainName,
+      data: [],
+    };
+    const contracts = result.data;
+
+    let pageNumber = 0;
+    const contractsPerPage = 300;
+    while (true) {
+      pageNumber += 1;
+      const promise = this.provider.fetch(url, {
+        page: pageNumber,
+        per_page: contractsPerPage,
+      }) as Promise<CurveContractList & Pagination>;
+      const page = await promise;
+
+      // The remote API does not seem to handle pagination properly
+      // so we will simply loop until there are o more data to retrieve
+      if (page.data.length) {
+        contracts.push(...page.data); // ensure contractsPerPage will not exceed the spead operator capacity
+      } else {
+        break;
+      }
+    }
+    return result;
   }
 
   getUSDPrice(
@@ -66,4 +110,7 @@ export class DefaultCurveAPI {
   }
 }
 
-export type CurveAPI = Pick<DefaultCurveAPI, "getUSDPrice" | "getChains">;
+export type CurveAPI = Pick<
+  DefaultCurveAPI,
+  "getUSDPrice" | "getChains" | "getChainContracts"
+>;

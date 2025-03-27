@@ -41,4 +41,20 @@ export class FakeCurveAPI implements CurveAPI {
   static create(): CurveAPI {
     return new FakeCurveAPI();
   }
+
+  async getChainContracts(chainName: string) {
+    return {
+      chain: chainName,
+      data: [
+        {
+          name: "3pool",
+          address: "0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7",
+        },
+        {
+          name: "aave",
+          address: "0xdebf20617708857ebe4f679508e7b7863a8a8eee",
+        },
+      ],
+    };
+  }
 }

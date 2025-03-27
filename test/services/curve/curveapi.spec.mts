@@ -6,7 +6,7 @@ import {
   CurveAPI,
 } from "../../../src/services/curve/curveapi.mjs";
 
-const MOCHA_TEST_TIMEOUT = 4000;
+const MOCHA_TEST_TIMEOUT = 10000;
 
 describe("DefaultCurveAPI", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
@@ -48,6 +48,22 @@ describe("DefaultCurveAPI", function () {
       assert.isArray(result.data);
       assert(result.data.find((chain) => chain.name === "ethereum"));
       assert(result.data.find((chain) => chain.name === "xdai"));
+    });
+  });
+
+  describe("getChainContracts()", function () {
+    it("should return all contracts for a chain", async function () {
+      this.timeout(10 * MOCHA_TEST_TIMEOUT);
+
+      const chainName = "ethereum";
+      const result = await api.getChainContracts(chainName);
+      assert.equal(result.chain, chainName);
+      assert.isArray(result.data);
+
+      // Pool contract address for '3pool' on Ethereum.
+      // It is NOT the token address!
+      const CONTRACT = "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7";
+      assert(result.data.find((item) => item.address == CONTRACT));
     });
   });
 });
