@@ -23,22 +23,22 @@ const defaultOptions = {
   concurrency: Infinity, // How many concurrent request do we allow?
 };
 
-export type OptionBag = Partial<typeof defaultOptions>;
+export type ProviderOptionBag = Readonly<Partial<typeof defaultOptions>>;
 
-export type Payload = Record<string, any> | string;
+export type Payload = Record<string, any> | string; // XXX We should at least type the payload to be a valid JSON object
 
 export class Provider implements ProviderInterface {
   /**
    * Interface to the webservice provider.
    */
   readonly base: string;
-  readonly options: Required<OptionBag>;
+  readonly options: Required<ProviderOptionBag>;
   readonly semaphore: Semaphore;
 
   // statistics
   retries: number; // How many time did we retry a request
 
-  constructor(base: string, options: OptionBag = {}) {
+  constructor(base: string, options: ProviderOptionBag = {}) {
     // FIXED #67 Create a type for the option bag
     this.base = base;
     this.options = Object.assign(Object.create(null), defaultOptions, options);
