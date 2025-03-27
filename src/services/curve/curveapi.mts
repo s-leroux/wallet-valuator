@@ -1,4 +1,4 @@
-import { Provider } from "../../provider.mjs";
+import { Provider, ProviderOptionBag } from "../../provider.mjs";
 
 const CURVE_API_BASEADDRESS = "https://prices.curve.fi/";
 
@@ -15,7 +15,7 @@ export class CurveProvider extends Provider {
    */
   constructor(
     base: string = CURVE_API_BASEADDRESS,
-    options = {} as Record<string, any>
+    options: ProviderOptionBag = {}
   ) {
     super(base, options);
   }
