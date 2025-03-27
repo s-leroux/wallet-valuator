@@ -1,9 +1,10 @@
 import {
   CurveAPI,
   CurvePriceHistory,
+  CurvePriceList,
 } from "../../src/services/curve/curveapi.mjs";
 import { formatDate } from "../../src/date.mjs";
-import { ValueError } from "../../src/error.mjs";
+import { NotImplementedError, ValueError } from "../../src/error.mjs";
 
 // Test data
 import MockPriceHistory from "../../fixtures/Curve/priceHistory.json" assert { type: "json" };
@@ -53,6 +54,22 @@ export class FakeCurveAPI implements CurveAPI {
         {
           name: "aave",
           address: "0xdebf20617708857ebe4f679508e7b7863a8a8eee",
+        },
+      ],
+    };
+  }
+
+  async getAllUSDPrices(chain: string): Promise<CurvePriceList> {
+    if (chain !== "xdai") {
+      throw new NotImplementedError(`Unsupported chain ${chain}`);
+    }
+
+    return {
+      data: [
+        {
+          address: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6e490",
+          usd_price: 1.0397308967364005,
+          last_updated: "2025-03-02T00:00:00",
         },
       ],
     };

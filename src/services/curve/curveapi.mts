@@ -24,6 +24,14 @@ export type CurvePriceHistory = {
   data: { price: number; timestamp: string }[];
 };
 
+export type CurvePriceList = {
+  data: {
+    address: string;
+    usd_price: number;
+    last_updated: string; // ISO format
+  }[];
+};
+
 export type CurveChainList = {
   data: { name: string }[];
 };
@@ -88,6 +96,22 @@ export class DefaultCurveAPI {
     return result;
   }
 
+  /**
+   * Returns the current USD price for all supported tokens in a chain.
+   *
+   * This can be used as a quick solution to get all token addresses of LP tokens in a Pool.
+   * Note: For a more precise way to get pool tokens, consider using the `/v1/getPools/all/{blockchainId}`
+   * endpoint from `api.curve.fi` instead of this `prices.curve.fi` endpoint.
+   *
+   * @param chain - The blockchain name (e.g. "ethereum", "xdai")
+   * @returns Promise containing list of token addresses and their current USD prices
+   */
+  getAllUSDPrices(chain: string): Promise<CurvePriceList> {
+    const url = ["/v1/usd_price", encodeURIComponent(chain)].join("/");
+
+    return this.provider.fetch(url) as Promise<CurvePriceList>;
+  }
+
   getUSDPrice(
     chain: string,
     tokenAddress: string,
@@ -112,5 +136,5 @@ export class DefaultCurveAPI {
 
 export type CurveAPI = Pick<
   DefaultCurveAPI,
-  "getUSDPrice" | "getChains" | "getChainContracts"
+  "getUSDPrice" | "getChains" | "getChainContracts" | "getAllUSDPrices"
 >;

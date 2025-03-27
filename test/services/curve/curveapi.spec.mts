@@ -6,7 +6,23 @@ import {
   CurveAPI,
 } from "../../../src/services/curve/curveapi.mjs";
 
+import { prepare } from "../../support/register.helper.mjs";
+
 const MOCHA_TEST_TIMEOUT = 10000;
+const ETH = "ethereum";
+const GNO = "xdai";
+
+// prettier-ignore
+const TESTCASES: [
+  chain: string,
+  poolAddress: string,
+  tokenAddress: string,
+  poolName: string
+][] =
+  [
+  [ ETH, "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490", "3pool" ],
+  [ GNO, "0x7f90122BF0700F9E7e1F688fe926940E8839F353", "0x1337BedC9D22ecbe766dF105c9623922A27963EC", "3pool" ],
+] as const;
 
 describe("DefaultCurveAPI", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
@@ -38,6 +54,20 @@ describe("DefaultCurveAPI", function () {
       const result = await api.getUSDPrice(CHAIN, TOKEN, new Date(DATE));
 
       assert.deepEqual(result, EXPECTED);
+    });
+  });
+
+  describe("getAllUSDPrices()", function () {
+    describe("should return the liquidity pool's token address", async function () {
+      const register = prepare(this);
+
+      for (const [chain, , tokenAddress, poolName] of TESTCASES) {
+        register(`case ${chain} ${poolName}`, async () => {
+          const result = await api.getAllUSDPrices(chain);
+          assert.isArray(result.data);
+          assert(result.data.find((item) => item.address === tokenAddress));
+        });
+      }
     });
   });
 
