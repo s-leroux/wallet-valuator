@@ -51,6 +51,30 @@ export type CurveContractList = {
 };
 
 //==========================================================================
+//  Utilities
+//==========================================================================
+
+// Our application and the Curve API have some mismatch in their block chain
+// naming convention. Notably the `gnosis` chain (in our application) is
+// named `xdai` (its obsolete name) in the Curve API.
+// We provide the ToCurveChainName and FromCurveChainName tools to perform
+//  the conversion in line:
+
+const ToCurveChainName: Record<string, string> = {
+  // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
+  __proto__: null,
+
+  gnosis: "xdai",
+} as const;
+
+const FromCurveChainName: Record<string, string> = {
+  // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
+  __proto__: null,
+
+  xdai: "gnosis",
+} as const;
+
+//==========================================================================
 //  API
 //==========================================================================
 
@@ -63,11 +87,22 @@ export class DefaultCurveAPI {
 
   getChains(): Promise<CurveChainList> {
     const url = "/v1/chains/";
-    return this.provider.fetch(url) as Promise<CurveChainList>;
+    const promise = this.provider.fetch(url) as Promise<CurveChainList>;
+    return promise.then((result) => {
+      result.data.forEach((item) => {
+        const externalName = FromCurveChainName[item.name];
+        if (externalName) {
+          item.name = externalName;
+        }
+      });
+      return result;
+    });
   }
 
   async getChainContracts(chainName: string): Promise<CurveContractList> {
-    const url = ["/v1/chains", encodeURIComponent(chainName)].join("/");
+    const internalChainName = ToCurveChainName[chainName] ?? chainName;
+
+    const url = ["/v1/chains", encodeURIComponent(internalChainName)].join("/");
 
     const result: CurveContractList = {
       chain: chainName,
@@ -103,26 +138,30 @@ export class DefaultCurveAPI {
    * Note: For a more precise way to get pool tokens, consider using the `/v1/getPools/all/{blockchainId}`
    * endpoint from `api.curve.fi` instead of this `prices.curve.fi` endpoint.
    *
-   * @param chain - The blockchain name (e.g. "ethereum", "xdai")
+   * @param chainName - The blockchain name (e.g. "ethereum", "gnosis")
    * @returns Promise containing list of token addresses and their current USD prices
    */
-  getAllUSDPrices(chain: string): Promise<CurvePriceList> {
-    const url = ["/v1/usd_price", encodeURIComponent(chain)].join("/");
+  getAllUSDPrices(chainName: string): Promise<CurvePriceList> {
+    const internalChainName = ToCurveChainName[chainName] ?? chainName;
+    const url = ["/v1/usd_price", encodeURIComponent(internalChainName)].join(
+      "/"
+    );
 
     return this.provider.fetch(url) as Promise<CurvePriceList>;
   }
 
   getUSDPrice(
-    chain: string,
+    chainName: string,
     tokenAddress: string,
     date: Date
   ): Promise<CurvePriceHistory> {
+    const internalChainName = ToCurveChainName[chainName] ?? chainName;
     const start = Math.floor(date.getTime() / 1000);
     const end = start + 24 * 3600;
 
     const url = [
       "/v1/usd_price",
-      encodeURIComponent(chain),
+      encodeURIComponent(internalChainName),
       encodeURIComponent(tokenAddress),
       "history",
     ].join("/");

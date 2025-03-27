@@ -10,7 +10,7 @@ import { prepare } from "../../support/register.helper.mjs";
 
 const MOCHA_TEST_TIMEOUT = 10000;
 const ETH = "ethereum";
-const GNO = "xdai";
+const GNO = "gnosis";
 
 // prettier-ignore
 const TESTCASES: [
@@ -77,7 +77,7 @@ describe("DefaultCurveAPI", function () {
 
       assert.isArray(result.data);
       assert(result.data.find((chain) => chain.name === "ethereum"));
-      assert(result.data.find((chain) => chain.name === "xdai"));
+      assert(result.data.find((chain) => chain.name === "gnosis"));
     });
   });
 

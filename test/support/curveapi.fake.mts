@@ -32,7 +32,7 @@ export class FakeCurveAPI implements CurveAPI {
   }
 
   async getChains() {
-    const chains = ["ethereum", "xdai"];
+    const chains = ["ethereum", "gnosis"];
 
     return {
       data: chains.map((chain) => ({ name: chain })),
@@ -60,7 +60,7 @@ export class FakeCurveAPI implements CurveAPI {
   }
 
   async getAllUSDPrices(chain: string): Promise<CurvePriceList> {
-    if (chain !== "xdai") {
+    if (chain !== "gnosis") {
       throw new NotImplementedError(`Unsupported chain ${chain}`);
     }
 
