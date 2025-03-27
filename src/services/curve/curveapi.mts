@@ -7,6 +7,12 @@ const CURVE_API_BASEADDRESS = "https://prices.curve.fi/";
 //==========================================================================
 
 export class CurveProvider extends Provider {
+  /**
+   * Creates a new CurveProvider instance.
+   *
+   * @param base - The base URL for the Curve API. Defaults to CURVE_API_BASEADDRESS.
+   * @param options - Additional options to pass to the provider.
+   */
   constructor(
     base: string = CURVE_API_BASEADDRESS,
     options = {} as Record<string, any>
@@ -54,11 +60,11 @@ export type CurveContractList = {
 //  Utilities
 //==========================================================================
 
-// Our application and the Curve API have some mismatch in their block chain
-// naming convention. Notably the `gnosis` chain (in our application) is
-// named `xdai` (its obsolete name) in the Curve API.
-// We provide the ToCurveChainName and FromCurveChainName tools to perform
-//  the conversion in line:
+// Our application and the Curve API have some mismatch in their blockchain
+// naming conventions. Notably, the `gnosis` chain (in our application) is
+// still referred to as `xdai` (its obsolete name) in the Curve API.
+// We provide the ToCurveChainName and FromCurveChainName utilities to perform
+// the conversion transparently:
 
 const ToCurveChainName: Record<string, string> = {
   // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
@@ -79,12 +85,30 @@ const FromCurveChainName: Record<string, string> = {
 //==========================================================================
 
 export class DefaultCurveAPI {
+  /**
+   * Creates a new DefaultCurveAPI instance.
+   *
+   * @param provider - The provider used to make API requests.
+   */
   constructor(readonly provider: Provider) {}
 
+  /**
+   * Creates a new DefaultCurveAPI instance with a default provider.
+   *
+   * @param base - The base URL for the Curve API. Defaults to CURVE_API_BASEADDRESS.
+   * @returns A new DefaultCurveAPI instance.
+   */
   static create(base: string = CURVE_API_BASEADDRESS): CurveAPI {
     return new DefaultCurveAPI(new CurveProvider(base));
   }
 
+  /**
+   * Retrieves the list of supported blockchains.
+   * The Curve API uses outdated names for some chains, which are converted
+   * to the standard naming convention used by the application.
+   *
+   * @returns A promise resolving to a list of supported blockchains.
+   */
   getChains(): Promise<CurveChainList> {
     const url = "/v1/chains/";
     const promise = this.provider.fetch(url) as Promise<CurveChainList>;
@@ -99,6 +123,13 @@ export class DefaultCurveAPI {
     });
   }
 
+  /**
+   * Retrieves the list of smart contracts supported by a specific blockchain.
+   * This method performs paginated requests until all contracts are retrieved.
+   *
+   * @param chainName - The name of the blockchain (e.g., "ethereum", "gnosis").
+   * @returns A promise resolving to a list of smart contracts for the specified blockchain.
+   */
   async getChainContracts(chainName: string): Promise<CurveContractList> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
 
@@ -120,10 +151,10 @@ export class DefaultCurveAPI {
       }) as Promise<CurveContractList & Pagination>;
       const page = await promise;
 
-      // The remote API does not seem to handle pagination properly
-      // so we will simply loop until there are o more data to retrieve
+      // The remote API does not seem to handle pagination properly,
+      // so we will simply loop until there is no more data to retrieve.
       if (page.data.length) {
-        contracts.push(...page.data); // ensure contractsPerPage will not exceed the spead operator capacity
+        contracts.push(...page.data); // Ensure contractsPerPage will not exceed the spread operator capacity
       } else {
         break;
       }
@@ -132,14 +163,14 @@ export class DefaultCurveAPI {
   }
 
   /**
-   * Returns the current USD price for all supported tokens in a chain.
+   * Returns the current USD price for all supported tokens on a specific blockchain.
    *
    * This can be used as a quick solution to get all token addresses of LP tokens in a Pool.
    * Note: For a more precise way to get pool tokens, consider using the `/v1/getPools/all/{blockchainId}`
    * endpoint from `api.curve.fi` instead of this `prices.curve.fi` endpoint.
    *
-   * @param chainName - The blockchain name (e.g. "ethereum", "gnosis")
-   * @returns Promise containing list of token addresses and their current USD prices
+   * @param chainName - The name of the blockchain (e.g., "ethereum", "gnosis").
+   * @returns A promise resolving to a list of token addresses and their current USD prices.
    */
   getAllUSDPrices(chainName: string): Promise<CurvePriceList> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
@@ -150,6 +181,14 @@ export class DefaultCurveAPI {
     return this.provider.fetch(url) as Promise<CurvePriceList>;
   }
 
+  /**
+   * Retrieves the historical USD price of a specific token on a blockchain over a 24-hour period.
+   *
+   * @param chainName - The name of the blockchain (e.g., "ethereum", "gnosis").
+   * @param tokenAddress - The address of the token on the blockchain.
+   * @param date - The date for which to retrieve the historical price data.
+   * @returns A promise resolving to the token's price history.
+   */
   getUSDPrice(
     chainName: string,
     tokenAddress: string,
