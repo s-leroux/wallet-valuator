@@ -16,12 +16,16 @@ export class CurveProvider extends Provider {
 }
 
 //==========================================================================
-//  Interfaces
+//  Domain types
 //==========================================================================
 
 export type CurvePriceHistory = {
   address: string;
   data: { price: number; timestamp: string }[];
+};
+
+export type CurveChainList = {
+  data: { name: string }[];
 };
 
 //==========================================================================
@@ -35,7 +39,12 @@ export class DefaultCurveAPI {
     return new DefaultCurveAPI(new CurveProvider(base));
   }
 
-  async getUSDPrice(
+  getChains(): Promise<CurveChainList> {
+    const url = "/v1/chains/";
+    return this.provider.fetch(url) as Promise<CurveChainList>;
+  }
+
+  getUSDPrice(
     chain: string,
     tokenAddress: string,
     date: Date
@@ -57,4 +66,4 @@ export class DefaultCurveAPI {
   }
 }
 
-export type CurveAPI = Pick<DefaultCurveAPI, "getUSDPrice">;
+export type CurveAPI = Pick<DefaultCurveAPI, "getUSDPrice" | "getChains">;

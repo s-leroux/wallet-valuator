@@ -1,13 +1,14 @@
-// Test data
 import {
   CurveAPI,
   CurvePriceHistory,
 } from "../../src/services/curve/curveapi.mjs";
-import MockPriceHistory from "../../fixtures/Curve/priceHistory.json" assert { type: "json" };
 import { formatDate } from "../../src/date.mjs";
 import { ValueError } from "../../src/error.mjs";
 
-export class FakeCurveAPI implements Pick<CurveAPI, "getUSDPrice"> {
+// Test data
+import MockPriceHistory from "../../fixtures/Curve/priceHistory.json" assert { type: "json" };
+
+export class FakeCurveAPI implements CurveAPI {
   async getUSDPrice(
     chain: string,
     tokenAddress: string,
@@ -28,6 +29,15 @@ export class FakeCurveAPI implements Pick<CurveAPI, "getUSDPrice"> {
 
     throw new ValueError(`No data for ${tokenAddress} at ${dateString}`);
   }
+
+  async getChains() {
+    const chains = ["ethereum", "xdai"];
+
+    return {
+      data: chains.map((chain) => ({ name: chain })),
+    };
+  }
+
   static create(): CurveAPI {
     return new FakeCurveAPI();
   }
