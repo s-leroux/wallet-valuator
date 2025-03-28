@@ -1,4 +1,4 @@
-import { FiatConverter } from "../fiatconverter.mjs";
+import { FiatConverter, NullFiatConverter } from "../fiatconverter.mjs";
 
 import { NotImplementedError, ValueError } from "../../error.mjs";
 import { Price } from "../../price.mjs";
@@ -45,7 +45,7 @@ export class ImplicitFiatConverter implements FiatConverter {
       this.crypto,
       date,
       [from, to],
-      this
+      new NullFiatConverter() // We might use `this` here but isn't there some cases leading to infinite recursion?
     ); // ISSUE #64 What to do if this fails?
 
     const toPrice = ref[to];
