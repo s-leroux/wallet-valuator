@@ -15,14 +15,20 @@ import { prepare } from "../../support/register.helper.mjs";
 import { FakeCurveAPI } from "../../support/curveapi.fake.mjs";
 import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs";
 import { CurveID } from "../../../src/services/curve/curvecommon.mjs";
+import {
+  FiatConverter,
+  NullFiatConverter,
+} from "../../../src/services/fiatconverter.mjs";
 
 describe("CurveOracle", function () {
   let api: FakeCurveAPI;
   let oracle: CurveOracle;
+  let fiatConverter: FiatConverter;
 
   beforeEach(function () {
     api = FakeCurveAPI.create();
     oracle = CurveOracle.create(api);
+    fiatConverter = NullFiatConverter.create();
   });
 
   describe("getPrice", function () {
@@ -54,7 +60,13 @@ describe("CurveOracle", function () {
           registry.setNamespaceData(crypto, "CURVE", metadata);
 
           const prices = await oracle
-            .getPrice(registry, crypto, parseDate("YYYYMMDD", date), [USD])
+            .getPrice(
+              registry,
+              crypto,
+              parseDate("YYYYMMDD", date),
+              [USD],
+              fiatConverter
+            )
             .catch((err) => ({}));
 
           assert.deepEqual(

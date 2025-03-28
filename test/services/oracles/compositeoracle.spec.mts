@@ -15,6 +15,8 @@ import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { CompositeOracle } from "../../../src/services/oracles/compositeoracle.mjs";
+import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
+import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 
 describe("CompositeOracle", function () {
   const date = new Date("2024-12-30");
@@ -22,6 +24,7 @@ describe("CompositeOracle", function () {
   const [eur, usd] = [FakeFiatCurrency.eur, FakeFiatCurrency.usd];
   let oracle: Oracle;
   let registry: CryptoRegistry;
+  let fiatConverter: FiatConverter;
 
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
@@ -31,6 +34,7 @@ describe("CompositeOracle", function () {
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-usd-max.csv", {[usd]: "price"}, opt),
     ])
     registry = CryptoRegistry.create();
+    fiatConverter = new FakeFiatConverter();
   });
 
   describe("getPrice()", () => {
@@ -39,7 +43,8 @@ describe("CompositeOracle", function () {
         registry,
         bitcoin,
         new Date("2024-12-05"),
-        [usd, eur]
+        [usd, eur],
+        fiatConverter
       );
 
       assert.containsAllKeys(prices, [eur, usd]);

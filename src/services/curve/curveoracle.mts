@@ -6,6 +6,7 @@ import type { Price } from "../../price.mjs";
 import { Oracle } from "../oracle.mjs";
 import { CurveAPI } from "./curveapi.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
+import { FiatConverter } from "../fiatconverter.mjs";
 
 const USD = FiatCurrency("USD");
 
@@ -18,7 +19,8 @@ export class CurveOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[]
+    fiats: FiatCurrency[],
+    fiatConverter: FiatConverter
   ): Promise<Record<FiatCurrency, Price>> {
     const result = {} as Record<FiatCurrency, Price>;
     const metadata = registry.getNamespaceData(

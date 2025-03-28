@@ -23,6 +23,10 @@ export class ImplicitFiatConverter implements FiatConverter {
     this.crypto = crypto;
   }
 
+  static create(oracle: Oracle, crypto: CryptoAsset) {
+    return new ImplicitFiatConverter(oracle, crypto);
+  }
+
   async convert(
     registry: CryptoRegistry,
     date: Date,
@@ -36,10 +40,13 @@ export class ImplicitFiatConverter implements FiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(registry, this.crypto, date, [
-      from,
-      to,
-    ]); // ISSUE #64 What to do if this fails?
+    const ref = await this.oracle.getPrice(
+      registry,
+      this.crypto,
+      date,
+      [from, to],
+      this
+    ); // ISSUE #64 What to do if this fails?
 
     const toPrice = ref[to];
     const fromPrice = ref[from];

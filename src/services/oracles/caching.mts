@@ -8,6 +8,7 @@ import { logger as logger } from "../../debug.mjs";
 const log = logger("provider");
 
 import Database from "better-sqlite3";
+import { FiatConverter } from "../fiatconverter.mjs";
 
 const DB_INIT_SEQUENCE = `
 CREATE TABLE IF NOT EXISTS prices (
@@ -62,7 +63,8 @@ export class Caching {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    currencies: FiatCurrency[]
+    currencies: FiatCurrency[],
+    fiatConverter: FiatConverter
   ): Promise<Partial<Record<string, Price>>> {
     const result: Record<string, Price> = Object.create(null);
     const dateYyyyMmDd = date.toISOString().substring(0, 10);
@@ -86,7 +88,8 @@ export class Caching {
       registry,
       crypto,
       date,
-      missing // request only missing data!
+      missing, // request only missing data!
+      fiatConverter
     );
     log.trace("C9999", `caching price for ${crypto} at ${date.toISOString()}`);
     this.backend_calls += 1;

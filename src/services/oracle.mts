@@ -21,6 +21,7 @@ export abstract class Oracle {
    * @param crypto - The crypto-asset for which the price is being retrieved.
    * @param date - The date for which the price is being retrieved.
    * @param fiat - An array of fiat currencies for which the price is being requested.
+   * @param fiatConverter - A converter to help convert between fiat currencies if needed.
    * @returns A promise that resolves to a record mapping each requested fiat currency to its price.
    * If the price for a fiat currency is not available, the corresponding property MUST NOT be set
    * in the result object. The returned record  MAY be a null-prototype object.
@@ -29,7 +30,8 @@ export abstract class Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiat: FiatCurrency[]
+    fiat: FiatCurrency[],
+    fiatConverter: FiatConverter
   ): Promise<Partial<Record<FiatCurrency, Price>>>;
 
   /**

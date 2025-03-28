@@ -6,6 +6,7 @@ import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { FiatConverter } from "../../services/fiatconverter.mjs";
+import { ImplicitFiatConverter } from "../../services/fiatconverters/implicitfiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
@@ -68,6 +69,10 @@ export async function load(start: string, end: string, cryptoids: string[]) {
   const resolver = createCryptoResolver(envvars);
   const registry = CryptoRegistry.create();
   const oracle = createOracle(envvars);
+  const fiatConverter = ImplicitFiatConverter.create(
+    oracle,
+    registry.findCryptoAsset("bitcoin", "bitcoin", "BTC", 8)
+  );
 
   if (!cryptoids.length) {
     cryptoids = Array.from(resolver.getCryptoIds());
@@ -80,9 +85,13 @@ export async function load(start: string, end: string, cryptoids: string[]) {
   while (currDate <= endDate) {
     await Promise.all(
       cryptos.map((crypto) => {
-        return oracle.getPrice(registry, crypto, currDate, [
-          FiatCurrency("EUR"),
-        ]);
+        return oracle.getPrice(
+          registry,
+          crypto,
+          currDate,
+          [FiatCurrency("EUR")],
+          fiatConverter
+        );
       })
     );
 

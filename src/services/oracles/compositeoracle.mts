@@ -4,6 +4,7 @@ import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { Price } from "../../price.mjs";
 
 import { Oracle } from "../oracle.mjs";
+import { FiatConverter } from "../fiatconverter.mjs";
 
 //========================================================================
 //  Composite oracle
@@ -35,7 +36,8 @@ export class CompositeOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiat: FiatCurrency[]
+    fiat: FiatCurrency[],
+    fiatConverter: FiatConverter
   ): Promise<Partial<Record<FiatCurrency, Price>>> {
     const result = Object.create(null) as Record<FiatCurrency, Price>;
     let missing = fiat;
@@ -46,7 +48,8 @@ export class CompositeOracle extends Oracle {
         registry,
         crypto,
         date,
-        missing
+        missing,
+        fiatConverter
       );
       for (const [currency, price] of Object.entries(intermediateResult) as [
         FiatCurrency,

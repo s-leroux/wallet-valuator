@@ -33,7 +33,8 @@ export class FiatConverterOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiat: FiatCurrency[]
+    fiat: FiatCurrency[],
+    fiatConverter: FiatConverter
   ): Promise<Partial<Record<FiatCurrency, Price>>> {
     const result = {} as Record<FiatCurrency, Price>;
     let missing = fiat;
@@ -44,7 +45,8 @@ export class FiatConverterOracle extends Oracle {
       registry,
       crypto,
       date,
-      missing
+      missing,
+      fiatConverter
     );
     for (const [currency, price] of Object.entries(intermediateResult) as [
       FiatCurrency,
