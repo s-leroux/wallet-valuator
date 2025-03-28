@@ -15,10 +15,12 @@ import { prepare } from "../../support/register.helper.mjs";
 import { FakeCurveAPI } from "../../support/curveapi.fake.mjs";
 import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs";
 import { CurveID } from "../../../src/services/curve/curvecommon.mjs";
-import {
-  FiatConverter,
-  NullFiatConverter,
-} from "../../../src/services/fiatconverter.mjs";
+import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
+import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
+import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
+
+const { EUR, USD } = FakeFiatCurrency;
+const RATE = 1.2;
 
 describe("CurveOracle", function () {
   let api: FakeCurveAPI;
@@ -28,7 +30,7 @@ describe("CurveOracle", function () {
   beforeEach(function () {
     api = FakeCurveAPI.create();
     oracle = CurveOracle.create(api);
-    fiatConverter = NullFiatConverter.create();
+    fiatConverter = FixedFiatConverter.create(USD, EUR, RATE);
   });
 
   describe("getPrice", function () {
@@ -47,7 +49,6 @@ describe("CurveOracle", function () {
         ["20250305", 1.0399812908886852],
       ] as const;
 
-      const USD = FiatCurrency("USD");
       const ID = CurveID(CHAIN, TOKEN);
       const crypto = new CryptoAsset(ID, "Curve-X", "Curve-X", 18);
       for (const [date, value] of testcases) {
@@ -64,10 +65,10 @@ describe("CurveOracle", function () {
               registry,
               crypto,
               parseDate("YYYYMMDD", date),
-              [USD],
+              [USD, EUR],
               fiatConverter
             )
-            .catch((err) => ({}));
+            .catch((err) => (console.log(err.message), {}));
 
           assert.deepEqual(
             prices,
@@ -75,6 +76,7 @@ describe("CurveOracle", function () {
               ? {}
               : {
                   [USD]: crypto.price(USD, value),
+                  [EUR]: crypto.price(EUR, value).mul(RATE),
                 }
           );
         });

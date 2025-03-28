@@ -14,8 +14,8 @@ const assert = chai.assert;
 
 describe("DataSource", function () {
   const bitcoin = FakeCryptoAsset.bitcoin;
-  const eur = FakeFiatCurrency.eur;
-  const usd = FakeFiatCurrency.usd;
+  const eur = FakeFiatCurrency.EUR;
+  const usd = FakeFiatCurrency.USD;
   let oracle: DataSourceOracle<number>;
   let registry: CryptoRegistry;
 

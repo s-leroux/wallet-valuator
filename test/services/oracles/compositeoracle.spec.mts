@@ -21,7 +21,7 @@ import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 describe("CompositeOracle", function () {
   const date = new Date("2024-12-30");
   const bitcoin = FakeCryptoAsset.bitcoin;
-  const [eur, usd] = [FakeFiatCurrency.eur, FakeFiatCurrency.usd];
+  const [eur, usd] = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
   let oracle: Oracle;
   let registry: CryptoRegistry;
   let fiatConverter: FiatConverter;

@@ -23,7 +23,7 @@ describe("FiatConverterOracle", function () {
   const date = new Date("2024-12-30");
   const solana = FakeCryptoAsset.solana;
   const { bitcoin } = FakeCryptoAsset;
-  const { eur, usd } = FakeFiatCurrency;
+  const { EUR: eur, USD: usd } = FakeFiatCurrency;
 
   let oracle: Oracle;
   let registry: CryptoRegistry;

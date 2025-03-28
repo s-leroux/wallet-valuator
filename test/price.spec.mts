@@ -8,7 +8,7 @@ import { BigNumber } from "../src/bignumber.mjs";
 
 describe("Price", () => {
   const { ethereum } = FakeCryptoAsset;
-  const { eur, usd } = FakeFiatCurrency;
+  const { EUR: eur, USD: usd } = FakeFiatCurrency;
 
   describe("constructor", () => {
     it("should correctly initialize a price instance", () => {
