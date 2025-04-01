@@ -56,6 +56,18 @@ export type CurveContractList = {
   }[];
 };
 
+export type CurveOHLC = {
+  chain: string;
+  address: string;
+  data: {
+    time: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+  }[];
+};
+
 //==========================================================================
 //  Utilities
 //==========================================================================
@@ -79,6 +91,16 @@ const FromCurveChainName: Record<string, string> = {
 
   xdai: "gnosis",
 } as const;
+
+/**
+ * Converts a JavaScript Date object to Unix timestamp (seconds since epoch) as expected by the Curve API.
+ *
+ * @param date - The date to convert
+ * @returns Unix timestamp in seconds
+ */
+function toCurveDate(date: Date) {
+  return Math.floor(date.getTime() / 1000); // XXX Should we round that to the nearest day?
+}
 
 //==========================================================================
 //  API
@@ -195,7 +217,7 @@ export class DefaultCurveAPI {
     date: Date
   ): Promise<CurvePriceHistory> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
-    const start = Math.floor(date.getTime() / 1000);
+    const start = toCurveDate(date);
     const end = start + 24 * 3600;
 
     const url = [
@@ -210,9 +232,43 @@ export class DefaultCurveAPI {
       end,
     }) as Promise<CurvePriceHistory>;
   }
+
+  /**
+   * Retrieves the OHLC (Open, High, Low, Close) price data for a liquidity pool on a specific blockchain.
+   * Data is aggregated by day.
+   *
+   * @param chainName - The name of the blockchain (e.g., "ethereum", "gnosis").
+   * @param poolAddress - The address of the liquidity pool contract on the blockchain.
+   *                     Warning: this is the pool address, not the token address.
+   * @param date - The date for which to retrieve the OHLC data.
+   * @returns A promise resolving to the pool's OHLC price data in USD.
+   */
+  getLiquidityPoolOHLC(chainName: string, poolAddress: string, date: Date) {
+    const internalChainName = ToCurveChainName[chainName] ?? chainName;
+    const start = toCurveDate(date);
+    const end = start + 24 * 3600;
+
+    const url = [
+      "/v1/lp_ohlc",
+      encodeURIComponent(internalChainName),
+      encodeURIComponent(poolAddress),
+    ].join("/");
+
+    return this.provider.fetch(url, {
+      start,
+      end,
+      agg_units: "day",
+      agg_number: 1,
+      price_units: "usd",
+    }) as Promise<CurveOHLC>;
+  }
 }
 
 export type CurveAPI = Pick<
   DefaultCurveAPI,
-  "getUSDPrice" | "getChains" | "getChainContracts" | "getAllUSDPrices"
+  | "getUSDPrice"
+  | "getChains"
+  | "getChainContracts"
+  | "getAllUSDPrices"
+  | "getLiquidityPoolOHLC"
 >;

@@ -96,4 +96,30 @@ describe("DefaultCurveAPI", function () {
       assert(result.data.find((item) => item.address == CONTRACT));
     });
   });
+
+  describe("getLiquidityPoolOHLC", function () {
+    const CHAIN = "ethereum";
+    const POOL = "0x383E6b4437b59fff47B619CBA855CA29342A8559";
+    const DATE = new Date("2025-03-02");
+
+    it("should retrieve the OHLC price in USD", async function () {
+      const expected = {
+        chain: CHAIN,
+        address: POOL,
+        data: [
+          {
+            time: 1740873600,
+            open: 1.0038250604215064,
+            close: 1.0040695223679552,
+            high: 1.0044058474324393,
+            low: 1.0037882142285226,
+          },
+        ],
+      };
+
+      const result = await api.getLiquidityPoolOHLC(CHAIN, POOL, DATE);
+
+      assert.deepEqual(result, expected);
+    });
+  });
 });

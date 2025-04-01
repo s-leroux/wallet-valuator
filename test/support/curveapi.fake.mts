@@ -1,6 +1,7 @@
 import {
   CurveAPI,
   CurveChainList,
+  CurveOHLC,
   CurvePriceHistory,
   CurvePriceList,
 } from "../../src/services/curve/curveapi.mjs";
@@ -80,5 +81,13 @@ export class FakeCurveAPI implements CurveAPI {
     }
 
     throw new NotImplementedError(`Unsupported chain ${chain}`);
+  }
+
+  getLiquidityPoolOHLC(
+    chainName: string,
+    poolAddress: string,
+    date: Date
+  ): Promise<CurveOHLC> {
+    throw new NotImplementedError("Method not implemented.");
   }
 }
