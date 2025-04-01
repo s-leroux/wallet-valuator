@@ -1,0 +1,2404 @@
+{
+  "data": [
+    {
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "usd_price": 0.9998888394579917,
+      "last_updated": "2025-03-28T23:03:23"
+    },
+    {
+      "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "usd_price": 1,
+      "last_updated": "2025-03-28T23:35:23"
+    },
+    {
+      "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "usd_price": 0.9992797423236798,
+      "last_updated": "2025-03-28T23:37:35"
+    },
+    {
+      "address": "0x028171bCA77440897B824Ca71D1c56caC55b68A3",
+      "usd_price": 0.9987168912787916,
+      "last_updated": "2025-03-14T11:08:59"
+    },
+    {
+      "address": "0xBcca60bB61934080951369a648Fb03DF4F96263C",
+      "usd_price": 1,
+      "last_updated": "2025-03-25T21:24:59"
+    },
+    {
+      "address": "0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811",
+      "usd_price": 1.0004771659009197,
+      "last_updated": "2025-03-25T21:24:59"
+    },
+    {
+      "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "usd_price": 1893.3494408527292,
+      "last_updated": "2025-03-28T23:29:23"
+    },
+    {
+      "address": "0xE95A203B1a91a908F9B9CE46459d101078c2c3cb",
+      "usd_price": 2396.7747617051414,
+      "last_updated": "2025-03-27T21:34:35"
+    },
+    {
+      "address": "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643",
+      "usd_price": 0.024426085282144454,
+      "last_updated": "2025-03-28T20:38:11"
+    },
+    {
+      "address": "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
+      "usd_price": 0.024749207932460392,
+      "last_updated": "2025-03-28T18:44:47"
+    },
+    {
+      "address": "0xdB25f211AB05b1c97D595516F45794528a807ad8",
+      "usd_price": 1.0919882908817908,
+      "last_updated": "2025-03-28T16:16:59"
+    },
+    {
+      "address": "0xD71eCFF9342A5Ced620049e616c5035F1dB98620",
+      "usd_price": 0.7620258820915213,
+      "last_updated": "2025-03-28T16:16:59"
+    },
+    {
+      "address": "0x0316EB71485b0Ab14103307bf65a021042c6d380",
+      "usd_price": 7285.917481053921,
+      "last_updated": "2025-03-28T05:24:59"
+    },
+    {
+      "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+      "usd_price": 84123.62608834868,
+      "last_updated": "2025-03-28T23:22:47"
+    },
+    {
+      "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+      "usd_price": 15.47,
+      "last_updated": "2025-03-28T01:51:23"
+    },
+    {
+      "address": "0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6",
+      "usd_price": 20.43327202213459,
+      "last_updated": "2024-12-31T11:53:35"
+    },
+    {
+      "address": "0x1bE5d71F2dA660BFdee8012dDc58D024448A0A59",
+      "usd_price": 0.37082037912832294,
+      "last_updated": "2024-03-23T05:28:59"
+    },
+    {
+      "address": "0x8E870D67F660D95d5be530380D0eC0bd388289E1",
+      "usd_price": 1.001137568687339,
+      "last_updated": "2025-03-28T23:38:11"
+    },
+    {
+      "address": "0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D",
+      "usd_price": 17179.440279828807,
+      "last_updated": "2025-03-28T21:46:59"
+    },
+    {
+      "address": "0x6C5024Cd4F8A59110119C56f8933403A539555EB",
+      "usd_price": 0.9989693077554211,
+      "last_updated": "2023-08-09T13:17:47"
+    },
+    {
+      "address": "0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6",
+      "usd_price": 14600.82316365172,
+      "last_updated": "2025-03-28T19:46:11"
+    },
+    {
+      "address": "0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb",
+      "usd_price": 27.524755723963665,
+      "last_updated": "2025-03-28T19:45:59"
+    },
+    {
+      "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+      "usd_price": 1893.1867130881333,
+      "last_updated": "2025-03-28T23:27:59"
+    },
+    {
+      "address": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+      "usd_price": 0.9671428010022612,
+      "last_updated": "2025-03-28T22:56:11"
+    },
+    {
+      "address": "0xd6aD7a6750A7593E092a9B218d66C0A814a3436e",
+      "usd_price": 1,
+      "last_updated": "2025-02-27T21:36:59"
+    },
+    {
+      "address": "0x73a052500105205d34Daf004eAb301916DA8190f",
+      "usd_price": 282925213091.21814,
+      "last_updated": "2023-05-17T13:27:11"
+    },
+    {
+      "address": "0x5BC25f649fc4e26069dDF4cF4010F9f706c23831",
+      "usd_price": 0.00027231393458254167,
+      "last_updated": "2024-09-10T09:25:47"
+    },
+    {
+      "address": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+      "usd_price": 1.0395107273122213,
+      "last_updated": "2025-03-28T21:52:23"
+    },
+    {
+      "address": "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd",
+      "usd_price": 1.001944813228813,
+      "last_updated": "2025-03-28T10:28:47"
+    },
+    {
+      "address": "0xdF574c24545E5FfEcb9a659c229253D4111d87e1",
+      "usd_price": 0.02533362791806178,
+      "last_updated": "2025-03-13T12:04:23"
+    },
+    {
+      "address": "0x0E2EC54fC0B509F445631Bf4b91AB8168230C752",
+      "usd_price": 1.0461543506999156,
+      "last_updated": "2025-02-27T12:57:47"
+    },
+    {
+      "address": "0xe2f2a5C287993345a840Db3B0845fbC70f5935a5",
+      "usd_price": 1.0010340385572252,
+      "last_updated": "2025-03-28T12:35:11"
+    },
+    {
+      "address": "0x196f4727526eA7FB1e17b2071B3d8eAA38486988",
+      "usd_price": 0.9554044880577657,
+      "last_updated": "2025-03-28T05:12:59"
+    },
+    {
+      "address": "0x1c48f86ae57291F7686349F12601910BD8D470bb",
+      "usd_price": 1.000066681635583,
+      "last_updated": "2025-03-28T16:54:11"
+    },
+    {
+      "address": "0x674C6Ad92Fd080e4004b2312b45f796a192D27a0",
+      "usd_price": 0.022064770321615156,
+      "last_updated": "2025-03-27T20:07:47"
+    },
+    {
+      "address": "0x1456688345527bE1f37E9e627DA0837D6f08C925",
+      "usd_price": 0.020179771557070826,
+      "last_updated": "2025-03-25T16:43:35"
+    },
+    {
+      "address": "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
+      "usd_price": 0.012794318848297822,
+      "last_updated": "2025-03-28T08:29:23"
+    },
+    {
+      "address": "0x9BE89D2a4cd102D8Fecc6BF9dA793be995C22541",
+      "usd_price": 86858.99657829598,
+      "last_updated": "2025-03-28T04:46:35"
+    },
+    {
+      "address": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+      "usd_price": 18094.34631097128,
+      "last_updated": "2025-03-27T04:32:23"
+    },
+    {
+      "address": "0x8064d9Ae6cDf087b1bcd5BDf3531bD5d8C537a68",
+      "usd_price": 81695.55664797284,
+      "last_updated": "2025-03-28T04:48:35"
+    },
+    {
+      "address": "0x5228a22e72ccC52d415EcFd199F99D0665E7733b",
+      "usd_price": 79636.92204046526,
+      "last_updated": "2025-03-27T22:54:23"
+    },
+    {
+      "address": "0x8dAEBADE922dF735c38C80C7eBD708Af50815fAa",
+      "usd_price": 87725.86529493655,
+      "last_updated": "2025-03-28T12:58:47"
+    },
+    {
+      "address": "0x0000000000085d4780B73119b644AE5ecd22b376",
+      "usd_price": 0.998057467034061,
+      "last_updated": "2025-03-28T22:10:35"
+    },
+    {
+      "address": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+      "usd_price": 1.0018050125765514,
+      "last_updated": "2025-03-28T16:34:35"
+    },
+    {
+      "address": "0x853d955aCEf822Db058eb8505911ED77F175b99e",
+      "usd_price": 0.9992402318736758,
+      "last_updated": "2025-03-28T23:28:23"
+    },
+    {
+      "address": "0x4Fabb145d64652a948d72533023f6E7A623C7C53",
+      "usd_price": 0.9816560091082696,
+      "last_updated": "2025-03-28T23:21:11"
+    },
+    {
+      "address": "0x9559Aaa82d9649C7A7b220E7c461d2E74c9a3593",
+      "usd_price": 2259.529457472998,
+      "last_updated": "2025-03-27T02:21:11"
+    },
+    {
+      "address": "0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9",
+      "usd_price": 0.9843298940062244,
+      "last_updated": "2025-03-28T19:36:11"
+    },
+    {
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "usd_price": 1895.3633968782008,
+      "last_updated": "2025-03-28T23:38:47"
+    },
+    {
+      "address": "0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919",
+      "usd_price": 3.0668891505619063,
+      "last_updated": "2025-03-28T22:55:23"
+    },
+    {
+      "address": "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      "usd_price": 0.9983462707409753,
+      "last_updated": "2025-03-28T22:57:23"
+    },
+    {
+      "address": "0xC581b735A1688071A1746c968e0798D642EDE491",
+      "usd_price": 1.0759074553139856,
+      "last_updated": "2025-03-28T21:08:47"
+    },
+    {
+      "address": "0xa693B19d2931d498c5B318dF961919BB4aee87a5",
+      "usd_price": 0.012849207745430996,
+      "last_updated": "2025-03-28T05:26:47"
+    },
+    {
+      "address": "0x5E8422345238F34275888049021821E8E08CAa1f",
+      "usd_price": 1912.0485441519972,
+      "last_updated": "2025-03-28T23:29:23"
+    },
+    {
+      "address": "0xD533a949740bb3306d119CC777fa900bA034cd52",
+      "usd_price": 0.5061887391031739,
+      "last_updated": "2025-03-28T23:34:11"
+    },
+    {
+      "address": "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",
+      "usd_price": 2.238762333569123,
+      "last_updated": "2025-03-28T23:38:47"
+    },
+    {
+      "address": "0x68749665FF8D2d112Fa859AA293F07A622782F38",
+      "usd_price": 2684.642327573637,
+      "last_updated": "2025-03-28T21:58:59"
+    },
+    {
+      "address": "0x090185f2135308BaD17527004364eBcC2D37e5F6",
+      "usd_price": 0.0006149423335241692,
+      "last_updated": "2025-03-28T22:12:59"
+    },
+    {
+      "address": "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5",
+      "usd_price": 0.016131586085091933,
+      "last_updated": "2025-03-28T22:55:35"
+    },
+    {
+      "address": "0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c",
+      "usd_price": 1.0824509326832423,
+      "last_updated": "2025-03-28T17:18:47"
+    },
+    {
+      "address": "0x96E61422b6A9bA0e068B6c5ADd4fFaBC6a4aae27",
+      "usd_price": 4.319423074230097e-06,
+      "last_updated": "2025-03-28T22:55:47"
+    },
+    {
+      "address": "0x95dFDC8161832e4fF7816aC4B6367CE201538253",
+      "usd_price": 0.00044607065561790016,
+      "last_updated": "2025-03-11T07:09:11"
+    },
+    {
+      "address": "0x269895a3dF4D73b077Fc823dD6dA1B95f72Aaf9B",
+      "usd_price": 0.0003788323007884401,
+      "last_updated": "2024-09-09T21:06:47"
+    },
+    {
+      "address": "0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7",
+      "usd_price": 0.302412549517059,
+      "last_updated": "2025-03-28T23:30:11"
+    },
+    {
+      "address": "0x9d409a0A012CFbA9B15F6D4B36Ac57A46966Ab9a",
+      "usd_price": 0.3314888851621709,
+      "last_updated": "2024-06-29T02:42:47"
+    },
+    {
+      "address": "0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86",
+      "usd_price": 0.9954756955563346,
+      "last_updated": "2025-03-28T22:56:59"
+    },
+    {
+      "address": "0x956F47F50A910163D8BF957Cf5846D573E7f87CA",
+      "usd_price": 1.0000185125057874,
+      "last_updated": "2025-03-28T05:50:23"
+    },
+    {
+      "address": "0x1BEf2e5DE862034Fb0ed456DF59d29Ecadc9934C",
+      "usd_price": 0.8148164652650846,
+      "last_updated": "2024-07-11T21:14:23"
+    },
+    {
+      "address": "0x31d4Eb09a216e181eC8a43ce79226A487D6F0BA9",
+      "usd_price": 0.0386682786184889,
+      "last_updated": "2025-03-28T10:06:59"
+    },
+    {
+      "address": "0x68037790A0229e9Ce6EaA8A99ea92964106C4703",
+      "usd_price": 0.9878109769097486,
+      "last_updated": "2025-03-28T12:49:59"
+    },
+    {
+      "address": "0xc2db4c131ADaF01c15a1DB654c040c8578929D55",
+      "usd_price": 1.0942202822217286,
+      "last_updated": "2025-03-17T13:58:47"
+    },
+    {
+      "address": "0x865377367054516e17014CcdED1e7d814EDC9ce4",
+      "usd_price": 0.9985706246899176,
+      "last_updated": "2025-03-28T23:38:47"
+    },
+    {
+      "address": "0x5555f75e3d5278082200Fb451D1b6bA946D8e13b",
+      "usd_price": 0.006073846365480842,
+      "last_updated": "2025-02-12T23:09:23"
+    },
+    {
+      "address": "0xF6b1C627e95BFc3c1b4c9B825a032Ff0fBf3e07d",
+      "usd_price": 0.006057323882104623,
+      "last_updated": "2025-01-12T06:59:23"
+    },
+    {
+      "address": "0xFAFdF0C4c1CB09d430Bf88c75D88BB46DAe09967",
+      "usd_price": 0.6867754433279254,
+      "last_updated": "2025-03-08T19:15:23"
+    },
+    {
+      "address": "0xF48e200EAF9906362BB1442fca31e0835773b8B4",
+      "usd_price": 0.6920792713956411,
+      "last_updated": "2025-03-08T17:05:47"
+    },
+    {
+      "address": "0x69681f8fde45345C3870BCD5eaf4A05a60E7D227",
+      "usd_price": 0.025617297520064215,
+      "last_updated": "2025-03-14T20:44:59"
+    },
+    {
+      "address": "0x97fe22E7341a0Cd8Db6F6C021A24Dc8f4DAD855F",
+      "usd_price": 0.041120004755396435,
+      "last_updated": "2025-03-05T17:12:59"
+    },
+    {
+      "address": "0x1CC481cE2BD2EC7Bf67d1Be64d4878b16078F309",
+      "usd_price": 0.7967909795276829,
+      "last_updated": "2025-03-28T19:46:11"
+    },
+    {
+      "address": "0x0F83287FF768D1c1e17a42F44d644D7F22e8ee1d",
+      "usd_price": 0.7860117807451552,
+      "last_updated": "2025-03-28T19:46:11"
+    },
+    {
+      "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+      "usd_price": 0.2197590314043939,
+      "last_updated": "2025-03-28T06:07:47"
+    },
+    {
+      "address": "0x9fcf418B971134625CdF38448B949C8640971671",
+      "usd_price": 0.022625049920867023,
+      "last_updated": "2023-07-05T18:10:47"
+    },
+    {
+      "address": "0xF0a93d4994B3d98Fb5e3A2F90dBc2d69073Cb86b",
+      "usd_price": 1.0005454670203395,
+      "last_updated": "2025-03-18T15:12:23"
+    },
+    {
+      "address": "0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6",
+      "usd_price": 1801.2565540464575,
+      "last_updated": "2025-03-28T21:18:59"
+    },
+    {
+      "address": "0x18084fbA666a33d37592fA2633fD49a74DD93a88",
+      "usd_price": 83607.31720220111,
+      "last_updated": "2025-03-28T17:13:11"
+    },
+    {
+      "address": "0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3",
+      "usd_price": 0.043260479390193646,
+      "last_updated": "2025-03-28T05:24:59"
+    },
+    {
+      "address": "0x898BAD2774EB97cF6b94605677F43b41871410B1",
+      "usd_price": 2279.049535617912,
+      "last_updated": "2024-08-10T04:48:47"
+    },
+    {
+      "address": "0xfd05D3C7fe2924020620A8bE4961bBaA747e6305",
+      "usd_price": 1.8673828670138377,
+      "last_updated": "2024-10-21T20:57:11"
+    },
+    {
+      "address": "0x605D26FBd5be761089281d5cec2Ce86eeA667109",
+      "usd_price": 0.9994569720888905,
+      "last_updated": "2025-03-16T22:54:59"
+    },
+    {
+      "address": "0xD01ef7C0A5d8c432fc2d1a85c66cF2327362E5C6",
+      "usd_price": 3032.636722521128,
+      "last_updated": "2024-05-09T03:41:59"
+    },
+    {
+      "address": "0x8751D4196027d4e6DA63716fA7786B5174F04C15",
+      "usd_price": 42376.51968413398,
+      "last_updated": "2025-03-12T02:41:35"
+    },
+    {
+      "address": "0x1a7e4e63778B4f12a199C062f3eFdD288afCBce8",
+      "usd_price": 1.0834978175840815,
+      "last_updated": "2025-03-28T22:55:47"
+    },
+    {
+      "address": "0x92D6C1e31e14520e676a687F0a93788B716BEff5",
+      "usd_price": 0.7860871111189582,
+      "last_updated": "2025-03-26T10:38:35"
+    },
+    {
+      "address": "0xc7D9c108D4E1dD1484D3e2568d7f74bfD763d356",
+      "usd_price": 0.01766868402600307,
+      "last_updated": "2025-03-28T17:04:35"
+    },
+    {
+      "address": "0xb8919522331C59f5C16bDfAA6A121a6E03A91F62",
+      "usd_price": 0.8087811842067859,
+      "last_updated": "2025-03-28T16:18:11"
+    },
+    {
+      "address": "0x2370f9d504c7a6E775bf6E14B3F12846b594cD53",
+      "usd_price": 0.006595041798766862,
+      "last_updated": "2025-02-12T23:09:23"
+    },
+    {
+      "address": "0x9E0441E084F5dB0606565737158aa6Ab6B970fE0",
+      "usd_price": 2.1678824331942437,
+      "last_updated": "2025-03-24T12:21:11"
+    },
+    {
+      "address": "0x0a5E677a6A24b2F1A2Bf4F3bFfC443231d2fDEc8",
+      "usd_price": 0.9952628377512045,
+      "last_updated": "2025-03-28T22:08:47"
+    },
+    {
+      "address": "0x94671A3ceE8C7A12Ea72602978D1Bb84E920eFB2",
+      "usd_price": 0.9976954713316498,
+      "last_updated": "2024-05-20T06:29:47"
+    },
+    {
+      "address": "0xDC59ac4FeFa32293A95889Dc396682858d52e5Db",
+      "usd_price": 0.004243212194327491,
+      "last_updated": "2025-03-10T23:49:11"
+    },
+    {
+      "address": "0xea3Fb6f331735252E7Bfb0b24b3B761301293DBe",
+      "usd_price": 0.001163376903344083,
+      "last_updated": "2024-03-23T18:46:59"
+    },
+    {
+      "address": "0x7945b0A6674b175695e5d1D08aE1e6F13744Abb0",
+      "usd_price": 0.9798516812255329,
+      "last_updated": "2025-03-27T02:44:59"
+    },
+    {
+      "address": "0xae78736Cd615f374D3085123A210448E74Fc6393",
+      "usd_price": 2198.5771945807205,
+      "last_updated": "2025-03-28T14:56:35"
+    },
+    {
+      "address": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+      "usd_price": 2251.8697355364047,
+      "last_updated": "2025-03-28T21:36:47"
+    },
+    {
+      "address": "0xD3B5D9a561c293Fb42b446FE7e237DaA9BF9AA84",
+      "usd_price": 23.824022613380613,
+      "last_updated": "2024-05-19T20:25:47"
+    },
+    {
+      "address": "0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF",
+      "usd_price": 9.912590758047418,
+      "last_updated": "2025-03-28T20:57:35"
+    },
+    {
+      "address": "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0",
+      "usd_price": 2.1544550498652515,
+      "last_updated": "2025-03-28T21:49:47"
+    },
+    {
+      "address": "0x62199B909FB8B8cf870f97BEf2cE6783493c4908",
+      "usd_price": 29420.176074156698,
+      "last_updated": "2023-07-28T09:07:59"
+    },
+    {
+      "address": "0x402F878BDd1f5C66FdAF0fabaBcF74741B68ac36",
+      "usd_price": 2.20224493593266,
+      "last_updated": "2025-03-28T01:29:59"
+    },
+    {
+      "address": "0xcaDC0acd4B445166f12d2C07EAc6E2544FbE2Eef",
+      "usd_price": 0.7422277127991534,
+      "last_updated": "2023-07-22T15:55:23"
+    },
+    {
+      "address": "0xFe2e637202056d30016725477c5da089Ab0A043A",
+      "usd_price": 1961.0670433881762,
+      "last_updated": "2025-03-21T07:09:35"
+    },
+    {
+      "address": "0x586Aa273F262909EEF8fA02d90Ab65F5015e0516",
+      "usd_price": 0.9964025259687017,
+      "last_updated": "2025-03-28T21:52:23"
+    },
+    {
+      "address": "0xD1b5651E55D4CeeD36251c61c50C889B36F6abB5",
+      "usd_price": 0.39176216932936864,
+      "last_updated": "2025-03-28T22:28:11"
+    },
+    {
+      "address": "0x973F054eDBECD287209c36A2651094fA52F99a71",
+      "usd_price": 0.9746005408428934,
+      "last_updated": "2024-06-27T06:01:59"
+    },
+    {
+      "address": "0x466a756E9A7401B5e2444a3fCB3c2C12FBEa0a54",
+      "usd_price": 1.0092279043480015,
+      "last_updated": "2025-03-14T22:59:11"
+    },
+    {
+      "address": "0xf05e58fCeA29ab4dA01A495140B349F8410Ba904",
+      "usd_price": 1.9848519435279757,
+      "last_updated": "2025-03-28T22:25:59"
+    },
+    {
+      "address": "0x0C10bF8FcB7Bf5412187A595ab97a3609160b5c6",
+      "usd_price": 1.0007449768414989,
+      "last_updated": "2025-03-27T08:29:47"
+    },
+    {
+      "address": "0xfF709449528B6fB6b88f557F7d93dEce33bca78D",
+      "usd_price": 0.9960031219633969,
+      "last_updated": "2025-03-09T03:22:47"
+    },
+    {
+      "address": "0x5Ca135cB8527d76e932f34B5145575F9d8cbE08E",
+      "usd_price": 1.135299178760577,
+      "last_updated": "2025-03-28T21:43:59"
+    },
+    {
+      "address": "0x0F644658510c95CB46955e55D7BA9DDa9E9fBEc6",
+      "usd_price": 0.9597031362246469,
+      "last_updated": "2025-03-22T06:17:11"
+    },
+    {
+      "address": "0xBCe0Cf87F513102F22232436CCa2ca49e815C3aC",
+      "usd_price": 4.546206692134652,
+      "last_updated": "2023-05-21T23:04:47"
+    },
+    {
+      "address": "0x45fDb1b92a649fb6A64Ef1511D3Ba5Bf60044838",
+      "usd_price": 0.0343240272329649,
+      "last_updated": "2024-08-26T07:42:35"
+    },
+    {
+      "address": "0x2A54bA2964C8Cd459Dc568853F79813a60761B58",
+      "usd_price": 1.0000605276183534,
+      "last_updated": "2025-03-28T12:18:23"
+    },
+    {
+      "address": "0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC",
+      "usd_price": 1.0081036960790746,
+      "last_updated": "2025-03-28T22:55:47"
+    },
+    {
+      "address": "0xEE586e7Eaad39207F0549BC65f19e336942C992f",
+      "usd_price": 1.062817827093132,
+      "last_updated": "2024-11-27T03:39:35"
+    },
+    {
+      "address": "0xB620Be8a1949AA9532e6a3510132864EF9Bc3F82",
+      "usd_price": 5.0440120274185656e-05,
+      "last_updated": "2025-03-21T15:17:47"
+    },
+    {
+      "address": "0xBEA0000029AD1c77D3d5D23Ba2D8893dB9d1Efab",
+      "usd_price": 3.9934002369394016e-05,
+      "last_updated": "2024-10-08T16:29:23"
+    },
+    {
+      "address": "0x8D6CeBD76f18E1558D4DB88138e2DeFB3909fAD6",
+      "usd_price": 1.014728719474748,
+      "last_updated": "2025-03-07T20:23:35"
+    },
+    {
+      "address": "0x8616E8EA83f048ab9A5eC513c9412Dd2993bcE3F",
+      "usd_price": 0.3822106403353904,
+      "last_updated": "2025-03-28T15:03:11"
+    },
+    {
+      "address": "0xBe9895146f7AF43049ca1c1AE358B0541Ea49704",
+      "usd_price": 2107.282438394656,
+      "last_updated": "2025-03-28T06:23:11"
+    },
+    {
+      "address": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
+      "usd_price": 4941.617490633684,
+      "last_updated": "2025-03-28T21:24:47"
+    },
+    {
+      "address": "0xFCc5c47bE19d06BF83eB04298b026F81069ff65b",
+      "usd_price": 0.34341155033707,
+      "last_updated": "2025-03-28T21:56:11"
+    },
+    {
+      "address": "0x836A808d4828586A69364065A1e064609F5078c7",
+      "usd_price": 896.3688314022445,
+      "last_updated": "2023-07-30T14:58:11"
+    },
+    {
+      "address": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+      "usd_price": 3.50228675180708e-05,
+      "last_updated": "2024-08-01T01:17:23"
+    },
+    {
+      "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+      "usd_price": 63.674095396225,
+      "last_updated": "2024-04-20T20:23:59"
+    },
+    {
+      "address": "0xd7C9F0e536dC865Ae858b0C0453Fe76D13c3bEAc",
+      "usd_price": 0.9826113477226169,
+      "last_updated": "2025-03-14T15:47:35"
+    },
+    {
+      "address": "0x6967299e9F3d5312740Aa61dEe6E9ea658958e31",
+      "usd_price": 0.0008155846518395502,
+      "last_updated": "2025-03-20T21:25:35"
+    },
+    {
+      "address": "0x3231Cb76718CDeF2155FC47b5286d82e6eDA273f",
+      "usd_price": 1.0867796153934655,
+      "last_updated": "2025-03-28T17:18:47"
+    },
+    {
+      "address": "0x3C20Ac688410bE8F391bE1fb00AFc5C212972F86",
+      "usd_price": 0.9711207493309764,
+      "last_updated": "2025-03-17T17:01:47"
+    },
+    {
+      "address": "0x97983236bE88107Cc8998733Ef73D8d969c52E37",
+      "usd_price": 4238.779052541916,
+      "last_updated": "2025-03-27T13:59:11"
+    },
+    {
+      "address": "0xb8b295df2cd735b15BE5Eb419517Aa626fc43cD5",
+      "usd_price": 15.517311233148462,
+      "last_updated": "2025-03-28T01:51:23"
+    },
+    {
+      "address": "0x051d7e5609917Bd9b73f04BAc0DED8Dd46a74301",
+      "usd_price": 22030.564498729127,
+      "last_updated": "2025-02-17T12:45:59"
+    },
+    {
+      "address": "0x11EBe21e9d7BF541A18e1E3aC94939018Ce88F0b",
+      "usd_price": 0.8761348358480519,
+      "last_updated": "2025-03-28T21:49:47"
+    },
+    {
+      "address": "0x66eFF5221ca926636224650Fd3B9c497FF828F7D",
+      "usd_price": 950.4723547157085,
+      "last_updated": "2025-02-17T12:45:59"
+    },
+    {
+      "address": "0xab5eB14c09D416F0aC63661E57EDB7AEcDb9BEfA",
+      "usd_price": 1.0003280413991726,
+      "last_updated": "2025-03-28T18:24:23"
+    },
+    {
+      "address": "0x64351fC9810aDAd17A690E4e1717Df5e7e085160",
+      "usd_price": 1881.589388529344,
+      "last_updated": "2025-03-28T18:24:23"
+    },
+    {
+      "address": "0xc56c2b7e71B54d38Aab6d52E94a04Cbfa8F604fA",
+      "usd_price": 0.9970858113039333,
+      "last_updated": "2025-03-06T02:01:11"
+    },
+    {
+      "address": "0x530824DA86689C9C17CdC2871Ff29B058345b44a",
+      "usd_price": 0.9220312523568786,
+      "last_updated": "2025-02-07T08:46:23"
+    },
+    {
+      "address": "0x5E5d9aEeC4a6b775a175b883DCA61E4297c14Ecb",
+      "usd_price": 1.0713249286055206,
+      "last_updated": "2023-11-05T14:53:23"
+    },
+    {
+      "address": "0x94A18d9FE00bab617fAD8B49b11e9F1f64Db6b36",
+      "usd_price": 0.9991671649271322,
+      "last_updated": "2024-09-02T22:43:23"
+    },
+    {
+      "address": "0xe2f3D42443605Fc4ad5bcE82F0e9BFffBCffA6Ca",
+      "usd_price": 0.10288509203913589,
+      "last_updated": "2024-04-17T03:17:11"
+    },
+    {
+      "address": "0xA0d69E286B938e21CBf7E51D71F6A4c8918f482F",
+      "usd_price": 0.999680406357382,
+      "last_updated": "2025-03-28T23:21:35"
+    },
+    {
+      "address": "0xb40b6608B2743E691C9B54DdBDEe7bf03cd79f1c",
+      "usd_price": 0.00010844455811546386,
+      "last_updated": "2024-07-29T20:44:23"
+    },
+    {
+      "address": "0x3472A5A71965499acd81997a54BBA8D852C6E53d",
+      "usd_price": 1.462068281497487,
+      "last_updated": "2025-03-28T21:47:23"
+    },
+    {
+      "address": "0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68",
+      "usd_price": 35.298777283974914,
+      "last_updated": "2025-03-28T22:56:35"
+    },
+    {
+      "address": "0x73968b9a57c6E53d41345FD57a6E6ae27d6CDB2F",
+      "usd_price": 0.2838924686305636,
+      "last_updated": "2025-03-28T16:07:11"
+    },
+    {
+      "address": "0x92E187a03B6CD19CB6AF293ba17F2745Fd2357D5",
+      "usd_price": 0.0008185540542557281,
+      "last_updated": "2025-02-25T23:37:11"
+    },
+    {
+      "address": "0xC0d4Ceb216B3BA9C3701B291766fDCbA977ceC3A",
+      "usd_price": 12.825129346322655,
+      "last_updated": "2025-03-28T22:00:35"
+    },
+    {
+      "address": "0xFEEf77d3f69374f66429C91d732A244f074bdf74",
+      "usd_price": 1.378314388562502,
+      "last_updated": "2025-03-28T17:28:23"
+    },
+    {
+      "address": "0x64aa3364F17a4D01c6f1751Fd97C2BD3D7e7f1D5",
+      "usd_price": 27.25372479245487,
+      "last_updated": "2025-03-28T22:14:23"
+    },
+    {
+      "address": "0x6f80310CA7F2C654691D1383149Fa1A57d8AB1f8",
+      "usd_price": 0.03755606379006258,
+      "last_updated": "2025-03-28T23:01:47"
+    },
+    {
+      "address": "0x6a445E9F40e0b97c92d0b8a3366cEF1d67F700BF",
+      "usd_price": 0.3764957732230075,
+      "last_updated": "2025-03-27T12:52:23"
+    },
+    {
+      "address": "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6",
+      "usd_price": 0.21049812771993953,
+      "last_updated": "2025-03-28T23:04:23"
+    },
+    {
+      "address": "0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF",
+      "usd_price": 0.2876460110030881,
+      "last_updated": "2025-03-28T18:19:23"
+    },
+    {
+      "address": "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44",
+      "usd_price": 7.6148091523173225,
+      "last_updated": "2025-03-28T21:04:59"
+    },
+    {
+      "address": "0xE80C0cd204D654CEbe8dd64A4857cAb6Be8345a3",
+      "usd_price": 4.316835013742637e-05,
+      "last_updated": "2025-03-11T05:34:11"
+    },
+    {
+      "address": "0x9aE380F0272E2162340a5bB646c354271c0F5cFC",
+      "usd_price": 0.004005962701692185,
+      "last_updated": "2025-03-28T06:28:23"
+    },
+    {
+      "address": "0x9416bA76e88D873050A06e5956A3EBF10386b863",
+      "usd_price": 0.8427035403284846,
+      "last_updated": "2024-01-14T03:14:47"
+    },
+    {
+      "address": "0x5A56Da75c50aA2733F5Fa9A2442AaEfcBc60B2e6",
+      "usd_price": 0.01501880566239708,
+      "last_updated": "2025-02-12T00:36:11"
+    },
+    {
+      "address": "0x2e9d63788249371f1DFC918a52f8d799F4a38C94",
+      "usd_price": 0.22720320303421399,
+      "last_updated": "2025-03-28T06:41:11"
+    },
+    {
+      "address": "0x8CC0F052fff7eaD7f2EdCCcaC895502E884a8a71",
+      "usd_price": 0.6652892812263621,
+      "last_updated": "2025-03-24T22:04:59"
+    },
+    {
+      "address": "0x5ee08f40b637417bcC9d2C51B62F4820ec9cF5D8",
+      "usd_price": 1.1690116741498182,
+      "last_updated": "2023-08-24T03:53:35"
+    },
+    {
+      "address": "0xB4Bd4628e6EFb0Cb521D9ec35050C75840320374",
+      "usd_price": 455.01042044312,
+      "last_updated": "2024-11-19T06:57:23"
+    },
+    {
+      "address": "0x2b95A1Dcc3D405535f9ed33c219ab38E8d7e0884",
+      "usd_price": 0.5798726363703445,
+      "last_updated": "2025-03-26T03:57:23"
+    },
+    {
+      "address": "0xd6242E984E6db6B5286FB2c26C69330Da639da12",
+      "usd_price": 7.826613511540159,
+      "last_updated": "2023-05-16T15:01:47"
+    },
+    {
+      "address": "0xb3Ad645dB386D7F6D753B2b9C3F4B853DA6890B8",
+      "usd_price": 0.15041184544093109,
+      "last_updated": "2025-03-25T19:39:11"
+    },
+    {
+      "address": "0xc55126051B22eBb829D00368f4B12Bde432de5Da",
+      "usd_price": 274.81041840635345,
+      "last_updated": "2024-04-14T23:45:11"
+    },
+    {
+      "address": "0xc2544A32872A91F4A553b404C6950e89De901fdb",
+      "usd_price": 0.1279050211173252,
+      "last_updated": "2024-09-29T23:37:11"
+    },
+    {
+      "address": "0x045da4bFe02B320f4403674B3b7d121737727A36",
+      "usd_price": 0.4566801884076158,
+      "last_updated": "2025-03-17T22:01:35"
+    },
+    {
+      "address": "0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA",
+      "usd_price": 1.041134359143572,
+      "last_updated": "2025-03-28T13:27:11"
+    },
+    {
+      "address": "0xB9D7DdDca9a4AC480991865EfEf82E01273F79C3",
+      "usd_price": 1.316645106431396,
+      "last_updated": "2025-03-28T13:27:11"
+    },
+    {
+      "address": "0x320623b8E4fF03373931769A31Fc52A4E78B5d70",
+      "usd_price": 0.006941272425853095,
+      "last_updated": "2025-03-28T23:21:35"
+    },
+    {
+      "address": "0x72953a5C32413614d24C29c84a66AE4B59581Bbf",
+      "usd_price": 4.389772946596437,
+      "last_updated": "2025-03-28T14:50:35"
+    },
+    {
+      "address": "0x86B4dBE5D203e634a12364C0e428fa242A3FbA98",
+      "usd_price": 1.2818767756035012,
+      "last_updated": "2023-07-13T04:17:35"
+    },
+    {
+      "address": "0x2C537E5624e4af88A7ae4060C022609376C8D0EB",
+      "usd_price": 0.02749422897520918,
+      "last_updated": "2025-03-26T02:18:35"
+    },
+    {
+      "address": "0xBa3335588D9403515223F109EdC4eB7269a9Ab5D",
+      "usd_price": 0.0032576750777322952,
+      "last_updated": "2025-03-28T20:48:59"
+    },
+    {
+      "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+      "usd_price": 0.9144877432302535,
+      "last_updated": "2025-03-28T18:19:47"
+    },
+    {
+      "address": "0x9c354503C38481a7A7a51629142963F98eCC12D0",
+      "usd_price": 0.0009685877130063176,
+      "last_updated": "2024-10-11T04:28:47"
+    },
+    {
+      "address": "0xb26C4B3Ca601136Daf98593feAeff9E0CA702a8D",
+      "usd_price": 0.022944381234377406,
+      "last_updated": "2025-03-28T17:04:59"
+    },
+    {
+      "address": "0x00C2999c8B2AdF4ABC835cc63209533973718eB1",
+      "usd_price": 1.952284063850171e-09,
+      "last_updated": "2025-03-12T11:05:47"
+    },
+    {
+      "address": "0x7616113782AaDAB041d7B10d474F8A0c04EFf258",
+      "usd_price": 0.00018588219587667255,
+      "last_updated": "2025-03-24T12:48:59"
+    },
+    {
+      "address": "0x389fB29230D02e67eB963C1F5A00f2b16f95BEb7",
+      "usd_price": 2.477796998475958,
+      "last_updated": "2025-03-27T22:24:59"
+    },
+    {
+      "address": "0xA6787BcBA1D1775906a64799A60DF7b8011F3f46",
+      "usd_price": 0.0001474963392128999,
+      "last_updated": "2025-03-09T19:57:23"
+    },
+    {
+      "address": "0xAD038Eb671c44b853887A7E32528FaB35dC5D710",
+      "usd_price": 0.10870351228896782,
+      "last_updated": "2025-03-28T23:38:47"
+    },
+    {
+      "address": "0xA1f82E14bc09A1b42710dF1A8a999B62f294e592",
+      "usd_price": 0.09017988034952434,
+      "last_updated": "2025-03-28T04:32:47"
+    },
+    {
+      "address": "0x823E1B82cE1Dc147Bbdb25a203f046aFab1CE918",
+      "usd_price": 0.48926589879235094,
+      "last_updated": "2025-03-23T07:05:11"
+    },
+    {
+      "address": "0xDF4Ef6EE483953fE3B84ABd08C6A060445c01170",
+      "usd_price": 0.009079568899863475,
+      "last_updated": "2025-03-26T04:04:35"
+    },
+    {
+      "address": "0x97de57eC338AB5d51557DA3434828C5DbFaDA371",
+      "usd_price": 1.0781992847569026,
+      "last_updated": "2025-03-25T02:08:59"
+    },
+    {
+      "address": "0xa2E3356610840701BDf5611a53974510Ae27E2e1",
+      "usd_price": 2004.3040216602712,
+      "last_updated": "2025-03-28T22:22:23"
+    },
+    {
+      "address": "0xa2847348b58CEd0cA58d23c7e9106A49f1427Df6",
+      "usd_price": 0.12686956502818503,
+      "last_updated": "2024-09-29T23:37:11"
+    },
+    {
+      "address": "0x3d1E5Cf16077F349e999d6b21A4f646e83Cd90c5",
+      "usd_price": 0.194673016695769,
+      "last_updated": "2025-01-19T19:08:11"
+    },
+    {
+      "address": "0x334cB66050049c1E392007B018321c44A1dbFaC4",
+      "usd_price": 0.03915063438544426,
+      "last_updated": "2024-09-17T17:44:11"
+    },
+    {
+      "address": "0x535321013A1E2D5aF3B1853812a64CA3fc6C1fa1",
+      "usd_price": 872.9255907960372,
+      "last_updated": "2024-05-09T01:51:35"
+    },
+    {
+      "address": "0x07Ac55797D4F43f57cA92a49E65ca582cC287c27",
+      "usd_price": 0.9992780355374631,
+      "last_updated": "2023-07-06T10:52:23"
+    },
+    {
+      "address": "0x7AC168c81F4F3820Fa3F22603ce5864D6aB3C547",
+      "usd_price": 0.014554610641349127,
+      "last_updated": "2025-02-20T15:12:23"
+    },
+    {
+      "address": "0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3",
+      "usd_price": 1887.8675351000657,
+      "last_updated": "2025-03-28T22:06:47"
+    },
+    {
+      "address": "0x6bA75D640bEbfe5dA1197bb5A2aff3327789b5d3",
+      "usd_price": 1.0842393928777212,
+      "last_updated": "2024-11-24T14:05:59"
+    },
+    {
+      "address": "0xcD91538B91B4ba7797D39a2f66E63810b50A33d0",
+      "usd_price": 0.7244809710309152,
+      "last_updated": "2025-02-09T15:28:11"
+    },
+    {
+      "address": "0xDe79d36aB6D2489dd36729A657a25f299Cb2Fbca",
+      "usd_price": 18077.317749758215,
+      "last_updated": "2025-02-05T12:59:23"
+    },
+    {
+      "address": "0x17Fb5f39C55903DE60E63543067031cE2B2659EE",
+      "usd_price": 0.3756099267552836,
+      "last_updated": "2025-02-23T02:13:23"
+    },
+    {
+      "address": "0x677ddbd918637E5F2c79e164D402454dE7dA8619",
+      "usd_price": 0.9990938451129808,
+      "last_updated": "2025-03-28T15:58:23"
+    },
+    {
+      "address": "0x5197FBE1a86679FF1360E27862BF88B0c5119BD8",
+      "usd_price": 0.001642134792579362,
+      "last_updated": "2025-03-12T10:55:11"
+    },
+    {
+      "address": "0xac3E018457B222d93114458476f3E3416Abbe38F",
+      "usd_price": 2248.0534180903414,
+      "last_updated": "2025-03-27T19:00:59"
+    },
+    {
+      "address": "0xf951E335afb289353dc249e82926178EaC7DEd78",
+      "usd_price": 2075.0551784299705,
+      "last_updated": "2025-03-28T15:24:23"
+    },
+    {
+      "address": "0x10978Db3885bA79Bf1Bc823E108085FB88e6F02f",
+      "usd_price": 30.474632619995404,
+      "last_updated": "2023-08-28T02:35:35"
+    },
+    {
+      "address": "0xaCdf0DBA4B9839b96221a8487e9ca660a48212be",
+      "usd_price": 1.0129954805642711,
+      "last_updated": "2024-11-17T19:31:11"
+    },
+    {
+      "address": "0x6732Efaf6f39926346BeF8b821a04B6361C4F3e5",
+      "usd_price": 3416.0202941957596,
+      "last_updated": "2024-12-25T01:49:11"
+    },
+    {
+      "address": "0xE72B141DF173b999AE7c1aDcbF60Cc9833Ce56a8",
+      "usd_price": 1978.0466257750006,
+      "last_updated": "2025-03-28T23:18:11"
+    },
+    {
+      "address": "0x79d4f0232A66c4c91b89c76362016A1707CFBF4f",
+      "usd_price": 1.1066370315327492,
+      "last_updated": "2024-08-05T20:57:35"
+    },
+    {
+      "address": "0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E",
+      "usd_price": 0.999636495024177,
+      "last_updated": "2025-03-28T23:38:11"
+    },
+    {
+      "address": "0x15f74458aE0bFdAA1a96CA1aa779D715Cc1Eefe4",
+      "usd_price": 0.8654108574182754,
+      "last_updated": "2025-03-28T13:24:23"
+    },
+    {
+      "address": "0x905F06DEBcd355809c0EAbe2aBc1332A5C7159CD",
+      "usd_price": 0.00018930759874192106,
+      "last_updated": "2024-05-06T00:28:47"
+    },
+    {
+      "address": "0x905Ff01Bf05bbd2De91B3F09Cc86187EA07EDec3",
+      "usd_price": 5.576660857294519e-11,
+      "last_updated": "2023-07-23T01:21:11"
+    },
+    {
+      "address": "0x6bB61215298F296C55b19Ad842D3Df69021DA2ef",
+      "usd_price": 0.3927256102838322,
+      "last_updated": "2023-07-11T05:59:11"
+    },
+    {
+      "address": "0x699bA988e0D34ADeDb9Ebdfb11e6ED14E2485eCc",
+      "usd_price": 0.319632357405029,
+      "last_updated": "2024-03-27T11:55:47"
+    },
+    {
+      "address": "0xe47f1CD2A37c6FE69e3501AE45ECA263c5A87b2b",
+      "usd_price": 89.88813190809229,
+      "last_updated": "2024-01-16T03:48:35"
+    },
+    {
+      "address": "0xA35b1B31Ce002FBF2058D22F30f95D405200A15b",
+      "usd_price": 2003.6775475064023,
+      "last_updated": "2025-03-28T23:03:35"
+    },
+    {
+      "address": "0x01bF66BEcDcFD6D59A5Ca18869f494feA086cdfD",
+      "usd_price": 1.0111116161667,
+      "last_updated": "2024-11-24T07:48:23"
+    },
+    {
+      "address": "0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f",
+      "usd_price": 0.9994875925853123,
+      "last_updated": "2025-03-28T23:16:35"
+    },
+    {
+      "address": "0xa48F322F8b3edff967629Af79E027628b9Dd1298",
+      "usd_price": 0.9962446710024528,
+      "last_updated": "2025-03-17T17:20:35"
+    },
+    {
+      "address": "0x6e2A189AdF666C06950169f11197aB0C549d5C42",
+      "usd_price": 2016.613587691713,
+      "last_updated": "2023-11-20T10:16:59"
+    },
+    {
+      "address": "0x83F20F44975D03b1b09e64809B757c47f942BEeA",
+      "usd_price": 1.153048393080238,
+      "last_updated": "2025-03-28T23:26:59"
+    },
+    {
+      "address": "0x30E193bd3F52713D5562cf316f35115034525f44",
+      "usd_price": 0.001817912301218189,
+      "last_updated": "2024-08-04T03:38:59"
+    },
+    {
+      "address": "0x04A289fe4cE5fa87a76F58d0214340fb5893A58c",
+      "usd_price": 1.671526083328451,
+      "last_updated": "2023-09-16T06:14:11"
+    },
+    {
+      "address": "0x2915ACAa744e36BEfB3c539c3d99A7f82AD8E6c9",
+      "usd_price": 0.6737552532232869,
+      "last_updated": "2023-09-16T06:11:59"
+    },
+    {
+      "address": "0x25eC98773D7b4ceD4cAFaB96A2A1c0945f145e10",
+      "usd_price": 0.9896118220727386,
+      "last_updated": "2025-03-11T22:39:35"
+    },
+    {
+      "address": "0x3835a58CA93Cdb5f912519ad366826aC9a752510",
+      "usd_price": 1.1963299822609663,
+      "last_updated": "2024-08-06T13:37:47"
+    },
+    {
+      "address": "0xC42D8F3D791C107C458b2FeA025A36669B51fC5f",
+      "usd_price": 0.010378253962716568,
+      "last_updated": "2023-10-20T01:39:59"
+    },
+    {
+      "address": "0x53805A76E1f5ebbFE7115F16f9c87C2f7e633726",
+      "usd_price": 1.003963205725866,
+      "last_updated": "2025-03-28T05:59:59"
+    },
+    {
+      "address": "0xe063F04f280c60aECa68b38341C2eEcBeC703ae2",
+      "usd_price": 1.2470959531451367,
+      "last_updated": "2025-03-28T21:49:59"
+    },
+    {
+      "address": "0x821A278dFff762c76410264303F25bF42e195C0C",
+      "usd_price": 2062.7479713871744,
+      "last_updated": "2025-03-24T12:21:47"
+    },
+    {
+      "address": "0xC0F9bD5Fa5698B6505F643900FFA515Ea5dF54A9",
+      "usd_price": 0.008723949753187705,
+      "last_updated": "2023-10-19T00:24:23"
+    },
+    {
+      "address": "0xdf3ac4F479375802A821f7b7b46Cd7EB5E4262cC",
+      "usd_price": 1.0248730659587262,
+      "last_updated": "2025-03-28T14:00:11"
+    },
+    {
+      "address": "0x776280F68aD33c4d49e6846507B7dBaf7811c89F",
+      "usd_price": 39.965482227195025,
+      "last_updated": "2024-06-26T21:41:11"
+    },
+    {
+      "address": "0x401E5761bd48b8326D5F1072C0b66f13ecdCBEae",
+      "usd_price": 1636.6991419942221,
+      "last_updated": "2023-09-04T07:44:11"
+    },
+    {
+      "address": "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8",
+      "usd_price": 0.9999988295786919,
+      "last_updated": "2025-03-28T23:34:11"
+    },
+    {
+      "address": "0x4591DBfF62656E7859Afe5e45f6f47D3669fBB28",
+      "usd_price": 1.0013058419378218,
+      "last_updated": "2025-03-28T22:07:59"
+    },
+    {
+      "address": "0x43833f0C2025dFA80b5556574FAA11CBf7F3f4eB",
+      "usd_price": 0.5621260492896433,
+      "last_updated": "2025-03-17T15:18:59"
+    },
+    {
+      "address": "0xb2F30A7C980f052f02563fb518dcc39e6bf38175",
+      "usd_price": 0.4948139272735226,
+      "last_updated": "2025-03-17T14:54:11"
+    },
+    {
+      "address": "0x943c5F4F54509d1e78B1fCD93B92c43ce83d3141",
+      "usd_price": 0.004476616201930161,
+      "last_updated": "2024-09-15T10:56:23"
+    },
+    {
+      "address": "0xa21Af1050F7B26e0cfF45ee51548254C41ED6b5c",
+      "usd_price": 6.577956180501297e-08,
+      "last_updated": "2025-03-28T17:01:35"
+    },
+    {
+      "address": "0x1BED97CBC3c24A4fb5C069C6E311a967386131f7",
+      "usd_price": 1906.336092389738,
+      "last_updated": "2025-03-28T10:08:11"
+    },
+    {
+      "address": "0x571f54D23cDf2211C83E9A0CbD92AcA36c48Fa02",
+      "usd_price": 0.9933650438685875,
+      "last_updated": "2023-10-20T12:29:35"
+    },
+    {
+      "address": "0xed4d84225273c867d269F967CC696e0877068f8a",
+      "usd_price": 0.997012004528556,
+      "last_updated": "2025-03-04T13:22:11"
+    },
+    {
+      "address": "0x365AccFCa291e7D3914637ABf1F7635dB165Bb09",
+      "usd_price": 35.20898275260456,
+      "last_updated": "2025-03-28T23:06:59"
+    },
+    {
+      "address": "0x183395DbD0B5e93323a7286D1973150697FFFCB3",
+      "usd_price": 35.207737302772784,
+      "last_updated": "2025-03-28T23:06:59"
+    },
+    {
+      "address": "0xe19d1c837B8A1C83A56cD9165b2c0256D39653aD",
+      "usd_price": 33.50053537870032,
+      "last_updated": "2025-03-28T00:22:11"
+    },
+    {
+      "address": "0x579CEa1889991f68aCc35Ff5c3dd0621fF29b0C9",
+      "usd_price": 0.0042946660808202,
+      "last_updated": "2025-03-28T22:50:59"
+    },
+    {
+      "address": "0x614Da3b37B6F66F7Ce69B4Bbbcf9a55CE6168707",
+      "usd_price": 0.30583561212803345,
+      "last_updated": "2025-03-28T23:32:11"
+    },
+    {
+      "address": "0xFc0B1EEf20e4c68B3DCF36c4537Cfa7Ce46CA70b",
+      "usd_price": 0.4976302015262949,
+      "last_updated": "2025-03-12T04:32:23"
+    },
+    {
+      "address": "0x40803cEA2b2A32BdA1bE61d3604af6a814E70976",
+      "usd_price": 0.15514585506429668,
+      "last_updated": "2024-10-15T05:46:11"
+    },
+    {
+      "address": "0x23Da77203EEad71e72d7326654c431ef563567A4",
+      "usd_price": 1.2094511489089498e-05,
+      "last_updated": "2024-09-14T11:40:11"
+    },
+    {
+      "address": "0x59D9356E565Ab3A36dD77763Fc0d87fEaf85508C",
+      "usd_price": 0.9998339705271156,
+      "last_updated": "2025-03-28T19:04:23"
+    },
+    {
+      "address": "0x24Ae2dA0f361AA4BE46b48EB19C91e02c5e4f27E",
+      "usd_price": 2118.387939350903,
+      "last_updated": "2025-03-27T20:56:11"
+    },
+    {
+      "address": "0x41252E8691e964f7DE35156B68493bAb6797a275",
+      "usd_price": 3161.335227198402,
+      "last_updated": "2025-03-28T21:16:47"
+    },
+    {
+      "address": "0x03CB4438d015B9646d666316b617a694410C216d",
+      "usd_price": 1.0023922968760188,
+      "last_updated": "2023-10-20T02:04:47"
+    },
+    {
+      "address": "0x8191DC3053Fe4564c17694cB203663d3C07B8960",
+      "usd_price": 5.571728447173527e-05,
+      "last_updated": "2023-11-20T16:52:35"
+    },
+    {
+      "address": "0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32",
+      "usd_price": 1.1196506664834183,
+      "last_updated": "2025-03-28T18:28:47"
+    },
+    {
+      "address": "0x534D1F5E617e0f72A6b06a04Aa599839AF776A5e",
+      "usd_price": 2.6398987229910953e-08,
+      "last_updated": "2025-01-01T04:39:35"
+    },
+    {
+      "address": "0xCFC5bD99915aAa815401C5a41A927aB7a38d29cf",
+      "usd_price": 0.9999813620908415,
+      "last_updated": "2025-03-28T09:17:35"
+    },
+    {
+      "address": "0xdA47862a83dac0c112BA89c6abC2159b95afd71C",
+      "usd_price": 0.039394083445253025,
+      "last_updated": "2025-03-28T22:06:47"
+    },
+    {
+      "address": "0x34635280737b5BFe6c7DC2FC3065D60d66e78185",
+      "usd_price": 0.03638720244253563,
+      "last_updated": "2025-03-28T22:06:47"
+    },
+    {
+      "address": "0xfd37356c1a62288b32Fa58188c77Ab0D694a0f4E",
+      "usd_price": 0.8882426333693113,
+      "last_updated": "2023-11-07T15:38:35"
+    },
+    {
+      "address": "0xe3668873D944E4A949DA05fc8bDE419eFF543882",
+      "usd_price": 0.03872889965508054,
+      "last_updated": "2025-03-27T23:43:47"
+    },
+    {
+      "address": "0xD624E5C89466A15812c1D45Ce1533be1F16C1702",
+      "usd_price": 2.050120525802433,
+      "last_updated": "2024-02-19T23:58:11"
+    },
+    {
+      "address": "0x0E573Ce2736Dd9637A0b21058352e1667925C7a8",
+      "usd_price": 0.5751851551411379,
+      "last_updated": "2025-03-28T11:15:59"
+    },
+    {
+      "address": "0x68592c5c98C4F4A8a4bC6dA2121E65Da3d1c0917",
+      "usd_price": 1.0078736003372852,
+      "last_updated": "2024-03-30T04:03:35"
+    },
+    {
+      "address": "0xa71d0588EAf47f12B13cF8eC750430d21DF04974",
+      "usd_price": 2.2383381880056696e-09,
+      "last_updated": "2025-03-28T23:26:35"
+    },
+    {
+      "address": "0xb53ecF1345caBeE6eA1a65100Ebb153cEbcac40f",
+      "usd_price": 1.641570852716661e-06,
+      "last_updated": "2025-03-28T23:22:59"
+    },
+    {
+      "address": "0xf3b9569F82B18aEf890De263B84189bd33EBe452",
+      "usd_price": 4.7078204060523606e-08,
+      "last_updated": "2025-03-28T23:26:35"
+    },
+    {
+      "address": "0x2C2D8a078B33bf7782a16AcCE2C5BA6653a90D5f",
+      "usd_price": 0.9599483112731546,
+      "last_updated": "2025-03-27T04:32:35"
+    },
+    {
+      "address": "0x04C154b66CB340F3Ae24111CC767e0184Ed00Cc6",
+      "usd_price": 1895.8756313593847,
+      "last_updated": "2025-03-28T21:58:11"
+    },
+    {
+      "address": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
+      "usd_price": 0.9991197915977413,
+      "last_updated": "2025-03-28T23:37:35"
+    },
+    {
+      "address": "0xf1C9acDc66974dFB6dEcB12aA385b9cD01190E38",
+      "usd_price": 2027.8326115472132,
+      "last_updated": "2025-03-28T14:56:23"
+    },
+    {
+      "address": "0xd6759a4A3C9B89E2DE9250bdbb4d03Ac5bf7847d",
+      "usd_price": 4376.758267617202,
+      "last_updated": "2025-02-08T02:59:47"
+    },
+    {
+      "address": "0x35fA164735182de50811E8e2E824cFb9B6118ac2",
+      "usd_price": 1877.3389605170591,
+      "last_updated": "2025-03-28T18:22:59"
+    },
+    {
+      "address": "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee",
+      "usd_price": 2010.9621451969415,
+      "last_updated": "2025-03-28T22:43:23"
+    },
+    {
+      "address": "0x77E06c9eCCf2E797fd462A92B6D7642EF85b0A44",
+      "usd_price": 457.09798104412454,
+      "last_updated": "2025-01-22T05:24:23"
+    },
+    {
+      "address": "0x8F22779662Ad253844013D8E99EcCB4d80e31417",
+      "usd_price": 129.92534471884505,
+      "last_updated": "2025-03-23T01:00:47"
+    },
+    {
+      "address": "0xF8FDe8A259A3698902C88bdB1E13Ff28Cd7f6F09",
+      "usd_price": 0.997494603806473,
+      "last_updated": "2025-03-12T01:24:59"
+    },
+    {
+      "address": "0x76237BCfDbe8e06FB774663add96216961df4ff3",
+      "usd_price": 0.8463918692762131,
+      "last_updated": "2025-03-23T03:47:59"
+    },
+    {
+      "address": "0x0dE54CFdfeD8005176f8b7A9D5438B45c4F1df1e",
+      "usd_price": 0.9935346979441826,
+      "last_updated": "2024-06-25T02:16:23"
+    },
+    {
+      "address": "0x569d0e52c3DbE95983BCC2434Cb9F69d905be919",
+      "usd_price": 0.00020239049112800696,
+      "last_updated": "2024-03-20T00:06:23"
+    },
+    {
+      "address": "0x442ED5A1E34AEEe5aF714B6A4fb17037Be319db3",
+      "usd_price": 0.008880229761187847,
+      "last_updated": "2024-01-06T01:57:47"
+    },
+    {
+      "address": "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497",
+      "usd_price": 1.1599806630311849,
+      "last_updated": "2025-03-28T22:22:35"
+    },
+    {
+      "address": "0xD96e84DDBc7CbE1D73c55B6fe8c64f3a6550deea",
+      "usd_price": 0.0020510559480593047,
+      "last_updated": "2024-07-21T17:32:47"
+    },
+    {
+      "address": "0xb27D1729489d04473631f0AFAca3c3A7389ac9F8",
+      "usd_price": 0.9899152470698412,
+      "last_updated": "2024-06-02T11:46:47"
+    },
+    {
+      "address": "0x4d7564f1272E24111280918b8Ae4Df9953A6253F",
+      "usd_price": 3083.6559558181725,
+      "last_updated": "2024-02-01T00:02:35"
+    },
+    {
+      "address": "0xA1290d69c65A6Fe4DF752f95823fae25cB99e5A7",
+      "usd_price": 1950.2961199990975,
+      "last_updated": "2025-03-28T16:13:47"
+    },
+    {
+      "address": "0x9961BdBE8B7091E584c2bF9D0a160C583f564A8c",
+      "usd_price": 0.9784943007985298,
+      "last_updated": "2025-03-01T03:26:23"
+    },
+    {
+      "address": "0x38D64ce1Bdf1A9f24E0Ec469C9cAde61236fB4a0",
+      "usd_price": 1938.9667291119642,
+      "last_updated": "2025-03-23T14:43:47"
+    },
+    {
+      "address": "0xF1376bceF0f78459C0Ed0ba5ddce976F1ddF51F4",
+      "usd_price": 2036.1230390137887,
+      "last_updated": "2025-03-28T18:38:11"
+    },
+    {
+      "address": "0x2b01d4FdB87eb7F2399E5D68631d8A939a323786",
+      "usd_price": 2028.2130827886497,
+      "last_updated": "2025-03-27T07:10:47"
+    },
+    {
+      "address": "0xd77fD503A09269c93B5392ce699fE4883eE0E955",
+      "usd_price": 0.9961506047971331,
+      "last_updated": "2025-03-28T04:58:23"
+    },
+    {
+      "address": "0x3A2725556Dde7B21fBe3dD64A4913ff29faba6A1",
+      "usd_price": 2445.0705229387795,
+      "last_updated": "2024-09-14T06:41:35"
+    },
+    {
+      "address": "0xc3Ac43635d7Aa9Bf361094656C85de3311bE9a2c",
+      "usd_price": 2442.3782505005483,
+      "last_updated": "2024-10-13T13:34:47"
+    },
+    {
+      "address": "0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0",
+      "usd_price": 1944.7402691680065,
+      "last_updated": "2025-03-28T15:49:59"
+    },
+    {
+      "address": "0xbf5495Efe5DB9ce00f80364C8B423567e58d2110",
+      "usd_price": 1980.8825595537637,
+      "last_updated": "2025-03-28T18:28:11"
+    },
+    {
+      "address": "0xFB588886715a263F69c1edd4e84e0Ac1855E928A",
+      "usd_price": 0.014235826731245956,
+      "last_updated": "2025-03-11T07:37:23"
+    },
+    {
+      "address": "0x830614aE209FF9d8706d386fcdBc7a55206fcffC",
+      "usd_price": 0.1923749831011714,
+      "last_updated": "2025-02-25T13:12:59"
+    },
+    {
+      "address": "0xdcF8905091a1c7b773DdB894d805178701b32b55",
+      "usd_price": 2637.6873215069395,
+      "last_updated": "2024-02-14T03:25:47"
+    },
+    {
+      "address": "0x96F6eF951840721AdBF46Ac996b59E0235CB985C",
+      "usd_price": 1.0489008251787062,
+      "last_updated": "2024-05-23T05:20:11"
+    },
+    {
+      "address": "0xf38FEEdb0c85c1e1D6864c7513Ac646d28bb0Cfc",
+      "usd_price": 0.6821556374769958,
+      "last_updated": "2024-07-09T20:52:59"
+    },
+    {
+      "address": "0xf091867EC603A6628eD83D274E835539D82e9cc8",
+      "usd_price": 0.5465007809924006,
+      "last_updated": "2024-10-21T22:48:23"
+    },
+    {
+      "address": "0x97efFB790f2fbB701D88f89DB4521348A2B77be8",
+      "usd_price": 0.0005142089175861498,
+      "last_updated": "2025-03-28T18:44:35"
+    },
+    {
+      "address": "0xD9A442856C234a39a81a089C06451EBAa4306a72",
+      "usd_price": 1979.5121468000184,
+      "last_updated": "2025-03-28T23:04:47"
+    },
+    {
+      "address": "0x6ef3D766Dfe02Dc4bF04aAe9122EB9A0Ded25615",
+      "usd_price": 2419.7008999125665,
+      "last_updated": "2024-09-19T22:40:35"
+    },
+    {
+      "address": "0x49446A0874197839D15395B908328a74ccc96Bc0",
+      "usd_price": 1957.8217737254986,
+      "last_updated": "2025-03-28T21:36:47"
+    },
+    {
+      "address": "0x32bd822d615A3658A68b6fDD30c2fcb2C996D678",
+      "usd_price": 1900.733210661407,
+      "last_updated": "2025-03-28T15:49:59"
+    },
+    {
+      "address": "0x383E6b4437b59fff47B619CBA855CA29342A8559",
+      "usd_price": 1.0056049849877788,
+      "last_updated": "2025-03-13T16:03:11"
+    },
+    {
+      "address": "0xA5588F7cdf560811710A2D82D3C9c99769DB1Dcb",
+      "usd_price": 1.000250505657221,
+      "last_updated": "2025-03-19T04:14:35"
+    },
+    {
+      "address": "0x922406EAFC3CcEb32b0256F287fB977c426EDbd8",
+      "usd_price": 0.7935307482959822,
+      "last_updated": "2025-03-28T04:34:47"
+    },
+    {
+      "address": "0xC272B96bCcdaf1BF98F2197D355066Da3C15982a",
+      "usd_price": 515.7392688021781,
+      "last_updated": "2025-03-23T13:36:47"
+    },
+    {
+      "address": "0xC975342A95cCb75378ddc646B8620fa3Cd5bc051",
+      "usd_price": 2628.421406159536,
+      "last_updated": "2025-03-27T15:44:35"
+    },
+    {
+      "address": "0xdA16Cf041E2780618c49Dbae5d734B89a6Bac9b3",
+      "usd_price": 2.3616294701738597e-05,
+      "last_updated": "2025-01-16T07:28:23"
+    },
+    {
+      "address": "0x35282d87011f87508D457F08252Bc5bFa52E10A0",
+      "usd_price": 1.063256866635396,
+      "last_updated": "2025-03-21T02:06:59"
+    },
+    {
+      "address": "0x55296f69f40Ea6d20E478533C15A6B08B654E758",
+      "usd_price": 0.009742844146639788,
+      "last_updated": "2025-03-28T15:06:59"
+    },
+    {
+      "address": "0x8C0D76C9B18779665475F3E212D9Ca1Ed6A1A0e6",
+      "usd_price": 0.9957623973439089,
+      "last_updated": "2025-03-28T06:27:11"
+    },
+    {
+      "address": "0x085780639CC2cACd35E474e71f4d000e2405d8f6",
+      "usd_price": 1.0000960969473025,
+      "last_updated": "2025-03-28T23:15:35"
+    },
+    {
+      "address": "0xB56AaAc80C931161548a49181c9E000a19489C44",
+      "usd_price": 0.012008089212975663,
+      "last_updated": "2025-03-28T20:47:47"
+    },
+    {
+      "address": "0x1cfa5641c01406aB8AC350dEd7d735ec41298372",
+      "usd_price": 0.005693955654995864,
+      "last_updated": "2025-03-28T22:55:47"
+    },
+    {
+      "address": "0xfe18aE03741a5b84e39C295Ac9C856eD7991C38e",
+      "usd_price": 2098.4912230451323,
+      "last_updated": "2025-03-27T06:06:35"
+    },
+    {
+      "address": "0xD60EeA80C83779a8A5BFCDAc1F3323548e6BB62d",
+      "usd_price": 0.00020921161432661264,
+      "last_updated": "2024-12-19T16:58:59"
+    },
+    {
+      "address": "0x78da5799CF427Fee11e9996982F4150eCe7a99A7",
+      "usd_price": 1.0002212072927554,
+      "last_updated": "2025-03-28T20:57:11"
+    },
+    {
+      "address": "0x66e9b35BE6c529A68622531bbC169733F73B8ECA",
+      "usd_price": 11.422852821314734,
+      "last_updated": "2024-04-23T00:21:47"
+    },
+    {
+      "address": "0x2c9084E65D046146d6CFc26Bf45F5b80042b90EB",
+      "usd_price": 2.9192020257820413e-05,
+      "last_updated": "2025-03-22T23:06:47"
+    },
+    {
+      "address": "0x0000000016E6Cb3038203c1129c8B4aEE7af7a11",
+      "usd_price": 1882.197794099896,
+      "last_updated": "2025-03-27T04:30:23"
+    },
+    {
+      "address": "0xc2e660C62F72c2ad35AcE6DB78a616215E2F2222",
+      "usd_price": 1976.1202337258692,
+      "last_updated": "2025-03-23T00:56:59"
+    },
+    {
+      "address": "0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C",
+      "usd_price": 3368.1063768826457,
+      "last_updated": "2025-01-16T17:21:59"
+    },
+    {
+      "address": "0xb6667b04Cb61Aa16B59617f90FFA068722Cf21dA",
+      "usd_price": 0.9994348245324146,
+      "last_updated": "2024-12-15T03:11:23"
+    },
+    {
+      "address": "0x7FA768E035F956c41d6aeaa3Bd857e7E5141CAd5",
+      "usd_price": 2505.956717889072,
+      "last_updated": "2025-03-03T02:30:59"
+    },
+    {
+      "address": "0x80d69e79258FE9D056c822461c4eb0B4ca8802E2",
+      "usd_price": 3654.099497714523,
+      "last_updated": "2024-07-15T11:48:35"
+    },
+    {
+      "address": "0xfa2629B9cF3998D52726994E0FcdB750224D8B9D",
+      "usd_price": 3994.576254607577,
+      "last_updated": "2024-06-21T04:53:35"
+    },
+    {
+      "address": "0xC3ADe5aCe1bBb033CcAE8177C12Ecbfa16bD6A9D",
+      "usd_price": 2010.5315385289193,
+      "last_updated": "2025-03-13T09:06:47"
+    },
+    {
+      "address": "0x668308d77be3533c909a692302Cb4D135Bf8041C",
+      "usd_price": 4310.988957407172,
+      "last_updated": "2024-12-05T17:29:11"
+    },
+    {
+      "address": "0x1ce0D1E19c9514230FF8CD1DAbaC2555fb92122b",
+      "usd_price": 70815.18012172636,
+      "last_updated": "2024-06-06T11:39:59"
+    },
+    {
+      "address": "0x65D72AA8DA931F047169112fcf34f52DbaAE7D18",
+      "usd_price": 0.999617652791798,
+      "last_updated": "2025-03-28T00:04:47"
+    },
+    {
+      "address": "0x4e38D89362f7e5db0096CE44ebD021c3962aA9a0",
+      "usd_price": 0.0067287985216880975,
+      "last_updated": "2025-03-07T06:11:47"
+    },
+    {
+      "address": "0x57a5a0567187FF4A8dcC1A9bBa86155E355878F2",
+      "usd_price": 3178.919639118363,
+      "last_updated": "2024-11-16T03:45:11"
+    },
+    {
+      "address": "0x9181f633E9B9F15A32d5e37094F4C93b333e0E92",
+      "usd_price": 3073.743780727258,
+      "last_updated": "2024-07-13T02:30:47"
+    },
+    {
+      "address": "0xfD07fD5EBEa6F24888a397997E262179Bf494336",
+      "usd_price": 3135.3155408392886,
+      "last_updated": "2024-05-17T22:13:59"
+    },
+    {
+      "address": "0xBf19Eead55a6B100667f04F8FBC5371E03E8ab2E",
+      "usd_price": 3499.4642581209955,
+      "last_updated": "2024-07-26T07:33:23"
+    },
+    {
+      "address": "0x07eF9E82721AC16809D24DAfBE1792Ce01654DB4",
+      "usd_price": 2.9135528316937427e-05,
+      "last_updated": "2025-03-06T04:46:47"
+    },
+    {
+      "address": "0xFf71841EeFca78a64421db28060855036765c248",
+      "usd_price": 4431.044288838942,
+      "last_updated": "2025-03-24T07:26:23"
+    },
+    {
+      "address": "0xCeA18a8752bb7e7817F9AE7565328FE415C0f2cA",
+      "usd_price": 0.0008713048399344179,
+      "last_updated": "2024-06-02T11:46:47"
+    },
+    {
+      "address": "0xeb61e567cbAeAccb6C259deF92900bc59d8a14cC",
+      "usd_price": 0.7166435332816985,
+      "last_updated": "2024-05-13T08:49:35"
+    },
+    {
+      "address": "0x95710BDE45C8D384A976Cc58Cc7a7e489576b098",
+      "usd_price": 0.07386816402046756,
+      "last_updated": "2025-02-23T00:51:47"
+    },
+    {
+      "address": "0x55C08ca52497e2f1534B59E2917BF524D4765257",
+      "usd_price": 0.004888506522777097,
+      "last_updated": "2025-03-28T14:51:11"
+    },
+    {
+      "address": "0x6b5204B0Be36771253Cc38e88012E02B752f0f36",
+      "usd_price": 0.0044606648959618425,
+      "last_updated": "2025-03-26T20:18:23"
+    },
+    {
+      "address": "0x6c4a8973E6633dA2Da7187669479C27830c7b1c4",
+      "usd_price": 2.062496821671901,
+      "last_updated": "2025-03-04T21:07:23"
+    },
+    {
+      "address": "0x0d86883FAf4FfD7aEb116390af37746F45b6f378",
+      "usd_price": 1.0448476183523274,
+      "last_updated": "2025-03-28T19:11:23"
+    },
+    {
+      "address": "0xaf37c1167910ebC994e266949387d2c7C326b879",
+      "usd_price": 0.9995351709652522,
+      "last_updated": "2025-03-27T04:42:11"
+    },
+    {
+      "address": "0x63a0964A36c34E81959da5894ad888800e17405b",
+      "usd_price": 0.002552344613687145,
+      "last_updated": "2024-09-20T23:02:47"
+    },
+    {
+      "address": "0xd3043D66Afe00344C115f7f81D18277C5c718FF8",
+      "usd_price": 1.0002556097606998,
+      "last_updated": "2025-03-24T06:14:59"
+    },
+    {
+      "address": "0xb6919Ef2ee4aFC163BC954C5678e2BB570c2D103",
+      "usd_price": 0.9996620997492609,
+      "last_updated": "2025-03-20T14:38:11"
+    },
+    {
+      "address": "0x661c70333AA1850CcDBAe82776Bb436A0fCfeEfB",
+      "usd_price": 86539.55299687595,
+      "last_updated": "2025-03-28T05:38:59"
+    },
+    {
+      "address": "0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776",
+      "usd_price": 1.1111956197458839,
+      "last_updated": "2025-03-28T12:43:11"
+    },
+    {
+      "address": "0x58efE15C0404aB22F87E4495D71f6f2077e862bE",
+      "usd_price": 0.9986489412561889,
+      "last_updated": "2025-03-02T20:36:35"
+    },
+    {
+      "address": "0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409",
+      "usd_price": 0.9994318847318002,
+      "last_updated": "2025-03-28T09:29:47"
+    },
+    {
+      "address": "0x8668a15b7b023Dc77B372a740FCb8939E15257Cf",
+      "usd_price": 2.5693455383993493,
+      "last_updated": "2025-03-28T17:42:35"
+    },
+    {
+      "address": "0x4F65A884eB41cd09a2F0a4505De2c6d698A78C73",
+      "usd_price": 1.9469678522239864,
+      "last_updated": "2024-09-02T07:27:35"
+    },
+    {
+      "address": "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
+      "usd_price": 0.61716236554478,
+      "last_updated": "2025-03-28T20:25:11"
+    },
+    {
+      "address": "0x4956b52aE2fF65D74CA2d61207523288e4528f96",
+      "usd_price": 1.172045117515048,
+      "last_updated": "2025-03-28T22:52:47"
+    },
+    {
+      "address": "0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110",
+      "usd_price": 0.9994049426104762,
+      "last_updated": "2025-03-28T23:30:47"
+    },
+    {
+      "address": "0x5E17aBe30F0b804730c4E4DB0ad217d8c29D05A0",
+      "usd_price": 3.2108923575002057,
+      "last_updated": "2024-09-16T21:29:59"
+    },
+    {
+      "address": "0x005F893EcD7bF9667195642f7649DA8163e23658",
+      "usd_price": 2067.7457388614653,
+      "last_updated": "2025-03-25T23:47:47"
+    },
+    {
+      "address": "0x917ceE801a67f933F2e6b33fC0cD1ED2d5909D88",
+      "usd_price": 1928.5909198513987,
+      "last_updated": "2025-03-28T22:43:23"
+    },
+    {
+      "address": "0x9EEAD9ce15383CaEED975427340b3A369410CFBF",
+      "usd_price": 0.9942807704174051,
+      "last_updated": "2025-03-23T17:41:59"
+    },
+    {
+      "address": "0x6C9815826FdF8c7a45cCfEd2064dbaB33a078712",
+      "usd_price": 2.4845243032002706,
+      "last_updated": "2025-03-28T04:46:11"
+    },
+    {
+      "address": "0x2191DF768ad71140F9F3E96c1e4407A4aA31d082",
+      "usd_price": 2.473516918198457,
+      "last_updated": "2025-03-28T04:46:11"
+    },
+    {
+      "address": "0x73A15FeD60Bf67631dC6cd7Bc5B6e8da8190aCF5",
+      "usd_price": 0.9973770297448936,
+      "last_updated": "2025-03-28T23:09:59"
+    },
+    {
+      "address": "0x35D8949372D46B7a3D5A56006AE77B215fc69bC0",
+      "usd_price": 0.9571452489783427,
+      "last_updated": "2025-03-28T23:09:59"
+    },
+    {
+      "address": "0xbdC7c08592Ee4aa51D06C27Ee23D5087D65aDbcD",
+      "usd_price": 0.999580988605524,
+      "last_updated": "2025-03-28T21:52:23"
+    },
+    {
+      "address": "0x5905c0290e59aFBDc42a5480add9bD7B20CB3759",
+      "usd_price": 1.0028543374486676,
+      "last_updated": "2024-08-28T00:54:47"
+    },
+    {
+      "address": "0x09db87A538BD693E9d08544577d5cCfAA6373A48",
+      "usd_price": 1919.2896726933175,
+      "last_updated": "2025-03-28T18:21:23"
+    },
+    {
+      "address": "0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e",
+      "usd_price": 82203.5486560776,
+      "last_updated": "2025-03-28T20:20:47"
+    },
+    {
+      "address": "0xA9E8aCf069C58aEc8825542845Fd754e41a9489A",
+      "usd_price": 2.0304991419338823,
+      "last_updated": "2025-03-25T23:10:59"
+    },
+    {
+      "address": "0xbC404429558292eE2D769E57d57D6E74bbd2792d",
+      "usd_price": 1.072393726150281,
+      "last_updated": "2025-03-23T22:02:23"
+    },
+    {
+      "address": "0x8c9532a60E0E7C6BbD2B2c1303F63aCE1c3E9811",
+      "usd_price": 2241.797443199629,
+      "last_updated": "2025-03-28T18:28:11"
+    },
+    {
+      "address": "0x9D11ab23d33aD026C466CE3c124928fDb69Ba20E",
+      "usd_price": 1.000437089714119,
+      "last_updated": "2025-03-13T15:55:11"
+    },
+    {
+      "address": "0x15700B564Ca08D9439C58cA5053166E8317aa138",
+      "usd_price": 0.9993464431481494,
+      "last_updated": "2025-03-28T23:22:23"
+    },
+    {
+      "address": "0x7223442cad8e9cA474fC40109ab981608F8c4273",
+      "usd_price": 1915.6286810002448,
+      "last_updated": "2025-03-28T20:26:59"
+    },
+    {
+      "address": "0xb45ad160634c528Cc3D2926d9807104FA3157305",
+      "usd_price": 1.1151984609144754,
+      "last_updated": "2025-03-28T21:10:59"
+    },
+    {
+      "address": "0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a",
+      "usd_price": 0.9984576538890864,
+      "last_updated": "2025-03-28T21:33:59"
+    },
+    {
+      "address": "0x20157DBAbb84e3BBFE68C349d0d44E48AE7B5AD2",
+      "usd_price": 96706.7826399866,
+      "last_updated": "2025-02-16T13:43:11"
+    },
+    {
+      "address": "0x4D55a36902a6546A79ec4c9c315241De746D5fC3",
+      "usd_price": 0.5128193828551231,
+      "last_updated": "2025-03-20T14:32:11"
+    },
+    {
+      "address": "0x745407c86DF8DB893011912d3aB28e68B62E49B0",
+      "usd_price": 0.5859263163396355,
+      "last_updated": "2025-03-28T16:18:11"
+    },
+    {
+      "address": "0x69000405f9DcE69BD4Cbf4f2865b79144A69BFE0",
+      "usd_price": 1.0428531738988334,
+      "last_updated": "2025-03-27T09:31:47"
+    },
+    {
+      "address": "0xdF217EFD8f3ecb5E837aedF203C28c1f06854017",
+      "usd_price": 79838.60642923354,
+      "last_updated": "2025-03-28T10:07:35"
+    },
+    {
+      "address": "0xC1f33e0cf7e40a67375007104B929E49a581bafE",
+      "usd_price": 1.33982070089642,
+      "last_updated": "2025-03-28T08:23:23"
+    },
+    {
+      "address": "0x2bd1F344a2398340C2b1119Da98816eA723F5F0f",
+      "usd_price": 0.980304711045045,
+      "last_updated": "2025-03-26T19:51:47"
+    },
+    {
+      "address": "0xD46bA6D942050d489DBd938a2C909A5d5039A161",
+      "usd_price": 1.169218975891756,
+      "last_updated": "2025-03-16T04:10:11"
+    },
+    {
+      "address": "0x8DB2350D78aBc13f5673A411D4700BCF87864dDE",
+      "usd_price": 86399.31954134836,
+      "last_updated": "2025-03-26T15:49:59"
+    },
+    {
+      "address": "0x45804880De22913dAFE09f4980848ECE6EcbAf78",
+      "usd_price": 2684.9739786181567,
+      "last_updated": "2025-03-28T21:58:59"
+    },
+    {
+      "address": "0x8236a87084f8B84306f72007F36F2618A5634494",
+      "usd_price": 84133.30423071526,
+      "last_updated": "2025-03-28T23:18:35"
+    },
+    {
+      "address": "0x657e8C867D8B37dCC18fA4Caead9C45EB088C642",
+      "usd_price": 84009.72592398584,
+      "last_updated": "2025-03-28T23:08:59"
+    },
+    {
+      "address": "0x3Ae86d2d2f6A8d29792156Dd92DB01D7B3CC75Fb",
+      "usd_price": 3327.6449135286657,
+      "last_updated": "2024-12-28T01:22:35"
+    },
+    {
+      "address": "0x698978E0fc8f814989d8c23b8b9D3bdfABab4451",
+      "usd_price": 0.9954384595454158,
+      "last_updated": "2025-02-26T17:13:47"
+    },
+    {
+      "address": "0x2b0Ce48EC45BD347a2Dab0974801E28dC32DfA3F",
+      "usd_price": 2729.209420200033,
+      "last_updated": "2024-09-01T05:06:11"
+    },
+    {
+      "address": "0x786F4782d1A5c602Ea30Bc4A95154110B9e231ea",
+      "usd_price": 131167.10261372395,
+      "last_updated": "2025-01-07T06:39:23"
+    },
+    {
+      "address": "0x7A56E1C57C7475CCf742a1832B028F0456652F97",
+      "usd_price": 83874.17845019588,
+      "last_updated": "2025-03-28T15:12:11"
+    },
+    {
+      "address": "0xFd03723a9A3AbE0562451496a9a394D2C4bad4ab",
+      "usd_price": 0.998694655886165,
+      "last_updated": "2025-03-28T13:18:11"
+    },
+    {
+      "address": "0xd9D920AA40f578ab794426F5C90F6C731D159DEf",
+      "usd_price": 83052.50512109132,
+      "last_updated": "2025-03-28T15:12:11"
+    },
+    {
+      "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+      "usd_price": 84159.77177096406,
+      "last_updated": "2025-03-28T23:18:11"
+    },
+    {
+      "address": "0x57B96D4aF698605563A4653D882635da59Bf11AF",
+      "usd_price": 0.1804552288450637,
+      "last_updated": "2025-03-28T16:14:35"
+    },
+    {
+      "address": "0x437cc33344a0B27A429f795ff6B469C72698B291",
+      "usd_price": 0.9993392121153628,
+      "last_updated": "2025-03-24T01:07:35"
+    },
+    {
+      "address": "0xD11c452fc99cF405034ee446803b6F6c1F6d5ED8",
+      "usd_price": 2254.331881172019,
+      "last_updated": "2025-03-28T20:27:23"
+    },
+    {
+      "address": "0x270B7748CdF8243bFe68FaCE7230ef0fCE695389",
+      "usd_price": 1887.749777815598,
+      "last_updated": "2025-03-28T13:06:11"
+    },
+    {
+      "address": "0x09DEF5aBc67e967d54E8233A4b5EBBc1B3fbE34b",
+      "usd_price": 95483.07287615718,
+      "last_updated": "2024-12-22T23:18:59"
+    },
+    {
+      "address": "0xAEe5913FFd19dBcA4Fd1eF6F3925ed0414407d37",
+      "usd_price": 0.009912366715916426,
+      "last_updated": "2025-03-28T16:51:23"
+    },
+    {
+      "address": "0x0FA308AE0ddE633b6eDE22ba719E7E0Bc45FC6dB",
+      "usd_price": 81270.93469436224,
+      "last_updated": "2025-03-11T11:01:59"
+    },
+    {
+      "address": "0x3C2993B831528EC4db4e334D5c2d1914491E38B4",
+      "usd_price": 0.07557750949746926,
+      "last_updated": "2025-01-31T13:01:35"
+    },
+    {
+      "address": "0x7C1156E515aA1A2E851674120074968C905aAF37",
+      "usd_price": 1.0002525054977003,
+      "last_updated": "2025-03-28T23:30:11"
+    },
+    {
+      "address": "0x526Be1c610616be0e8e69893fC6766FddfBaDA61",
+      "usd_price": 1.0258854852733221,
+      "last_updated": "2025-03-23T17:36:35"
+    },
+    {
+      "address": "0x35c8941c294E9d60E0742CB9f3d58c0D1Ba2DEc4",
+      "usd_price": 0.5599539785198387,
+      "last_updated": "2024-10-29T06:43:59"
+    },
+    {
+      "address": "0xc81b27Ac184A631a0Cbde20b51c734664b04d5B3",
+      "usd_price": 7.191993254291145e-05,
+      "last_updated": "2025-01-03T02:21:47"
+    },
+    {
+      "address": "0x280A8955A11FcD81D72bA1F99d265A48ce39aC2E",
+      "usd_price": 2618.110629239738,
+      "last_updated": "2024-11-06T09:51:35"
+    },
+    {
+      "address": "0xE957ea0b072910f508dD2009F4acB7238C308E29",
+      "usd_price": 0.2625300912776979,
+      "last_updated": "2024-12-09T11:25:59"
+    },
+    {
+      "address": "0x0b4D6DA52dF60D44Ce7140F1044F2aD5fabd6316",
+      "usd_price": 0.9979909481228704,
+      "last_updated": "2024-10-31T20:57:59"
+    },
+    {
+      "address": "0x54E43F06c5F974EfDadDCe8122060814e3881A45",
+      "usd_price": 0.9973900378137636,
+      "last_updated": "2024-11-21T16:44:11"
+    },
+    {
+      "address": "0x8A60E489004Ca22d775C5F2c657598278d17D9c2",
+      "usd_price": 0.9940365836278038,
+      "last_updated": "2025-03-28T23:15:23"
+    },
+    {
+      "address": "0x0655977FEb2f289A4aB78af67BAB0d17aAb84367",
+      "usd_price": 1.042199994276763,
+      "last_updated": "2025-03-28T23:06:11"
+    },
+    {
+      "address": "0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD",
+      "usd_price": 1.0451046947862468,
+      "last_updated": "2025-03-28T22:40:47"
+    },
+    {
+      "address": "0x4670C8e0e7D845F274977Ff663C79c81fFE41290",
+      "usd_price": 1.0006525407113438,
+      "last_updated": "2025-03-18T07:56:23"
+    },
+    {
+      "address": "0x59a529070fBb61e6D6c91f952CcB7f35c34Cf8Aa",
+      "usd_price": 1.09918627070117,
+      "last_updated": "2025-03-28T23:11:35"
+    },
+    {
+      "address": "0x657d9ABA1DBb59e53f9F3eCAA878447dCfC96dCb",
+      "usd_price": 1949.2076249313855,
+      "last_updated": "2025-03-28T15:54:59"
+    },
+    {
+      "address": "0x626E8036dEB333b408Be468F951bdB42433cBF18",
+      "usd_price": 0.26140463222788457,
+      "last_updated": "2025-03-28T23:28:23"
+    },
+    {
+      "address": "0x69000dFD5025E82f48Eb28325A2B88a241182CEd",
+      "usd_price": 1.0008468741115093,
+      "last_updated": "2025-03-28T18:40:23"
+    },
+    {
+      "address": "0x69000195D5e3201Cf73C9Ae4a1559244DF38D47C",
+      "usd_price": 0.9608492014477712,
+      "last_updated": "2025-03-25T12:21:59"
+    },
+    {
+      "address": "0xC139190F447e929f090Edeb554D95AbB8b18aC1C",
+      "usd_price": 0.9998863350907402,
+      "last_updated": "2025-03-28T02:30:11"
+    },
+    {
+      "address": "0xB69753c06BB5c366BE51E73bFc0cC2e3DC07E371",
+      "usd_price": 8.657434850865563e-09,
+      "last_updated": "2025-03-28T18:22:35"
+    },
+    {
+      "address": "0xB78Cd5A40B4d28e70bD219F53605F3f26487FeC4",
+      "usd_price": 0.0007425567660065327,
+      "last_updated": "2025-01-07T16:26:11"
+    },
+    {
+      "address": "0x2B66AAdE1e9C062FF411bd47C44E0Ad696d43BD9",
+      "usd_price": 1.05703336049269,
+      "last_updated": "2025-03-28T23:15:23"
+    },
+    {
+      "address": "0x67466BE17df832165F8C80a5A120CCc652bD7E69",
+      "usd_price": 2.7382225109513037e-05,
+      "last_updated": "2025-03-28T22:23:23"
+    },
+    {
+      "address": "0x440017336bf1944f7152f48e53ba22af0c4E31F1",
+      "usd_price": 0.20801568070889626,
+      "last_updated": "2024-12-12T00:09:23"
+    },
+    {
+      "address": "0x440017A1b021006d556d7fc06A54c32E42Eb745B",
+      "usd_price": 0.14591737670452226,
+      "last_updated": "2025-03-28T16:39:47"
+    },
+    {
+      "address": "0xa4F6B2CDCB67BF8f48Baa459a333d2667aa4b100",
+      "usd_price": 4124.658301680785,
+      "last_updated": "2024-12-18T07:48:47"
+    },
+    {
+      "address": "0x8E0789d39db454DBE9f4a77aCEF6dc7c69f6D552",
+      "usd_price": 2466.157941161991,
+      "last_updated": "2025-03-25T17:15:47"
+    },
+    {
+      "address": "0xf3527ef8dE265eAa3716FB312c12847bFBA66Cef",
+      "usd_price": 0.9985482090631,
+      "last_updated": "2025-03-28T20:27:47"
+    },
+    {
+      "address": "0x7788A3538C5fc7F9c7C8A74EAC4c898fC8d87d92",
+      "usd_price": 1.0716067602853392,
+      "last_updated": "2025-03-27T08:52:47"
+    },
+    {
+      "address": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+      "usd_price": 1.000133005116629,
+      "last_updated": "2025-03-28T08:58:47"
+    },
+    {
+      "address": "0x1CE7D9942ff78c328A4181b9F3826fEE6D845A97",
+      "usd_price": 1.068783521902871,
+      "last_updated": "2025-03-28T19:45:47"
+    },
+    {
+      "address": "0x634Ed807647e07a7C038EF1956a58ADbc6695F88",
+      "usd_price": 0.6087594689406501,
+      "last_updated": "2025-03-21T17:20:23"
+    },
+    {
+      "address": "0x8cCB64623cDa445AA0ce7C0CaEF99486Ebd155bA",
+      "usd_price": 2009.1184299792772,
+      "last_updated": "2025-03-19T22:06:59"
+    },
+    {
+      "address": "0x253eD65F440a5Bd3902D7f4C03a2E29A57618914",
+      "usd_price": 7.146669324702343e-07,
+      "last_updated": "2025-03-11T06:58:59"
+    },
+    {
+      "address": "0x7Cd017ca5ddb86861FA983a34b5F495C6F898c41",
+      "usd_price": 0.9990183093089003,
+      "last_updated": "2025-03-27T09:36:23"
+    },
+    {
+      "address": "0xB58E61C3098d85632Df34EecfB899A1Ed80921cB",
+      "usd_price": 1.1313426017765504,
+      "last_updated": "2025-03-19T13:30:11"
+    },
+    {
+      "address": "0x961dD84059505D59f82cE4fb87D3c09bec65301d",
+      "usd_price": 17.69697014916448,
+      "last_updated": "2025-03-28T18:46:47"
+    },
+    {
+      "address": "0xaD55aebc9b8c03FC43cd9f62260391c13c23e7c0",
+      "usd_price": 1.0087238172330117,
+      "last_updated": "2025-03-28T21:49:35"
+    },
+    {
+      "address": "0x4737D9b4592B40d51e110b94c9C043c6654067Ae",
+      "usd_price": 1.0572113026710408,
+      "last_updated": "2025-03-28T22:53:59"
+    },
+    {
+      "address": "0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29",
+      "usd_price": 0.9991844153366326,
+      "last_updated": "2025-03-28T22:18:35"
+    },
+    {
+      "address": "0xEf588D79DF77c34B9821C5c1FB2f3e5019fB9521",
+      "usd_price": 3292.346891485448,
+      "last_updated": "2025-01-22T17:55:59"
+    },
+    {
+      "address": "0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6",
+      "usd_price": 1.1228175528039224,
+      "last_updated": "2025-03-28T21:54:23"
+    },
+    {
+      "address": "0x5C5b196aBE0d54485975D1Ec29617D42D9198326",
+      "usd_price": 1.032238087969695,
+      "last_updated": "2025-03-28T19:48:11"
+    },
+    {
+      "address": "0xb01dd87B29d187F3E3a4Bf6cdAebfb97F3D9aB98",
+      "usd_price": 0.9971660199610999,
+      "last_updated": "2025-03-28T08:53:47"
+    },
+    {
+      "address": "0xde17a000BA631c5d7c2Bd9FB692EFeA52D90DEE2",
+      "usd_price": 1.0015388297460195,
+      "last_updated": "2025-03-28T22:47:35"
+    },
+    {
+      "address": "0x8166137a9E049897d10e7E4De73ee37FeDC9d9b7",
+      "usd_price": 0.9926155432969401,
+      "last_updated": "2025-03-26T12:08:47"
+    },
+    {
+      "address": "0x4274cD7277C7bb0806Bd5FE84b9aDAE466a8DA0a",
+      "usd_price": 0.99983651974509,
+      "last_updated": "2025-03-28T21:26:59"
+    },
+    {
+      "address": "0x5FFF1443Cb859E17e9a6786f7e24c369F22FD002",
+      "usd_price": 0.0009262568902535973,
+      "last_updated": "2025-03-28T04:48:35"
+    },
+    {
+      "address": "0x86c4D4E958BaF7E911C05f3772066C30ba2d4618",
+      "usd_price": 1.0011169112598826,
+      "last_updated": "2025-03-28T15:00:59"
+    },
+    {
+      "address": "0x4dAeb4a06F70f4b1A5C329115731fE4b89C0B227",
+      "usd_price": 0.001869514476145973,
+      "last_updated": "2025-02-09T15:49:11"
+    },
+    {
+      "address": "0xB90B2A35C65dBC466b04240097Ca756ad2005295",
+      "usd_price": 2.3776791743238068e-07,
+      "last_updated": "2025-03-28T23:17:11"
+    },
+    {
+      "address": "0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26",
+      "usd_price": 0.06177072463752191,
+      "last_updated": "2025-03-28T22:56:59"
+    },
+    {
+      "address": "0xFa2B947eEc368f42195f24F36d2aF29f7c24CeC2",
+      "usd_price": 1.0000305496723692,
+      "last_updated": "2025-03-28T23:31:11"
+    },
+    {
+      "address": "0x419905009e4656fdC02418C7Df35B1E61Ed5F726",
+      "usd_price": 2.231786912545583,
+      "last_updated": "2025-03-28T22:20:11"
+    },
+    {
+      "address": "0x57aB1E0003F623289CD798B1824Be09a793e4Bec",
+      "usd_price": 0.990160126226014,
+      "last_updated": "2025-03-28T23:06:11"
+    },
+    {
+      "address": "0x2D883D70aa9931A0c5514aC38c7dB9237653acac",
+      "usd_price": 0.9203861024761161,
+      "last_updated": "2025-03-18T06:33:59"
+    },
+    {
+      "address": "0x8238884Ec9668Ef77B90C6dfF4D1a9F4F4823BFe",
+      "usd_price": 1.0017419238248122,
+      "last_updated": "2025-03-18T06:55:59"
+    },
+    {
+      "address": "0x8EB9f9E97D6a63aab7572AD0D96FA3f09255ccE9",
+      "usd_price": 0.9650473499429802,
+      "last_updated": "2025-03-28T09:02:23"
+    },
+    {
+      "address": "0x4f493B7dE8aAC7d55F71853688b1F7C8F0243C85",
+      "usd_price": 1.0056116510219923,
+      "last_updated": "2025-03-28T10:58:59"
+    }
+  ]
+}

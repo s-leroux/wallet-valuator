@@ -1,5 +1,6 @@
 import {
   CurveAPI,
+  CurveChainList,
   CurvePriceHistory,
   CurvePriceList,
 } from "../../src/services/curve/curveapi.mjs";
@@ -8,8 +9,16 @@ import { NotImplementedError, ValueError } from "../../src/error.mjs";
 
 // Test data
 import MockPriceHistory from "../../fixtures/Curve/priceHistory.json" assert { type: "json" };
+import MockChains from "../../fixtures/Curve/chains.json" assert { type: "json" };
+import MockUSDPriceEthereum from "../../fixtures/Curve/usd_price/ethereum.json" assert { type: "json" };
+import MockUSDPriceGnosis from "../../fixtures/Curve/usd_price/gnosis.json" assert { type: "json" };
+import { mapSourcePosition } from "source-map-support";
 
 export class FakeCurveAPI implements CurveAPI {
+  static create(): CurveAPI {
+    return new FakeCurveAPI();
+  }
+
   async getUSDPrice(
     chain: string,
     tokenAddress: string,
@@ -32,15 +41,18 @@ export class FakeCurveAPI implements CurveAPI {
   }
 
   async getChains() {
-    const chains = ["ethereum", "gnosis"];
-
     return {
-      data: chains.map((chain) => ({ name: chain })),
-    };
-  }
+      __proto__: null,
 
-  static create(): CurveAPI {
-    return new FakeCurveAPI();
+      data: [
+        {
+          name: "ethereum",
+        },
+        {
+          name: "gnosis",
+        },
+      ],
+    } as CurveChainList;
   }
 
   async getChainContracts(chainName: string) {
@@ -60,18 +72,13 @@ export class FakeCurveAPI implements CurveAPI {
   }
 
   async getAllUSDPrices(chain: string): Promise<CurvePriceList> {
-    if (chain !== "gnosis") {
-      throw new NotImplementedError(`Unsupported chain ${chain}`);
+    switch (chain) {
+      case "ethereum":
+        return MockUSDPriceEthereum;
+      case "gnosis":
+        return MockUSDPriceGnosis;
     }
 
-    return {
-      data: [
-        {
-          address: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6e490",
-          usd_price: 1.0397308967364005,
-          last_updated: "2025-03-02T00:00:00",
-        },
-      ],
-    };
+    throw new NotImplementedError(`Unsupported chain ${chain}`);
   }
 }

@@ -6,7 +6,6 @@ const assert = chai.assert;
 
 import { CurveOracle } from "../../../src/services/curve/curveoracle.mjs";
 import { parseDate } from "../../../src/date.mjs";
-import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
@@ -14,10 +13,10 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeCurveAPI } from "../../support/curveapi.fake.mjs";
 import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs";
-import { CurveID } from "../../../src/services/curve/curvecommon.mjs";
 import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
+import { ChainAddress } from "../../../src/chainaddress.mjs";
 
 const { EUR, USD } = FakeFiatCurrency;
 const RATE = 1.2;
@@ -49,7 +48,7 @@ describe("CurveOracle", function () {
         ["20250305", 1.0399812908886852],
       ] as const;
 
-      const ID = CurveID(CHAIN, TOKEN);
+      const ID = ChainAddress(CHAIN, TOKEN);
       const crypto = new CryptoAsset(ID, "Curve-X", "Curve-X", 18);
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {

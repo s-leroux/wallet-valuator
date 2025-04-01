@@ -4,7 +4,7 @@ import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { Price } from "../../price.mjs";
 
 import { Oracle } from "../oracle.mjs";
-import { CurveAPI } from "./curveapi.mjs";
+import { CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
 import { FiatConverter } from "../fiatconverter.mjs";
 
@@ -51,8 +51,8 @@ export class CurveOracle extends Oracle {
     return result;
   }
 
-  static create(api: CurveAPI) {
-    return new CurveOracle(api);
+  static create(api?: CurveAPI) {
+    return new CurveOracle(api ?? DefaultCurveAPI.create());
   }
 }
 export { CurveMetadata };
