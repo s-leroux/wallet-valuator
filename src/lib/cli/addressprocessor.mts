@@ -15,6 +15,8 @@ import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecrypt
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { ChainAddress } from "../../chainaddress.mjs";
 import { Address } from "../../address.mjs";
+import { CurveResolver } from "../../services/curve/curveresolver.mjs";
+import { CurveOracle } from "../../services/curve/curveoracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -35,6 +37,7 @@ function createCryptoResolver(envvars: EnvVars) {
   return CompositeCryptoResolver.create([
     // My resolvers
     DefaultCryptoResolver.create(),
+    CurveResolver.create(),
     IgnoreCryptoResolver.create(),
   ]);
 }
@@ -46,6 +49,7 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
 function createOracle(envvars: EnvVars) {
   return CompositeOracle.create([
     // My oracles
+    CurveOracle.create(),
     CoinGecko.create(envvars["COINGECKO_API_KEY"]),
   ]).cache(envvars["CACHE_PATH"]);
 }
