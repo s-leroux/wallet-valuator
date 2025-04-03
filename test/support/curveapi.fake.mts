@@ -88,4 +88,11 @@ export class FakeCurveAPI implements CurveAPI {
   ): Promise<CurveOHLC> {
     throw new NotImplementedError("Method not implemented.");
   }
+
+  getLiquidityPoolFromToken(
+    chainName: string,
+    tokenAddress: string
+  ): Promise<string | null> {
+    throw new NotImplementedError("Method not implemented.");
+  }
 }

@@ -7,6 +7,7 @@ import { Oracle } from "../oracle.mjs";
 import { CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
 import { FiatConverter } from "../fiatconverter.mjs";
+import { BigNumberSource } from "../../bignumber.mjs";
 
 const USD = FiatCurrency("USD");
 
@@ -33,13 +34,29 @@ export class CurveOracle extends Oracle {
       return result;
     }
 
-    const priceAsUSD = await this.api.getUSDPrice(
-      metadata.chain,
-      metadata.address,
-      date
-    );
+    // We have two path to find the USD price of a token on Curve.
+    // 1. some prices are available by token address using `getUSDPrice`
+    // 2. some prices are NOT available from their and requires querying
+    // the pool's price.
+    // see https://discord.com/channels/729808684359876718/729812922649542758/1356633193381625961
+    let priceAsNumber: number;
+    if (metadata.poolAddress) {
+      const OHLC = await this.api.getLiquidityPoolOHLC(
+        metadata.chain,
+        metadata.poolAddress,
+        date
+      );
+      const { open, high, low, close } = OHLC.data[0];
+      priceAsNumber = (open + high + low + close) / 4.0;
+    } else {
+      const priceAsUSD = await this.api.getUSDPrice(
+        metadata.chain,
+        metadata.address,
+        date
+      );
 
-    const priceAsNumber = priceAsUSD.data[0].price;
+      priceAsNumber = priceAsUSD.data[0].price;
+    }
     const price = crypto.price(USD, priceAsNumber);
     result[USD] = price;
 

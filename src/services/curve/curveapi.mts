@@ -1,4 +1,5 @@
 import { Provider, ProviderOptionBag } from "../../provider.mjs";
+import { findLiquidityPool } from "./curvedb.mjs";
 
 const CURVE_API_BASEADDRESS = "https://prices.curve.fi/";
 
@@ -243,7 +244,11 @@ export class DefaultCurveAPI {
    * @param date - The date for which to retrieve the OHLC data.
    * @returns A promise resolving to the pool's OHLC price data in USD.
    */
-  getLiquidityPoolOHLC(chainName: string, poolAddress: string, date: Date) {
+  getLiquidityPoolOHLC(
+    chainName: string,
+    poolAddress: string,
+    date: Date
+  ): Promise<CurveOHLC> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
     const start = toCurveDate(date);
     const end = start + 24 * 3600;
@@ -262,6 +267,15 @@ export class DefaultCurveAPI {
       price_units: "usd",
     }) as Promise<CurveOHLC>;
   }
+
+  async getLiquidityPoolFromToken(
+    chainName: string,
+    tokenAddress: string
+  ): Promise<string | null> {
+    const internalChainName = ToCurveChainName[chainName] ?? chainName;
+
+    return findLiquidityPool(internalChainName, tokenAddress);
+  }
 }
 
 export type CurveAPI = Pick<
@@ -271,4 +285,5 @@ export type CurveAPI = Pick<
   | "getChainContracts"
   | "getAllUSDPrices"
   | "getLiquidityPoolOHLC"
+  | "getLiquidityPoolFromToken"
 >;

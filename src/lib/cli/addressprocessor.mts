@@ -115,7 +115,7 @@ export async function processAddresses(
   const valuation = await portfolio.evaluate(
     registry,
     oracle,
-    null as unknown as FiatConverter,
+    null,
     FiatCurrency("EUR")
   );
 

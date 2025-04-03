@@ -11,6 +11,7 @@ export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
 type Entry = {
   crypto?: CryptoAsset; // cached crypto-asset
+  poolAddress?: string;
 };
 
 export class CurveResolver extends CryptoResolver {
@@ -43,6 +44,26 @@ export class CurveResolver extends CryptoResolver {
     return tokens;
   }
 
+  async findLiquidityPool(
+    chain: Blockchain,
+    smartContractAddress: string
+  ): Promise<Entry | null> {
+    const chainName = chain.name.toLowerCase();
+    const poolAddress = await this.api.getLiquidityPoolFromToken(
+      chainName,
+      smartContractAddress
+    );
+    if (!poolAddress) {
+      return null;
+    }
+    const entry = {
+      poolAddress,
+    };
+
+    this.tokens.set(ChainAddress(chainName, smartContractAddress), entry); // cache the search result
+    return entry;
+  }
+
   async resolve(
     swarm: Swarm,
     chain: Blockchain,
@@ -56,7 +77,9 @@ export class CurveResolver extends CryptoResolver {
     const tokens = await this.load();
 
     const chainAddress = ChainAddress(chain.name, smartContractAddress);
-    const entry = tokens.get(chainAddress);
+    const entry =
+      tokens.get(chainAddress) ??
+      (await this.findLiquidityPool(chain, smartContractAddress));
     if (!entry) {
       // Not our business
       return null;
@@ -81,6 +104,7 @@ export class CurveResolver extends CryptoResolver {
       registry.setNamespaceData(crypto, "CURVE", {
         chain: chain.name.toLowerCase(),
         address: smartContractAddress.toLowerCase(),
+        poolAddress: entry.poolAddress?.toLowerCase(),
       } as CurveMetadata);
       registry.setNamespaceData(crypto, "STANDARD", { resolver: "curve" });
 
