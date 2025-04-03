@@ -103,7 +103,7 @@ describe("CoinGecko", function () {
       for (const [internalId, expected] of testcases) {
         register(`case ${internalId} ⏵ ${expected}`, () => {
           const coingecko = CoinGecko.create(API_KEY, idMapping);
-          const crypto = CryptoAsset.create("usdc", "USDC", "USDC", 18);
+          const crypto = CryptoAsset.create("usdc", "USDC", "USDC", 6);
           const coinGeckoId = coingecko.getCoinGeckoId(registry, crypto);
           assert.equal(coinGeckoId, expected);
         });

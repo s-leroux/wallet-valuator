@@ -5,6 +5,9 @@ import { InconsistentUnitsError, ValueError } from "./error.mjs";
 
 import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
+import { logger } from "./debug.mjs";
+const log = logger("crypto-asset");
+
 //======================================================================
 //  CryptoAssetID
 //======================================================================
@@ -143,6 +146,13 @@ export class Amount {
 //======================================================================
 
 /**
+ * Global registry for crypto assets that maintains a single source of truth for all crypto assets.
+ * This registry is distinct from `CryptoRegistry` which handles local metadata associations.
+ * The global registry ensures consistent crypto asset definitions across the entire application.
+ */
+const CryptoAssetGlobalRegistry = new Map<CryptoAssetID, CryptoAsset>();
+
+/**
  * Represents a crypto-asset, such as a native coin or an ERC-20 token.
  *
  * A `CryptoAsset` is a logical representation of a crypto-asset, independent of
@@ -173,7 +183,6 @@ export class CryptoAsset {
   readonly symbol: string;
   readonly decimal: number;
 
-  private static registry = new Map<string, CryptoAsset>();
   private [IS_CRYPTO_ASSET] = true;
 
   /**
@@ -211,7 +220,30 @@ export class CryptoAsset {
     symbol: string,
     decimal: number
   ) {
-    return new CryptoAsset(toCryptoAssetID(id), name, symbol, decimal);
+    const normalizedId = toCryptoAssetID(id);
+    const existing = CryptoAssetGlobalRegistry.get(normalizedId);
+    if (existing) {
+      // consistency checks
+      if (name !== existing.name || symbol !== existing.symbol) {
+        log.warn(
+          "C2003",
+          `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
+        );
+      }
+      if (decimal !== existing.decimal) {
+        log.error(
+          "C3003",
+          `existing precision ${decimal} different from ${existing.decimal} for ${name}`
+        );
+        throw new InconsistentUnitsError(decimal, existing.decimal);
+      }
+
+      return existing;
+    }
+
+    const created = new CryptoAsset(normalizedId, name, symbol, decimal);
+    CryptoAssetGlobalRegistry.set(normalizedId, created);
+    return created;
   }
 
   /**
