@@ -66,7 +66,7 @@ export class LazyCryptoResolver extends CryptoResolver {
       status: "resolved",
       asset: this.cryptos.get(
         chainAddress,
-        () => new CryptoAsset(chainAddress as string, name, symbol, decimal)
+        () => CryptoAsset.create(chainAddress as string, name, symbol, decimal)
       ),
     };
   }

@@ -5,6 +5,37 @@ import { InconsistentUnitsError, ValueError } from "./error.mjs";
 
 import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
+//======================================================================
+//  CryptoAssetID
+//======================================================================
+type CryptoAssetID = Lowercase<string> & { readonly __brand: unique symbol };
+
+export function toCryptoAssetID(id: string): CryptoAssetID {
+  if (id !== id.toLowerCase()) {
+    throw new ValueError(
+      `The id for crypto-assets must be written in all lowercase (was ${id})`
+    );
+  }
+  return id as CryptoAssetID;
+}
+
+//======================================================================
+//  Run-time type identification
+//======================================================================
+const IS_CRYPTO_ASSET = Symbol("CryptoAsset");
+
+export function isCryptoAsset(obj: unknown): obj is CryptoAsset {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    (obj as { [IS_CRYPTO_ASSET]?: boolean })[IS_CRYPTO_ASSET] === true
+  );
+}
+
+//======================================================================
+//  Amount
+//======================================================================
+
 /**
  * Represents an amount of a CryptoAsset expressed in its display unit.
  *
@@ -107,6 +138,10 @@ export class Amount {
   }
 }
 
+//======================================================================
+//  CryptoAsset
+//======================================================================
+
 /**
  * Represents a crypto-asset, such as a native coin or an ERC-20 token.
  *
@@ -133,31 +168,50 @@ export class Amount {
  * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
-  readonly id: string; // internal id for that asset cross-chain
+  readonly id: CryptoAssetID; // internal id for that asset cross-chain
   readonly name: string;
   readonly symbol: string;
   readonly decimal: number;
 
+  private static registry = new Map<string, CryptoAsset>();
+  private [IS_CRYPTO_ASSET] = true;
+
   /**
    * Creates an instance of `CryptoAsset`.
    *
+   * @param id - The unique internal identifier for the crypto-asset.
    * @param name - The human-readable name of the crypto.
    * @param symbol - The symbol used to represent the crypto (e.g., "ETH").
    * @param decimal - The number of decimal places used for the crypto.
-   *
-   * ISSUE #68 Make the constructor private and provide a CryptoAsset.create static method
    */
-  constructor(id: string, name: string, symbol: string, decimal: number) {
-    if (id != id.toLowerCase()) {
-      throw new ValueError(
-        `The id for crypto-assets must be written in all lowercase (was ${id})`
-      );
-    }
-
+  private constructor(
+    id: CryptoAssetID,
+    name: string,
+    symbol: string,
+    decimal: number
+  ) {
     this.id = id;
     this.name = name;
     this.symbol = symbol;
     this.decimal = decimal;
+  }
+
+  /**
+   * Creates a new instance of `CryptoAsset` with the given parameters.
+   *
+   * @param id - The unique internal identifier for the crypto-asset.
+   * @param name - The human-readable name of the crypto.
+   * @param symbol - The symbol used to represent the crypto (e.g., "ETH").
+   * @param decimal - The number of decimal places used for the crypto.
+   * @returns A new `CryptoAsset` instance.
+   */
+  static create(
+    id: string | CryptoAssetID,
+    name: string,
+    symbol: string,
+    decimal: number
+  ) {
+    return new CryptoAsset(toCryptoAssetID(id), name, symbol, decimal);
   }
 
   /**
@@ -166,7 +220,7 @@ export class CryptoAsset {
    * @param baseunit - A string representing the value in the crypto's base unit.
    * @returns An `Amount` object representing the value in the display unit.
    * @example
-   * const eth = new CryptoAsset('Ethereum', '0x...', 'Ether', 'ETH', 18);
+   * const eth = CryptoAsset.create('Ethereum', '0x...', 'Ether', 'ETH', 18);
    * const amount = eth.fromBaseUnit('1000000000000000000'); // 1 ETH
    * console.log(amount.toString()); // "1 ETH"
    */

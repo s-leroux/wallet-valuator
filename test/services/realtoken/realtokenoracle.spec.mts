@@ -151,7 +151,7 @@ describe("RealTokenOracle", function () {
       ] as const;
       const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4".toLowerCase();
       const fiat = FiatCurrency("USD");
-      const crypto = new CryptoAsset(uuid, "REALTOKEN-X", "REALTOKEN-X", 18);
+      const crypto = CryptoAsset.create(uuid, "REALTOKEN-X", "REALTOKEN-X", 18);
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
           const registry = CryptoRegistry.create();

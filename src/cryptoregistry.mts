@@ -77,7 +77,7 @@ export class CryptoRegistry {
       return existing;
     }
 
-    const crypto = new CryptoAsset(id, name, symbol, decimal);
+    const crypto = CryptoAsset.create(id, name, symbol, decimal);
     this.cryptoAssets.set(id, crypto);
 
     return crypto;

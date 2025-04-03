@@ -5,7 +5,7 @@ import { prepare } from "../../support/register.helper.mjs";
 import { CryptoResolver } from "../../../src/services/cryptoresolver.mjs";
 import { RealTokenResolver } from "../../../src/services/realtoken/realtokenresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { isCryptoAsset } from "../../../src/cryptoasset.mjs";
 
 // Test data
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
@@ -38,9 +38,9 @@ describe("RealTokenResolver", function () {
         [E, "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB", "REALTOKEN-S-15777-ARDMORE-ST-DETROIT-MI"],
         [X, "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB", "REALTOKEN-S-15777-ARDMORE-ST-DETROIT-MI"],
         [G, "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB", "REALTOKEN-S-15777-ARDMORE-ST-DETROIT-MI"],
-      ] as const
+      ] as const;
 
-      for (const [chain, contract, symbol] of testcases) {
+      for (const [chain, contract] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
             swarm,
@@ -55,7 +55,7 @@ describe("RealTokenResolver", function () {
           if (!result || result.status !== "resolved") {
             assert.fail(`result was ${result}`);
           }
-          assert.instanceOf(result.asset, CryptoAsset);
+          assert(isCryptoAsset(result.asset));
         });
       }
     });
@@ -70,7 +70,7 @@ describe("RealTokenResolver", function () {
         [E, "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB", "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB"],
         [X, "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB", "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB"],
         [G, "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB", "0xFe17C3C0B6F38cF3bD8bA872bEE7a18Ab16b43fB"],
-      ] as const
+      ] as const;
 
       for (const [chain, contract, uuid] of testcases) {
         register(`case ${chain} ${contract}`, async () => {
