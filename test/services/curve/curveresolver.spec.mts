@@ -5,7 +5,7 @@ import { prepare } from "../../support/register.helper.mjs";
 import { CryptoResolver } from "../../../src/services/cryptoresolver.mjs";
 import { CurveResolver } from "../../../src/services/curve/curveresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { isCryptoAsset } from "../../../src/cryptoasset.mjs";
 
 // Test data
 import { FakeCurveAPI } from "../../support/curveapi.fake.mjs";
@@ -53,7 +53,7 @@ describe("CurveResolver", function () {
           if (!result || result.status !== "resolved") {
             assert.fail(`result was ${result}`);
           }
-          assert.instanceOf(result.asset, CryptoAsset);
+          assert(isCryptoAsset(result.asset));
         });
       }
     });

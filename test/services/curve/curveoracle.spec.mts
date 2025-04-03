@@ -6,7 +6,6 @@ const assert = chai.assert;
 
 import { CurveOracle } from "../../../src/services/curve/curveoracle.mjs";
 import { parseDate } from "../../../src/date.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
@@ -49,10 +48,10 @@ describe("CurveOracle", function () {
       ] as const;
 
       const ID = ChainAddress(CHAIN, TOKEN);
-      const crypto = new CryptoAsset(ID, "Curve-X", "Curve-X", 18);
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
           const registry = CryptoRegistry.create();
+          const crypto = registry.findCryptoAsset(ID, "Curve-X", "Curve-X", 18);
           const metadata: CurveMetadata = {
             chain: "ethereum",
             address: TOKEN,
