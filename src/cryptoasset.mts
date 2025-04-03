@@ -3,7 +3,6 @@ import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError, ValueError } from "./error.mjs";
 
-import { register } from "./debug.mjs";
 import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
 /**
@@ -154,8 +153,6 @@ export class CryptoAsset {
         `The id for crypto-assets must be written in all lowercase (was ${id})`
       );
     }
-
-    register(this);
 
     this.id = id;
     this.name = name;
