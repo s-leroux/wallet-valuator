@@ -32,8 +32,8 @@ describe("Swarm and Transaction integration", () => {
   let swarm: Swarm;
 
   beforeEach(() => {
-    explorer = new TestScan(chain);
     registry = CryptoRegistry.create();
+    explorer = new TestScan(registry, chain);
     swarm = Swarm.create([explorer], registry, cryptoResolver);
   });
 

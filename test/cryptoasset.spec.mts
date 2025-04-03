@@ -2,8 +2,7 @@ import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
-import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
-import { Price } from "../src/price.mjs";
+import { Amount, CryptoAsset, CryptoAssetID } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
 import { ValueError } from "../src/error.mjs";
@@ -11,8 +10,15 @@ import { ValueError } from "../src/error.mjs";
 const mockCrypto = FakeCryptoAsset.ethereum;
 
 describe("CryptoAsset", () => {
+  let registry: Map<CryptoAssetID, CryptoAsset>;
+
+  beforeEach(() => {
+    registry = new Map<CryptoAssetID, CryptoAsset>();
+  });
+
   it("should correctly initialize a CryptoAsset instance", () => {
     const crypto = CryptoAsset.create(
+      registry,
       mockCrypto.id,
       mockCrypto.name,
       mockCrypto.symbol,
@@ -27,6 +33,7 @@ describe("CryptoAsset", () => {
 
   it("should convert base unit value to Amount in display unit", () => {
     const crypto = CryptoAsset.create(
+      registry,
       mockCrypto.id,
       mockCrypto.name,
       mockCrypto.symbol,

@@ -18,7 +18,7 @@ describe("TestScan", function () {
   beforeEach(() => {
     registry = CryptoRegistry.create();
     cryptoResolver = FakeCryptoResolver.create();
-    explorer = new TestScan();
+    explorer = new TestScan(registry);
     sw = Swarm.create([explorer], registry, cryptoResolver);
   });
 

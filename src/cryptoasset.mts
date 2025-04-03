@@ -11,7 +11,9 @@ const log = logger("crypto-asset");
 //======================================================================
 //  CryptoAssetID
 //======================================================================
-type CryptoAssetID = Lowercase<string> & { readonly __brand: unique symbol };
+export type CryptoAssetID = Lowercase<string> & {
+  readonly __brand: unique symbol;
+};
 
 export function toCryptoAssetID(id: string): CryptoAssetID {
   if (id !== id.toLowerCase()) {
@@ -145,12 +147,7 @@ export class Amount {
 //  CryptoAsset
 //======================================================================
 
-/**
- * Global registry for crypto assets that maintains a single source of truth for all crypto assets.
- * This registry is distinct from `CryptoRegistry` which handles local metadata associations.
- * The global registry ensures consistent crypto asset definitions across the entire application.
- */
-const CryptoAssetGlobalRegistry = new Map<CryptoAssetID, CryptoAsset>();
+type IDToCryptoAssetMap = Map<CryptoAssetID, CryptoAsset>;
 
 /**
  * Represents a crypto-asset, such as a native coin or an ERC-20 token.
@@ -206,22 +203,35 @@ export class CryptoAsset {
   }
 
   /**
-   * Creates a new instance of `CryptoAsset` with the given parameters.
+   * Creates a new `CryptoAsset` instance with the given parameters.
+   * Crypto-assets are guaranteed to be unique in a given registry.
    *
-   * @param id - The unique internal identifier for the crypto-asset.
-   * @param name - The human-readable name of the crypto.
-   * @param symbol - The symbol used to represent the crypto (e.g., "ETH").
-   * @param decimal - The number of decimal places used for the crypto.
-   * @returns A new `CryptoAsset` instance.
+   * Client-code should normally not have to call this method directly,
+   * but through the `CryptoRegistry.findCryptoAsset()` method. This is the
+   * preferred way to obtain a reference to a logical crypto-asset.
+   *
+   * @example
+   * ```typescript
+   * const cryptoRegistry = CryptoRegistry.create();
+   * const bitcoin = cryptoRegistry.findCryptoAsset(id, name, symbol, decimal);
+   * ```
+   *
+   * @param registry - Map of crypto-asset IDs to their corresponding CryptoAsset instances
+   * @param id - The unique internal identifier for the crypto-asset
+   * @param name - The human-readable name of the crypto
+   * @param symbol - The symbol used to represent the crypto (e.g., "ETH")
+   * @param decimal - The number of decimal places used for the crypto
+   * @returns A new `CryptoAsset` instance
    */
   static create(
+    registry: IDToCryptoAssetMap,
     id: string | CryptoAssetID,
     name: string,
     symbol: string,
     decimal: number
   ) {
     const normalizedId = toCryptoAssetID(id);
-    const existing = CryptoAssetGlobalRegistry.get(normalizedId);
+    const existing = registry.get(normalizedId);
     if (existing) {
       // consistency checks
       if (name !== existing.name || symbol !== existing.symbol) {
@@ -242,7 +252,7 @@ export class CryptoAsset {
     }
 
     const created = new CryptoAsset(normalizedId, name, symbol, decimal);
-    CryptoAssetGlobalRegistry.set(normalizedId, created);
+    registry.set(normalizedId, created);
     return created;
   }
 

@@ -1,9 +1,5 @@
-import {
-  DuplicateKeyError,
-  InconsistentUnitsError,
-  InvalidTreeStructureError,
-} from "./error.mjs";
-import { CryptoAsset } from "./cryptoasset.mjs";
+import { DuplicateKeyError } from "./error.mjs";
+import { CryptoAssetID, CryptoAsset, toCryptoAssetID } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
 const log = logger("crypto-registry");
 
@@ -25,7 +21,7 @@ export type Namespaces = {
  * The CryptoRegistry is a cache for the crypto-assets and their associated metadata.
  */
 export class CryptoRegistry {
-  private readonly cryptoAssets = new Map<string, CryptoAsset>(); // A mapping from crypto-asset id to logical crypto assets
+  private readonly cryptoAssets = new Map<CryptoAssetID, CryptoAsset>(); // A mapping from crypto-asset id to logical crypto assets
   private readonly namespaces = new WeakMap<CryptoAsset, Namespaces>(); // Metadata associated with a logical crypto asset
 
   // Private constructor to enforce factory method use
@@ -39,13 +35,13 @@ export class CryptoRegistry {
   }
 
   getCryptoAsset(id: string) {
-    return this.cryptoAssets.get(id);
+    return this.cryptoAssets.get(toCryptoAssetID(id));
   }
 
   /**
    * Find or create a `CryptoAsset` in the registry.
    *
-   * Crypto-assets are uniquely identified by their `id`. The `id` is a free-form string
+   * Crypto-assets are uniquely identified by their `id`. The `id` is a free-form lowercase string
    * that uniquely identifies a crypto-asset. The application code is responsible for
    * attribution and ensuring uniqueness of the `id`.
    *
@@ -54,33 +50,9 @@ export class CryptoRegistry {
    * @param symbol - The symbol used to represent the crypto-asset
    * @param decimal - The number of decimal places used for the crypto-asset
    * @returns The existing or newly created CryptoAsset
-   * @throws {InconsistentUnitsError} If the decimal precision differs from an existing asset
    */
   findCryptoAsset(id: string, name: string, symbol: string, decimal: number) {
-    const existing = this.cryptoAssets.get(id);
-    if (existing) {
-      // consistency check
-      if (name !== existing.name || symbol !== existing.symbol) {
-        log.warn(
-          "C2003",
-          `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
-        );
-      }
-      if (decimal !== existing.decimal) {
-        log.error(
-          "C3003",
-          `existing precision ${decimal} different from ${existing.decimal} for ${name}`
-        );
-        throw new InconsistentUnitsError(decimal, existing.decimal);
-      }
-
-      return existing;
-    }
-
-    const crypto = CryptoAsset.create(id, name, symbol, decimal);
-    this.cryptoAssets.set(id, crypto);
-
-    return crypto;
+    return CryptoAsset.create(this.cryptoAssets, id, name, symbol, decimal);
   }
 
   /**

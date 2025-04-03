@@ -64,9 +64,8 @@ export class LazyCryptoResolver extends CryptoResolver {
 
     return {
       status: "resolved",
-      asset: this.cryptos.get(
-        chainAddress,
-        () => CryptoAsset.create(chainAddress as string, name, symbol, decimal)
+      asset: this.cryptos.get(chainAddress, () =>
+        swarm.registry.findCryptoAsset(chainAddress, name, symbol, decimal)
       ),
     };
   }

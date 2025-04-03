@@ -74,7 +74,7 @@ describe("CoinGecko", function () {
     it("should properly URI encode the crypto id", async function () {
       // If the URI is not properly encoded, the price of the crypto below
       // will be resolved as if it was the "plain" bitcoin.
-      const maliciousCrypto = CryptoAsset.create(
+      const maliciousCrypto = registry.findCryptoAsset(
         "/bitcoin",
         "fake bitcoin",
         "/BTC",
@@ -99,11 +99,11 @@ describe("CoinGecko", function () {
       // prettier-ignore
       const testcases = [
         [ "usdc", "usd-coin" ]
-      ]
+      ];
       for (const [internalId, expected] of testcases) {
         register(`case ${internalId} ⏵ ${expected}`, () => {
           const coingecko = CoinGecko.create(API_KEY, idMapping);
-          const crypto = CryptoAsset.create("usdc", "USDC", "USDC", 6);
+          const crypto = registry.findCryptoAsset("usdc", "USDC", "USDC", 6);
           const coinGeckoId = coingecko.getCoinGeckoId(registry, crypto);
           assert.equal(coinGeckoId, expected);
         });

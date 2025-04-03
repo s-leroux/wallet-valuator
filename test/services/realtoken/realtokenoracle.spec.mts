@@ -11,14 +11,12 @@ import {
 } from "../../../src/services/realtoken/realtokenoracle.mjs";
 import { parseDate } from "../../../src/date.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import type { Price } from "../../../src/price.mjs";
-import { BigNumber } from "../../../src/bignumber.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
+import { BigNumber } from "../../../src/bignumber.mjs";
 
 describe("RealTokenUUID", () => {
   it("can be created from string", () => {
@@ -151,10 +149,15 @@ describe("RealTokenOracle", function () {
       ] as const;
       const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4".toLowerCase();
       const fiat = FiatCurrency("USD");
-      const crypto = CryptoAsset.create(uuid, "REALTOKEN-X", "REALTOKEN-X", 18);
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
           const registry = CryptoRegistry.create();
+          const crypto = registry.findCryptoAsset(
+            uuid,
+            "REALTOKEN-X",
+            "REALTOKEN-X",
+            18
+          );
           registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
 
           const prices = await oracle.getPrice(

@@ -21,7 +21,7 @@ describe("Address", function () {
 
     for (const [chain, address] of test_cases) {
       register(`case ${chain} ${address}`, () => {
-        const explorer = new FakeExplorer(chain);
+        const explorer = new FakeExplorer(registry, chain);
         const swarm = Swarm.create([explorer], registry, cryptoResolver);
 
         const addr = new Address(swarm, chain, address);
@@ -37,7 +37,7 @@ describe("Address", function () {
 
     for (const [chain, address] of test_cases) {
       register(`case ${chain} ${address}`, () => {
-        const explorer = new FakeExplorer(chain);
+        const explorer = new FakeExplorer(registry, chain);
         const swarm = Swarm.create([explorer], registry, cryptoResolver);
 
         const addr = new Address(swarm, chain, address);

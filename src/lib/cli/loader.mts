@@ -24,14 +24,14 @@ const ENVVARS = [
   "COINGECKO_API_KEY",
   "CACHE_PATH",
 ] as const;
-type EnvVars = { [K in typeof ENVVARS[number]]: string };
+type EnvVars = { [K in (typeof ENVVARS)[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
   return DefaultCryptoResolver.create();
 }
 
-function createExplorers(envvars: EnvVars) {
-  return [GnosisScan.create(envvars["GNOSISSCAN_API_KEY"])];
+function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
+  return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
 function createOracle(envvars: EnvVars) {
@@ -93,8 +93,8 @@ export async function load(start: string, end: string, cryptoids: string[]) {
 export async function processAddresses(hexAddresses: string[]): Promise<void> {
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const explorers = createExplorers(envvars);
   const registry = CryptoRegistry.create();
+  const explorers = createExplorers(registry, envvars);
   const swarm = Swarm.create(explorers, registry, resolver);
   const chain = asBlockchain("gnosis");
   const addresses = await Promise.all(

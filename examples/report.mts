@@ -26,11 +26,11 @@ function env(name: string): string {
   return result;
 }
 
-const explorer = GnosisScan.create(env("GNOSISSCAN_API_KEY"));
+const registry = CryptoRegistry.create();
+const explorer = GnosisScan.create(registry, env("GNOSISSCAN_API_KEY"));
 const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache(
   "historical-data.db"
 );
-const registry = CryptoRegistry.create();
 const cryptoResolver = DefaultCryptoResolver.create();
 const fiatConverter = new ImplicitFiatConverter(
   oracle,

@@ -72,9 +72,9 @@ describe("Ledger", () => {
 
   beforeEach(async () => {
     ledger = Ledger.create();
-    explorer = new FakeExplorer();
-    chain = explorer.chain;
     registry = CryptoRegistry.create();
+    explorer = new FakeExplorer(registry);
+    chain = explorer.chain;
     swarm = Swarm.create([explorer], registry, cryptoResolver);
 
     const a = await Promise.all(
