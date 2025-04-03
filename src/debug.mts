@@ -1,4 +1,4 @@
-import { ERRORS } from "./errcode.mjs";
+import { type ErrorCode } from "./errcode.mjs";
 import { ValueError } from "./error.mjs";
 
 // =====================================================================
@@ -139,19 +139,6 @@ function logLevel() {
   }
 }
 const LOG_LEVEL = logLevel();
-
-/*
-type ErrorCode = string & { readonly brand: unique symbol };
-function ErrorCode(errCode: string) {
-  if (!(errCode in ERRORS)) {
-    throw new ValueError(`Unknown error code ${errCode}`);
-  }
-
-  // if all is ok, return the parameter as a branded string
-  return errCode as ErrorCode;
-}
-*/
-type ErrorCode = keyof typeof ERRORS;
 
 type Severity = readonly [
   name: string,

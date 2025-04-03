@@ -42,6 +42,20 @@ export class CryptoRegistry {
     return this.cryptoAssets.get(id);
   }
 
+  /**
+   * Find or create a `CryptoAsset` in the registry.
+   *
+   * Crypto-assets are uniquely identified by their `id`. The `id` is a free-form string
+   * that uniquely identifies a crypto-asset. The application code is responsible for
+   * attribution and ensuring uniqueness of the `id`.
+   *
+   * @param id - The unique identifier for the crypto-asset
+   * @param name - The human-readable name of the crypto-asset
+   * @param symbol - The symbol used to represent the crypto-asset
+   * @param decimal - The number of decimal places used for the crypto-asset
+   * @returns The existing or newly created CryptoAsset
+   * @throws {InconsistentUnitsError} If the decimal precision differs from an existing asset
+   */
   findCryptoAsset(id: string, name: string, symbol: string, decimal: number) {
     const existing = this.cryptoAssets.get(id);
     if (existing) {

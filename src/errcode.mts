@@ -15,3 +15,5 @@ export const ERRORS = {
   "C3005": "Cannot open database",
   "C9999": "Report generic tracing information",
 } as const;
+
+export type ErrorCode = keyof typeof ERRORS;

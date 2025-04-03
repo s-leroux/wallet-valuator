@@ -1,5 +1,21 @@
 import type { CryptoAsset } from "./cryptoasset.mjs";
+import { ErrorCode } from "./errcode.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
+
+type X = {
+  errCode?: string;
+};
+
+export function Tracked<E extends Error, R extends unknown[]>(
+  errCode: ErrorCode,
+  ctor: new (...rest: R) => E,
+  ...rest: R
+) {
+  const err: E & X = new ctor(...rest);
+  err.errCode = errCode;
+
+  return err;
+}
 
 export class NotImplementedError extends Error {
   constructor(message: string = "Not implemented yet.") {
