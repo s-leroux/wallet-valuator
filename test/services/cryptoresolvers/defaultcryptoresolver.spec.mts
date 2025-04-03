@@ -7,6 +7,7 @@ import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 import { ResolutionResult } from "../../../src/services/cryptoresolver.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
+import { toCryptoAssetID } from "../../../src/cryptoasset.mjs";
 
 describe("DefaultCryptoResolver", function () {
   it("can be created (no parameters)", function () {
@@ -61,7 +62,10 @@ describe("DefaultCryptoResolver", function () {
               break;
             default:
               assert.include(result, { status: "resolved" });
-              assert.equal((result as Resolved).asset.id, expected);
+              assert.equal(
+                (result as Resolved).asset.id,
+                toCryptoAssetID(expected)
+              );
           }
         });
       }

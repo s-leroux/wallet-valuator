@@ -39,8 +39,8 @@ function createCryptoResolver(envvars: EnvVars) {
   ]);
 }
 
-function createExplorers(envvars: EnvVars) {
-  return [GnosisScan.create(envvars["GNOSISSCAN_API_KEY"])];
+function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
+  return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
 function createOracle(envvars: EnvVars) {
@@ -79,8 +79,8 @@ export async function processAddresses(
 
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const explorers = createExplorers(envvars);
   const registry = CryptoRegistry.create();
+  const explorers = createExplorers(registry, envvars);
   const swarm = Swarm.create(explorers, registry, resolver);
   const chain = asBlockchain("gnosis");
   const addresses = await Promise.all(

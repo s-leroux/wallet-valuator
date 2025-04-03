@@ -16,7 +16,7 @@ class CLIError extends Error {
 }
 
 const ENVVARS = ["GNOSISSCAN_API_KEY"] as const;
-type EnvVars = { [K in typeof ENVVARS[number]]: string };
+type EnvVars = { [K in (typeof ENVVARS)[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
   return CompositeCryptoResolver.create([
@@ -25,8 +25,8 @@ function createCryptoResolver(envvars: EnvVars) {
   ]);
 }
 
-function createExplorers(envvars: EnvVars) {
-  return [GnosisScan.create(envvars["GNOSISSCAN_API_KEY"])];
+function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
+  return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
 function loadEnvironmentVariables() {
@@ -47,8 +47,8 @@ function loadEnvironmentVariables() {
 export async function processBlock(blockNumbers: number[]): Promise<void> {
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const explorers = createExplorers(envvars);
   const registry = CryptoRegistry.create();
+  const explorers = createExplorers(registry, envvars);
   const swarm = Swarm.create(explorers, registry, resolver);
   const chain = asBlockchain("gnosis");
   const blocks = await Promise.all(

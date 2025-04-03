@@ -2,17 +2,17 @@ import { Swarm } from "../../swarm.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { NormalTransaction } from "../../transaction.mjs";
 
-import { CryptoAsset } from "../../cryptoasset.mjs";
 import NormalTransactions from "../../../fixtures/NormalTransactions.json" assert { type: "json" };
 import InternalTransactions from "../../../fixtures/InternalTransactions.json" assert { type: "json" };
 import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
+import { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 export class TestScan extends CommonExplorer {
-  constructor(chain?: Blockchain) {
+  constructor(registry: CryptoRegistry, chain?: Blockchain) {
     super(
       chain ?? asBlockchain("gnosis-fake"),
-      new CryptoAsset("xdai", "xDai", "xDai", 18)
+      registry.findCryptoAsset("xdai", "xDai", "xDai", 18)
     );
   }
 

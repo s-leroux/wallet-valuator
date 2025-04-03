@@ -1,13 +1,13 @@
 import { Explorer } from "../src/services/explorer.mjs";
-import { CryptoAsset } from "../src/cryptoasset.mjs";
+import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 import { asBlockchain, Blockchain } from "../src/blockchain.mjs";
 
 const FAKE_CHAIN = "fake-chain";
 export class FakeExplorer extends Explorer {
-  constructor(chain?: Blockchain | string) {
+  constructor(registry: CryptoRegistry, chain?: Blockchain | string) {
     super(
       asBlockchain(chain ?? FAKE_CHAIN),
-      new CryptoAsset("cnc", "Chain Native Currency", "CNC", 18)
+      registry.findCryptoAsset("cnc", "Chain Native Currency", "CNC", 18)
     );
   }
 }

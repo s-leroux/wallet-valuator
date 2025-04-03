@@ -127,8 +127,8 @@ describe("GnosisScan", function () {
     let sw: Swarm;
 
     beforeEach(() => {
-      explorer = new GnosisScan(gs!);
       registry = CryptoRegistry.create();
+      explorer = new GnosisScan(registry, gs!);
       sw = Swarm.create([explorer], registry, cryptoResolver);
     });
 

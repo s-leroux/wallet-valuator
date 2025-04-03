@@ -1,11 +1,14 @@
-import { CryptoAsset } from "../../src/cryptoasset.mjs";
+import { CryptoRegistry } from "../../src/cryptoregistry.mjs";
 
+const InternalRegistry = CryptoRegistry.create();
+
+// prettier-ignore
 export const FakeCryptoAsset = {
-  binancecoin: new CryptoAsset("binancecoin", "Binance Coin", "BNB", 18),
-  bitcoin: new CryptoAsset("bitcoin", "bitcoin", "BTC", 8),
-  dai: new CryptoAsset("dai", "Dai Stablecoin", "DAI", 18),
-  ethereum: new CryptoAsset("ethereum", "ethereum", "ETH", 18),
-  solana: new CryptoAsset("solana", "Solana", "SOL", 9),
-  tether: new CryptoAsset("tether", "Tether USD", "USDT", 6),
-  "usd-coin": new CryptoAsset("usd-coin", "USDC", "USDC", 6),
+  binancecoin: InternalRegistry.findCryptoAsset( "binancecoin", "Binance Coin", "BNB", 18 ),
+  bitcoin: InternalRegistry.findCryptoAsset("bitcoin", "bitcoin", "BTC", 8),
+  dai: InternalRegistry.findCryptoAsset("dai", "Dai Stablecoin", "DAI", 18),
+  ethereum: InternalRegistry.findCryptoAsset("ethereum", "ethereum", "ETH", 18),
+  solana: InternalRegistry.findCryptoAsset("solana", "Solana", "SOL", 9),
+  tether: InternalRegistry.findCryptoAsset("tether", "Tether USD", "USDT", 6),
+  "usd-coin": InternalRegistry.findCryptoAsset("usd-coin", "USDC", "USDC", 6),
 };

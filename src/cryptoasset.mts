@@ -3,8 +3,43 @@ import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError, ValueError } from "./error.mjs";
 
-import { register } from "./debug.mjs";
 import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
+
+import { logger } from "./debug.mjs";
+const log = logger("crypto-asset");
+
+//======================================================================
+//  CryptoAssetID
+//======================================================================
+export type CryptoAssetID = Lowercase<string> & {
+  readonly __brand: unique symbol;
+};
+
+export function toCryptoAssetID(id: string): CryptoAssetID {
+  if (id !== id.toLowerCase()) {
+    throw new ValueError(
+      `The id for crypto-assets must be written in all lowercase (was ${id})`
+    );
+  }
+  return id as CryptoAssetID;
+}
+
+//======================================================================
+//  Run-time type identification
+//======================================================================
+const IS_CRYPTO_ASSET = Symbol("CryptoAsset");
+
+export function isCryptoAsset(obj: unknown): obj is CryptoAsset {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    (obj as { [IS_CRYPTO_ASSET]?: boolean })[IS_CRYPTO_ASSET] === true
+  );
+}
+
+//======================================================================
+//  Amount
+//======================================================================
 
 /**
  * Represents an amount of a CryptoAsset expressed in its display unit.
@@ -108,6 +143,12 @@ export class Amount {
   }
 }
 
+//======================================================================
+//  CryptoAsset
+//======================================================================
+
+type IDToCryptoAssetMap = Map<CryptoAssetID, CryptoAsset>;
+
 /**
  * Represents a crypto-asset, such as a native coin or an ERC-20 token.
  *
@@ -134,33 +175,85 @@ export class Amount {
  * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
-  readonly id: string; // internal id for that asset cross-chain
+  readonly id: CryptoAssetID; // internal id for that asset cross-chain
   readonly name: string;
   readonly symbol: string;
   readonly decimal: number;
 
+  private [IS_CRYPTO_ASSET] = true;
+
   /**
    * Creates an instance of `CryptoAsset`.
    *
+   * @param id - The unique internal identifier for the crypto-asset.
    * @param name - The human-readable name of the crypto.
    * @param symbol - The symbol used to represent the crypto (e.g., "ETH").
    * @param decimal - The number of decimal places used for the crypto.
-   *
-   * ISSUE #68 Make the constructor private and provide a CryptoAsset.create static method
    */
-  constructor(id: string, name: string, symbol: string, decimal: number) {
-    if (id != id.toLowerCase()) {
-      throw new ValueError(
-        `The id for crypto-assets must be written in all lowercase (was ${id})`
-      );
-    }
-
-    register(this);
-
+  private constructor(
+    id: CryptoAssetID,
+    name: string,
+    symbol: string,
+    decimal: number
+  ) {
     this.id = id;
     this.name = name;
     this.symbol = symbol;
     this.decimal = decimal;
+  }
+
+  /**
+   * Creates a new `CryptoAsset` instance with the given parameters.
+   * Crypto-assets are guaranteed to be unique in a given registry.
+   *
+   * Client-code should normally not have to call this method directly,
+   * but through the `CryptoRegistry.findCryptoAsset()` method. This is the
+   * preferred way to obtain a reference to a logical crypto-asset.
+   *
+   * @example
+   * ```typescript
+   * const cryptoRegistry = CryptoRegistry.create();
+   * const bitcoin = cryptoRegistry.findCryptoAsset(id, name, symbol, decimal);
+   * ```
+   *
+   * @param registry - Map of crypto-asset IDs to their corresponding CryptoAsset instances
+   * @param id - The unique internal identifier for the crypto-asset
+   * @param name - The human-readable name of the crypto
+   * @param symbol - The symbol used to represent the crypto (e.g., "ETH")
+   * @param decimal - The number of decimal places used for the crypto
+   * @returns A new `CryptoAsset` instance
+   */
+  static create(
+    registry: IDToCryptoAssetMap,
+    id: string | CryptoAssetID,
+    name: string,
+    symbol: string,
+    decimal: number
+  ) {
+    const normalizedId = toCryptoAssetID(id);
+    const existing = registry.get(normalizedId);
+    if (existing) {
+      // consistency checks
+      if (name !== existing.name || symbol !== existing.symbol) {
+        log.warn(
+          "C2003",
+          `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
+        );
+      }
+      if (decimal !== existing.decimal) {
+        log.error(
+          "C3003",
+          `existing precision ${decimal} different from ${existing.decimal} for ${name}`
+        );
+        throw new InconsistentUnitsError(decimal, existing.decimal);
+      }
+
+      return existing;
+    }
+
+    const created = new CryptoAsset(normalizedId, name, symbol, decimal);
+    registry.set(normalizedId, created);
+    return created;
   }
 
   /**
@@ -169,7 +262,7 @@ export class CryptoAsset {
    * @param baseunit - A string representing the value in the crypto's base unit.
    * @returns An `Amount` object representing the value in the display unit.
    * @example
-   * const eth = new CryptoAsset('Ethereum', '0x...', 'Ether', 'ETH', 18);
+   * const eth = CryptoAsset.create('Ethereum', '0x...', 'Ether', 'ETH', 18);
    * const amount = eth.fromBaseUnit('1000000000000000000'); // 1 ETH
    * console.log(amount.toString()); // "1 ETH"
    */

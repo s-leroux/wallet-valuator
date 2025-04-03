@@ -16,10 +16,10 @@ import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 import { tabular, toDisplayString } from "../src/displayable.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 
-const explorer = program.args.length
-  ? GnosisScan.create(process.env.GNOSISSCAN_API_KEY ?? "")
-  : new TestScan();
 const registry = CryptoRegistry.create();
+const explorer = program.args.length
+  ? GnosisScan.create(registry, process.env.GNOSISSCAN_API_KEY ?? "")
+  : new TestScan(registry);
 const cryptoResolver = LazyCryptoResolver.create();
 
 const swarm = Swarm.create([explorer], registry, cryptoResolver);

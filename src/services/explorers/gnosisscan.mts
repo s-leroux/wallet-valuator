@@ -10,6 +10,7 @@ import {
 import { CommonExplorer } from "../explorer.mjs";
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 import { ChainAddress } from "../../chainaddress.mjs";
+import { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
 const GNOSISSCAN_DEFAULT_RETRY = Infinity;
@@ -232,20 +233,33 @@ export class GnosisScanAPI {
 export class GnosisScan extends CommonExplorer {
   readonly api: GnosisScanAPI;
 
-  constructor(api: GnosisScanAPI, chain?: Blockchain) {
+  constructor(
+    registry: CryptoRegistry,
+    api: GnosisScanAPI,
+    chain?: Blockchain
+  ) {
     const my_chain = chain ?? asBlockchain("gnosis");
-    const my_nativeCurrency = new CryptoAsset("xdai", "xDai", "xDai", 18);
+    const my_nativeCurrency = registry.findCryptoAsset(
+      "xdai",
+      "xDai",
+      "xDai",
+      18
+    );
 
     super(my_chain, my_nativeCurrency);
     this.api = api;
   }
 
   static create(
+    registry: CryptoRegistry,
     api_key: string,
     origin: string = GNOSISSCAN_API_BASE_ADDRESS,
     options = {} as any
   ) {
-    return new GnosisScan(GnosisScanAPI.create(api_key, origin, options));
+    return new GnosisScan(
+      registry,
+      GnosisScanAPI.create(api_key, origin, options)
+    );
   }
 
   /**
@@ -254,11 +268,14 @@ export class GnosisScan extends CommonExplorer {
   register(swarm: Swarm): void {
     // populate with well-known addresses
     super.register(swarm);
+    /*
+    // The following lines are probably obsolete since native currencies have to be created from the crypto-registry.
     swarm.registry.registerCryptoAsset(this.nativeCurrency, {
       STANDARD: {
         coingeckoId: "xdai",
       },
     });
+    */
     swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
       name: "Null",
     });
