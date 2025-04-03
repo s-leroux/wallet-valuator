@@ -8,7 +8,13 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     "rules": {
-      "semi": ["error", "always"]
+      "semi": ["error", "always"],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "args": "none"
+        }
+      ]
     }
   }
 );

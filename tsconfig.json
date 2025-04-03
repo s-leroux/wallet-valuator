@@ -9,6 +9,7 @@
     "lib": ["es6", "esnext", "es2015", "dom"],
     "strictNullChecks": true,
     "noImplicitAny": true,
+    "noUnusedParameters": false,
     "declaration": true,
     "outDir": "build"
   },
