@@ -28,6 +28,9 @@ export class CurveResolver extends CryptoResolver {
 
   async load() {
     const tokens = this.tokens;
+    /*
+    
+    Prepopulation strategie is flawed!
 
     if (tokens.size === 0) {
       // We assume we haven't loaded the tokens yet
@@ -40,7 +43,7 @@ export class CurveResolver extends CryptoResolver {
         }
       }
     }
-
+  */
     return tokens;
   }
 

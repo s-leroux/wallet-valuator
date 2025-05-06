@@ -16,10 +16,10 @@ export function findLiquidityPool(chainName: string, address: string) {
   for (const item of DB) {
     if (item.chain.toLowerCase() === chainName) {
       if (
-        item.lpTokenAddress.toLowerCase() == address ||
-        item.gaugeAddress?.toLowerCase() == address
+        item.lpTokenAddress.toLowerCase() === address ||
+        item.gaugeAddress?.toLowerCase() === address
       ) {
-        return item.poolAddress;
+        return item.poolAddress.toLowerCase();
       }
     }
   }

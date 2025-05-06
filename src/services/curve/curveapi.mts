@@ -1,5 +1,8 @@
-import { Provider, ProviderOptionBag } from "../../provider.mjs";
+import { Payload, Provider, ProviderOptionBag } from "../../provider.mjs";
 import { findLiquidityPool } from "./curvedb.mjs";
+
+// Failback when the API is unavailable
+import PricesChainsFallback from "../../../fixtures/Curve/prices/chains.json" assert { type: "json" };
 
 const CURVE_API_BASEADDRESS = "https://prices.curve.fi/";
 
@@ -16,7 +19,9 @@ export class CurveProvider extends Provider {
    */
   constructor(
     base: string = CURVE_API_BASEADDRESS,
-    options: ProviderOptionBag = {}
+    options: ProviderOptionBag = {
+      retry: 10,
+    }
   ) {
     super(base, options);
   }
@@ -108,6 +113,8 @@ function toCurveDate(date: Date) {
 //==========================================================================
 
 export class DefaultCurveAPI {
+  readonly CACHED = Object.create(null); // EXPERIMENTAL API calls cache
+
   /**
    * Creates a new DefaultCurveAPI instance.
    *
@@ -125,6 +132,16 @@ export class DefaultCurveAPI {
     return new DefaultCurveAPI(new CurveProvider(base));
   }
 
+  cache(url: string, fn: () => unknown) {
+    const cache = this.CACHED;
+
+    if (cache[url]) {
+      return cache[url];
+    }
+
+    return (cache[url] = fn.apply(this));
+  }
+
   /**
    * Retrieves the list of supported blockchains.
    * The Curve API uses outdated names for some chains, which are converted
@@ -134,16 +151,31 @@ export class DefaultCurveAPI {
    */
   getChains(): Promise<CurveChainList> {
     const url = "/v1/chains/";
-    const promise = this.provider.fetch(url) as Promise<CurveChainList>;
-    return promise.then((result) => {
-      result.data.forEach((item) => {
-        const externalName = FromCurveChainName[item.name];
-        if (externalName) {
-          item.name = externalName;
+
+    return this.cache(url, doIt);
+
+    function doIt() {
+      const promise = this.provider.fetch(
+        url,
+        {},
+        {
+          failover: (res: any, payload: Payload) => {
+            if (res.status > 500) {
+              return PricesChainsFallback;
+            }
+          },
         }
+      ) as Promise<CurveChainList>;
+      return promise.then((result) => {
+        result.data.forEach((item) => {
+          const externalName = FromCurveChainName[item.name];
+          if (externalName) {
+            item.name = externalName;
+          }
+        });
+        return result;
       });
-      return result;
-    });
+    }
   }
 
   /**
@@ -157,32 +189,35 @@ export class DefaultCurveAPI {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
 
     const url = ["/v1/chains", encodeURIComponent(internalChainName)].join("/");
+    return this.cache(url, doIt);
 
-    const result: CurveContractList = {
-      chain: chainName,
-      data: [],
-    };
-    const contracts = result.data;
+    async function doIt() {
+      const result: CurveContractList = {
+        chain: chainName,
+        data: [],
+      };
+      const contracts = result.data;
 
-    let pageNumber = 0;
-    const contractsPerPage = 300;
-    while (true) {
-      pageNumber += 1;
-      const promise = this.provider.fetch(url, {
-        page: pageNumber,
-        per_page: contractsPerPage,
-      }) as Promise<CurveContractList & Pagination>;
-      const page = await promise;
+      let pageNumber = 0;
+      const contractsPerPage = 300;
+      while (true) {
+        pageNumber += 1;
+        const promise = this.provider.fetch(url, {
+          page: pageNumber,
+          per_page: contractsPerPage,
+        }) as Promise<CurveContractList & Pagination>;
+        const page = await promise;
 
-      // The remote API does not seem to handle pagination properly,
-      // so we will simply loop until there is no more data to retrieve.
-      if (page.data.length) {
-        contracts.push(...page.data); // Ensure contractsPerPage will not exceed the spread operator capacity
-      } else {
-        break;
+        // The remote API does not seem to handle pagination properly,
+        // so we will simply loop until there is no more data to retrieve.
+        if (page.data.length) {
+          contracts.push(...page.data); // XXX Ensure contractsPerPage will not exceed the spread operator capacity
+        } else {
+          break;
+        }
       }
+      return result;
     }
-    return result;
   }
 
   /**

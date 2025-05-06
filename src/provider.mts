@@ -17,13 +17,21 @@ function is_json(res: any): boolean {
   return false;
 }
 
-const defaultOptions = {
+const defaultProviderOptions = {
   retry: 5, // How many time should we retry the request?
   cooldown: 100, // Initial time to wait (in ms) before a new attempt
   concurrency: Infinity, // How many concurrent request do we allow?
 };
 
-export type ProviderOptionBag = Readonly<Partial<typeof defaultOptions>>;
+export type ProviderOptionBag = Readonly<
+  Partial<typeof defaultProviderOptions>
+>;
+
+const defaultFetchOptions = {
+  failover: (res: any, payload: Payload) => {},
+};
+
+export type FetchOptionBag = Readonly<Partial<typeof defaultFetchOptions>>;
 
 export type Payload = Record<string, any> | string; // XXX We should at least type the payload to be a valid JSON object
 
@@ -41,7 +49,11 @@ export class Provider implements ProviderInterface {
   constructor(base: string, options: ProviderOptionBag = {}) {
     // FIXED #67 Create a type for the option bag
     this.base = base;
-    this.options = Object.assign(Object.create(null), defaultOptions, options);
+    this.options = Object.assign(
+      Object.create(null),
+      defaultProviderOptions,
+      options
+    );
 
     this.semaphore = new Semaphore(this.options.concurrency);
     this.retries = 0;
@@ -147,7 +159,13 @@ export class Provider implements ProviderInterface {
    * @returns The response payload (either parsed JSON or text) if the fetch is successful.
    * @throws An error if the maximum number of retries is exceeded or if a non-retryable error occurs.
    */
-  async fetch(endpoint: string, params: Record<string, any> = {}) {
+  async fetch(
+    endpoint: string,
+    params: Record<string, any> = {},
+    options: FetchOptionBag = {}
+  ) {
+    options = Object.assign(Object.create(null), defaultFetchOptions, options);
+
     let { cooldown, retry } = this.options;
     const url = this.buildUrl(endpoint, params);
 
@@ -170,6 +188,12 @@ export class Provider implements ProviderInterface {
         }
 
         log.warn("C2002", `Failed to download ${url}`);
+        const failover = options.failover?.(res, payload);
+        if (failover !== undefined) {
+          log.warn("C2005", `Using failover value`);
+
+          return failover;
+        }
         throw this.newError(res, payload);
       }
 
