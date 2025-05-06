@@ -2,7 +2,10 @@ import type { CryptoAsset } from "./cryptoasset.mjs";
 import { ErrorCode } from "./errcode.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 
-type X = {
+import { logger } from "./debug.mjs";
+const log = logger("error");
+
+type Tag = {
   errCode?: string;
 };
 
@@ -11,8 +14,20 @@ export function Tracked<E extends Error, R extends unknown[]>(
   ctor: new (...rest: R) => E,
   ...rest: R
 ) {
-  const err: E & X = new ctor(...rest);
+  const err: E & Tag = new ctor(...rest);
   err.errCode = errCode;
+
+  return err;
+}
+
+export function Logged<E extends Error, R extends unknown[]>(
+  errCode: ErrorCode,
+  ctor: new (...rest: R) => E,
+  ...rest: R
+) {
+  const err: E & Tag = new ctor(...rest);
+  err.errCode = errCode;
+  log.error(errCode, err.message);
 
   return err;
 }

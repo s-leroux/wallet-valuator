@@ -8,13 +8,14 @@ import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
-import { FiatConverter } from "../../services/fiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
-import { ChainAddress } from "../../chainaddress.mjs";
-import { Address } from "../../address.mjs";
+import { CurveResolver } from "../../services/curve/curveresolver.mjs";
+import { CurveOracle } from "../../services/curve/curveoracle.mjs";
+import { ImplicitFiatConverter } from "../../services/fiatconverters/implicitfiatconverter.mjs";
+import { CryptoAsset } from "../../cryptoasset.mjs";
 
 type ErrCode = "T0001";
 
@@ -35,6 +36,7 @@ function createCryptoResolver(envvars: EnvVars) {
   return CompositeCryptoResolver.create([
     // My resolvers
     DefaultCryptoResolver.create(),
+    CurveResolver.create(),
     IgnoreCryptoResolver.create(),
   ]);
 }
@@ -46,7 +48,12 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
 function createOracle(envvars: EnvVars) {
   return CompositeOracle.create([
     // My oracles
-    CoinGecko.create(envvars["COINGECKO_API_KEY"]),
+    CurveOracle.create(),
+    CoinGecko.create(envvars["COINGECKO_API_KEY"], {
+      // @ts-expect-error TypeScript does not support null-prototype object literals
+      __proto__: null,
+      bitcoin: "bitcoin",
+    }),
   ]).cache(envvars["CACHE_PATH"]);
 }
 
@@ -108,10 +115,13 @@ export async function processAddresses(
   const portfolio = ledger.portfolio();
 
   const oracle = createOracle(envvars);
+  const bitcoin: CryptoAsset = registry.findCryptoAsset("bitcoin");
+  const fiatConverter = ImplicitFiatConverter.create(oracle, bitcoin);
+
   const valuation = await portfolio.evaluate(
     registry,
     oracle,
-    null as unknown as FiatConverter,
+    fiatConverter,
     FiatCurrency("EUR")
   );
 

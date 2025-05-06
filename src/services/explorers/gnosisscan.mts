@@ -242,7 +242,7 @@ export class GnosisScan extends CommonExplorer {
     const my_nativeCurrency = registry.findCryptoAsset(
       "xdai",
       "xDai",
-      "xDai",
+      "xDAI",
       18
     );
 

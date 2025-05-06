@@ -12,7 +12,7 @@ import { ImplicitFiatConverter } from "../../../src/services/fiatconverters/impl
 describe("ImplicitFiatConverter", function () {
   const oracle = new FakeOracle();
   const { bitcoin, ethereum } = FakeCryptoAsset;
-  const { eur, usd } = FakeFiatCurrency;
+  const { EUR: eur, USD: usd } = FakeFiatCurrency;
   const date = new Date("2024-12-10");
 
   it("can be created", function () {
@@ -28,8 +28,8 @@ describe("ImplicitFiatConverter", function () {
 
     it(`should convert prices with ±${error}% error`, async () => {
       const prices = await oracle.getPrice(registry, ethereum, date, [
-        FakeFiatCurrency.eur,
-        FakeFiatCurrency.usd,
+        FakeFiatCurrency.EUR,
+        FakeFiatCurrency.USD,
       ]);
 
       assert.exists(prices[eur]);
@@ -38,7 +38,7 @@ describe("ImplicitFiatConverter", function () {
         registry,
         date,
         prices[eur]!,
-        FakeFiatCurrency.usd
+        FakeFiatCurrency.USD
       );
 
       assert.strictEqual(result.fiatCurrency, usd);

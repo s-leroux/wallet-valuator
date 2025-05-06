@@ -1,7 +1,15 @@
-import { DuplicateKeyError } from "./error.mjs";
+import { DuplicateKeyError, Logged, ValueError } from "./error.mjs";
 import { CryptoAssetID, CryptoAsset, toCryptoAssetID } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
 const log = logger("crypto-registry");
+
+type WellKnownCryptoAssets = {
+  [key: string]: [name: string, symbol: string, decimal: number] | undefined;
+};
+
+const wellKnownCryptoAssets: WellKnownCryptoAssets = {
+  bitcoin: ["Bitcoin", "BTC", 18],
+} as const;
 
 export type Metadata = {
   [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
@@ -45,13 +53,37 @@ export class CryptoRegistry {
    * that uniquely identifies a crypto-asset. The application code is responsible for
    * attribution and ensuring uniqueness of the `id`.
    *
+   * If you specify _only_ the `id`, the function will asssume you reference a
+   * well-known crypto-asset (eg: `bitcoin`, `ethereum`, ...)
+   *
    * @param id - The unique identifier for the crypto-asset
    * @param name - The human-readable name of the crypto-asset
    * @param symbol - The symbol used to represent the crypto-asset
    * @param decimal - The number of decimal places used for the crypto-asset
    * @returns The existing or newly created CryptoAsset
    */
-  findCryptoAsset(id: string, name: string, symbol: string, decimal: number) {
+  // prettier-ignore
+  findCryptoAsset(id: string): CryptoAsset;
+  // prettier-ignore
+  findCryptoAsset(id: string, name: string, symbol: string, decimal: number ): CryptoAsset;
+  findCryptoAsset(
+    id: string,
+    name?: string,
+    symbol?: string,
+    decimal?: number
+  ) {
+    if (name === undefined || symbol === undefined || decimal === undefined) {
+      // One argument form
+      const wellKnownAsset = wellKnownCryptoAssets[id];
+      if (!wellKnownAsset) {
+        throw Logged(
+          "C3006",
+          ValueError,
+          `${id} is not a well-known crypto-asset`
+        );
+      }
+      [name, symbol, decimal] = wellKnownAsset;
+    }
     return CryptoAsset.create(this.cryptoAssets, id, name, symbol, decimal);
   }
 
@@ -92,7 +124,6 @@ export class CryptoRegistry {
     let namespaces = this.namespaces.get(asset);
     if (namespaces === undefined) {
       namespaces = {
-        // @ts-ignore
         __proto__: null,
 
         [namespaceName]: Object.assign(Object.create(null), namespaceData),

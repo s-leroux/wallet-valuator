@@ -28,7 +28,7 @@ describe("SnapshotValuation", () => {
   describe("valueFromAmountAndRate()", () => {
     const bitcoin = FakeCryptoAsset.bitcoin;
     const amount = bitcoin.amountFromString("100.5");
-    const fiat = FakeFiatCurrency.eur;
+    const fiat = FakeFiatCurrency.EUR;
     const price = bitcoin.price(fiat, 100000);
 
     it("should create a Value instance from amount and rate", () => {
@@ -56,7 +56,7 @@ describe("SnapshotValuation", () => {
 
     it("should create a Valuation instance from holdings", async () => {
       const registry = CryptoRegistry.create();
-      const fiatCurrency = FakeFiatCurrency.usd;
+      const fiatCurrency = FakeFiatCurrency.USD;
       const oracle = new FakeOracle();
       const snapshots = snapshotsFromMovements(movements);
       const valuations = await Promise.all(
@@ -100,7 +100,7 @@ describe("PortfolioValuation", () => {
   describe("create()", () => {
     const registry = CryptoRegistry.create();
     const oracle = FakeOracle.create();
-    const fiat = FakeFiatCurrency.eur;
+    const fiat = FakeFiatCurrency.EUR;
     const timeStamp = new Date("2024-12-30").getTime() / 1000;
     const amounts = [
       FakeCryptoAsset.bitcoin.amountFromString("0.001"),

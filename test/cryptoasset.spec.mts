@@ -61,7 +61,7 @@ describe("CryptoAsset", () => {
   it("should create a Price instance from fiat and rate", () => {
     const crypto = FakeCryptoAsset.bitcoin;
     const amount = crypto.amountFromString("100.5");
-    const fiat = FakeFiatCurrency.eur;
+    const fiat = FakeFiatCurrency.EUR;
     const price = crypto.price(fiat, 100000);
 
     assert.strictEqual(+price.rate, 100000);

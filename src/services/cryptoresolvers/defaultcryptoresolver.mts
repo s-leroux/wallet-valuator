@@ -7,6 +7,7 @@ const defaultCryptoTable = [
   ["binance-coin", "bnb chain", null],
   ["bitcoin", "bitcoin", null],
   ["crv", "ethereum", "0xd533a949740bb3306d119cc777fa900ba034cd52"],
+  ["crv", "gnosis", "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd"],
   ["crv", "polygon", "0x172370d5cd63279efa6d502dab29171933a610af"],
   ["crvusd", "ethereum", "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"],
   ["crvusd", "gnosis", "0xabef652195f98a91e490f047a5006b71c85f058d"],

@@ -1,26 +1,18 @@
-import { FiatConverter } from "../../src/services/fiatconverter.mjs";
-
 import {
-  NotImplementedError,
-  InconsistentUnitsError,
-} from "../../src/error.mjs";
+  NullFiatConverter,
+  FiatConverter,
+} from "../../src/services/fiatconverter.mjs";
+
+import { InconsistentUnitsError } from "../../src/error.mjs";
 import type { Price } from "../../src/price.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
 import type { CryptoRegistry } from "../../src/cryptoregistry.mjs";
+import { exitCode } from "process";
 
 /**
  * A fake fiat converter that always raises an exception if used
  */
-export class FakeFiatConverter extends FiatConverter {
-  convert(
-    registry: CryptoRegistry,
-    date: Date,
-    from: Price,
-    to: FiatCurrency
-  ): Promise<Price> {
-    throw new NotImplementedError();
-  }
-}
+export { NullFiatConverter as FakeFiatConverter };
 
 /**
  * A fake fiat converter that always scale by the same amount
@@ -32,6 +24,14 @@ export class FixedFiatConverter extends FiatConverter {
     readonly exchangeRate: number
   ) {
     super();
+  }
+
+  static create(
+    from: FiatCurrency,
+    to: FiatCurrency,
+    exchangeRate: number
+  ): FiatConverter {
+    return new FixedFiatConverter(from, to, exchangeRate);
   }
 
   async convert(
