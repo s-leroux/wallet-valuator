@@ -7,7 +7,7 @@ export class FakeExplorer extends Explorer {
   constructor(registry: CryptoRegistry, chain?: Blockchain | string) {
     super(
       asBlockchain(chain ?? FAKE_CHAIN),
-      registry.findCryptoAsset("cnc", "Chain Native Currency", "CNC", 18)
+      registry.createCryptoAsset("cnc", "Chain Native Currency", "CNC", 18)
     );
   }
 }

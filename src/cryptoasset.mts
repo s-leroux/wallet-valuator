@@ -6,6 +6,7 @@ import { InconsistentUnitsError, ValueError } from "./error.mjs";
 import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
+import { CryptoRegistry } from "./cryptoregistry.mjs";
 const log = logger("crypto-asset");
 
 //======================================================================
@@ -147,8 +148,6 @@ export class Amount {
 //  CryptoAsset
 //======================================================================
 
-type IDToCryptoAssetMap = Map<CryptoAssetID, CryptoAsset>;
-
 /**
  * Represents a crypto-asset, such as a native coin or an ERC-20 token.
  *
@@ -224,14 +223,14 @@ export class CryptoAsset {
    * @returns A new `CryptoAsset` instance
    */
   static create(
-    registry: IDToCryptoAssetMap,
+    registry: CryptoRegistry,
     id: string | CryptoAssetID,
     name: string,
     symbol: string,
     decimal: number
   ) {
     const normalizedId = toCryptoAssetID(id);
-    const existing = registry.get(normalizedId);
+    const existing = registry.getCryptoAsset(normalizedId);
     if (existing) {
       // consistency checks
       if (name !== existing.name || symbol !== existing.symbol) {
@@ -251,9 +250,9 @@ export class CryptoAsset {
       return existing;
     }
 
-    const created = new CryptoAsset(normalizedId, name, symbol, decimal);
-    registry.set(normalizedId, created);
-    return created;
+    const newCryptoAsset = new CryptoAsset(normalizedId, name, symbol, decimal);
+    registry.registerCryptoAsset(newCryptoAsset);
+    return newCryptoAsset;
   }
 
   /**

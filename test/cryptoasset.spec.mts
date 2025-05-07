@@ -2,18 +2,19 @@ import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
-import { Amount, CryptoAsset, CryptoAssetID } from "../src/cryptoasset.mjs";
+import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
 import { ValueError } from "../src/error.mjs";
+import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 const mockCrypto = FakeCryptoAsset.ethereum;
 
 describe("CryptoAsset", () => {
-  let registry: Map<CryptoAssetID, CryptoAsset>;
+  let registry: CryptoRegistry;
 
   beforeEach(() => {
-    registry = new Map<CryptoAssetID, CryptoAsset>();
+    registry = CryptoRegistry.create();
   });
 
   it("should correctly initialize a CryptoAsset instance", () => {
@@ -60,7 +61,7 @@ describe("CryptoAsset", () => {
 
   it("should create a Price instance from fiat and rate", () => {
     const crypto = FakeCryptoAsset.bitcoin;
-    const amount = crypto.amountFromString("100.5");
+    const amount = crypto.amountFromString("100.5"); // XXX Why that statement? Did we forget to test something?
     const fiat = FakeFiatCurrency.EUR;
     const price = crypto.price(fiat, 100000);
 

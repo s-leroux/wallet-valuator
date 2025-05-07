@@ -80,7 +80,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     }
 
     const [, name, symbol, decimals, namespaces] = logicalCryptoAsset;
-    const crypto = registry.findCryptoAsset(id, name, symbol, decimals);
+    const crypto = registry.createCryptoAsset(id, name, symbol, decimals);
     registry.setNamespaces(crypto, namespaces);
 
     return crypto;
@@ -130,7 +130,7 @@ export class StaticCryptoResolver extends CryptoResolver {
 
     // 5. Eventually create, update metadata, then return the logical crypto-asset
     const [, name, symbol, decimals, namespaces] = logicalCryptoAsset;
-    const crypto = swarm.registry.findCryptoAsset(id, name, symbol, decimals);
+    const crypto = swarm.registry.createCryptoAsset(id, name, symbol, decimals);
     swarm.registry.setNamespaces(crypto, namespaces);
     this.cache.set(chainAddress, crypto);
 

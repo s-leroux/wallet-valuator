@@ -152,7 +152,7 @@ describe("RealTokenOracle", function () {
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
           const registry = CryptoRegistry.create();
-          const crypto = registry.findCryptoAsset(
+          const crypto = registry.createCryptoAsset(
             uuid,
             "REALTOKEN-X",
             "REALTOKEN-X",

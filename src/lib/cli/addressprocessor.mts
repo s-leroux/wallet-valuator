@@ -115,7 +115,7 @@ export async function processAddresses(
   const portfolio = ledger.portfolio();
 
   const oracle = createOracle(envvars);
-  const bitcoin: CryptoAsset = registry.findCryptoAsset("bitcoin");
+  const bitcoin: CryptoAsset = registry.createCryptoAsset("bitcoin");
   const fiatConverter = ImplicitFiatConverter.create(oracle, bitcoin);
 
   const valuation = await portfolio.evaluate(

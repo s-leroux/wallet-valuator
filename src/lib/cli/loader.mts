@@ -71,7 +71,7 @@ export async function load(start: string, end: string, cryptoids: string[]) {
   const oracle = createOracle(envvars);
   const fiatConverter = ImplicitFiatConverter.create(
     oracle,
-    registry.findCryptoAsset("bitcoin", "bitcoin", "BTC", 8)
+    registry.createCryptoAsset("bitcoin", "bitcoin", "BTC", 8)
   );
 
   if (!cryptoids.length) {

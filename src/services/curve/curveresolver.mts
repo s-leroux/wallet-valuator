@@ -96,7 +96,7 @@ export class CurveResolver extends CryptoResolver {
         return crypto;
       }
 
-      crypto = entry.crypto = registry.findCryptoAsset(
+      crypto = entry.crypto = registry.createCryptoAsset(
         chainAddress,
         name,
         symbol,

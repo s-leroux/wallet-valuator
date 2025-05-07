@@ -11,18 +11,21 @@ const wellKnownCryptoAssets: WellKnownCryptoAssets = {
   bitcoin: ["Bitcoin", "BTC", 18],
 } as const;
 
+type CryptoAssetFiscalCategory = undefined | "SECURITY" | "UTILITY TOKEN";
+
 export type Metadata = {
   [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
 };
 
 type StandardMetadata = {
+  fiscalCategory?: CryptoAssetFiscalCategory;
   coingeckoId?: string;
   resolver?: string;
 };
 
 export type Namespaces = {
   [k: string]: Metadata | undefined;
-  STANDARD?: StandardMetadata;
+  STANDARD: StandardMetadata;
 };
 
 /**
@@ -63,10 +66,10 @@ export class CryptoRegistry {
    * @returns The existing or newly created CryptoAsset
    */
   // prettier-ignore
-  findCryptoAsset(id: string): CryptoAsset;
+  createCryptoAsset(id: string): CryptoAsset;
   // prettier-ignore
-  findCryptoAsset(id: string, name: string, symbol: string, decimal: number ): CryptoAsset;
-  findCryptoAsset(
+  createCryptoAsset(id: string, name: string, symbol: string, decimal: number ): CryptoAsset;
+  createCryptoAsset(
     id: string,
     name?: string,
     symbol?: string,
@@ -84,7 +87,9 @@ export class CryptoRegistry {
       }
       [name, symbol, decimal] = wellKnownAsset;
     }
-    return CryptoAsset.create(this.cryptoAssets, id, name, symbol, decimal);
+
+    // CryptoAsset.create will internally call our `registerCryptoAsset` method
+    return CryptoAsset.create(this, id, name, symbol, decimal);
   }
 
   /**
@@ -97,6 +102,8 @@ export class CryptoRegistry {
     }
 
     this.cryptoAssets.set(asset.id, asset);
+    this.initNamespaces(asset);
+
     if (namespaces) {
       this.setNamespaces(asset, namespaces);
     }
@@ -121,21 +128,30 @@ export class CryptoRegistry {
     namespaceName: string,
     namespaceData: Metadata = Object.create(null)
   ): void {
-    let namespaces = this.namespaces.get(asset);
-    if (namespaces === undefined) {
-      namespaces = {
-        __proto__: null,
-
-        [namespaceName]: Object.assign(Object.create(null), namespaceData),
-      };
-      this.namespaces.set(asset, namespaces);
-      return;
-    }
+    const namespaces = this.namespaces.get(asset) ?? this.initNamespaces(asset);
 
     namespaces[namespaceName] = Object.assign(
       namespaces[namespaceName] ?? Object.create(null),
       namespaceData
     );
+  }
+
+  initNamespaces(asset: CryptoAsset) {
+    // sanity check
+    if (this.namespaces.get(asset) !== undefined) {
+      log.error("C3007", `Crypto-asset metadata ${asset} already initialized`);
+      throw new DuplicateKeyError(asset);
+    }
+
+    const defaultNamespaces: Namespaces = {
+      // @ts-expect-error TypeScript does not support the null-prototype literal object syntax
+      __proto__: null,
+
+      STANDARD: Object.create(null),
+    };
+
+    this.namespaces.set(asset, defaultNamespaces);
+    return defaultNamespaces;
   }
 
   /**

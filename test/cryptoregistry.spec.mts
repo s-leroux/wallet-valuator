@@ -2,6 +2,7 @@ import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { toCryptoAssetID } from "../src/cryptoasset.mjs";
 
 describe("CryptoRegistry", () => {
   const { ethereum, bitcoin } = FakeCryptoAsset;
@@ -10,6 +11,27 @@ describe("CryptoRegistry", () => {
     const registry = CryptoRegistry.create();
 
     assert.equal(registry.constructor.name, CryptoRegistry.name);
+  });
+
+  describe("metadata", () => {
+    let registry: CryptoRegistry;
+    beforeEach(() => {
+      registry = CryptoRegistry.create();
+      registry.registerCryptoAsset(ethereum);
+    });
+
+    it("should assign a STANDARD metadata to registered cryptoassets", () => {
+      assert.isDefined(registry.getNamespaceData(ethereum, "STANDARD"));
+    });
+
+    it("should create well known crypto-assets", () => {
+      const bitcoin = registry.createCryptoAsset("bitcoin");
+      assert.include(bitcoin, {
+        id: toCryptoAssetID("bitcoin"),
+        name: "Bitcoin",
+        decimal: 18,
+      });
+    });
   });
 
   describe("behaviour", () => {

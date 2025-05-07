@@ -12,7 +12,7 @@ export class TestScan extends CommonExplorer {
   constructor(registry: CryptoRegistry, chain?: Blockchain) {
     super(
       chain ?? asBlockchain("gnosis-fake"),
-      registry.findCryptoAsset("xdai", "xDai", "xDai", 18)
+      registry.createCryptoAsset("xdai", "xDai", "xDai", 18)
     );
   }
 

@@ -44,7 +44,7 @@ function cryptoAssetFromEntry(
   }
 
   const { uuid, fullName, symbol } = entry.data;
-  crypto = entry.crypto = registry.findCryptoAsset(
+  crypto = entry.crypto = registry.createCryptoAsset(
     uuid.toLowerCase(),
     fullName,
     symbol,

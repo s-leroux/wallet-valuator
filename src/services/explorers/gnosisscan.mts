@@ -239,7 +239,7 @@ export class GnosisScan extends CommonExplorer {
     chain?: Blockchain
   ) {
     const my_chain = chain ?? asBlockchain("gnosis");
-    const my_nativeCurrency = registry.findCryptoAsset(
+    const my_nativeCurrency = registry.createCryptoAsset(
       "xdai",
       "xDai",
       "xDAI",

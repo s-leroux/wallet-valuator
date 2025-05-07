@@ -51,7 +51,12 @@ describe("CurveOracle", function () {
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
           const registry = CryptoRegistry.create();
-          const crypto = registry.findCryptoAsset(ID, "Curve-X", "Curve-X", 18);
+          const crypto = registry.createCryptoAsset(
+            ID,
+            "Curve-X",
+            "Curve-X",
+            18
+          );
           const metadata: CurveMetadata = {
             chain: "ethereum",
             address: TOKEN,
