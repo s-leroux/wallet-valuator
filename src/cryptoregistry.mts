@@ -111,7 +111,7 @@ export class CryptoRegistry {
 
   setNamespaces(asset: CryptoAsset, namespaces: Namespaces) {
     for (const [key, value] of Object.entries(namespaces)) {
-      this.setNamespaceData(asset, key, value);
+      if (value) this.setNamespaceData(asset, key, value);
     }
   }
 
@@ -123,6 +123,17 @@ export class CryptoRegistry {
    * @param namespaceName - A well-known namespace identifier for the data.
    * @param namespaceData - The namespace-specific data to associate with the asset.
    */
+  setNamespaceData(
+    asset: CryptoAsset,
+    namespaceName: "STANDARD",
+    namespaceData: StandardMetadata
+  ): void;
+  setNamespaceData(
+    asset: CryptoAsset,
+    namespaceName: string,
+    namespaceData: Metadata
+  ): void;
+  setNamespaceData(asset: CryptoAsset, namespaceName: string): void;
   setNamespaceData(
     asset: CryptoAsset,
     namespaceName: string,

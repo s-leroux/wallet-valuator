@@ -36,6 +36,10 @@ export class Value {
     return new Value(this.fiatCurrency, this.value.minus(other.value));
   }
 
+  isZero() {
+    return this.value.isZero();
+  }
+
   toString(): string {
     return `${this.value} ${this.fiatCurrency}`;
   }
@@ -106,7 +110,12 @@ export class SnapshotValuation {
     const date = new Date(snapshot.timeStamp * 1000);
 
     // Helper function
-    async function getPrice(crypto: CryptoAsset) {
+    async function getPrice(crypto: CryptoAsset): Promise<Price> {
+      const standardMetadata = registry.getNamespaceData(crypto, "STANDARD");
+      if (standardMetadata?.fiscalCategory === "SECURITY") {
+        // SECURITY tokens have no fiscal price
+        return crypto.price(fiatCurrency, 0); // XXX Is this correct
+      }
       // This is a regular crypto-asset. Use the oracle to get the price.
       const prices = await oracle.getPrice(
         registry,
@@ -121,7 +130,8 @@ export class SnapshotValuation {
         // prettier-ignore
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
 
-        log.warn("C3001", message);
+        log.warn("C3001", message, registry.getNamespaces(crypto));
+
         throw new MissingPriceError(crypto, fiatCurrency, date);
       }
 
@@ -162,8 +172,10 @@ export class SnapshotValuation {
       const delta = valueFromAmountAndPrice(amount, rates.get(amount.crypto)!);
 
       if (tags.get("RAMP-UP")) {
+        // XXX CASH-IN
         deposits = deposits.plus(delta);
       } else if (tags.get("RAMP-DOWN")) {
+        // XXX CASH-OUT
         deposits = deposits.minus(delta);
       }
     }
@@ -201,7 +213,7 @@ export class SnapshotValuation {
 
     // Add a line for the tags
     if (this.tags.size) {
-      const tags = [] as String[];
+      const tags = [] as string[];
       for (const [key, value] of this.tags) {
         if (value !== true) {
           tags.push(`${key}=${toDisplayString(value, options)}`);
@@ -220,12 +232,14 @@ export class SnapshotValuation {
 
     // Now our holdings
     this.holdings.forEach((value, amount) => {
-      lines.push(
-        "  " +
-          value.toDisplayString(options) +
-          " " +
-          amount.toDisplayString(options)
-      );
+      if (!value.isZero()) {
+        lines.push(
+          "  " +
+            value.toDisplayString(options) +
+            " " +
+            amount.toDisplayString(options)
+        );
+      }
     });
 
     return lines.join("\n");

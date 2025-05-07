@@ -53,7 +53,10 @@ function cryptoAssetFromEntry(
 
   // Record domain specific metadata
   registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
-  registry.setNamespaceData(crypto, "STANDARD", { resolver: "realtoken" });
+  registry.setNamespaceData(crypto, "STANDARD", {
+    resolver: "realtoken",
+    fiscalCategory: "SECURITY",
+  });
 
   return crypto;
 }

@@ -16,6 +16,7 @@ import { CurveResolver } from "../../services/curve/curveresolver.mjs";
 import { CurveOracle } from "../../services/curve/curveoracle.mjs";
 import { ImplicitFiatConverter } from "../../services/fiatconverters/implicitfiatconverter.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
+import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mjs";
 
 type ErrCode = "T0001";
 
@@ -37,6 +38,7 @@ function createCryptoResolver(envvars: EnvVars) {
     // My resolvers
     DefaultCryptoResolver.create(),
     CurveResolver.create(),
+    RealTokenResolver.create(),
     IgnoreCryptoResolver.create(),
   ]);
 }
