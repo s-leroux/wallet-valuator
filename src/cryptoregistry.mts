@@ -15,14 +15,14 @@ export type Metadata = {
   [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
 };
 
-type StandardNamespace = {
+type StandardMetadata = {
   coingeckoId?: string;
   resolver?: string;
 };
 
 export type Namespaces = {
   [k: string]: Metadata | undefined;
-  STANDARD?: StandardNamespace;
+  STANDARD?: StandardMetadata;
 };
 
 /**
@@ -153,6 +153,14 @@ export class CryptoRegistry {
    * @param namespace - The expected namespace for the data.
    * @returns The namespace-specific data, or undefined if no matching entry exists.
    */
+  getNamespaceData(
+    asset: CryptoAsset,
+    namespaceName: "STANDARD"
+  ): StandardMetadata | undefined;
+  getNamespaceData(
+    asset: CryptoAsset,
+    namespaceName: string
+  ): Metadata | undefined;
   getNamespaceData(
     asset: CryptoAsset,
     namespaceName: string

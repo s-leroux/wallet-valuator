@@ -14,6 +14,7 @@ describe("CryptoRegistry", () => {
 
   describe("behaviour", () => {
     let registry: CryptoRegistry;
+    const namespace = "TEST";
 
     beforeEach(() => {
       registry = CryptoRegistry.create();
@@ -21,9 +22,9 @@ describe("CryptoRegistry", () => {
 
     it("should set and retrieve metadata for a currency", () => {
       const obj = { x: 1, y: "abc" };
-      registry.setNamespaceData(ethereum, "STANDARD", obj);
+      registry.setNamespaceData(ethereum, namespace, obj);
 
-      const result = registry.getNamespaceData(ethereum, "STANDARD");
+      const result = registry.getNamespaceData(ethereum, namespace);
 
       assert.notStrictEqual(result, obj);
       assert.deepEqual(result, obj);
@@ -32,10 +33,10 @@ describe("CryptoRegistry", () => {
     it("should replace metadata for existing domain", () => {
       const obj1 = { x: 1, y: "abc" };
       const obj2 = { x: 2, y: "xyz" };
-      registry.setNamespaceData(ethereum, "STANDARD", obj1);
-      registry.setNamespaceData(ethereum, "STANDARD", obj2);
+      registry.setNamespaceData(ethereum, namespace, obj1);
+      registry.setNamespaceData(ethereum, namespace, obj2);
 
-      const result = registry.getNamespaceData(ethereum, "STANDARD");
+      const result = registry.getNamespaceData(ethereum, namespace);
 
       assert.notStrictEqual(result, obj2);
       assert.deepEqual(result, obj2);
@@ -43,7 +44,7 @@ describe("CryptoRegistry", () => {
 
     it("should accept multiple domain metadata", () => {
       const data = [
-        ["STANDARD", { x: 1, y: "abc" }],
+        [namespace, { x: 1, y: "abc" }],
         ["SPECIAL", { x: 2, y: "xyz" }],
       ] as const;
 
@@ -59,15 +60,15 @@ describe("CryptoRegistry", () => {
     });
 
     it("should return undefined if the crypto-asset is not in the registry", () => {
-      registry.setNamespaceData(ethereum, "STANDARD", {});
+      registry.setNamespaceData(ethereum, namespace, {});
 
-      const result = registry.getNamespaceData(bitcoin, "STANDARD");
+      const result = registry.getNamespaceData(bitcoin, namespace);
 
       assert.isUndefined(result);
     });
 
     it("should return undefined if there are no metadata attached to that domain", () => {
-      registry.setNamespaceData(ethereum, "STANDARD", {});
+      registry.setNamespaceData(ethereum, namespace, {});
 
       const result = registry.getNamespaceData(ethereum, "SPECIAL");
 
