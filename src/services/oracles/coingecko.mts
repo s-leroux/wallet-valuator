@@ -11,6 +11,7 @@ import { logger as logger } from "../../debug.mjs";
 const log = logger("coingecko");
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
+const MAX_HISTORICAL_ATTEMPTS = 30; // try up to 30 days in the past to find a price
 
 export type InternalToCoinGeckoIdMapping = {
   [K in string]?: string;
@@ -89,8 +90,6 @@ export class CoinGecko extends Oracle {
     date: Date,
     currencies: FiatCurrency[]
   ): Promise<Partial<Record<FiatCurrency, Price>>> {
-    const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
-
     let prices;
     let historical_data;
     const coinGeckoId = this.getCoinGeckoId(registry, crypto);
@@ -98,13 +97,26 @@ export class CoinGecko extends Oracle {
       return Object.create(null);
     }
     try {
-      historical_data = await this.provider.fetch(
-        `coins/${encodeURIComponent(coinGeckoId)}/history`,
-        {
-          date: dateDdMmYyyy,
-        }
-      );
-      // XXX market_data may be undefined if there was no price at the given date
+      const pricing_date = new Date(date);
+      for (let i = 0; i < MAX_HISTORICAL_ATTEMPTS; ++i) {
+        historical_data = await this.provider.fetch(
+          `coins/${encodeURIComponent(coinGeckoId)}/history`,
+          {
+            date: formatDate("DD-MM-YYYY", pricing_date),
+          }
+        );
+        // XXX market_data may be undefined if there was no price at the given date
+        if (historical_data.market_data) break;
+
+        // Try one day earlier
+        pricing_date.setDate(pricing_date.getDate() - 1);
+        log.trace(
+          "C9999",
+          "No price found. Retrying one day earlier",
+          pricing_date,
+          crypto
+        );
+      }
       prices = historical_data.market_data.current_price;
     } catch (err) {
       log.trace(
