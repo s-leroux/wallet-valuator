@@ -74,19 +74,19 @@ describe("SnapshotValuation", () => {
 
       // Check that total valuation is properly computed
       assert.strictEqual(
-        valuations[0].totalValue.toString(),
+        valuations[0].cryptoValueAfter.toString(),
         "199930.97669449622 USD"
       );
       assert.strictEqual(valuations[0].fiatCurrency, fiatCurrency);
 
       assert.strictEqual(
-        valuations[1].totalValue.toString(),
+        valuations[1].cryptoValueAfter.toString(),
         "104229.2128726388532087224934266 USD"
       );
       assert.strictEqual(valuations[1].fiatCurrency, fiatCurrency);
 
       assert.strictEqual(
-        valuations[2].totalValue.toString(),
+        valuations[2].cryptoValueAfter.toString(),
         "200062.3491026753532087224934266 USD"
       );
       assert.strictEqual(valuations[2].fiatCurrency, fiatCurrency);
@@ -127,15 +127,15 @@ describe("PortfolioValuation", () => {
 
       assert.strictEqual(valuation.snapshotValuations.length, 3);
       assert.strictEqual(
-        valuation.snapshotValuations[0].totalValue.toString(),
+        valuation.snapshotValuations[0].cryptoValueAfter.toString(),
         "189643.12842672764 EUR"
       );
       assert.strictEqual(
-        valuation.snapshotValuations[1].totalValue.toString(),
+        valuation.snapshotValuations[1].cryptoValueAfter.toString(),
         "99253.8313961634461160286655519 EUR"
       );
       assert.strictEqual(
-        valuation.snapshotValuations[2].totalValue.toString(),
+        valuation.snapshotValuations[2].cryptoValueAfter.toString(),
         "190508.8270422186461160286655519 EUR"
       );
     });

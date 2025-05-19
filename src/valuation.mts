@@ -18,7 +18,10 @@ import { logger as logger } from "./debug.mjs";
 const log = logger("provider");
 
 export class Value {
-  constructor(readonly fiatCurrency: FiatCurrency, readonly value: BigNumber) {}
+  constructor(
+    readonly fiatCurrency: FiatCurrency,
+    readonly value: BigNumber = BigNumber.ZERO
+  ) {}
 
   plus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
@@ -72,31 +75,31 @@ export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
  * in terms of a specified fiat currency at a specific point in time.
  */
 export class SnapshotValuation {
-  readonly fiatCurrency: FiatCurrency;
-  readonly timeStamp: number;
-  readonly holdings: Map<Amount, Value>;
-  readonly deposits: Value;
-  readonly tags: Map<string, any>;
-  readonly totalValue: Value;
+  readonly cryptoValueBefore: Value;
+  readonly cryptoValueAfter: Value;
 
   private constructor(
-    fiatCurrency: FiatCurrency,
-    timeStamp: number,
-    holdings: Map<Amount, Value>,
-    deposits: Value,
-    tags: Map<string, any>
+    readonly fiatCurrency: FiatCurrency,
+    readonly date: Date,
+    readonly rates: Map<CryptoAsset, Price>,
+    readonly holdings: Map<Amount, Value>,
+    readonly tags: Map<string, any>,
+    readonly fiatDeposits: Value,
+    readonly parent: SnapshotValuation | null
   ) {
-    this.fiatCurrency = fiatCurrency;
-    this.timeStamp = timeStamp;
-    this.holdings = holdings;
-    this.deposits = deposits;
-    this.tags = tags;
-
-    let acc = new Value(fiatCurrency, BigNumber.ZERO);
+    let cryptoValueAfter = new Value(fiatCurrency);
     for (const value of holdings.values()) {
-      acc = acc.plus(value); // FIX #33 It is unclear if totalValue should be a BigNumber or a Value
+      cryptoValueAfter = cryptoValueAfter.plus(value);
     }
-    this.totalValue = acc;
+    this.cryptoValueAfter = cryptoValueAfter;
+
+    let cryptoValueBefore = new Value(fiatCurrency);
+    if (parent) {
+      for (const value of parent.holdings.values()) {
+        cryptoValueBefore = cryptoValueBefore.plus(value);
+      }
+    }
+    this.cryptoValueBefore = cryptoValueBefore;
   }
 
   static async createFromSnapshot(
@@ -141,10 +144,12 @@ export class SnapshotValuation {
     // Pre-load all the required prices. This could be parallelized.
     const rates = new Map<CryptoAsset, Price>();
     for (const crypto of snapshot.holdings.keys()) {
-      rates.set(crypto, await getPrice(crypto));
+      if (!rates.has(crypto)) {
+        rates.set(crypto, await getPrice(crypto));
+      }
     }
 
-    // We have all the prices now. Calculate our holdings.
+    // Evaluate each individual holdings
     const holdings = new Map<Amount, Value>();
     for (const [crypto, amount] of snapshot.holdings) {
       const value = valueFromAmountAndPrice(amount, rates.get(crypto)!);
@@ -154,39 +159,31 @@ export class SnapshotValuation {
     // Copy tags
     const tags = new Map<string, any>(snapshot.tags);
 
-    // Get the actual deposits
-    let deposits = parent
-      ? parent.deposits
-      : new Value(fiatCurrency, BigNumber.ZERO);
+    // update cash deposits
+    let deposits = parent ? parent.fiatDeposits : new Value(fiatCurrency);
 
-    // Handle the INGRESS/EGRESS tags
-    const ingress = tags.get("INGRESS");
-    const egress = tags.get("EGRESS");
-    const amount = ingress ? ingress : egress ? egress : null;
-    if (amount) {
-      if (!rates.has(amount.crypto)) {
-        rates.set(amount.crypto, await getPrice(amount.crypto));
+    // Handle the DELTA tag
+    const delta = tags.get("DELTA") as Amount;
+    if (delta) {
+      let rate = rates.get(delta.crypto);
+      if (!rate) {
+        // XXX This is unexpected. We should at least log that.
+        rate = await getPrice(delta.crypto);
+        rates.set(delta.crypto, rate);
       }
 
-      // Calculate the delta deposit
-      const delta = valueFromAmountAndPrice(amount, rates.get(amount.crypto)!);
-
-      if (tags.get("RAMP-UP")) {
-        // XXX CASH-IN
-        deposits = deposits.plus(delta);
-      } else if (tags.get("RAMP-DOWN")) {
-        // XXX CASH-OUT
-        deposits = deposits.minus(delta);
-      }
+      deposits = deposits.plus(valueFromAmountAndPrice(delta, rate));
     }
 
     // All done. Create the instance.
     return new SnapshotValuation(
       fiatCurrency,
-      snapshot.timeStamp,
+      date,
+      rates,
       holdings,
+      tags,
       deposits,
-      tags
+      parent
     );
   }
 
@@ -203,13 +200,11 @@ export class SnapshotValuation {
   //  String representation
   //========================================================================
   toString(): string {
-    return `${this.totalValue} ${this.fiatCurrency}`;
+    return `${this.cryptoValueAfter} ${this.fiatCurrency}`;
   }
 
   toDisplayString(options: DisplayOptions = {}): string {
-    const lines: string[] = [
-      TextUtils.formatDate(this.timeStamp * 1000, options),
-    ];
+    const lines: string[] = [TextUtils.formatDate(this.date, options)];
 
     // Add a line for the tags
     if (this.tags.size) {
@@ -225,10 +220,10 @@ export class SnapshotValuation {
     }
 
     // Add a line for the total deposit
-    lines.push("D:" + this.deposits.toDisplayString(options));
+    lines.push("D:" + this.fiatDeposits.toDisplayString(options));
 
     // Add a line for the total valuation
-    lines.push("V:" + this.totalValue.toDisplayString(options));
+    lines.push("V:" + this.cryptoValueAfter.toDisplayString(options));
 
     // Now our holdings
     this.holdings.forEach((value, amount) => {
@@ -246,7 +241,7 @@ export class SnapshotValuation {
   }
 }
 
-export class PortfolioValuation {
+export class PortfolioValuation implements Iterable<SnapshotValuation> {
   readonly snapshotValuations: SnapshotValuation[];
 
   //========================================================================
@@ -254,6 +249,9 @@ export class PortfolioValuation {
   //========================================================================
   constructor(snapshotValuations: SnapshotValuation[]) {
     this.snapshotValuations = snapshotValuations;
+  }
+  [Symbol.iterator](): Iterator<SnapshotValuation> {
+    return this.snapshotValuations[Symbol.iterator]();
   }
 
   static async create(

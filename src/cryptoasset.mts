@@ -58,24 +58,11 @@ export class Amount {
    *
    * @param crypto - The crypto associated with the amount.
    * @param value - The value of the amount expressed in the display unit.
-   *               The value must be **≥ 0** (including zero). Negative values are not allowed.
    * @throws `ValueError` if `value` is negative.
    */
-  constructor(crypto: CryptoAsset, value?: BigNumber) {
+  constructor(crypto: CryptoAsset, value: BigNumber = BigNumber.ZERO) {
     this.crypto = crypto;
-
-    if (value) {
-      if (value.isPositive()) {
-        this.value = value;
-      } else if (value.isZero()) {
-        // Ensure `-0` is converted to `+0`
-        this.value = BigNumber.ZERO;
-      } else {
-        throw new ValueError(`Amount value must be ≥ 0. Received: ${value}`);
-      }
-    } else {
-      this.value = BigNumber.ZERO;
-    }
+    this.value = value;
   }
 
   /**
@@ -122,6 +109,18 @@ export class Amount {
     }
 
     return new Amount(crypto, this.value.plus(other.value));
+  }
+
+  /**
+   * Returns a new `Amount` representing the negation of the current instance.
+   *
+   * This method creates a new `Amount` with the same crypto but with the value
+   * multiplied by -1.
+   *
+   * @returns A new `Amount` object with the same crypto and negated value.
+   */
+  negated(): Amount {
+    return new Amount(this.crypto, this.value.negated());
   }
 
   /**

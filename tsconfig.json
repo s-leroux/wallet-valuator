@@ -129,6 +129,7 @@
     "src/services/realtoken/realtokenapi.mts",
     "src/services/realtoken/realtokenoracle.mts",
     "src/services/realtoken/realtokenresolver.mts",
+    "src/services/reporters/valuationreporter.mts",
     "src/swarm.mts",
     "src/transaction.mts",
     "src/type.mts",

@@ -6,7 +6,7 @@ import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
-import { format, toDisplayString } from "../../displayable.mjs";
+import { DisplayOptions, format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
@@ -17,6 +17,7 @@ import { CurveOracle } from "../../services/curve/curveoracle.mjs";
 import { ImplicitFiatConverter } from "../../services/fiatconverters/implicitfiatconverter.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mjs";
+import { PortfolioValuationReporter } from "../../services/reporters/valuationreporter.mjs";
 
 type ErrCode = "T0001";
 
@@ -127,12 +128,13 @@ export async function processAddresses(
     FiatCurrency("EUR")
   );
 
-  console.log(
-    "%s",
-    toDisplayString(valuation, {
-      "address.compact": false,
-      "address.name": true,
-      "amount.value.format": format("16.4"),
-    })
-  );
+  const displayOptions: DisplayOptions = {
+    "address.compact": false,
+    "address.name": true,
+    "amount.value.format": format("16.4"),
+  };
+  console.log("%s", toDisplayString(valuation, displayOptions));
+
+  const reporter = new PortfolioValuationReporter(valuation, displayOptions);
+  console.log("%s", reporter.report());
 }
