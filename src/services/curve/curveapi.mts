@@ -4,7 +4,7 @@ import { findLiquidityPool } from "./curvedb.mjs";
 // Failback when the API is unavailable
 import PricesChainsFallback from "../../../fixtures/Curve/prices/chains.json" assert { type: "json" };
 
-const CURVE_API_BASEADDRESS = "https://prices.curve.fi/";
+const CURVE_API_BASEADDRESS = "https://prices.curve.finance/";
 
 //==========================================================================
 //  Provider
@@ -225,7 +225,7 @@ export class DefaultCurveAPI {
    *
    * This can be used as a quick solution to get all token addresses of LP tokens in a Pool.
    * Note: For a more precise way to get pool tokens, consider using the `/v1/getPools/all/{blockchainId}`
-   * endpoint from `api.curve.fi` instead of this `prices.curve.fi` endpoint.
+   * endpoint from `api.curve.finance` instead of this `prices.curve.finance` endpoint.
    *
    * @param chainName - The name of the blockchain (e.g., "ethereum", "gnosis").
    * @returns A promise resolving to a list of token addresses and their current USD prices.
