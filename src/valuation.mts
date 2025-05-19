@@ -164,7 +164,7 @@ export class SnapshotValuation {
 
     // Handle the DELTA tag
     const delta = tags.get("DELTA") as Amount;
-    if (delta) {
+    if (delta && (tags.get("CASH-IN") || tags.get("CASH-OUT"))) {
       let rate = rates.get(delta.crypto);
       if (!rate) {
         // XXX This is unexpected. We should at least log that.
