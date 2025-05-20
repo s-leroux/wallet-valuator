@@ -7,6 +7,7 @@ import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
 import { CryptoRegistry } from "./cryptoregistry.mjs";
+import { Value } from "./valuation.mjs";
 const log = logger("crypto-asset");
 
 //======================================================================
@@ -146,6 +147,13 @@ export class Amount {
     }
 
     return new Amount(crypto, this.value.minus(other.value));
+  }
+
+  valueAt(price: Price) {
+    if (this.crypto !== price.crypto) {
+      throw new InconsistentUnitsError(this, price);
+    }
+    return new Value(price.fiatCurrency, this.value.mul(price.rate));
   }
 }
 
