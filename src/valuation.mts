@@ -17,6 +17,24 @@ import { Snapshot } from "./portfolio.mjs";
 import { logger as logger } from "./debug.mjs";
 const log = logger("provider");
 
+//======================================================================
+//  Value
+//======================================================================
+
+/**
+ * Represents a monetary value in a specific fiat currency.
+ *
+ * The Value class encapsulates an amount of fiat currency (e.g. USD, EUR) backed by BigNumber
+ * for precise decimal arithmetic. It provides methods for basic arithmetic operations
+ * while ensuring currency consistency.
+ *
+ * @example
+ * const usdValue = new Value(FiatCurrency("USD"), BigNumber.from(100));
+ * const eurValue = new Value(FiatCurrency("EUR"), BigNumber.from(85));
+ * // usdValue.plus(eurValue) // Throws InconsistentUnitsError
+ *
+ * XXX Unify that class with `Amount` usign generics.
+ */
 export class Value {
   constructor(
     readonly fiatCurrency: FiatCurrency,
@@ -63,6 +81,10 @@ export class Value {
   }
 }
 
+//======================================================================
+//  Helpers
+//======================================================================
+
 export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
   if (amount.crypto !== price.crypto) {
     throw new InconsistentUnitsError(amount.crypto, price.crypto);
@@ -70,9 +92,30 @@ export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
   return new Value(price.fiatCurrency, BigNumber.mul(amount.value, price.rate));
 }
 
+//======================================================================
+//  SnapshotValuation
+//======================================================================
+
 /**
- * Represents the valuation of a set of crypto-assets
- * in terms of a specified fiat currency at a specific point in time.
+ * Represents a valuation of a portfolio over a period of time.
+ *
+ * A SnapshotValuation tracks how the portfolio value has changed between two
+ * points in time. It stores the state of the portfolio "before" and "after"
+ * one or more movements (ingress/egress of tokens). This design aligns with
+ * real-world use cases like fiscal reporting or historical analysis.
+ *
+ * Unlike `Snapshot`, which represents a point-in-time view of the portfolio's
+ * contents, a SnapshotValuation expresses a delta: the evolution in total
+ * value (in a given fiat currency) and possibly the change in invested capital
+ * during that time.
+ *
+ * SnapshotValuations are often derived from one or more `Snapshot` instances,
+ * but are intentionally more abstract and can be used to group multiple
+ * movements into broader reporting periods (e.g. per day or per week).
+ *
+ * This class does not aim to record individual transactions or zero-sum moves.
+ * It prioritizes tracking net changes in value and investment for reporting
+ * purposes.
  */
 export class SnapshotValuation {
   readonly cryptoValueBefore: Value;

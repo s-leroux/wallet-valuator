@@ -43,11 +43,17 @@ export function isCryptoAsset(obj: unknown): obj is CryptoAsset {
 //======================================================================
 
 /**
- * Represents an amount of a CryptoAsset expressed in its display unit.
+ * Represents a quantity of a CryptoAsset expressed in its display unit.
  *
- * The `Amount` class associates a specific crypto with a value,
- * making it easier to handle monetary operations and display amounts
- * in a human-readable format.
+ * The `Amount` class associates a specific crypto with a quantity,
+ * making it easier to handle operations and display amounts in a
+ * human-readable format.
+ *
+ * An `Amount` is used to store a quantity of a given CryptoAsset.
+ * `Amount` must not be used to store values (as quantity of money
+ * expressed in a given currency).
+ *
+ * XXX Unify that class with `Value` using generics.
  */
 export class Amount {
   crypto: CryptoAsset;
@@ -57,7 +63,7 @@ export class Amount {
    * Creates an instance of `Amount`.
    *
    * @param crypto - The crypto associated with the amount.
-   * @param value - The value of the amount expressed in the display unit.
+   * @param value - The quantity expressed in the display unit.
    * @throws `ValueError` if `value` is negative.
    */
   constructor(crypto: CryptoAsset, value: BigNumber = BigNumber.ZERO) {
