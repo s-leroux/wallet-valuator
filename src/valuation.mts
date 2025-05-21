@@ -1,4 +1,5 @@
 import {
+  AssertionError,
   InconsistentUnitsError,
   MissingPriceError,
   ProtocolError,
@@ -64,6 +65,16 @@ export class Value {
     }
 
     return new Value(this.fiatCurrency, this.value.minus(other.value));
+  }
+  mulByScalar(share: BigNumber) {
+    return new Value(this.fiatCurrency, this.value.mul(share));
+  }
+
+  divByValue(other: ValueLike): BigNumber {
+    if (this.fiatCurrency != other.fiatCurrency) {
+      throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
+    }
+    return this.value.div(other.value);
   }
 
   isZero() {
@@ -201,6 +212,8 @@ export class SnapshotValuation {
     readonly cryptoValueAfter: PointInTimeValuation,
     readonly tags: Map<string, any>,
     readonly fiatDeposits: Value,
+    readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
+    readonly gainOrLoss: Value | undefined,
     readonly parent: SnapshotValuation | null
   ) {}
 
@@ -278,10 +291,28 @@ export class SnapshotValuation {
 
     // Track cash movements
     let deposits = parent ? parent.fiatDeposits : new Value(fiatCurrency);
-    if (tags.get("CASH-IN") || tags.get("CASH-OUT")) {
-      deposits = deposits.plus(
-        end.totalCryptoValue.minus(start.totalCryptoValue)
-      );
+    let cashIn = parent ? parent.fiscalCash : new Value(fiatCurrency);
+    let gainOrLoss: Value | undefined;
+
+    if (tags.get("CASH-IN") && tags.get("CASH-OUT")) {
+      const message = `A transaction cannot be CASH-IN and CASH-OUT at the same time`;
+      log.error("C3008", message, snapshot);
+      throw new AssertionError(message);
+    } else if (tags.get("CASH-IN")) {
+      // Simple case—just add to the currect cash value
+      const delta = end.totalCryptoValue.minus(start.totalCryptoValue); // This is supposed to be positive
+      deposits = deposits.plus(delta);
+      cashIn = cashIn.plus(delta);
+    } else if (tags.get("CASH-OUT")) {
+      const cachOut = start.totalCryptoValue.minus(end.totalCryptoValue); // This is supposed to be positive too !!!
+      deposits = deposits.minus(cachOut);
+
+      // Specific French accounting formula (2025)
+      // see https://www.waltio.com/fr/comment-calculer-impots-crypto/
+      const share = cachOut.divByValue(start.totalCryptoValue); // positive
+      const cashInMulShare = cashIn.mulByScalar(share);
+      gainOrLoss = cachOut.minus(cashInMulShare);
+      cashIn = cashIn.minus(cashInMulShare); // same as cashIn * (1 - share)
     }
 
     // All done. Create the instance.
@@ -292,6 +323,8 @@ export class SnapshotValuation {
       end,
       tags,
       deposits,
+      cashIn,
+      gainOrLoss,
       parent
     );
   }

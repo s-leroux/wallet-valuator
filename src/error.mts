@@ -94,12 +94,27 @@ export class InvalidTreeStructureError extends Error {
 }
 
 /**
- * Thrown when a method is called in an invalid sequence or protocol is violated.
+ * Thrown when a method is called in an invalid sequence or when a protocol is violated.
+ * This error indicates that the caller has not followed the required sequence of operations
+ * or has violated the expected protocol for using an API or component.
+ *
+ * @see AssertionError - For errors related to failed assertions or pre-conditions
  */
 export class ProtocolError extends Error {
   constructor(message: string = "Protocol violation.") {
     super(message);
     this.name = "ProtocolError";
+    Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
+  }
+}
+
+/**
+ * Thrown when an assertion or pre-requisite is violated
+ */
+export class AssertionError extends Error {
+  constructor(message: string = "Assertion error.") {
+    super(message);
+    this.name = "AssertionError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
 }
