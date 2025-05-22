@@ -9,9 +9,27 @@ const log = logger("database");
 
 import Database from "better-sqlite3";
 import { FiatConverter } from "../fiatconverter.mjs";
-import { AssertionError } from "../../error.mjs";
+import { AssertionError, ProtocolError } from "../../error.mjs";
 
 const DB_INIT_SEQUENCE = `
+PRAGMA foreign_keys = ON;
+
+--
+-- Database-level metadata (version, copyright, ...)
+--
+CREATE TABLE IF NOT EXISTS db_metadata (
+  key TEXT NOT NULL,
+  value TEXT NOT NULL,
+  PRIMARY KEY (key)
+);
+
+INSERT OR IGNORE INTO db_metadata (key, value) VALUES ('version', 'v0');
+`;
+
+const DB_CREATE_V0 = `
+--
+-- Cached prices
+--
 CREATE TABLE IF NOT EXISTS prices (
   oracle_id TEXT NOT NULL,
   currency TEXT NOT NULL,
@@ -19,13 +37,30 @@ CREATE TABLE IF NOT EXISTS prices (
   price REAL NOT NULL,
   PRIMARY KEY (oracle_id, currency, date)
 );
-
-CREATE TABLE IF NOT EXISTS db_metadata (
-  key TEXT NOT NULL,
-  value TEXT NOT NULL,
-  PRIMARY KEY (key)
-);
 `;
+
+// v1 was never used
+const DB_UPDATE_TO_V1 = `
+INSERT OR REPLACE INTO db_metadata (key, value) VALUES ('version', 'v1');
+`;
+
+const DB_UPDATE_TO_V2 = `
+--
+-- The 'dictionary' table is a simple index of text values
+-- It is normaly used to store other entities' metadata in
+-- a more compact way.
+---
+CREATE TABLE IF NOT EXISTS dictionary (
+  rowid INTEGER PRIMARY KEY, -- Magic SQlite3 autoincrement usable as a foreign parent key
+  value TEXT NOT NULL,
+  UNIQUE (value)
+);
+
+ALTER TABLE prices ADD COLUMN origin INTEGER REFERENCES dictionary (rowid);
+INSERT OR REPLACE INTO db_metadata (key, value) VALUES ('version', 'v2');
+`;
+
+export const DB_VERSION = "v2";
 
 export class Caching {
   readonly backend: Oracle;
@@ -39,8 +74,14 @@ export class Caching {
 
     this.backend = backend;
     this.backend_calls = 0;
+    let existing = path != ":memory:";
     try {
-      this.db = new Database(path);
+      try {
+        this.db = new Database(path, { fileMustExist: true });
+      } catch (err) {
+        this.db = new Database(path, { fileMustExist: false });
+        existing = false;
+      }
     } catch (err) {
       log.error(
         "C3005",
@@ -50,31 +91,67 @@ export class Caching {
       throw err;
     }
     this.db.exec(DB_INIT_SEQUENCE);
+    if (!existing) {
+      log.info("C1003", `Creating the DB v0`);
+      this.db.exec(DB_CREATE_V0);
+    }
     this.updateDb();
   }
 
+  /**
+   * Returns the current version of the database as stored in the db_metadata table.
+   * @returns The database version string
+   * @throws {ProtocolError} If the database version cannot be identified
+   */
   dbVersion(): string {
-    const stmt = this.db.prepare<[string], { value: string }>(
-      "SELECT value FROM db_metadata WHERE key = ?"
-    );
-    const row = stmt.get("version");
+    const row = this.dbMetadata("version");
     if (row) {
       return row.value;
     } else {
-      return "v0";
+      log.error("C3009");
+      log.error("C3009", `Please manually set the database version to "v0"`);
+      throw new ProtocolError("Cannot identify the database version");
     }
   }
 
-  updateDbVersion(dbVersion: string) {
-    const stmt = this.db.prepare<[string, string], { value: string }>(
-      "INSERT OR REPLACE INTO db_metadata(key, value) VALUES (?, ?)"
+  dbMetadata(key: string) {
+    const stmt = this.db.prepare<[string], { value: string }>(
+      "SELECT value FROM db_metadata WHERE key = ?"
     );
-    stmt.run("version", dbVersion);
+    return stmt.get(key);
   }
 
-  updateDbToVersionV0_1() {
-    log.info("C1003", `Updating the DB to v0.1`);
-    this.updateDbVersion("v0.1");
+  /**
+   * Returns the index of a string in the dictionary table.
+   * If the string is not present, it is stored and its new index is returned.
+   */
+  dictionary(text: string) {
+    // XXX Cache those data!
+    const select_stmt = this.db.prepare<[string], { rowid: number }>(
+      "SELECT rowid FROM dictionary WHERE value = ?"
+    );
+
+    const result = select_stmt.get(text);
+    if (result) {
+      return result.rowid;
+    }
+    // else
+
+    const insert_stmt = this.db.prepare<[string]>(
+      "INSERT OR IGNORE INTO dictionary(value) VALUES (?)"
+    );
+    const info = insert_stmt.run(text);
+    return info.lastInsertRowid;
+  }
+
+  updateDbToV1() {
+    log.info("C1003", `Updating the DB to v1`);
+    this.db.exec(DB_UPDATE_TO_V1);
+  }
+
+  updateDbToV2() {
+    log.info("C1003", `Updating the DB to v2`);
+    this.db.exec(DB_UPDATE_TO_V2);
   }
 
   updateDb() {
@@ -82,10 +159,15 @@ export class Caching {
     switch (dbVersion) {
       case "v0":
         this.db.transaction(() => {
-          this.updateDbToVersionV0_1();
+          this.updateDbToV1();
         })();
       // falls through
-      case "v0.1":
+      case "v1":
+        this.db.transaction(() => {
+          this.updateDbToV2();
+        })();
+      // falls through
+      case "v2":
         break;
       default:
         throw new AssertionError(`Unrecognized DB version ${dbVersion}`);

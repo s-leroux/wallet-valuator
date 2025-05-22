@@ -93,6 +93,7 @@
     "src/displayable.mts",
     "src/errcode.mts",
     "src/error.mts",
+    "src/errorutils.mts",
     "src/fiatcurrency.mts",
     "src/geckocoin.mts",
     "src/ledger.mts",
