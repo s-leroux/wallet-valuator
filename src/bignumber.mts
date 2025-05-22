@@ -10,7 +10,11 @@ export function toInteger(src: number | string) {
   return result;
 }
 
-export type BigNumberSource = number | string | DecimalImplementation;
+export type BigNumberSource =
+  | number
+  | string
+  | BigNumber
+  | DecimalImplementation;
 
 export class BigNumber extends DecimalImplementation.clone({
   rounding: 1, // ROUND_DOWN to ensure truncation, mimicking integer arithmetic behavior
@@ -29,6 +33,10 @@ export class BigNumber extends DecimalImplementation.clone({
   }
 
   static from(v: BigNumberSource): BigNumber {
+    if (v instanceof BigNumber) {
+      return v;
+    }
+
     return new BigNumber(v);
   }
 

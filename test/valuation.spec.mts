@@ -12,8 +12,32 @@ import {
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "./support/oracle.fake.mjs";
 import { FakeFiatConverter } from "./support/fiatconverter.fake.mjs";
-import { PortfolioValuation, SnapshotValuation } from "../src/valuation.mjs";
+import {
+  PortfolioValuation,
+  SnapshotValuation,
+  Value,
+} from "../src/valuation.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { FiatCurrency } from "../src/fiatcurrency.mjs";
+import { testQuantityInterface } from "./support/quantity.helper.mjs";
+import { BigNumber } from "../src/bignumber.mjs";
+
+describe("Value", () => {
+  const { EUR, USD } = FakeFiatCurrency;
+
+  testQuantityInterface<FiatCurrency, Value>(
+    {
+      make(unit, value) {
+        return new Value(unit, BigNumber.from(value));
+      },
+      unitEquals(a, b) {
+        return a.fiatCurrency == b.fiatCurrency;
+      },
+    },
+    EUR,
+    USD
+  );
+});
 
 describe("SnapshotValuation", () => {
   const fiatConverter = new FakeFiatConverter();

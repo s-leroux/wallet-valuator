@@ -4,7 +4,7 @@ import {
   MissingPriceError,
   ProtocolError,
 } from "./error.mjs";
-import { BigNumber } from "./bignumber.mjs";
+import { BigNumber, BigNumberSource } from "./bignumber.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
@@ -20,16 +20,12 @@ import {
 import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
+import { Quantity } from "./quantity.mjs";
 const log = logger("provider");
 
 //======================================================================
 //  Value
 //======================================================================
-
-type ValueLike = {
-  fiatCurrency: FiatCurrency;
-  value: BigNumber;
-};
 
 /**
  * Represents a monetary value in a specific fiat currency.
@@ -45,13 +41,13 @@ type ValueLike = {
  *
  * XXX Unify that class with `Amount` usign generics.
  */
-export class Value {
+export class Value implements Quantity<FiatCurrency, Value> {
   constructor(
     readonly fiatCurrency: FiatCurrency,
     readonly value: BigNumber = BigNumber.ZERO
   ) {}
 
-  plus(other: ValueLike) {
+  plus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
     }
@@ -59,18 +55,19 @@ export class Value {
     return new Value(this.fiatCurrency, this.value.plus(other.value));
   }
 
-  minus(other: ValueLike) {
+  minus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
     }
 
     return new Value(this.fiatCurrency, this.value.minus(other.value));
   }
-  mulByScalar(share: BigNumber) {
-    return new Value(this.fiatCurrency, this.value.mul(share));
+
+  scaledBy(factor: BigNumberSource): Value {
+    return new Value(this.fiatCurrency, this.value.mul(factor));
   }
 
-  divByValue(other: ValueLike): BigNumber {
+  relativeTo(other: Value): BigNumber {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
     }
@@ -98,6 +95,10 @@ export class Value {
     return `${valueFormat(this.value.toString())}${sep}${symbolFormat(
       this.fiatCurrency
     )}`;
+  }
+
+  negated(): Value {
+    return new Value(this.fiatCurrency, this.value.negated());
   }
 }
 
@@ -309,8 +310,8 @@ export class SnapshotValuation {
 
       // Specific French accounting formula (2025)
       // see https://www.waltio.com/fr/comment-calculer-impots-crypto/
-      const share = cachOut.divByValue(start.totalCryptoValue); // positive
-      const cashInMulShare = cashIn.mulByScalar(share);
+      const share = cachOut.relativeTo(start.totalCryptoValue); // positive
+      const cashInMulShare = cashIn.scaledBy(share);
       gainOrLoss = cachOut.minus(cashInMulShare);
       cashIn = cashIn.minus(cashInMulShare); // same as cashIn * (1 - share)
     }
