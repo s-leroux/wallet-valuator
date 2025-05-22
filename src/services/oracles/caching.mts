@@ -5,10 +5,11 @@ import { Price } from "../../price.mjs";
 import type { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
-const log = logger("provider");
+const log = logger("database");
 
 import Database from "better-sqlite3";
 import { FiatConverter } from "../fiatconverter.mjs";
+import { AssertionError } from "../../error.mjs";
 
 const DB_INIT_SEQUENCE = `
 CREATE TABLE IF NOT EXISTS prices (
@@ -17,6 +18,12 @@ CREATE TABLE IF NOT EXISTS prices (
   date TEXT NOT NULL,
   price REAL NOT NULL,
   PRIMARY KEY (oracle_id, currency, date)
+);
+
+CREATE TABLE IF NOT EXISTS db_metadata (
+  key TEXT NOT NULL,
+  value TEXT NOT NULL,
+  PRIMARY KEY (key)
 );
 `;
 
@@ -43,6 +50,46 @@ export class Caching {
       throw err;
     }
     this.db.exec(DB_INIT_SEQUENCE);
+    this.updateDb();
+  }
+
+  dbVersion(): string {
+    const stmt = this.db.prepare<[string], { value: string }>(
+      "SELECT value FROM db_metadata WHERE key = ?"
+    );
+    const row = stmt.get("version");
+    if (row) {
+      return row.value;
+    } else {
+      return "v0";
+    }
+  }
+
+  updateDbVersion(dbVersion: string) {
+    const stmt = this.db.prepare<[string, string], { value: string }>(
+      "INSERT OR REPLACE INTO db_metadata(key, value) VALUES (?, ?)"
+    );
+    stmt.run("version", dbVersion);
+  }
+
+  updateDbToVersionV0_1() {
+    log.info("C1003", `Updating the DB to v0.1`);
+    this.updateDbVersion("v0.1");
+  }
+
+  updateDb() {
+    const dbVersion = this.dbVersion();
+    switch (dbVersion) {
+      case "v0":
+        this.db.transaction(() => {
+          this.updateDbToVersionV0_1();
+        })();
+      // falls through
+      case "v0.1":
+        break;
+      default:
+        throw new AssertionError(`Unrecognized DB version ${dbVersion}`);
+    }
   }
 
   insert(date: string, prices: Partial<Record<string, Price>>): void {
