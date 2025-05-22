@@ -15,6 +15,7 @@ export const ERRORS = {
   "C3005": "Cannot open database",
   "C3006": "Unknown well-known crypto-asset",
   "C3007": "Metadata already initialized for a cryptocurrency",
+  "C3008": "A transaction cannot be CASH-IN and CASH-OUT at the same time",
   "C9999": "Report generic tracing information",
 } as const;
 

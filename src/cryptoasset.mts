@@ -7,6 +7,8 @@ import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
 import { CryptoRegistry } from "./cryptoregistry.mjs";
+import { Value } from "./valuation.mjs";
+import { Quantity } from "./quantity.mjs";
 const log = logger("crypto-asset");
 
 //======================================================================
@@ -43,13 +45,19 @@ export function isCryptoAsset(obj: unknown): obj is CryptoAsset {
 //======================================================================
 
 /**
- * Represents an amount of a CryptoAsset expressed in its display unit.
+ * Represents a quantity of a CryptoAsset expressed in its display unit.
  *
- * The `Amount` class associates a specific crypto with a value,
- * making it easier to handle monetary operations and display amounts
- * in a human-readable format.
+ * The `Amount` class associates a specific crypto with a quantity,
+ * making it easier to handle operations and display amounts in a
+ * human-readable format.
+ *
+ * An `Amount` is used to store a quantity of a given CryptoAsset.
+ * `Amount` must not be used to store values (as quantity of money
+ * expressed in a given currency).
+ *
+ * XXX Unify that class with `Value` using generics.
  */
-export class Amount {
+export class Amount implements Quantity<CryptoAsset, Amount> {
   crypto: CryptoAsset;
   value: BigNumber;
 
@@ -57,25 +65,14 @@ export class Amount {
    * Creates an instance of `Amount`.
    *
    * @param crypto - The crypto associated with the amount.
-   * @param value - The value of the amount expressed in the display unit.
-   *               The value must be **≥ 0** (including zero). Negative values are not allowed.
-   * @throws `ValueError` if `value` is negative.
+   * @param value - The quantity expressed in the display unit.
    */
-  constructor(crypto: CryptoAsset, value?: BigNumber) {
-    this.crypto = crypto;
-
-    if (value) {
-      if (value.isPositive()) {
-        this.value = value;
-      } else if (value.isZero()) {
-        // Ensure `-0` is converted to `+0`
-        this.value = BigNumber.ZERO;
-      } else {
-        throw new ValueError(`Amount value must be ≥ 0. Received: ${value}`);
-      }
-    } else {
-      this.value = BigNumber.ZERO;
+  constructor(crypto: CryptoAsset, value: BigNumber = BigNumber.ZERO) {
+    if (value.isNaN()) {
+      throw new ValueError("Invalid amount: NaN values are not allowed");
     }
+    this.crypto = crypto;
+    this.value = value;
   }
 
   /**
@@ -141,6 +138,40 @@ export class Amount {
     }
 
     return new Amount(crypto, this.value.minus(other.value));
+  }
+
+  /**
+   * Returns a new `Amount` representing the negation of the current instance.
+   *
+   * This method creates a new `Amount` with the same crypto but with the value
+   * multiplied by -1.
+   *
+   * @returns A new `Amount` object with the same crypto and negated value.
+   */
+  negated(): Amount {
+    return new Amount(this.crypto, this.value.negated());
+  }
+
+  isZero(): boolean {
+    return this.value.isZero();
+  }
+
+  valueAt(price: Price) {
+    if (this.crypto !== price.crypto) {
+      throw new InconsistentUnitsError(this, price);
+    }
+    return new Value(price.fiatCurrency, this.value.mul(price.rate));
+  }
+
+  scaledBy(factor: BigNumberSource): Amount {
+    return new Amount(this.crypto, this.value.mul(factor));
+  }
+
+  relativeTo(other: Amount): BigNumber {
+    if (this.crypto !== other.crypto) {
+      throw new InconsistentUnitsError(this, other);
+    }
+    return this.value.div(other.value);
   }
 }
 

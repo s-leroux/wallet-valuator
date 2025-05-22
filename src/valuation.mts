@@ -1,6 +1,11 @@
-import { InconsistentUnitsError, MissingPriceError } from "./error.mjs";
-import { BigNumber } from "./bignumber.mjs";
-import type { FiatCurrency } from "./fiatcurrency.mjs";
+import {
+  AssertionError,
+  InconsistentUnitsError,
+  MissingPriceError,
+  ProtocolError,
+} from "./error.mjs";
+import { BigNumber, BigNumberSource } from "./bignumber.mjs";
+import { FiatCurrency } from "./fiatcurrency.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
 import type { Price } from "./price.mjs";
@@ -15,10 +20,32 @@ import {
 import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
+import { Quantity } from "./quantity.mjs";
 const log = logger("provider");
 
-export class Value {
-  constructor(readonly fiatCurrency: FiatCurrency, readonly value: BigNumber) {}
+//======================================================================
+//  Value
+//======================================================================
+
+/**
+ * Represents a monetary value in a specific fiat currency.
+ *
+ * The Value class encapsulates an amount of fiat currency (e.g. USD, EUR) backed by BigNumber
+ * for precise decimal arithmetic. It provides methods for basic arithmetic operations
+ * while ensuring currency consistency.
+ *
+ * @example
+ * const usdValue = new Value(FiatCurrency("USD"), BigNumber.from(100));
+ * const eurValue = new Value(FiatCurrency("EUR"), BigNumber.from(85));
+ * // usdValue.plus(eurValue) // Throws InconsistentUnitsError
+ *
+ * XXX Unify that class with `Amount` usign generics.
+ */
+export class Value implements Quantity<FiatCurrency, Value> {
+  constructor(
+    readonly fiatCurrency: FiatCurrency,
+    readonly value: BigNumber = BigNumber.ZERO
+  ) {}
 
   plus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
@@ -34,6 +61,17 @@ export class Value {
     }
 
     return new Value(this.fiatCurrency, this.value.minus(other.value));
+  }
+
+  scaledBy(factor: BigNumberSource): Value {
+    return new Value(this.fiatCurrency, this.value.mul(factor));
+  }
+
+  relativeTo(other: Value): BigNumber {
+    if (this.fiatCurrency != other.fiatCurrency) {
+      throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
+    }
+    return this.value.div(other.value);
   }
 
   isZero() {
@@ -58,46 +96,127 @@ export class Value {
       this.fiatCurrency
     )}`;
   }
+
+  negated(): Value {
+    return new Value(this.fiatCurrency, this.value.negated());
+  }
 }
 
-export function valueFromAmountAndPrice(amount: Amount, price: Price): Value {
-  if (amount.crypto !== price.crypto) {
-    throw new InconsistentUnitsError(amount.crypto, price.crypto);
-  }
-  return new Value(price.fiatCurrency, BigNumber.mul(amount.value, price.rate));
-}
+//======================================================================
+//  Position
+//======================================================================
 
 /**
- * Represents the valuation of a set of crypto-assets
- * in terms of a specified fiat currency at a specific point in time.
+ * An amount of crypto-asset and its counterpart value in a given fiat currency.
  */
-export class SnapshotValuation {
-  readonly fiatCurrency: FiatCurrency;
-  readonly timeStamp: number;
-  readonly holdings: Map<Amount, Value>;
-  readonly deposits: Value;
-  readonly tags: Map<string, any>;
-  readonly totalValue: Value;
+type Position = {
+  amount: Amount;
+  value: Value;
+};
+
+//======================================================================
+//  PointInTimeValuation
+//======================================================================
+
+/**
+ * A portfolio value at a given point-in-time.
+ *
+ * XXX We should rename PointInTimeValuation to SnapshotValuation but
+ * for historical reasons that later has inherited a (now) wrong name.
+ */
+export class PointInTimeValuation {
+  readonly totalCryptoValue: Value;
 
   private constructor(
-    fiatCurrency: FiatCurrency,
-    timeStamp: number,
-    holdings: Map<Amount, Value>,
-    deposits: Value,
-    tags: Map<string, any>
+    readonly date: Date,
+    readonly fiatCurrency: FiatCurrency,
+    readonly positions: Map<CryptoAsset, Position>
   ) {
-    this.fiatCurrency = fiatCurrency;
-    this.timeStamp = timeStamp;
-    this.holdings = holdings;
-    this.deposits = deposits;
-    this.tags = tags;
-
-    let acc = new Value(fiatCurrency, BigNumber.ZERO);
-    for (const value of holdings.values()) {
-      acc = acc.plus(value); // FIX #33 It is unclear if totalValue should be a BigNumber or a Value
+    let totalCryptoValue = new Value(fiatCurrency);
+    for (const position of positions.values()) {
+      totalCryptoValue = totalCryptoValue.plus(position.value);
     }
-    this.totalValue = acc;
+    this.totalCryptoValue = totalCryptoValue;
   }
+
+  /**
+   * Create a new PointInTimeValuation.
+   *
+   * This assumes the following pre-requiites:
+   * 1. All fiat values are expressed in the sage (given) fiat currency
+   * 2. All crypto-assets unit price are available in the `exchangeRate` mapping.
+   * @param date
+   * @param fiatCurrency
+   * @param amounts
+   * @param exchangeRates
+   */
+  static create(
+    date: Date,
+    fiatCurrency: FiatCurrency,
+    amounts: Map<CryptoAsset, Amount>,
+    exchangeRates: Map<CryptoAsset, Price>
+  ) {
+    const positions = new Map<CryptoAsset, Position>();
+
+    amounts.forEach((amount, cryptoAsset) => {
+      const exchangeRate = exchangeRates.get(cryptoAsset);
+      if (exchangeRate === undefined) {
+        throw new ProtocolError(`Missing  exchange rate for ${cryptoAsset}`);
+      }
+      if (exchangeRate.fiatCurrency !== fiatCurrency) {
+        throw new InconsistentUnitsError(
+          exchangeRate.fiatCurrency,
+          fiatCurrency
+        );
+      }
+
+      positions.set(cryptoAsset, {
+        amount,
+        value: amount.valueAt(exchangeRate),
+      });
+    });
+
+    return new PointInTimeValuation(date, fiatCurrency, positions);
+  }
+}
+
+//======================================================================
+//  SnapshotValuation
+//======================================================================
+
+/**
+ * Represents a valuation of a portfolio over a period of time.
+ *
+ * A SnapshotValuation tracks how the portfolio value has changed between two
+ * points in time. It stores the state of the portfolio "before" and "after"
+ * one or more movements (ingress/egress of tokens). This design aligns with
+ * real-world use cases like fiscal reporting or historical analysis.
+ *
+ * Unlike `Snapshot`, which represents a point-in-time view of the portfolio's
+ * contents, a SnapshotValuation expresses a delta: the evolution in total
+ * value (in a given fiat currency) and possibly the change in invested capital
+ * during that time.
+ *
+ * SnapshotValuations are often derived from one or more `Snapshot` instances,
+ * but are intentionally more abstract and can be used to group multiple
+ * movements into broader reporting periods (e.g. per day or per week).
+ *
+ * This class does not aim to record individual transactions or zero-sum moves.
+ * It prioritizes tracking net changes in value and investment for reporting
+ * purposes.
+ */
+export class SnapshotValuation {
+  private constructor(
+    readonly fiatCurrency: FiatCurrency,
+    readonly date: Date,
+    readonly cryptoValueBefore: PointInTimeValuation,
+    readonly cryptoValueAfter: PointInTimeValuation,
+    readonly tags: Map<string, any>,
+    readonly fiatDeposits: Value,
+    readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
+    readonly gainOrLoss: Value | undefined,
+    readonly parent: SnapshotValuation | null
+  ) {}
 
   static async createFromSnapshot(
     registry: CryptoRegistry,
@@ -108,6 +227,10 @@ export class SnapshotValuation {
     parent: SnapshotValuation | null
   ): Promise<SnapshotValuation> {
     const date = new Date(snapshot.timeStamp * 1000);
+
+    const currentHoldings = snapshot.holdings;
+    const previousHoldings =
+      snapshot.parent?.holdings ?? new Map<CryptoAsset, Amount>();
 
     // Helper function
     async function getPrice(crypto: CryptoAsset): Promise<Price> {
@@ -129,9 +252,7 @@ export class SnapshotValuation {
       if (price === undefined) {
         // prettier-ignore
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
-
         log.warn("C3001", message, registry.getNamespaces(crypto));
-
         throw new MissingPriceError(crypto, fiatCurrency, date);
       }
 
@@ -139,77 +260,85 @@ export class SnapshotValuation {
     }
 
     // Pre-load all the required prices. This could be parallelized.
-    const rates = new Map<CryptoAsset, Price>();
-    for (const crypto of snapshot.holdings.keys()) {
-      rates.set(crypto, await getPrice(crypto));
+    const exchangeRates = new Map<CryptoAsset, Price>();
+
+    async function loadExchangeRates(list: Iterable<CryptoAsset>) {
+      for (const crypto of snapshot.holdings.keys()) {
+        if (!exchangeRates.has(crypto)) {
+          exchangeRates.set(crypto, await getPrice(crypto));
+        }
+      }
     }
 
-    // We have all the prices now. Calculate our holdings.
-    const holdings = new Map<Amount, Value>();
-    for (const [crypto, amount] of snapshot.holdings) {
-      const value = valueFromAmountAndPrice(amount, rates.get(crypto)!);
-      holdings.set(amount, value);
-    }
+    await loadExchangeRates(currentHoldings.keys());
+    await loadExchangeRates(previousHoldings.keys());
+
+    // Evaluate each individual holdings
+    const start = PointInTimeValuation.create(
+      date,
+      fiatCurrency,
+      previousHoldings,
+      exchangeRates
+    );
+    const end = PointInTimeValuation.create(
+      date,
+      fiatCurrency,
+      currentHoldings,
+      exchangeRates
+    );
 
     // Copy tags
     const tags = new Map<string, any>(snapshot.tags);
 
-    // Get the actual deposits
-    let deposits = parent
-      ? parent.deposits
-      : new Value(fiatCurrency, BigNumber.ZERO);
+    // Track cash movements
+    let deposits = parent ? parent.fiatDeposits : new Value(fiatCurrency);
+    let cashIn = parent ? parent.fiscalCash : new Value(fiatCurrency);
+    let gainOrLoss: Value | undefined;
 
-    // Handle the INGRESS/EGRESS tags
-    const ingress = tags.get("INGRESS");
-    const egress = tags.get("EGRESS");
-    const amount = ingress ? ingress : egress ? egress : null;
-    if (amount) {
-      if (!rates.has(amount.crypto)) {
-        rates.set(amount.crypto, await getPrice(amount.crypto));
-      }
+    if (tags.get("CASH-IN") && tags.get("CASH-OUT")) {
+      const message = `A transaction cannot be CASH-IN and CASH-OUT at the same time`;
+      log.error("C3008", message, snapshot);
+      throw new AssertionError(message);
+    } else if (tags.get("CASH-IN")) {
+      // Simple case—just add to the currect cash value
+      const delta = end.totalCryptoValue.minus(start.totalCryptoValue); // This is supposed to be positive
+      deposits = deposits.plus(delta);
+      cashIn = cashIn.plus(delta);
+    } else if (tags.get("CASH-OUT")) {
+      const cachOut = start.totalCryptoValue.minus(end.totalCryptoValue); // This is supposed to be positive too !!!
+      deposits = deposits.minus(cachOut);
 
-      // Calculate the delta deposit
-      const delta = valueFromAmountAndPrice(amount, rates.get(amount.crypto)!);
-
-      if (tags.get("RAMP-UP")) {
-        // XXX CASH-IN
-        deposits = deposits.plus(delta);
-      } else if (tags.get("RAMP-DOWN")) {
-        // XXX CASH-OUT
-        deposits = deposits.minus(delta);
-      }
+      // Specific French accounting formula (2025)
+      // see https://www.waltio.com/fr/comment-calculer-impots-crypto/
+      const share = cachOut.relativeTo(start.totalCryptoValue); // positive
+      const cashInMulShare = cashIn.scaledBy(share);
+      gainOrLoss = cachOut.minus(cashInMulShare);
+      cashIn = cashIn.minus(cashInMulShare); // same as cashIn * (1 - share)
     }
 
     // All done. Create the instance.
     return new SnapshotValuation(
       fiatCurrency,
-      snapshot.timeStamp,
-      holdings,
+      date,
+      start,
+      end,
+      tags,
       deposits,
-      tags
+      cashIn,
+      gainOrLoss,
+      parent
     );
-  }
-
-  get(crypto: CryptoAsset): Value {
-    for (const [amount, value] of this.holdings) {
-      if (amount.crypto === crypto) {
-        return value;
-      }
-    }
-    return new Value(this.fiatCurrency, BigNumber.ZERO);
   }
 
   //========================================================================
   //  String representation
   //========================================================================
   toString(): string {
-    return `${this.totalValue} ${this.fiatCurrency}`;
+    return `${this.cryptoValueAfter} ${this.fiatCurrency}`;
   }
 
   toDisplayString(options: DisplayOptions = {}): string {
-    const lines: string[] = [
-      TextUtils.formatDate(this.timeStamp * 1000, options),
-    ];
+    const lines: string[] = [TextUtils.formatDate(this.date, options)];
 
     // Add a line for the tags
     if (this.tags.size) {
@@ -225,28 +354,32 @@ export class SnapshotValuation {
     }
 
     // Add a line for the total deposit
-    lines.push("D:" + this.deposits.toDisplayString(options));
+    lines.push("D:" + this.fiatDeposits.toDisplayString(options));
 
     // Add a line for the total valuation
-    lines.push("V:" + this.totalValue.toDisplayString(options));
+    lines.push(
+      "V:" + this.cryptoValueAfter.totalCryptoValue.toDisplayString(options)
+    );
 
     // Now our holdings
-    this.holdings.forEach((value, amount) => {
-      if (!value.isZero()) {
-        lines.push(
-          "  " +
-            value.toDisplayString(options) +
-            " " +
-            amount.toDisplayString(options)
-        );
+    this.cryptoValueAfter.positions.forEach(
+      ({ value, amount }, cryptoAsset) => {
+        if (!value.isZero()) {
+          lines.push(
+            "  " +
+              value.toDisplayString(options) +
+              " " +
+              amount.toDisplayString(options)
+          );
+        }
       }
-    });
+    );
 
     return lines.join("\n");
   }
 }
 
-export class PortfolioValuation {
+export class PortfolioValuation implements Iterable<SnapshotValuation> {
   readonly snapshotValuations: SnapshotValuation[];
 
   //========================================================================
@@ -254,6 +387,9 @@ export class PortfolioValuation {
   //========================================================================
   constructor(snapshotValuations: SnapshotValuation[]) {
     this.snapshotValuations = snapshotValuations;
+  }
+  [Symbol.iterator](): Iterator<SnapshotValuation> {
+    return this.snapshotValuations[Symbol.iterator]();
   }
 
   static async create(

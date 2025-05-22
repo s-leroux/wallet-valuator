@@ -7,8 +7,9 @@ import { BigNumber } from "../src/bignumber.mjs";
 
 import { ValueError } from "../src/error.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { testQuantityInterface } from "./support/quantity.helper.mjs";
 
-const mockCrypto = FakeCryptoAsset.ethereum;
+const { ethereum, bitcoin } = FakeCryptoAsset;
 
 describe("CryptoAsset", () => {
   let registry: CryptoRegistry;
@@ -20,25 +21,25 @@ describe("CryptoAsset", () => {
   it("should correctly initialize a CryptoAsset instance", () => {
     const crypto = CryptoAsset.create(
       registry,
-      mockCrypto.id,
-      mockCrypto.name,
-      mockCrypto.symbol,
-      mockCrypto.decimal
+      ethereum.id,
+      ethereum.name,
+      ethereum.symbol,
+      ethereum.decimal
     );
 
-    assert.strictEqual(crypto.id, mockCrypto.id);
-    assert.strictEqual(crypto.name, mockCrypto.name);
-    assert.strictEqual(crypto.symbol, mockCrypto.symbol);
-    assert.strictEqual(crypto.decimal, mockCrypto.decimal);
+    assert.strictEqual(crypto.id, ethereum.id);
+    assert.strictEqual(crypto.name, ethereum.name);
+    assert.strictEqual(crypto.symbol, ethereum.symbol);
+    assert.strictEqual(crypto.decimal, ethereum.decimal);
   });
 
   it("should convert base unit value to Amount in display unit", () => {
     const crypto = CryptoAsset.create(
       registry,
-      mockCrypto.id,
-      mockCrypto.name,
-      mockCrypto.symbol,
-      mockCrypto.decimal
+      ethereum.id,
+      ethereum.name,
+      ethereum.symbol,
+      ethereum.decimal
     );
     const baseUnitValue = "12345678900000000000";
     //                     09876543210987654321
@@ -75,82 +76,64 @@ describe("Amount", () => {
   describe("constructor", () => {
     it("should correctly initialize an Amount instance", () => {
       const value = BigNumber.from(1);
-      const amount = new Amount(mockCrypto, value);
+      const amount = new Amount(ethereum, value);
 
-      assert.strictEqual(amount.crypto, mockCrypto);
+      assert.strictEqual(amount.crypto, ethereum);
       assert.strictEqual(amount.value, value);
     });
   });
 
   it("should allow zero", function () {
-    const amount = new Amount(mockCrypto, new BigNumber("0"));
+    const amount = new Amount(ethereum, new BigNumber("0"));
     assert.strictEqual(amount.value.toString(), "0");
   });
 
   it("should default to zero when value is undefined", function () {
-    const amount = new Amount(mockCrypto);
+    const amount = new Amount(ethereum);
     assert.strictEqual(amount.value.toString(), "0");
   });
 
   it("should normalize -0 to +0", function () {
-    const amount = new Amount(mockCrypto, new BigNumber("-0"));
+    const amount = new Amount(ethereum, new BigNumber("-0"));
     assert.strictEqual(amount.value.toString(), "0"); // Ensures normalization
   });
 
   it("should handle very large positive values", function () {
-    const amount = new Amount(mockCrypto, new BigNumber("1e50"));
+    const amount = new Amount(ethereum, new BigNumber("1e50"));
     assert.strictEqual(
       amount.value.toString(),
       "100000000000000000000000000000000000000000000000000"
     );
   });
 
-  it("should throw an error for a negative value", function () {
-    assert.throws(
-      () => new Amount(mockCrypto, new BigNumber("-1.5")),
-      ValueError,
-      /Amount value must be ≥ 0/
-    );
+  it("should allow negative values", function () {
+    const amount = new Amount(ethereum, new BigNumber("-1.50"));
+    assert.strictEqual(amount.value.toString(), "-1.5");
   });
 
   it("should reject NaN values", function () {
-    assert.throws(() => new Amount(mockCrypto, new BigNumber(NaN)), ValueError);
+    assert.throws(() => new Amount(ethereum, new BigNumber(NaN)), ValueError);
   });
 
   describe("toString() method", () => {
     it("should return the correct string representation for the object", () => {
       const value = BigNumber.from(1000);
-      const amount = new Amount(mockCrypto, value);
+      const amount = new Amount(ethereum, value);
 
       assert.strictEqual(amount.toString(), "1000 ETH");
     });
   });
 
-  describe("plus() method", () => {
-    it("should return the sum of two amounts", () => {
-      const va = BigNumber.from(1000);
-      const vb = BigNumber.from(3.5);
-      const a = new Amount(mockCrypto, va);
-      const b = new Amount(mockCrypto, vb);
-
-      assert.strictEqual(a.plus(b).value.toString(), va.plus(vb).toString());
-      // leave the arguments inchanged:
-      assert.strictEqual(a.value.toString(), va.toString());
-      assert.strictEqual(b.value.toString(), vb.toString());
-    });
-  });
-
-  describe("minus() method", () => {
-    it("should return the difference between two amounts", () => {
-      const va = BigNumber.from(1000);
-      const vb = BigNumber.from(3.5);
-      const a = new Amount(mockCrypto, va);
-      const b = new Amount(mockCrypto, vb);
-
-      assert.strictEqual(a.minus(b).value.toString(), va.minus(vb).toString());
-      // leave the arguments inchanged:
-      assert.strictEqual(a.value.toString(), va.toString());
-      assert.strictEqual(b.value.toString(), vb.toString());
-    });
-  });
+  testQuantityInterface<CryptoAsset, Amount>(
+    {
+      make(unit, value) {
+        return new Amount(unit, BigNumber.from(value));
+      },
+      unitEquals(a, b) {
+        return a.crypto == b.crypto;
+      },
+    },
+    ethereum,
+    bitcoin
+  );
 });

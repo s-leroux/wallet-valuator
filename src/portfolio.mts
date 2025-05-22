@@ -4,7 +4,7 @@ import { type CryptoAsset, Amount } from "./cryptoasset.mjs";
 import type { Address } from "./address.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
-import { SnapshotValuation, PortfolioValuation } from "./valuation.mjs";
+import { PortfolioValuation } from "./valuation.mjs";
 import type { FiatConverter } from "./services/fiatconverter.mjs";
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import type { Oracle } from "./services/oracle.mjs";
@@ -22,6 +22,7 @@ interface Movement {
 }
 
 export class Snapshot {
+  readonly parent: Snapshot | null;
   readonly timeStamp: number;
   readonly holdings: Map<CryptoAsset, Amount>; // Portfolio balance _after_ update
   readonly tags: Map<string, any>; // Copy of the transaction's tags
@@ -33,6 +34,7 @@ export class Snapshot {
     tags: Map<string, any>,
     parent: Snapshot | null = null
   ) {
+    this.parent = parent;
     this.timeStamp = movement.timeStamp;
     // Naive implementation: just clone the whole map
     this.holdings = new Map(parent?.holdings);
@@ -61,20 +63,19 @@ export class Snapshot {
 
     // Note: we may have a transaction with both ingress and egress tags
     // for inter-account transfers.
-    if (ingress) {
-      newAmount = holding ? holding.plus(movement.amount) : movement.amount;
-      this.tags.set("INGRESS", amount);
-    }
-    if (egress) {
+    if (ingress && egress) {
+      // Internal transfer. Not to track.
+    } else if (ingress) {
+      newAmount = holding ? holding.plus(amount) : amount;
+      this.tags.set("DELTA", amount);
+    } else if (egress) {
       // problem: we may encounter an underflow!
       try {
-        newAmount = (holding ? holding : new Amount(crypto)).minus(
-          movement.amount
-        );
+        newAmount = (holding ? holding : new Amount(crypto)).minus(amount);
       } catch (err: unknown) {
         if (err instanceof ValueError) {
           console.log(
-            `Attempt to remove ${movement.amount} from ${holding ?? 0} at ${
+            `Attempt to remove ${amount} from ${holding ?? 0} at ${
               movement.timeStamp
             }`
           );
@@ -83,7 +84,7 @@ export class Snapshot {
           throw err;
         }
       }
-      this.tags.set("EGRESS", amount);
+      this.tags.set("DELTA", amount.negated());
     }
 
     this.holdings.set(crypto, newAmount ?? new Amount(crypto));
