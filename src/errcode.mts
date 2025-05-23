@@ -4,6 +4,7 @@ export const ERRORS = {
 
   "C1001": "Download retry", // first info
   "C1002": "Find price data",
+  "C1003": "Cahing database update",
   "C2001": "Ignore an asset because of missing data", // first warning
   "C2002": "Fail to download",
   "C2003": "Inconsistent data",
@@ -16,6 +17,7 @@ export const ERRORS = {
   "C3006": "Unknown well-known crypto-asset",
   "C3007": "Metadata already initialized for a cryptocurrency",
   "C3008": "A transaction cannot be CASH-IN and CASH-OUT at the same time",
+  "C3009": "Cannot identify the database version",
   "C9999": "Report generic tracing information",
 } as const;
 

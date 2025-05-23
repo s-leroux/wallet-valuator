@@ -1,36 +1,9 @@
 import type { CryptoAsset } from "./cryptoasset.mjs";
-import { ErrorCode } from "./errcode.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 
-import { logger } from "./debug.mjs";
-const log = logger("error");
-
-type Tag = {
+export type Tag = {
   errCode?: string;
 };
-
-export function Tracked<E extends Error, R extends unknown[]>(
-  errCode: ErrorCode,
-  ctor: new (...rest: R) => E,
-  ...rest: R
-) {
-  const err: E & Tag = new ctor(...rest);
-  err.errCode = errCode;
-
-  return err;
-}
-
-export function Logged<E extends Error, R extends unknown[]>(
-  errCode: ErrorCode,
-  ctor: new (...rest: R) => E,
-  ...rest: R
-) {
-  const err: E & Tag = new ctor(...rest);
-  err.errCode = errCode;
-  log.error(errCode, err.message);
-
-  return err;
-}
 
 export class NotImplementedError extends Error {
   constructor(message: string = "Not implemented yet.") {
@@ -49,7 +22,7 @@ export class InternalError extends Error {
 }
 
 export class InconsistentUnitsError extends Error {
-  constructor(unitA: any, unitB: any) {
+  constructor(unitA: unknown, unitB: unknown) {
     super(`Imcompatible units ${unitA} and ${unitB}`);
     this.name = "InconsistentUnitsError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
@@ -71,7 +44,7 @@ export class ValueError extends Error {
  * A value was already present
  */
 export class DuplicateKeyError extends Error {
-  constructor(key: any = "") {
+  constructor(key: unknown = "") {
     super(String(key));
     this.name = "DuplicateKeyError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain

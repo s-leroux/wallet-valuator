@@ -1,4 +1,4 @@
-import { type ErrorCode } from "./errcode.mjs";
+import { ERRORS, type ErrorCode } from "./errcode.mjs";
 import { ValueError } from "./error.mjs";
 
 // =====================================================================
@@ -138,7 +138,7 @@ function logLevel() {
       throw new ValueError(`LOG_LEVEL must be set to 1-6 (was ${level})`);
   }
 }
-const LOG_LEVEL = logLevel();
+let LOG_LEVEL = logLevel();
 
 type Severity = readonly [
   name: string,
@@ -147,11 +147,22 @@ type Severity = readonly [
 ];
 
 const severity = {
-  error: ["Error", 2, "red"],
-  warn: ["Warn", 3, "yellow"],
+  error: ["Error", 1, "red"],
+  warn: ["Warn", 2, "yellow"],
   info: ["Info", 4, "green"],
   trace: ["Trace", 6, "green"],
 } as const;
+
+type SeverityLevel = keyof typeof severity;
+
+export function setLogLevel(severityLevel: SeverityLevel) {
+  const savedLevel = LOG_LEVEL;
+  LOG_LEVEL = severity[severityLevel][1];
+
+  return () => {
+    LOG_LEVEL = savedLevel;
+  };
+}
 
 interface DebugConsole {
   log(
@@ -182,7 +193,7 @@ class DefaultDebugConsole implements DebugConsole {
     ...rest: any[]
   ) {
     const [type, level, color] = severity;
-    if (LOG_LEVEL <= level) {
+    if (LOG_LEVEL >= level) {
       let header = `${type[0]}:${errorCode}:${module}:`;
       const colorFn = this.termcap[color];
       if (colorFn) {
@@ -195,26 +206,54 @@ class DefaultDebugConsole implements DebugConsole {
 
 export const defaulDebugConsole = new DefaultDebugConsole();
 
+function errorMessage(errorCode: ErrorCode, message: string | undefined) {
+  return message ?? ERRORS[errorCode] ?? "💣 Missing error message";
+}
+
 class DebugFacade {
   constructor(
     public readonly console: DebugConsole,
     public readonly module: string
   ) {}
 
-  public error(errorCode: ErrorCode, message: string, ...rest: any[]): void {
-    this.console.log(severity.error, this.module, errorCode, message, ...rest);
+  public error(errorCode: ErrorCode, message?: string, ...rest: any[]): void {
+    this.console.log(
+      severity.error,
+      this.module,
+      errorCode,
+      errorMessage(errorCode, message),
+      ...rest
+    );
   }
 
-  public warn(errorCode: ErrorCode, message: string, ...rest: any[]): void {
-    this.console.log(severity.warn, this.module, errorCode, message, ...rest);
+  public warn(errorCode: ErrorCode, message?: string, ...rest: any[]): void {
+    this.console.log(
+      severity.warn,
+      this.module,
+      errorCode,
+      errorMessage(errorCode, message),
+      ...rest
+    );
   }
 
-  public info(errorCode: ErrorCode, message: string, ...rest: any[]): void {
-    this.console.log(severity.info, this.module, errorCode, message, ...rest);
+  public info(errorCode: ErrorCode, message?: string, ...rest: any[]): void {
+    this.console.log(
+      severity.info,
+      this.module,
+      errorCode,
+      errorMessage(errorCode, message),
+      ...rest
+    );
   }
 
-  public trace(errorCode: ErrorCode, message: string, ...rest: any[]) {
-    this.console.log(severity.trace, this.module, errorCode, message, ...rest);
+  public trace(errorCode: ErrorCode, message?: string, ...rest: any[]) {
+    this.console.log(
+      severity.trace,
+      this.module,
+      errorCode,
+      errorMessage(errorCode, message),
+      ...rest
+    );
   }
 }
 

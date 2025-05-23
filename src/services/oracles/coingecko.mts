@@ -7,6 +7,7 @@ import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
+import { GlobalMetadataRegistry } from "../../metadata.mjs";
 
 const log = logger("coingecko");
 
@@ -26,7 +27,7 @@ export class CoinGeckoProvider extends Provider {
   constructor(
     api_key: string,
     origin: string = COINGECKO_API_BASE_ADDRESS,
-    options = {} as any
+    options = {} as object
   ) {
     const defaults = {
       retry: 40,
@@ -70,7 +71,7 @@ export class CoinGecko extends Oracle {
   static create(
     api_key: string,
     idMapping: InternalToCoinGeckoIdMapping | undefined = undefined,
-    options = {} as OptionBag & { origin?: string }
+    options = {} as OptionBag & { origin?: string } // XXX Not the canonical way to use option bags
   ) {
     return new CoinGecko(
       new CoinGeckoProvider(
@@ -141,7 +142,10 @@ export class CoinGecko extends Oracle {
       } catch {
         continue;
       }
-      result[currency] = new Price(crypto, currency, value as string);
+      result[currency] = GlobalMetadataRegistry.setMetadata(
+        new Price(crypto, currency, value as string),
+        { origin: "COINGECKO" } // XXX Why all-caps?
+      );
     }
 
     return result;

@@ -8,6 +8,7 @@ import { CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
 import { FiatConverter } from "../fiatconverter.mjs";
 import { BigNumberSource } from "../../bignumber.mjs";
+import { GlobalMetadataRegistry } from "../../metadata.mjs";
 
 const USD = FiatCurrency("USD");
 
@@ -57,7 +58,10 @@ export class CurveOracle extends Oracle {
 
       priceAsNumber = priceAsUSD.data[0].price;
     }
-    const price = crypto.price(USD, priceAsNumber);
+    const price = GlobalMetadataRegistry.setMetadata(
+      crypto.price(USD, priceAsNumber),
+      { origin: "CURVE" }
+    );
     result[USD] = price;
 
     for (const fiat of fiats) {

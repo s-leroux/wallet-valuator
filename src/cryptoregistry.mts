@@ -1,4 +1,5 @@
-import { DuplicateKeyError, Logged, ValueError } from "./error.mjs";
+import { DuplicateKeyError, ValueError } from "./error.mjs";
+import { Logged } from "./errorutils.mjs";
 import { CryptoAssetID, CryptoAsset, toCryptoAssetID } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
 const log = logger("crypto-registry");
