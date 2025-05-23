@@ -85,14 +85,12 @@ function loadEnvironmentVariables() {
 
 // Configuration model for address processing
 type Config = {
+  accounts?: [chain: string, address: string][]; // The user accounts
   addresses?: [chain: string, address: string, data: object][];
   filters?: [filter: object, key: string, value?: unknown][];
 };
 
-export async function processAddresses(
-  hexAddresses: string[],
-  configPath?: string
-): Promise<void> {
+export async function processAddresses(configPath?: string): Promise<void> {
   // Load configuration from file if provided, otherwise use empty object
   const config = (
     configPath ? JSON.parse(await readFile(configPath, "utf8")) : {}
@@ -104,11 +102,12 @@ export async function processAddresses(
   const registry = CryptoRegistry.create();
   const explorers = createExplorers(registry, envvars);
   const swarm = Swarm.create(explorers, registry, resolver);
-  const chain = asBlockchain("gnosis");
 
   // Convert hex addresses to internal address objects
   const addresses = await Promise.all(
-    hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress))
+    (config.accounts ?? []).map(([chain, address]) =>
+      swarm.address(asBlockchain(chain), address)
+    )
   );
 
   // Pre-populate the address table with the user-provided data
