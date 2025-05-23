@@ -103,8 +103,8 @@ export async function processAddresses(configPath?: string): Promise<void> {
   const explorers = createExplorers(registry, envvars);
   const swarm = Swarm.create(explorers, registry, resolver);
 
-  // Convert hex addresses to internal address objects
-  const addresses = await Promise.all(
+  // Convert hex addresses to internal account objects
+  const accounts = await Promise.all(
     (config.accounts ?? []).map(([chain, address]) =>
       swarm.address(asBlockchain(chain), address)
     )
@@ -119,13 +119,13 @@ export async function processAddresses(configPath?: string): Promise<void> {
 
   // Load all transfers from the user accounts
   const transfers = await Promise.all(
-    addresses.map((address) => address.allValidTransfers(swarm))
+    accounts.map((address) => address.allValidTransfers(swarm))
   );
 
   // Create a ledger to track all transfers and their directions
   // This helps identify incoming and outgoing transactions
   const ledger = Ledger.create(...transfers);
-  for (const address of addresses) {
+  for (const address of accounts) {
     ledger.from(address).tag("EGRESS");
     ledger.to(address).tag("INGRESS");
   }

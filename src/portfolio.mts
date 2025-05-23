@@ -16,8 +16,8 @@ interface Movement {
   explorer?: Explorer;
   timeStamp: number;
   amount: Amount;
-  from?: Address;
-  to?: Address;
+  from?: { address: string };
+  to?: { address: string };
   hash?: string;
 }
 
@@ -171,7 +171,13 @@ export class Portfolio {
         // Ignoring
         continue;
       } else if (ingress || egress) {
-        curr = new Snapshot(ingress, egress, entry.record, entry.tags, curr);
+        curr = new Snapshot(
+          ingress,
+          egress,
+          entry.transaction,
+          entry.tags,
+          curr
+        );
         snapshots.push(curr);
       } else {
         // Not our business

@@ -2,7 +2,7 @@ import { Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import {
-  Transaction,
+  OnChainTransaction,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,

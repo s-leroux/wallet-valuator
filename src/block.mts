@@ -1,4 +1,4 @@
-import type { Transaction } from "./transaction.mjs";
+import type { OnChainTransaction } from "./transaction.mjs";
 import { type DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
@@ -40,7 +40,7 @@ export class Block {
     return this.toString();
   }
 
-  internalTransactions(swarm: Swarm): Promise<Array<Transaction>> {
+  internalTransactions(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getInternalTransactionsByBlockNumber(
       swarm,
       this.blockNumber

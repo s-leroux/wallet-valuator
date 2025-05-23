@@ -1,4 +1,4 @@
-import type { Transaction } from "./transaction.mjs";
+import type { OnChainTransaction } from "./transaction.mjs";
 import { defaultDisplayOptions, type DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
@@ -90,23 +90,23 @@ export class Address {
     );
   }
 
-  normalTransactions(swarm: Swarm): Promise<Array<Transaction>> {
+  normalTransactions(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getNormalTransactionsByAddress(swarm, this.address);
   }
 
-  internalTransactions(swarm: Swarm): Promise<Array<Transaction>> {
+  internalTransactions(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getInternalTransactionsByAddress(swarm, this.address);
   }
 
-  tokenTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+  tokenTransfers(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getTokenTransfersByAddress(swarm, this.address);
   }
 
-  allTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+  allTransfers(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getAllTransactionsByAddress(swarm, this.address);
   }
 
-  allValidTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+  allValidTransfers(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getAllValidTransactionsByAddress(swarm, this.address);
   }
 }

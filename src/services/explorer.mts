@@ -1,7 +1,7 @@
 import { Swarm } from "../swarm.mjs";
 import { NotImplementedError } from "../error.mjs";
 import {
-  Transaction,
+  OnChainTransaction,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,
@@ -65,7 +65,7 @@ export class Explorer {
   async getAllValidTransactionsByAddress(
     swarm: Swarm,
     address: string
-  ): Promise<Array<Transaction>> {
+  ): Promise<Array<OnChainTransaction>> {
     const allTransfers = await this.getAllTransactionsByAddress(swarm, address);
     const selection = await Promise.all(
       allTransfers.map((tr) => tr.isValid(swarm))
@@ -82,7 +82,7 @@ export class Explorer {
   async getAllTransactionsByAddress(
     swarm: Swarm,
     address: string
-  ): Promise<Array<Transaction>> {
+  ): Promise<Array<OnChainTransaction>> {
     /*
      * Merge {normal, internal, token} transfers in one single list ordered by timestamp.
      */
@@ -93,7 +93,7 @@ export class Explorer {
       this.getInternalTransactionsByAddress(swarm, address),
       this.getTokenTransfersByAddress(swarm, address),
     ]);
-    const result: Transaction[] = [];
+    const result: OnChainTransaction[] = [];
 
     return result.concat(normal, internal, erc20);
   }

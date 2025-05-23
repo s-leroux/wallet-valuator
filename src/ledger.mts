@@ -1,7 +1,7 @@
 import { Portfolio } from "./portfolio.mjs";
-import { Transaction } from "./transaction.mjs";
+import { OnChainTransaction, Transaction } from "./transaction.mjs";
 import { Address } from "./address.mjs";
-import { DisplayOptions } from "./displayable.mjs";
+import { DisplayOptions, toDisplayString } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
 import { Ensure } from "./type.mjs";
@@ -12,7 +12,7 @@ const log = logger("ledger");
 // =========================================================================
 // Utilities
 // =========================================================================
-type Sortable = { key: any };
+type Sortable = { key: string | number };
 
 /**
  * Sort an array by its item's key.
@@ -70,12 +70,12 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
 // =========================================================================
 // Ledger and entries
 // =========================================================================
-
 type Filter = (
   registry: CryptoRegistry,
   entries: Entry[],
   value: any
 ) => Entry[];
+
 const FILTERS: Record<string, Filter> = {
   // @ts-ignore
   __proto__: null,
@@ -86,7 +86,7 @@ const FILTERS: Record<string, Filter> = {
   chain(registry: CryptoRegistry, entries: Entry[], chainName: any) {
     chainName = Ensure.isString(chainName);
     return entries.filter((entry) => {
-      return entry.record.explorer.chain.name === chainName;
+      return entry.transaction.chainName === chainName;
     });
   },
 
@@ -98,7 +98,7 @@ const FILTERS: Record<string, Filter> = {
   "crypto-asset"(registry: CryptoRegistry, entries: Entry[], cryptoId: any) {
     cryptoId = Ensure.isString(cryptoId);
     return entries.filter((entry) => {
-      return entry.record.amount.crypto.id === cryptoId;
+      return entry.transaction.amount.crypto.id === cryptoId;
     });
   },
 
@@ -110,7 +110,7 @@ const FILTERS: Record<string, Filter> = {
     resolverName = Ensure.isString(resolverName);
     return entries.filter((entry) => {
       return (
-        registry.getNamespaceData(entry.record.amount.crypto, "STANDARD")
+        registry.getNamespaceData(entry.transaction.amount.crypto, "STANDARD")
           ?.resolver === resolverName
       );
     });
@@ -124,7 +124,7 @@ const FILTERS: Record<string, Filter> = {
     }
 
     return entries.filter((entry) => {
-      return entry.record.from.address === address;
+      return entry.transaction.from.address === address;
     });
   },
 
@@ -136,7 +136,7 @@ const FILTERS: Record<string, Filter> = {
     }
 
     return entries.filter((entry) => {
-      return entry.record.to.address === address;
+      return entry.transaction.to.address === address;
     });
   },
 } as const;
@@ -149,29 +149,29 @@ const FILTERS: Record<string, Filter> = {
  * in another unrelated ledger.
  */
 export class Entry implements Sortable {
-  record: Transaction;
+  transaction: Transaction;
   tags: Map<string, any>;
 
   key: string;
 
-  constructor(record: Transaction) {
-    this.record = record;
+  constructor(transaction: OnChainTransaction) {
+    this.transaction = transaction;
     this.tags = new Map();
-    const data = record.data as any;
+    const data = transaction.data as any;
     this.key =
       data.timeStamp.padStart(12) +
-      record.explorer.chain +
+      transaction.explorer.chain +
       data.blockNumber.padStart(12) +
       (data.nonce ?? "0").padStart(10);
   }
 
   toString(): string {
-    const record = this.record;
-    return `${record.type[0]}:${this.key}:${record.from}:${record.to}:${record.amount}`;
+    const transaction = this.transaction;
+    return `${transaction.type[0]}:${this.key}:${transaction.from}:${transaction.to}:${transaction.amount}`;
   }
 
   toDisplayString(options: DisplayOptions): string {
-    return this.record.toDisplayString(options);
+    return toDisplayString(this.transaction, options);
   }
 
   tag(name: string, data: any = true) {
@@ -192,7 +192,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    *  Create a ledger from zero, one, or more iterables
    */
-  static create(...lists: Array<Iterable<Transaction>>) {
+  static create(...lists: Array<Iterable<OnChainTransaction>>) {
     const arrays: Array<Array<Entry>> = lists.map((it) =>
       Array.from(it, (tr) => new Entry(tr))
     );
@@ -204,7 +204,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    *`Create the union of thwo ledgers.
    */
-  union(other: Ledger | Array<Transaction>) {
+  union(other: Ledger | Array<OnChainTransaction>) {
     const a = this.entries;
     let b: Array<Entry>;
 
@@ -283,7 +283,7 @@ export class Ledger implements Iterable<Entry> {
 
     // Swarm should ensure the uniqueness of the address object
     const entries = this.entries.filter(
-      (entry) => entry.record.from === address
+      (entry) => entry.transaction.from === address
     );
 
     return new Ledger(entries);
@@ -296,7 +296,9 @@ export class Ledger implements Iterable<Entry> {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object
-    const entries = this.entries.filter((entry) => entry.record.to === address);
+    const entries = this.entries.filter(
+      (entry) => entry.transaction.to === address
+    );
 
     return new Ledger(entries);
   }
