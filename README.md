@@ -1,4 +1,13 @@
+A TypeScript library for cryptocurrency portfolio tracking and tax reporting, specifically designed for French tax regulations.
+This project is currently in development with a focus on the core library and backend functionality.
+Documentation and user interface improvements will follow in future updates.
+
+## Project Status
+
+🚧 **Under Active Development (05-2025)** 🚧
+
 # Stage 0
+
 Install docker and npm (any version) on the host computer.
 After that we will work in a specific container.
 
@@ -50,3 +59,12 @@ sh$ npm run shell
 node@2b9634cf5c20:~$ exec yarn lint-in-container
 ```
 
+## Important Notice
+
+This project is being actively developed to meet the 2025 French tax declaration deadline.
+The current focus is on core functionality and backend stability.
+Comprehensive documentation and user interface improvements will be added in subsequent updates.
+
+## License
+
+See [LICENSE](LICENSE) file for details.
