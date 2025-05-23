@@ -3,8 +3,9 @@ export const ERRORS = {
   __proto__: null,
 
   "C1001": "Download retry", // first info
-  "C1002": "Find price data",
-  "C1003": "Cahing database update",
+  "C1002": "Retrieved price data from CoinGecko",
+  "C1003": "Cahing database update", // XXX Typo
+  "C1004": "Retrieved price data from DefiLlama",
   "C2001": "Ignore an asset because of missing data", // first warning
   "C2002": "Fail to download",
   "C2003": "Inconsistent data",

@@ -12,8 +12,10 @@ import { Caching, DB_VERSION } from "../../../src/services/oracles/caching.mjs";
 import type { Price } from "../../../src/price.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
+import {
+  FiatConverter,
+  NullFiatConverter,
+} from "../../../src/services/fiatconverter.mjs";
 import { setLogLevel } from "../../../src/debug.mjs";
 
 describe("Database", function () {
@@ -73,7 +75,7 @@ describe("Caching", function () {
   beforeEach(function () {
     oracle = new FakeOracle();
     registry = CryptoRegistry.create();
-    fiatConverter = new FakeFiatConverter();
+    fiatConverter = new NullFiatConverter();
   });
 
   describe("Utilities", () => {

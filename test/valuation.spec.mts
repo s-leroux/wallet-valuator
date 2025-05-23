@@ -11,7 +11,6 @@ import {
 } from "./support/snapshot.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "./support/oracle.fake.mjs";
-import { FakeFiatConverter } from "./support/fiatconverter.fake.mjs";
 import {
   PortfolioValuation,
   SnapshotValuation,
@@ -21,6 +20,7 @@ import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 import { FiatCurrency } from "../src/fiatcurrency.mjs";
 import { testQuantityInterface } from "./support/quantity.helper.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
+import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
 
 describe("Value", () => {
   const { EUR, USD } = FakeFiatCurrency;
@@ -40,7 +40,7 @@ describe("Value", () => {
 });
 
 describe("SnapshotValuation", () => {
-  const fiatConverter = new FakeFiatConverter();
+  const fiatConverter = new NullFiatConverter();
 
   describe("valueFromAmountAndRate()", () => {
     const bitcoin = FakeCryptoAsset.bitcoin;
@@ -112,7 +112,7 @@ describe("SnapshotValuation", () => {
 });
 
 describe("PortfolioValuation", () => {
-  const fiatConverter = new FakeFiatConverter();
+  const fiatConverter = new NullFiatConverter();
 
   describe("create()", () => {
     const registry = CryptoRegistry.create();

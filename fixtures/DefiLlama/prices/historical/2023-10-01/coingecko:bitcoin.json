@@ -1,0 +1,10 @@
+{
+  "coins": {
+    "coingecko:bitcoin": {
+      "symbol": "BTC",
+      "price": 26966.11831093055,
+      "timestamp": 1696118411,
+      "confidence": 0.99
+    }
+  }
+}

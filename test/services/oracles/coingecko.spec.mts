@@ -5,10 +5,11 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
-import { CoinGecko } from "../../../src/services/oracles/coingecko.mjs";
+import {
+  CoinGecko,
+  getCoinGeckoId,
+} from "../../../src/services/oracles/coingecko.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import { Price } from "../../../src/price.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
@@ -102,9 +103,8 @@ describe("CoinGecko", function () {
       ];
       for (const [internalId, expected] of testcases) {
         register(`case ${internalId} ⏵ ${expected}`, () => {
-          const coingecko = CoinGecko.create(API_KEY, idMapping);
           const crypto = registry.createCryptoAsset("usdc", "USDC", "USDC", 6);
-          const coinGeckoId = coingecko.getCoinGeckoId(registry, crypto);
+          const coinGeckoId = getCoinGeckoId(registry, crypto, idMapping);
           assert.equal(coinGeckoId, expected);
         });
       }

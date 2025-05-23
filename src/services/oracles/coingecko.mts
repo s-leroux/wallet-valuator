@@ -93,7 +93,7 @@ export class CoinGecko extends Oracle {
   ): Promise<Partial<Record<FiatCurrency, Price>>> {
     let prices;
     let historical_data;
-    const coinGeckoId = this.getCoinGeckoId(registry, crypto);
+    const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
     if (!coinGeckoId) {
       return Object.create(null);
     }
@@ -150,30 +150,34 @@ export class CoinGecko extends Oracle {
 
     return result;
   }
+}
 
-  getCoinGeckoId(
-    registry: CryptoRegistry,
-    crypto: CryptoAsset
-  ): string | undefined {
-    // 1. Check the standard metadata
-    const metadata = registry.getNamespaces(crypto);
-    const id = metadata?.STANDARD?.coingeckoId;
-    if (id) {
-      return id;
-    }
-
-    // 2. Use the internal table
-    return this.internalToCoinGeckoId(crypto.id);
+export function getCoinGeckoId(
+  registry: CryptoRegistry,
+  crypto: CryptoAsset,
+  internalId?: InternalToCoinGeckoIdMapping
+): string | undefined {
+  // 1. Check the standard metadata
+  const metadata = registry.getNamespaces(crypto);
+  const id = metadata?.STANDARD?.coingeckoId;
+  if (id) {
+    return id;
   }
 
-  internalToCoinGeckoId(internalId: string): string | undefined {
-    const coinGeckoId = this.idMapping?.[internalId];
+  // 2. Use the internal table
+  return internalToCoinGeckoId(crypto.id, internalId);
+}
 
-    if (coinGeckoId !== undefined) {
-      return coinGeckoId;
-    }
+function internalToCoinGeckoId(
+  internalId: string,
+  idMapping?: InternalToCoinGeckoIdMapping
+): string | undefined {
+  const coinGeckoId = idMapping?.[internalId];
 
-    console.log("CoinGecko id not known for %s.", internalId);
-    return undefined;
+  if (coinGeckoId !== undefined) {
+    return coinGeckoId;
   }
+
+  console.log("CoinGecko id not known for %s.", internalId);
+  return undefined;
 }

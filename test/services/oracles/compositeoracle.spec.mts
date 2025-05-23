@@ -4,22 +4,18 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
-import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
-import { Caching } from "../../../src/services/oracles/caching.mjs";
-import type { Price } from "../../../src/price.mjs";
-import type { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { CompositeOracle } from "../../../src/services/oracles/compositeoracle.mjs";
-import { FakeFiatConverter } from "../../support/fiatconverter.fake.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
+import {
+  FiatConverter,
+  NullFiatConverter,
+} from "../../../src/services/fiatconverter.mjs";
 
 describe("CompositeOracle", function () {
-  const date = new Date("2024-12-30");
   const bitcoin = FakeCryptoAsset.bitcoin;
   const [eur, usd] = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
   let oracle: Oracle;
@@ -32,9 +28,9 @@ describe("CompositeOracle", function () {
     oracle = new CompositeOracle([
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-eur-max.csv", {[eur]: "price"}, opt),
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-usd-max.csv", {[usd]: "price"}, opt),
-    ])
+    ]);
     registry = CryptoRegistry.create();
-    fiatConverter = new FakeFiatConverter();
+    fiatConverter = new NullFiatConverter();
   });
 
   describe("getPrice()", () => {

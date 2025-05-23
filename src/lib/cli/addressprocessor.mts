@@ -9,7 +9,10 @@ import { asBlockchain } from "../../blockchain.mjs";
 import { DisplayOptions, format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
-import { CoinGecko } from "../../services/oracles/coingecko.mjs";
+import {
+  CoinGecko,
+  InternalToCoinGeckoIdMapping,
+} from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { CurveResolver } from "../../services/curve/curveresolver.mjs";
@@ -18,6 +21,7 @@ import { ImplicitFiatConverter } from "../../services/fiatconverters/implicitfia
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mjs";
 import { PortfolioValuationReporter } from "../../services/reporters/valuationreporter.mjs";
+import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -49,14 +53,18 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
 }
 
 function createOracle(envvars: EnvVars) {
+  // @ts-expect-error TypeScript does not support null-prototype object literals
+  const wellKnownCoingeckoId = {
+    __proto__: null,
+
+    bitcoin: "bitcoin",
+  } as InternalToCoinGeckoIdMapping;
+
   return CompositeOracle.create([
     // My oracles
     CurveOracle.create(),
-    CoinGecko.create(envvars["COINGECKO_API_KEY"], {
-      // @ts-expect-error TypeScript does not support null-prototype object literals
-      __proto__: null,
-      bitcoin: "bitcoin",
-    }),
+    CoinGecko.create(envvars["COINGECKO_API_KEY"], wellKnownCoingeckoId),
+    DefiLlamaOracle.create(undefined, wellKnownCoingeckoId),
   ]).cache(envvars["CACHE_PATH"]);
 }
 

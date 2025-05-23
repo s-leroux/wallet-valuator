@@ -6,6 +6,7 @@ import { Oracle } from "../oracle.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import { GlobalMetadataRegistry } from "../../metadata.mjs";
 
 export class ImplicitFiatConverter implements FiatConverter {
   readonly oracle: Oracle;
@@ -45,7 +46,7 @@ export class ImplicitFiatConverter implements FiatConverter {
       this.crypto,
       date,
       [from, to],
-      new NullFiatConverter() // We might use `this` here but isn't there some cases leading to infinite recursion?
+      new NullFiatConverter() // XXX We might use `this` here but isn't there some cases leading to infinite recursion?
     ); // ISSUE #64 What to do if this fails?
 
     const toPrice = ref[to];
@@ -59,6 +60,8 @@ export class ImplicitFiatConverter implements FiatConverter {
 
     const exchangeRage = toPrice.rate.div(fromPrice.rate);
 
-    return price.to(to, exchangeRage);
+    return GlobalMetadataRegistry.setMetadata(price.to(to, exchangeRage), {
+      origin: "CONVERTER",
+    });
   }
 }
