@@ -22,7 +22,7 @@ export class InternalError extends Error {
 }
 
 export class InconsistentUnitsError extends Error {
-  constructor(unitA: any, unitB: any) {
+  constructor(unitA: unknown, unitB: unknown) {
     super(`Imcompatible units ${unitA} and ${unitB}`);
     this.name = "InconsistentUnitsError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
@@ -44,7 +44,7 @@ export class ValueError extends Error {
  * A value was already present
  */
 export class DuplicateKeyError extends Error {
-  constructor(key: any = "") {
+  constructor(key: unknown = "") {
     super(String(key));
     this.name = "DuplicateKeyError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain

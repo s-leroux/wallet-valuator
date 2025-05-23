@@ -10,6 +10,7 @@ const log = logger("database");
 import Database from "better-sqlite3";
 import { FiatConverter } from "../fiatconverter.mjs";
 import { AssertionError, ProtocolError } from "../../error.mjs";
+import { GlobalMetadataRegistry } from "../../metadata.mjs";
 
 const DB_INIT_SEQUENCE = `
 PRAGMA foreign_keys = ON;
@@ -174,16 +175,20 @@ export class Caching {
     }
   }
 
-  insert(date: string, prices: Partial<Record<string, Price>>): void {
+  insertPrice(date: string, prices: Record<string, Price>): void {
     const stmt = this.db.prepare(
-      "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price) VALUES (?,?,?,?)"
+      "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin) VALUES (?,?,?,?,?)"
     );
     for (const price of Object.values(prices)) {
+      const metadata = GlobalMetadataRegistry.getMetadata(price);
+      const origin =
+        (metadata?.origin && this.dictionary(metadata.origin)) || undefined;
       stmt.run(
-        price!.crypto.id,
+        price.crypto.id,
         date,
-        price!.fiatCurrency,
-        price!.rate.toFixed()
+        price.fiatCurrency,
+        price.rate.toFixed(),
+        origin
       );
     }
   }
@@ -222,7 +227,7 @@ export class Caching {
     );
     log.trace("C9999", `caching price for ${crypto} at ${date.toISOString()}`);
     this.backend_calls += 1;
-    this.insert(dateYyyyMmDd, new_values);
+    this.insertPrice(dateYyyyMmDd, new_values as Record<string, Price>);
 
     return Object.assign(result, new_values);
   }
