@@ -7,7 +7,8 @@ import {
   itemIterator,
   COOFile,
   CSVFile,
-} from "../src/coofile.mjs";
+} from "../src/csvfile.mjs";
+import { ValueError } from "../src/error.mjs";
 
 describe("COOFile utilities", function () {
   describe("lineIterator", function () {
@@ -89,26 +90,82 @@ describe("COOFile", function () {
   });
 });
 
-const CSV_TEST_FILE = "fixtures/sol-usd-max.csv";
 describe("CSVFile", function () {
-  it("Can be created from file", async () => {
-    const csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, parseInt);
-    assert.exists(csvFile);
-  });
+  describe("Basic functions", function () {
+    const CSV_TEST_FILE = "fixtures/sol-usd-max.csv";
 
-  describe("get()", async function () {
-    const register = prepare(this);
-    const csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, String);
-    // prettier-ignore
-    const testcases = [
+    it("Can be created from file", async () => {
+      const csvFile = await CSVFile.createFromPath(
+        CSV_TEST_FILE,
+        parseInt,
+        String
+      );
+      assert.exists(csvFile);
+    });
+
+    describe("get()", async function () {
+      const register = prepare(this);
+      const csvFile = await CSVFile.createFromPath(
+        CSV_TEST_FILE,
+        String,
+        String
+      );
+      // prettier-ignore
+      const testcases = [
       ["2020-04-15 00:00:00 UTC", "price", "0.666673390515131"],
     ] as const;
 
-    for (const [row, col, expected] of testcases) {
-      register(`case ${row} ${col} = ${expected}`, () => {
-        const actual = csvFile.get(row, col);
-        assert.deepEqual(actual && actual[1], expected);
-      });
-    }
+      for (const [row, col, expected] of testcases) {
+        register(`case ${row} ${col} = ${expected}`, () => {
+          const actual = csvFile.get(row, col);
+          assert.deepEqual(actual && actual[1], expected);
+        });
+      }
+    });
+
+    describe("Reordering", async function () {
+      const register = prepare(this);
+      const csvFile = await CSVFile.createFromPath(
+        "./fixtures/Binance/binance-report.csv",
+        String,
+        String,
+        {
+          reorder(input, heading) {
+            // Swap columns 0 and 1
+            // XXX As a matter of fact, you can change in-place input, no need to return it :/
+            const temp = input[0];
+            input[0] = input[1];
+            input[1] = temp;
+
+            return input;
+          },
+        }
+      );
+
+      // prettier-ignore
+      const testcases = [
+        ["2023-01-14 12:36", "Sent Amount", "69.924364"],
+        ["2023-01-14 15:33", "ID", "ce7d4d..5c"],
+        ["2023-01-14 16:19", "Date", "2023-01-14 16:19", ValueError], // Should fail
+      ] as const;
+
+      for (const [row, col, expected, error] of testcases) {
+        register(
+          `case ${row} ${col} = ${expected}${error ? " 💣" : ""} `,
+          () => {
+            function doIt() {
+              const actual = csvFile.get(row, col);
+              assert.deepEqual(actual && actual[1], expected);
+            }
+
+            if (error) {
+              assert.throws(doIt, error);
+            } else {
+              doIt();
+            }
+          }
+        );
+      }
+    });
   });
 });

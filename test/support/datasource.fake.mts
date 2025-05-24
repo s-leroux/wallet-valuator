@@ -1,4 +1,4 @@
-import type { DataSource } from "../../src/coofile.mjs";
+import type { DataSource } from "../../src/csvfile.mjs";
 import { bsearch } from "../../src/bsearch.mjs";
 
 export class FakeDataSource<T> implements DataSource<T, number> {

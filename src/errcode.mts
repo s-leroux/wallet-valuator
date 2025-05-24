@@ -6,6 +6,7 @@ export const ERRORS = {
   "C1002": "Retrieved price data from CoinGecko",
   "C1003": "Cahing database update", // XXX Typo
   "C1004": "Retrieved price data from DefiLlama",
+  "C1005": "Switching from binary to linear search",
   "C2001": "Ignore an asset because of missing data", // first warning
   "C2002": "Fail to download",
   "C2003": "Inconsistent data",

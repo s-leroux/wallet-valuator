@@ -65,10 +65,10 @@ export class Table<K extends unknown, T extends readonly [K, ...unknown[]]>
   }
 }
 
-export function bsearch<
-  K extends unknown,
-  R extends readonly [K, ...unknown[]]
->(haystack: R[], needle: K): R | undefined {
+export function bsearch<K, R extends readonly [K, ...unknown[]]>(
+  haystack: R[],
+  needle: K
+): R | undefined {
   let bestMatch: R | undefined = undefined;
   let start = 0;
   let end = haystack.length;
@@ -88,4 +88,20 @@ export function bsearch<
   }
 
   return bestMatch;
+}
+
+/**
+ * Linear search in a table keyed by column 0
+ */
+export function linsearch<K, R extends readonly [K, ...unknown[]]>(
+  haystack: R[],
+  needle: K
+): R | undefined {
+  for (const row of haystack) {
+    if (row[0] === needle) {
+      return row;
+    }
+  }
+
+  return undefined;
 }
