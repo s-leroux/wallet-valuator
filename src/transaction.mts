@@ -22,8 +22,8 @@ export interface Transaction {
   readonly chainName: string;
 
   readonly timeStamp: number;
-  readonly from: { address: string };
-  readonly to: { address: string };
+  readonly from: { chain: string; address: string };
+  readonly to: { chain: string; address: string };
 
   readonly amount: Amount;
 }

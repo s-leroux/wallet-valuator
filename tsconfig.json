@@ -84,6 +84,7 @@
     "test/support/register.helper.mts",
 
     "src/address.mts",
+    "src/account.mts",
     "src/bignumber.mts",
     "src/block.mts",
     "src/blockchain.mts",

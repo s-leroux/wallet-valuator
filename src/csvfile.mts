@@ -44,8 +44,8 @@ export function itemIterator(
   return _itemIterator();
 }
 
-export interface DataSource<R, V> {
-  get(row: R, col: string): [R, V] | undefined;
+export interface DataSource<K, V> {
+  get(row: K, col: string): [K, V] | undefined;
 }
 
 /**

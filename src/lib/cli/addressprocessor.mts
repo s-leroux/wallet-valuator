@@ -22,6 +22,7 @@ import { CryptoAsset } from "../../cryptoasset.mjs";
 import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mjs";
 import { PortfolioValuationReporter } from "../../services/reporters/valuationreporter.mjs";
 import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
+import { MakeAccount } from "../../account.mjs";
 
 type ErrCode = "T0001";
 
@@ -106,7 +107,7 @@ export async function processAddresses(configPath?: string): Promise<void> {
   // Convert hex addresses to internal account objects
   const accounts = await Promise.all(
     (config.accounts ?? []).map(([chain, address]) =>
-      swarm.address(asBlockchain(chain), address)
+      MakeAccount(swarm, chain, address)
     )
   );
 
@@ -119,7 +120,7 @@ export async function processAddresses(configPath?: string): Promise<void> {
 
   // Load all transfers from the user accounts
   const transfers = await Promise.all(
-    accounts.map((address) => address.allValidTransfers(swarm))
+    accounts.map((account) => account.loadTransactions(swarm))
   );
 
   // Create a ledger to track all transfers and their directions
