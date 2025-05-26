@@ -13,6 +13,7 @@ export const ERRORS = {
   "C1008": "Trace CoinGecko.getPrice retrying at another date",
   "C1009": "Trace CoinGecko http errors",
   "C1010": "Cache update (CachingOracle)",
+  "C1011": "Not found (OHLCOracle)",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",

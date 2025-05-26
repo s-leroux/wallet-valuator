@@ -7,12 +7,11 @@ import { FakeDataSource } from "../../support/datasource.fake.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
-import { Price } from "../../../src/price.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
-describe("DataSource", function () {
+describe("DataSourceOracle", function () {
   const bitcoin = FakeCryptoAsset.bitcoin;
   const eur = FakeFiatCurrency.EUR;
   const usd = FakeFiatCurrency.USD;

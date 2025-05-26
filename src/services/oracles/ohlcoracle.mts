@@ -8,6 +8,9 @@ import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
 import type { DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
+import { logger } from "../../debug.mjs";
+
+const log = logger("ohlcoracle");
 
 interface OHLCOracleOptions {
   dateFormat?: string;
@@ -41,13 +44,26 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     const result = Object.create(null) as Record<FiatCurrency, Price>;
 
     // We do not handle that crypto
-    if (crypto !== this.crypto) {
+    if (crypto !== this.crypto || !fiats.includes(this.fiat)) {
       return result;
     }
 
     const formattedDate = formatDate(this.dateFormat, date);
-    // gather the fiat data we have
-    for (const fiat of fiats) {
+
+    // Estimate the fair price from OHLC data using the common fair value estimate
+    // Typical Price = (High + Low + Close) / 3
+    // XXX These multiple calls are highly inefficient. Change Datasource.get to accept several column specifiers.
+    const high = this.data.get(formattedDate, "High");
+    const low = this.data.get(formattedDate, "Low");
+    const close = this.data.get(formattedDate, "Close");
+
+    if (high && low && close) {
+      result[this.fiat] = crypto.price(
+        this.fiat,
+        BigNumber.sum(high[1], low[1], close[1]).div(3)
+      );
+    } else {
+      log.trace("C1011", `Date not found: ${formattedDate}`);
     }
 
     return result;

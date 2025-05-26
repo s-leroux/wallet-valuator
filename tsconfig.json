@@ -61,6 +61,7 @@
     "test/services/oracles/datasourceoracle.spec.mts",
     "test/services/oracles/fakeoracle.spec.mts",
     "test/services/oracles/fiatconverteroracle.spec.mts",
+    "test/services/oracles/ohlcoracle.spec.mts",
     "test/services/realtoken/realtokenapi.spec.mts",
     "test/services/realtoken/realtokenoracle.spec.mts",
     "test/services/realtoken/realtokenresolver.spec.mts",
