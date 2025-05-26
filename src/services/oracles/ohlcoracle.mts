@@ -9,29 +9,27 @@ import type { DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
 
-interface DataSourceOracleOptions {
+interface OHLCOracleOptions {
   dateFormat?: string;
 }
 
-export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
-  readonly crypto: CryptoAsset;
-  readonly data: DataSource<string, T>;
-  readonly columMapping: Record<FiatCurrency, string>;
-
+/**
+ * A class to read OHLC data source.
+ * First column is assumed to be the date
+ * Columns are assumed to be named "open", "high, "low", and "close"
+ */
+export class OHLCOracle<T extends BigNumberSource> extends Oracle {
   // option
   readonly dateFormat: string;
 
   constructor(
-    crypto: CryptoAsset,
-    data: DataSource<string, T>,
-    columMapping: Record<FiatCurrency, string>,
-    { dateFormat = "YYYY-MM-DD" } = {}
+    readonly crypto: CryptoAsset,
+    readonly fiat: FiatCurrency,
+    readonly data: DataSource<string, T>,
+    options: OHLCOracleOptions = {}
   ) {
     super();
-    this.crypto = crypto;
-    this.data = data;
-    this.columMapping = columMapping;
-    this.dateFormat = dateFormat;
+    this.dateFormat = options.dateFormat ?? "YYYY-MM-DD";
   }
 
   async getPrice(
@@ -50,14 +48,6 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
     const formattedDate = formatDate(this.dateFormat, date);
     // gather the fiat data we have
     for (const fiat of fiats) {
-      if (Object.hasOwn(this.columMapping, fiat)) {
-        const columnName: string = this.columMapping[fiat];
-        const value = this.data.get(formattedDate, columnName)?.at(1);
-
-        if (value !== undefined) {
-          result[fiat] = crypto.price(fiat, BigNumber.from(value));
-        }
-      }
     }
 
     return result;
@@ -65,9 +55,9 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
 
   static async createFromPath(
     crypto: CryptoAsset,
+    fiat: FiatCurrency,
     path: string,
-    columMapping: Record<FiatCurrency, string>,
-    options: DataSourceOracleOptions = {}
+    options: OHLCOracleOptions = {}
   ) {
     const dataSource = await CSVFile.createFromPath(
       path,
@@ -75,6 +65,6 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
       BigNumber.from
     );
 
-    return new DataSourceOracle(crypto, dataSource, columMapping, options);
+    return new OHLCOracle(crypto, fiat, dataSource, options);
   }
 }

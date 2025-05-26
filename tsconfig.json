@@ -137,6 +137,7 @@
     "src/services/oracles/compositeoracle.mts",
     "src/services/oracles/datasourceoracle.mts",
     "src/services/oracles/fiatconverteroracle.mts",
+    "src/services/oracles/ohlcoracle.mts",
     "src/services/realtoken/realtokenapi.mts",
     "src/services/realtoken/realtokenoracle.mts",
     "src/services/realtoken/realtokenresolver.mts",
