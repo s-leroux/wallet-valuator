@@ -2,15 +2,18 @@ import { DuplicateKeyError, ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { CryptoAssetID, CryptoAsset, toCryptoAssetID } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
+import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
 const log = logger("crypto-registry");
 
-type WellKnownCryptoAssets = {
+type RegisteredCryptoAssets = {
   [key: string]: [name: string, symbol: string, decimal: number] | undefined;
 };
 
-const wellKnownCryptoAssets: WellKnownCryptoAssets = {
-  bitcoin: ["Bitcoin", "BTC", 18],
-} as const;
+const registeredCryptoAssets: RegisteredCryptoAssets =
+  WellKnownCryptoAssets.reduce((acc, [id, name, symbol, decimal]) => {
+    acc[id] = [name, symbol, decimal];
+    return acc;
+  }, {} as RegisteredCryptoAssets);
 
 type CryptoAssetFiscalCategory = undefined | "SECURITY" | "UTILITY TOKEN";
 
@@ -46,6 +49,12 @@ export class CryptoRegistry {
     return new CryptoRegistry();
   }
 
+  /**
+   * Return a cached crypto-asset by its internal ID.
+   *
+   * If you want to find-or-create a crypto-asset by its internal ID you probably want to use
+   * {@link createCryptoAsset} instead.
+   */
   getCryptoAsset(id: string) {
     return this.cryptoAssets.get(toCryptoAssetID(id));
   }
@@ -78,7 +87,7 @@ export class CryptoRegistry {
   ) {
     if (name === undefined || symbol === undefined || decimal === undefined) {
       // One argument form
-      const wellKnownAsset = wellKnownCryptoAssets[id];
+      const wellKnownAsset = registeredCryptoAssets[id];
       if (!wellKnownAsset) {
         throw Logged(
           "C3006",

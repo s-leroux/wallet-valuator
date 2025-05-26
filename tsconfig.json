@@ -145,6 +145,7 @@
     "src/transaction.mts",
     "src/type.mts",
     "src/valuation.mts",
+    "src/wellknowncryptoassets.mts",
 
     "examples/balance.mts",
     "examples/find-address.mts",

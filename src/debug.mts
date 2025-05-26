@@ -150,7 +150,8 @@ const severity = {
   error: ["Error", 1, "red"],
   warn: ["Warn", 2, "yellow"],
   info: ["Info", 4, "green"],
-  trace: ["Trace", 6, "green"],
+  trace: ["Trace", 5, "green"],
+  debug: ["Debug", 6, "yellow"], // XXX Choose a proper color for debug informations
 } as const;
 
 type SeverityLevel = keyof typeof severity;
@@ -252,6 +253,21 @@ class DebugFacade {
       this.module,
       errorCode,
       errorMessage(errorCode, message),
+      ...rest
+    );
+  }
+
+  /**
+   * Debug messages are temporary and often modified during development, so they don't have associated error codes.
+   * When debug messages trace errors or exceptional conditions that should remain in the code,
+   * they *must* be preceded by a message of another log level (trace to error) with proper error code attribution.
+   */
+  public debug(...rest: any[]) {
+    this.console.log(
+      severity.debug,
+      this.module,
+      "C9999",
+      "DEBUGGING INFORMATION\n",
       ...rest
     );
   }

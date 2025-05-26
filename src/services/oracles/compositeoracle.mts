@@ -5,6 +5,8 @@ import type { Price } from "../../price.mjs";
 
 import { Oracle } from "../oracle.mjs";
 import { FiatConverter } from "../fiatconverter.mjs";
+import { logger } from "../../debug.mjs";
+const log = logger("composite-oracle");
 
 //========================================================================
 //  Composite oracle
@@ -39,6 +41,7 @@ export class CompositeOracle extends Oracle {
     fiat: FiatCurrency[],
     fiatConverter: FiatConverter
   ): Promise<Partial<Record<FiatCurrency, Price>>> {
+    log.trace("C1006", `Get price for ${crypto}/${fiat} at ${date}`);
     const result = Object.create(null) as Record<FiatCurrency, Price>;
     let missing = fiat;
 

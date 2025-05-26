@@ -112,29 +112,20 @@ export class CoinGecko extends Oracle {
         // Try one day earlier
         pricing_date.setDate(pricing_date.getDate() - 1);
         log.trace(
-          "C9999",
-          "No price found. Retrying one day earlier",
+          "C1008",
+          `No price found for ${crypto}. Retrying one day earlier`,
           pricing_date,
           crypto
         );
       }
       prices = historical_data.market_data.current_price;
     } catch (err) {
-      log.trace(
-        "C9999",
-        "getPrice ERR",
-        date,
-        currencies,
-        crypto,
-        coinGeckoId,
-        historical_data,
-        err
-      );
+      log.trace("C1009", `Error while getting price for ${crypto}: ${err}`);
+      log.debug(date, currencies, crypto, coinGeckoId, historical_data, err);
       prices = Object.create(null);
     }
 
     const result: Record<FiatCurrency, Price> = Object.create(null);
-    log.info("C1002", `Found price for ${crypto} at ${date.toISOString()}`);
     for (const [key, value] of Object.entries(prices)) {
       let currency;
       try {
@@ -142,6 +133,10 @@ export class CoinGecko extends Oracle {
       } catch {
         continue;
       }
+      log.info(
+        "C1002",
+        `Found price for ${crypto}/${currency} at ${date.toISOString()}`
+      );
       result[currency] = GlobalMetadataRegistry.setMetadata(
         new Price(crypto, currency, value as string),
         { origin: "COINGECKO" } // XXX Why all-caps?

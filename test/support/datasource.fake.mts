@@ -36,4 +36,8 @@ export class FakeDataSource<T> implements DataSource<T, number> {
         return undefined;
     }
   }
+
+  [Symbol.iterator](): Iterator<[T, ...number[]]> {
+    return this.prices[Symbol.iterator]();
+  }
 }

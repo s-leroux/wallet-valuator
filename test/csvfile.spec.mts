@@ -2,12 +2,7 @@ import { assert } from "chai";
 
 import { prepare } from "./support/register.helper.mjs";
 
-import {
-  lineIterator,
-  itemIterator,
-  COOFile,
-  CSVFile,
-} from "../src/csvfile.mjs";
+import { lineIterator, itemIterator, CSVFile } from "../src/csvfile.mjs";
 import { ValueError } from "../src/error.mjs";
 
 describe("COOFile utilities", function () {
@@ -55,41 +50,6 @@ describe("COOFile utilities", function () {
   });
 });
 
-const COO_DATA = `
-2023-13-25,TK_1,11
-2023-13-26,TK_2,22
-2023-13-26,TK_1,33
-`;
-describe("COOFile", function () {
-  it("Can be created from text data", async () => {
-    const cooFile = COOFile.createFromText(COO_DATA, parseInt);
-    assert.exists(cooFile);
-  });
-
-  describe("get()", function () {
-    const register = prepare(this);
-    const cooFile = COOFile.createFromText(COO_DATA, parseInt);
-    // prettier-ignore
-    const testcases = [
-      ["2023-13-24", "TK_1", undefined],
-      ["2023-13-24", "TK_2", undefined],
-      ["2023-13-25", "TK_1", 11],
-      ["2023-13-25", "TK_2", undefined],
-      ["2023-13-26", "TK_1", 33],
-      ["2023-13-26", "TK_2", 22],
-      ["2023-13-27", "TK_1", 33],
-      ["2023-13-27", "TK_2", 22],
-    ] as const;
-
-    for (const [row, col, expected] of testcases) {
-      register(`case ${row} ${col}`, () => {
-        const actual = cooFile.get(row, col);
-        assert.deepEqual(actual && actual[1], expected);
-      });
-    }
-  });
-});
-
 describe("CSVFile", function () {
   describe("Basic functions", function () {
     const CSV_TEST_FILE = "fixtures/sol-usd-max.csv";
@@ -97,7 +57,7 @@ describe("CSVFile", function () {
     it("Can be created from file", async () => {
       const csvFile = await CSVFile.createFromPath(
         CSV_TEST_FILE,
-        parseInt,
+        String,
         String
       );
       assert.exists(csvFile);
@@ -121,6 +81,24 @@ describe("CSVFile", function () {
           assert.deepEqual(actual && actual[1], expected);
         });
       }
+    });
+
+    it("should be iterable", async function () {
+      const csvFile = await CSVFile.createFromPath(
+        CSV_TEST_FILE,
+        String,
+        String
+      );
+
+      let lineCount = 0;
+      for (const [date, ...rest] of csvFile) {
+        lineCount += 1;
+        assert.isTrue(date.endsWith(" UTC")); // Check the first item is really a date
+        for (const item of rest) {
+          assert.equal(String(Number(item)), item);
+        }
+      }
+      assert.equal(lineCount, 1743);
     });
 
     describe("Reordering", async function () {
