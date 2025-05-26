@@ -50,7 +50,7 @@ export interface DataSource<K, V> {
   [Symbol.iterator](): Iterator<[K, ...V[]]>; // implements IterableIterator<[K, ...V[]]>
 }
 
-class CSVFileOptionBag {
+export class CSVFileOptionBag {
   reorder?: (input: string[], heading: boolean) => string[]; // FWIW, the reorder helper may resize the row or synthetise new data
   separator?: string;
 }
