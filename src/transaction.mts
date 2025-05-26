@@ -12,6 +12,11 @@ type OnChainTransactionType =
   | "INTERNAL" // an internal transaction
   | "ERC20"; // an ERC-20 token transfer
 
+export type OffChainTransactionType = "BUY" | "RECEIVE" | "SELL" | "TRADE";
+
+type TransactionDestination = { chain: string; address: string };
+type TransactionSource = TransactionDestination;
+
 const defaultFormat = tabular(" | ", "", "10", "", "", "");
 
 /**
@@ -21,11 +26,21 @@ export interface Transaction {
   readonly type: string; // RTTI?
   readonly chainName: string;
 
-  readonly timeStamp: number;
-  readonly from: { chain: string; address: string };
-  readonly to: { chain: string; address: string };
-
+  readonly timeStamp: number; // Unix time (seconds since January 1, 1970, 00:00:00 UTC).
   readonly amount: Amount;
+  readonly from: TransactionSource;
+  readonly to: TransactionDestination;
+}
+
+export class CEXTransaction implements Transaction {
+  constructor(
+    readonly chainName: string,
+    readonly type: OffChainTransactionType,
+    readonly timeStamp: number,
+    readonly amount: Amount,
+    readonly from: TransactionSource,
+    readonly to: TransactionDestination
+  ) {}
 }
 
 export abstract class OnChainTransaction implements Transaction {

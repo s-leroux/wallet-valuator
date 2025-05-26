@@ -21,7 +21,7 @@ import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
 import { Quantity } from "./quantity.mjs";
-const log = logger("provider");
+const log = logger("valuation");
 
 //======================================================================
 //  Value
@@ -46,6 +46,18 @@ export class Value implements Quantity<FiatCurrency, Value> {
     readonly fiatCurrency: FiatCurrency,
     readonly value: BigNumber = BigNumber.ZERO
   ) {}
+
+  /**
+   * Creates a Value instance from a fiat currency identifier and numeric value.
+   * Handles both string currency codes and FiatCurrency objects.
+   *
+   * @param fiat - The fiat currency identifier (string code or FiatCurrency object)
+   * @param value - The numeric value to create the Value instance with
+   * @returns A new Value instance
+   */
+  static from(fiat: string | FiatCurrency, value: BigNumberSource) {
+    return new Value(FiatCurrency(fiat), BigNumber.from(value));
+  }
 
   plus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
@@ -252,7 +264,7 @@ export class SnapshotValuation {
       if (price === undefined) {
         // prettier-ignore
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
-        log.warn("C3001", message, registry.getNamespaces(crypto));
+        log.warn("C3001", message, registry.getNamespaces(crypto), prices);
         throw new MissingPriceError(crypto, fiatCurrency, date);
       }
 

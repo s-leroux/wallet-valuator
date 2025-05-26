@@ -46,78 +46,8 @@ export function itemIterator(
 
 export interface DataSource<K, V> {
   get(row: K, col: string): [K, V] | undefined;
-}
 
-/**
- * Read and parse COO file.
- *
- * This file format is not standard, but it resembles a coordinate list (COO)
- * representation commonly used in sparse matrix libraries.
- *
- * In this format data point are represented as (row, column, value) triples,
- * one per line.
- */
-export class COOFile<T> implements DataSource<string, T> {
-  constructor(private columns: Map<string, Column<T>>) {}
-
-  get(row: string, col: string): Row<T> | undefined {
-    const column = this.columns.get(col);
-    if (!column) {
-      return undefined;
-    }
-
-    return bsearch(column, row);
-  }
-
-  static createFromPath<T>(
-    path: string,
-    fn: (arg0: string) => T
-  ): Promise<COOFile<T>> {
-    return readFile(path, { encoding: "utf8" }).then((text) =>
-      COOFile.createFromText(text, fn)
-    );
-  }
-
-  static createFromText<T>(text: string, fn: (arg0: string) => T): COOFile<T> {
-    const columns = new Map<string, Column<T>>();
-    const separator = ",";
-
-    let empty = true;
-    for (const line of lineIterator(text)) {
-      empty = false;
-      let [date, ...rest] = Array.from(itemIterator(line, separator));
-
-      if ((rest.length & 1) === 1) {
-        throw new ValueError(
-          "Invalid record format. Should be (DATE, [KEY, VALUE]...)"
-        );
-      }
-
-      while (rest.length) {
-        const [key, value, ...tail] = rest;
-        let column = columns.get(key);
-        if (!column) {
-          column = [];
-          columns.set(key, column);
-        } else {
-          // check consistency
-          const prev = column.at(-1)![0];
-          if (date < prev) {
-            throw new ValueError("Data must be stored in ascending order");
-          }
-        }
-
-        column.push([date, fn(value)]);
-
-        rest = tail;
-      }
-    }
-
-    if (empty) {
-      throw new ValueError("Data cannot be empty");
-    }
-    return new COOFile(columns);
-  }
+  [Symbol.iterator](): Iterator<[K, ...V[]]>; // implements IterableIterator<[K, ...V[]]>
 }
 
 class CSVFileOptionBag {
@@ -153,6 +83,10 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     }
 
     return [result[0], result[idx] as T];
+  }
+
+  [Symbol.iterator](): Iterator<[K, ...T[]]> {
+    return this.rows[Symbol.iterator]();
   }
 
   static createFromPath<K, T>(

@@ -23,6 +23,7 @@ import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mj
 import { PortfolioValuationReporter } from "../../services/reporters/valuationreporter.mjs";
 import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
 import { MakeAccount } from "../../account.mjs";
+import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
 
 type ErrCode = "T0001";
 
@@ -54,12 +55,13 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
 }
 
 function createOracle(envvars: EnvVars) {
-  // @ts-expect-error TypeScript does not support null-prototype object literals
-  const wellKnownCoingeckoId = {
-    __proto__: null,
-
-    bitcoin: "bitcoin",
-  } as InternalToCoinGeckoIdMapping;
+  const wellKnownCoingeckoId = WellKnownCryptoAssets.reduce(
+    (acc, [key, name, symbol, decimal, metadata]) => {
+      acc[key] = metadata.coingeckoId;
+      return acc;
+    },
+    Object.create(null) as InternalToCoinGeckoIdMapping
+  );
 
   return CompositeOracle.create([
     // My oracles
@@ -86,7 +88,7 @@ function loadEnvironmentVariables() {
 
 // Configuration model for address processing
 type Config = {
-  accounts?: [chain: string, address: string][]; // The user accounts
+  accounts?: ([chain: string, address: string] | [false, unknown[]])[]; // The user accounts. Prefix by `false` to disable.
   addresses?: [chain: string, address: string, data: object][];
   filters?: [filter: object, key: string, value?: unknown][];
 };
@@ -107,7 +109,7 @@ export async function processAddresses(configPath?: string): Promise<void> {
   // Convert hex addresses to internal account objects
   const accounts = await Promise.all(
     (config.accounts ?? []).map(([chain, address]) =>
-      MakeAccount(swarm, chain, address)
+      chain !== false ? MakeAccount(swarm, chain, address) : null
     )
   );
 
@@ -120,15 +122,17 @@ export async function processAddresses(configPath?: string): Promise<void> {
 
   // Load all transfers from the user accounts
   const transfers = await Promise.all(
-    accounts.map((account) => account.loadTransactions(swarm))
+    accounts.map((account) => (account ? account.loadTransactions(swarm) : []))
   );
 
   // Create a ledger to track all transfers and their directions
   // This helps identify incoming and outgoing transactions
   const ledger = Ledger.create(...transfers);
-  for (const address of accounts) {
-    ledger.from(address).tag("EGRESS");
-    ledger.to(address).tag("INGRESS");
+  for (const account of accounts) {
+    if (account) {
+      ledger.from(account).tag("EGRESS");
+      ledger.to(account).tag("INGRESS");
+    }
   }
 
   // Apply user-defined filters to categorize transactions

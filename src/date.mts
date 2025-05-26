@@ -8,6 +8,10 @@ const formatters: Record<string, (date: Date) => string> = {
   DD: (date) => String(date.getUTCDate()).padStart(2, "0"),
 };
 
+/**
+ * Formats a date according to the specified format string.
+ * Supported format tokens: YYYY (year), MM (month), DD (day)
+ */
 export function formatDate(format: string, date: Date) {
   return format.replace(/(YYYY|MM|DD)/g, (match) => formatters[match](date));
 }
@@ -20,6 +24,10 @@ const parsers: Record<string, RegExp> = {
   "DD-MM-YYYY": /^(?<day>\d\d)-(?<month>\d\d)-(?<year>\d\d\d\d)$/,
 };
 
+/**
+ * Parses a date string according to the specified format pattern.
+ * The pattern must use named capturing groups for year, month and day.
+ */
 export function parseDate(format: string | RegExp, date: string) {
   const pattern = typeof format === "string" ? parsers[format] : format;
   if (!pattern) {

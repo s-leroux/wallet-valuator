@@ -6,6 +6,7 @@ import { logger } from "./debug.mjs";
 import { Ensure } from "./type.mjs";
 import { CryptoRegistry } from "./cryptoregistry.mjs";
 import { ValueError } from "./error.mjs";
+import { Logged } from "./errorutils.mjs";
 const log = logger("ledger");
 
 // =========================================================================
@@ -75,7 +76,7 @@ type Filter = (
   value: any
 ) => Entry[];
 
-const FILTERS: Record<string, Filter> = {
+const FILTERS: Record<string, Filter | undefined> = {
   // @ts-expect-error TypeScript does not handle properly null-prototype object literals
   __proto__: null,
 
@@ -137,6 +138,14 @@ const FILTERS: Record<string, Filter> = {
 
     return entries.filter((entry) => {
       return entry.transaction.to.address === address;
+    });
+  },
+
+  type(registry: CryptoRegistry, entries: Entry[], type: unknown) {
+    type = Ensure.isString(type);
+
+    return entries.filter((entry) => {
+      return entry.transaction.type === type;
     });
   },
 } as const;
@@ -265,8 +274,7 @@ export class Ledger implements Iterable<Entry> {
       if (fn) {
         entries = fn(registry, entries, selector[key]);
       } else {
-        log.error("C2004", "Ignoring unknown filter key:", key);
-        throw new ValueError(`Unknown filter key: ${key}`);
+        throw Logged("C2004", ValueError, `Unknown filter key: ${key}`);
       }
     }
     return new Ledger(entries);
