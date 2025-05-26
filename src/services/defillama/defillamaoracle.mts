@@ -48,7 +48,7 @@ export class DefiLlamaOracle extends Oracle {
       { origin: "DEFILLAMA" }
     ));
     log.info("C1003", `Found price for ${crypto}/USD at ${date.toISOString()}`);
-
+    /*
     for (const fiat of fiats) {
       if (fiat !== USD) {
         result[fiat] = await fiatConverter.convert(
@@ -59,6 +59,7 @@ export class DefiLlamaOracle extends Oracle {
         );
       }
     }
+    */
     return result;
   }
 

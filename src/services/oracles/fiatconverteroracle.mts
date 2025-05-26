@@ -3,7 +3,6 @@ import { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { Price } from "../../price.mjs";
 
-import { NotImplementedError } from "../../error.mjs";
 import { FiatConverter } from "../fiatconverter.mjs";
 import { Oracle } from "../oracle.mjs";
 

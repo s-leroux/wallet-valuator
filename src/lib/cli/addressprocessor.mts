@@ -24,6 +24,7 @@ import { PortfolioValuationReporter } from "../../services/reporters/valuationre
 import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
 import { MakeAccount } from "../../account.mjs";
 import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
+import { OHLCOracle } from "../../services/oracles/ohlcoracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -54,7 +55,7 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
   return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
-function createOracle(envvars: EnvVars) {
+async function createOracle(envvars: EnvVars, registry: CryptoRegistry) {
   const wellKnownCoingeckoId = WellKnownCryptoAssets.reduce(
     (acc, [key, name, symbol, decimal, metadata]) => {
       acc[key] = metadata.coingeckoId;
@@ -68,6 +69,26 @@ function createOracle(envvars: EnvVars) {
     CurveOracle.create(),
     CoinGecko.create(envvars["COINGECKO_API_KEY"], wellKnownCoingeckoId),
     DefiLlamaOracle.create(undefined, wellKnownCoingeckoId),
+    await OHLCOracle.createFromPath(
+      registry.createCryptoAsset("bitcoin"),
+      FiatCurrency("EUR"),
+      "bitcoin-eur-yahoo.csv",
+      {
+        origin: "Yahoo",
+        dateFormat: "MMM D, YYYY",
+        separator: ";",
+      }
+    ),
+    await OHLCOracle.createFromPath(
+      registry.createCryptoAsset("bitcoin"),
+      FiatCurrency("USD"),
+      "bitcoin-usd-yahoo.csv",
+      {
+        origin: "Yahoo",
+        dateFormat: "MMM D, YYYY",
+        separator: ";",
+      }
+    ),
   ]).cache(envvars["CACHE_PATH"]);
 }
 
@@ -145,8 +166,8 @@ export async function processAddresses(configPath?: string): Promise<void> {
   const portfolio = ledger.portfolio();
 
   // Set up price oracle and fiat conversion services
-  const oracle = createOracle(envvars);
   const bitcoin: CryptoAsset = registry.createCryptoAsset("bitcoin");
+  const oracle = await createOracle(envvars, registry);
   const fiatConverter = ImplicitFiatConverter.create(oracle, bitcoin);
 
   // Calculate the portfolio valuation in EUR

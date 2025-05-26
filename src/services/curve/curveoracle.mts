@@ -63,12 +63,13 @@ export class CurveOracle extends Oracle {
       { origin: "CURVE" }
     );
     result[USD] = price;
-
+    /*
     for (const fiat of fiats) {
       if (fiat !== USD) {
         result[fiat] = await fiatConverter.convert(registry, date, price, fiat);
       }
     }
+      */
     return result;
   }
 

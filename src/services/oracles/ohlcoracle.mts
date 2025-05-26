@@ -5,15 +5,18 @@ import type { Price } from "../../price.mjs";
 
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
-import type { DataSource } from "../../csvfile.mjs";
+import type { CSVFileOptionBag, DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
 import { logger } from "../../debug.mjs";
+import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { trace } from "console";
 
 const log = logger("ohlcoracle");
 
 interface OHLCOracleOptions {
   dateFormat?: string;
+  origin?: string;
 }
 
 /**
@@ -24,6 +27,7 @@ interface OHLCOracleOptions {
 export class OHLCOracle<T extends BigNumberSource> extends Oracle {
   // option
   readonly dateFormat: string;
+  readonly origin: string;
 
   constructor(
     readonly crypto: CryptoAsset,
@@ -33,6 +37,7 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
   ) {
     super();
     this.dateFormat = options.dateFormat ?? "YYYY-MM-DD";
+    this.origin = options.origin?.toLocaleUpperCase() ?? "OHLC";
   }
 
   async getPrice(
@@ -45,6 +50,11 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
 
     // We do not handle that crypto
     if (crypto !== this.crypto || !fiats.includes(this.fiat)) {
+      log.debug(
+        "Not our business",
+        crypto !== this.crypto,
+        fiats.includes(this.fiat)
+      );
       return result;
     }
 
@@ -58,10 +68,12 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     const close = this.data.get(formattedDate, "Close");
 
     if (high && low && close) {
-      result[this.fiat] = crypto.price(
+      const price = (result[this.fiat] = crypto.price(
         this.fiat,
         BigNumber.sum(high[1], low[1], close[1]).div(3)
-      );
+      ));
+      GlobalMetadataRegistry.setMetadata(price, { origin: this.origin });
+      log.trace("C1012", `Found ${price} at ${formattedDate}`);
     } else {
       log.trace("C1011", `Date not found: ${formattedDate}`);
     }
@@ -73,12 +85,13 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     crypto: CryptoAsset,
     fiat: FiatCurrency,
     path: string,
-    options: OHLCOracleOptions = {}
+    options: OHLCOracleOptions & CSVFileOptionBag = {}
   ) {
     const dataSource = await CSVFile.createFromPath(
       path,
       String,
-      BigNumber.from
+      BigNumber.from,
+      options
     );
 
     return new OHLCOracle(crypto, fiat, dataSource, options);
