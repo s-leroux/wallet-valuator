@@ -1,11 +1,19 @@
 import { ValueError } from "./error.mjs";
 
+const intlDateTimeFormats = {
+  "en-US": {
+    MMM: new Intl.DateTimeFormat("en-US", { month: "short" }),
+  },
+} as const;
+
 const formatters: Record<string, (date: Date) => string> = {
   // @ts-ignore
   __proto__: null,
   YYYY: (date) => String(date.getUTCFullYear()).padStart(4, "0"),
+  MMM: (date) => intlDateTimeFormats["en-US"]["MMM"].format(date),
   MM: (date) => String(date.getUTCMonth() + 1).padStart(2, "0"),
   DD: (date) => String(date.getUTCDate()).padStart(2, "0"),
+  D: (date) => String(date.getUTCDate()),
 };
 
 /**
@@ -13,7 +21,9 @@ const formatters: Record<string, (date: Date) => string> = {
  * Supported format tokens: YYYY (year), MM (month), DD (day)
  */
 export function formatDate(format: string, date: Date) {
-  return format.replace(/(YYYY|MM|DD)/g, (match) => formatters[match](date));
+  return format.replace(/(YYYY|MMM|MM|DD|D)/g, (match) =>
+    formatters[match](date)
+  );
 }
 
 const parsers: Record<string, RegExp> = {

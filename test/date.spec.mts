@@ -38,6 +38,21 @@ describe("Date utilities", () => {
         );
       }
     });
+
+    it("should format date as MMM D, YYYY", () => {
+      const testcases: [number, string][] = [
+        [END_OF_YEAR, "Dec 31, 2024"],
+        [END_OF_YEAR + 1, "Jan 1, 2025"],
+      ];
+
+      for (const [timestamp, expected] of testcases) {
+        assert.equal(
+          formatDate("MMM D, YYYY", new Date(timestamp * 1000)),
+          expected,
+          `for timestamp ${timestamp}`
+        );
+      }
+    });
   });
 
   describe("parseDate()", () => {
