@@ -21,6 +21,7 @@ import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
 import { Quantity } from "./quantity.mjs";
+import { PriceResolver } from "./priceresolver.mjs";
 const log = logger("valuation");
 
 //======================================================================
@@ -232,8 +233,7 @@ export class SnapshotValuation {
 
   static async createFromSnapshot(
     registry: CryptoRegistry,
-    oracle: Oracle,
-    fiatConverter: FiatConverter,
+    priceResolver: PriceResolver,
     fiatCurrency: FiatCurrency,
     snapshot: Snapshot,
     parent: SnapshotValuation | null
@@ -252,16 +252,13 @@ export class SnapshotValuation {
         return crypto.price(fiatCurrency, 0); // XXX Is this correct
       }
       // This is a regular crypto-asset. Use the oracle to get the price.
-      const prices = await oracle.getPrice(
-        registry,
-        crypto,
-        date,
-        [fiatCurrency],
-        fiatConverter
-      );
+      const prices = await priceResolver.getPrice(registry, crypto, date, [
+        fiatCurrency,
+      ]);
 
       const price = prices[fiatCurrency];
       if (price === undefined) {
+        // XXX This is very unlikely since Priceresolver throws if a price is not found
         // prettier-ignore
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
         log.warn("C3001", message, registry.getNamespaces(crypto), prices);
@@ -415,11 +412,11 @@ export class PortfolioValuation implements Iterable<SnapshotValuation> {
 
     // we need a bit of serialization here to keep track of the deposits
     let curr: SnapshotValuation | null = null;
+    const priceResolver = new PriceResolver(oracle, fiatConverter);
     for (const snapshot of snapshots) {
       curr = await SnapshotValuation.createFromSnapshot(
         registry,
-        oracle,
-        fiatConverter,
+        priceResolver,
         fiatCurrency,
         snapshot,
         curr

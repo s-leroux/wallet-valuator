@@ -1,4 +1,5 @@
 import { Blockchain } from "./blockchain.mjs";
+import { DisplayOptions } from "./displayable.mjs";
 
 /**
  * A glorified string with normalized format used to represent a globally unique
@@ -19,4 +20,24 @@ export function ChainAddress(
   smartContractAddress: string | null
 ): ChainAddress {
   return `${chain}:${smartContractAddress || ""}`.toLowerCase() as ChainAddress;
+}
+
+export interface ChainAddressNG {
+  chain: string | Blockchain;
+  address: string;
+
+  toDisplayString(options: DisplayOptions): string;
+}
+
+export function ChainAddressNG(
+  chain: string | Blockchain,
+  address: string | null
+): ChainAddressNG {
+  return {
+    chain,
+    address: address ?? "",
+    toDisplayString(options: DisplayOptions): string {
+      return `${this.chain}:${this.address || ""}`.toLowerCase();
+    },
+  };
 }
