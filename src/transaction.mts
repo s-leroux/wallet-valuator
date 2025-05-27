@@ -6,16 +6,23 @@ import { Amount } from "./cryptoasset.mjs";
 import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
+import { ChainAddressNG } from "./chainaddress.mjs";
 
 type OnChainTransactionType =
   | "NORMAL" // a normal transaction
   | "INTERNAL" // an internal transaction
   | "ERC20"; // an ERC-20 token transfer
 
-export type OffChainTransactionType = "BUY" | "RECEIVE" | "SELL" | "TRADE";
+export type OffChainTransactionType =
+  | "BUY" // Buy crypto from fiat
+  | "SELL" // Sell crypto for fiat
+  | "RECEIVE" // Receive crypto from external account (rewards)
+  | "SEND" // Send crypto to external account (gift)
+  | "TRADE" // Swap cryptos
+  | "DEPOSIT"; // Fiat deposit
 
-type TransactionDestination = { chain: string; address: string };
-type TransactionSource = TransactionDestination;
+type TransactionDestination = ChainAddressNG;
+type TransactionSource = ChainAddressNG;
 
 const defaultFormat = tabular(" | ", "", "10", "", "", "");
 

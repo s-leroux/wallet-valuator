@@ -10,9 +10,8 @@ import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
 import { logger } from "../../debug.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
-import { trace } from "console";
 
-const log = logger("ohlcoracle");
+const log = logger("ohlc-oracle");
 
 interface OHLCOracleOptions {
   dateFormat?: string;

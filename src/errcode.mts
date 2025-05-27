@@ -15,6 +15,9 @@ export const ERRORS = {
   "C1010": "Cache update (CachingOracle)",
   "C1011": "Not found (OHLCOracle)",
   "C1012": "Found (OHLCOracle)",
+  "C1013": "Need fiat convertion to synthetise some prices (PriceResolver)",
+  "C1014": "Synthetize a price (ImplicitFiatconverter)",
+  "C1015": "Unable to format and no fallback (noDisplayString)",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",
@@ -34,6 +37,7 @@ export const ERRORS = {
   "C3009": "Cannot identify the database version",
   "C3010": "Unknown transaction type",
   "C3011": "Unknown crypto-asset",
+  "C3012": "Base price missing (PriceResolver)",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

@@ -1,6 +1,8 @@
 import { asBlockchain } from "./blockchain.mjs";
+import { ChainAddressNG } from "./chainaddress.mjs";
 import { Amount, CryptoAsset } from "./cryptoasset.mjs";
 import { CSVFile, DataSource } from "./csvfile.mjs";
+import { DisplayOptions } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { Swarm } from "./swarm.mjs";
@@ -24,7 +26,7 @@ const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
   string,
   WellKnownCryptoID | undefined
 > = {
-  // @ts-expect-error TypeScript does not handle properly null-prototype object literals
+  // @ts-expect-error TypeScript does not handle null-prototype object literals properly
   __proto__: null,
 
   ADA: "cardano",
@@ -56,10 +58,7 @@ const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
   XRP: "ripple",
 } as const;
 
-const nowhere = {
-  chain: "binance-cex",
-  address: "null",
-} as const;
+const nowhere = ChainAddressNG("binance-cex", "nowhere");
 
 class BinanceAccount implements Account {
   readonly chain: string;
@@ -89,6 +88,10 @@ class BinanceAccount implements Account {
     );
   }
 
+  toDisplayString(options: DisplayOptions): string {
+    return `${this.chain}:${this.address}`.toLowerCase();
+  }
+
   async loadTransactions(swarm: Swarm): Promise<Transaction[]> {
     let transactions = this.transactions;
     if (transactions) return transactions;
@@ -108,7 +111,6 @@ class BinanceAccount implements Account {
       feeCurrency,
       comment,
     ] of this.transactionReport) {
-      console.log(date);
       const timeStamp = Math.floor(new Date(date).getTime() / 1000);
 
       switch (type.toUpperCase() as OffChainTransactionType) {
@@ -134,6 +136,24 @@ class BinanceAccount implements Account {
           }
           break;
 
+        case "SELL":
+          {
+            const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
+            //const received = this.valueFromFiat(swarm, receivedCurrency, receivedAmount)
+            //const fee = this.amountFromCrypto(swarm, feeCurrency, feeAmount);
+            transactions.push(
+              new CEXTransaction(
+                this.chain,
+                "SELL",
+                timeStamp,
+                sent,
+                this,
+                nowhere
+              )
+            );
+          }
+          break;
+
         case "RECEIVE":
           {
             const received = this.amountFromCrypto(
@@ -144,11 +164,27 @@ class BinanceAccount implements Account {
             transactions.push(
               new CEXTransaction(
                 this.chain,
-                "BUY",
+                "RECEIVE",
                 timeStamp,
                 received,
-                nowhere,
+                nowhere, // XXX Check receiveAddress field!
                 this
+              )
+            );
+          }
+          break;
+
+        case "SEND":
+          {
+            const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
+            transactions.push(
+              new CEXTransaction(
+                this.chain,
+                "SEND",
+                timeStamp,
+                sent,
+                this,
+                nowhere // XXX Check sentAddress field!
               )
             );
           }
@@ -156,6 +192,7 @@ class BinanceAccount implements Account {
 
         case "TRADE":
           {
+            /* A TRADE represents simultaneous SEND and RECEIVE events */
             const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
             const received = this.amountFromCrypto(
               swarm,
@@ -184,21 +221,10 @@ class BinanceAccount implements Account {
           }
           break;
 
-        case "SELL":
+        case "DEPOSIT":
           {
-            const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
-            //const received = this.valueFromFiat(swarm, receivedCurrency, receivedAmount)
-            //const fee = this.amountFromCrypto(swarm, feeCurrency, feeAmount);
-            transactions.push(
-              new CEXTransaction(
-                this.chain,
-                "SELL",
-                timeStamp,
-                sent,
-                this,
-                nowhere
-              )
-            );
+            /* We do not track fiat deposits */
+            // do nothing
           }
           break;
 

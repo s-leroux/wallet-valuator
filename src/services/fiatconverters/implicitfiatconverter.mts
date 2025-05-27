@@ -7,6 +7,9 @@ import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { logger } from "../../debug.mjs";
+
+const log = logger("implicit-fiat-converter");
 
 export class ImplicitFiatConverter implements FiatConverter {
   readonly oracle: Oracle;
@@ -58,6 +61,10 @@ export class ImplicitFiatConverter implements FiatConverter {
       );
     }
 
+    log.trace(
+      "C1014",
+      `Synthetize ${price.crypto}/${to} from ${this.crypto} at ${date}`
+    );
     const exchangeRage = toPrice.rate.div(fromPrice.rate);
 
     return GlobalMetadataRegistry.setMetadata(price.to(to, exchangeRage), {

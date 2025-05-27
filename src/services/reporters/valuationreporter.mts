@@ -1,5 +1,8 @@
 import { PortfolioValuation } from "../../valuation.mjs";
 import { DisplayOptions, toDisplayString } from "../../displayable.mjs";
+import { logger } from "../../debug.mjs";
+
+const log = logger("valuation-reporter");
 
 export class PortfolioValuationReporter {
   constructor(
