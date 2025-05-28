@@ -225,6 +225,7 @@ export class SnapshotValuation {
     readonly cryptoValueBefore: PointInTimeValuation,
     readonly cryptoValueAfter: PointInTimeValuation,
     readonly tags: Map<string, any>,
+    readonly comments: string[],
     readonly fiatDeposits: Value,
     readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
     readonly gainOrLoss: Value | undefined,
@@ -296,8 +297,9 @@ export class SnapshotValuation {
       exchangeRates
     );
 
-    // Copy tags
+    // Copy auxiliary data
     const tags = new Map<string, any>(snapshot.tags);
+    const comments = snapshot.comments;
 
     // Track cash movements
     let deposits = parent ? parent.fiatDeposits : new Value(fiatCurrency);
@@ -332,6 +334,7 @@ export class SnapshotValuation {
       start,
       end,
       tags,
+      comments,
       deposits,
       cashIn,
       gainOrLoss,

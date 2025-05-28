@@ -38,6 +38,8 @@ export class PortfolioValuationReporter {
         lines.push(tags.join(" "));
       }
 
+      lines.push(...snapshot.comments);
+
       lines.push(`V: ${totalValueBeforeStr} -> ${totalValueAfterStr}`);
 
       lines.push(
@@ -63,6 +65,8 @@ export class PortfolioValuationReporter {
           }
         }
       );
+
+      lines.push("---");
     }
     return lines.join("\n");
   }

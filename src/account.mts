@@ -112,114 +112,112 @@ class BinanceAccount implements Account {
       comment,
     ] of this.transactionReport) {
       const timeStamp = Math.floor(new Date(date).getTime() / 1000);
+      const comments = comment && comment !== '""' ? [comment] : [];
+      //                          ^^^^^^^^^^^^^^^
+      // XXX Hack to deal with quotes in csv
+      comments.unshift(`BINANCE TRANSACTION ${id}`);
 
       switch (type.toUpperCase() as OffChainTransactionType) {
-        case "BUY":
-          {
-            //const sent = this.valueFromFiat(swarm, sentCurrency, sentAmount);
-            const received = this.amountFromCrypto(
-              swarm,
-              receivedCurrency,
-              receivedAmount
-            );
-            //const fee = this.valueFromFiat(swarm, feeCurrency, feeAmount);
-            transactions.push(
-              new CEXTransaction(
-                this.chain,
-                "BUY",
-                timeStamp,
-                received,
-                nowhere,
-                this
-              )
-            );
-          }
+        case "BUY": {
+          const received = this.amountFromCrypto(
+            swarm,
+            receivedCurrency,
+            receivedAmount
+          );
+          transactions.push(
+            this.createTransaction(
+              "BUY",
+              timeStamp,
+              received,
+              nowhere,
+              this,
+              comments
+            )
+          );
           break;
+        }
 
-        case "SELL":
-          {
-            const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
-            //const received = this.valueFromFiat(swarm, receivedCurrency, receivedAmount)
-            //const fee = this.amountFromCrypto(swarm, feeCurrency, feeAmount);
-            transactions.push(
-              new CEXTransaction(
-                this.chain,
-                "SELL",
-                timeStamp,
-                sent,
-                this,
-                nowhere
-              )
-            );
-          }
+        case "SELL": {
+          const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
+          transactions.push(
+            this.createTransaction(
+              "SELL",
+              timeStamp,
+              sent,
+              this,
+              nowhere,
+              comments
+            )
+          );
           break;
+        }
 
-        case "RECEIVE":
-          {
-            const received = this.amountFromCrypto(
-              swarm,
-              receivedCurrency,
-              receivedAmount
-            );
-            transactions.push(
-              new CEXTransaction(
-                this.chain,
-                "RECEIVE",
-                timeStamp,
-                received,
-                nowhere, // XXX Check receiveAddress field!
-                this
-              )
-            );
-          }
+        case "RECEIVE": {
+          const received = this.amountFromCrypto(
+            swarm,
+            receivedCurrency,
+            receivedAmount
+          );
+          transactions.push(
+            this.createTransaction(
+              "RECEIVE",
+              timeStamp,
+              received,
+              nowhere,
+              this,
+              comments
+            )
+          );
           break;
+        }
 
-        case "SEND":
-          {
-            const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
-            transactions.push(
-              new CEXTransaction(
-                this.chain,
-                "SEND",
-                timeStamp,
-                sent,
-                this,
-                nowhere // XXX Check sentAddress field!
-              )
-            );
-          }
+        case "SEND": {
+          const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
+          transactions.push(
+            this.createTransaction(
+              "SEND",
+              timeStamp,
+              sent,
+              this,
+              nowhere,
+              comments
+            )
+          );
           break;
+        }
 
-        case "TRADE":
-          {
-            /* A TRADE represents simultaneous SEND and RECEIVE events */
-            const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
-            const received = this.amountFromCrypto(
-              swarm,
-              receivedCurrency,
-              receivedAmount
-            );
-            //const fee = this.amountFromCrypto(swarm, feeCurrency, feeAmount);
-            transactions.push(
-              new CEXTransaction(
-                this.chain,
-                "TRADE",
-                timeStamp,
-                received,
-                nowhere,
-                this
-              ),
-              new CEXTransaction(
-                this.chain,
-                "TRADE",
-                timeStamp,
-                sent,
-                this,
-                nowhere
-              )
-            );
-          }
+        case "TRADE": {
+          const sent = this.amountFromCrypto(swarm, sentCurrency, sentAmount);
+          const received = this.amountFromCrypto(
+            swarm,
+            receivedCurrency,
+            receivedAmount
+          );
+          comments.splice(
+            1,
+            0,
+            `PART OF ${sent.crypto} FOR ${received.crypto} TRADE`
+          );
+          transactions.push(
+            this.createTransaction(
+              "TRADE",
+              timeStamp,
+              received,
+              nowhere,
+              this,
+              comments
+            ),
+            this.createTransaction(
+              "TRADE",
+              timeStamp,
+              sent,
+              this,
+              nowhere,
+              comments
+            )
+          );
           break;
+        }
 
         case "DEPOSIT":
           {
@@ -238,6 +236,25 @@ class BinanceAccount implements Account {
     }
 
     return transactions;
+  }
+
+  private createTransaction(
+    type: OffChainTransactionType,
+    timeStamp: number,
+    amount: Amount,
+    from: ChainAddressNG,
+    to: ChainAddressNG,
+    comments: string[] = []
+  ): CEXTransaction {
+    return new CEXTransaction(
+      this.chain,
+      type,
+      timeStamp,
+      amount,
+      from,
+      to,
+      comments
+    );
   }
 
   valueFromFiat(swarm: Swarm, fiatCurrency: string, value: string): Value {
