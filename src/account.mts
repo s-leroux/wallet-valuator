@@ -33,7 +33,7 @@ const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
   APT: "aptos",
   AUDIO: "audius",
   BAL: "balancer",
-  BETH: "ethereum", // XXX Should we change to "binance-eth"?
+  BETH: "ethereum",
   BNB: "binance-coin",
   BTC: "bitcoin",
   CHZ: "chiliz",
