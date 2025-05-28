@@ -37,17 +37,30 @@ export interface Transaction {
   readonly amount: Amount;
   readonly from: TransactionSource;
   readonly to: TransactionDestination;
+
+  readonly comments: string[];
+  addComment(comment: string): Transaction;
 }
 
 export class CEXTransaction implements Transaction {
+  readonly comments: string[];
+
   constructor(
     readonly chainName: string,
     readonly type: OffChainTransactionType,
     readonly timeStamp: number,
     readonly amount: Amount,
     readonly from: TransactionSource,
-    readonly to: TransactionDestination
-  ) {}
+    readonly to: TransactionDestination,
+    comments?: string[]
+  ) {
+    this.comments = [...(comments ?? [])];
+  }
+
+  addComment(comment: string): this {
+    this.comments.push(comment);
+    return this;
+  }
 }
 
 export abstract class OnChainTransaction implements Transaction {
@@ -55,6 +68,8 @@ export abstract class OnChainTransaction implements Transaction {
   readonly explorer: Explorer;
   readonly data: Record<string, string>;
   readonly type: OnChainTransactionType;
+
+  readonly comments: string[];
 
   // All data below are set to NULL and initialized only when the effective transaction is retrieved
   blockNumber: number;
@@ -71,6 +86,12 @@ export abstract class OnChainTransaction implements Transaction {
     this.type = type;
     this.explorer = swarm.getExplorer(chain);
     this.data = {};
+    this.comments = [];
+  }
+
+  addComment(comment: string): this {
+    this.comments.push(comment);
+    return this;
   }
 
   toString(): string {
