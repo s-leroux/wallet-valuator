@@ -1,9 +1,11 @@
-import type { Transaction } from "./transaction.mjs";
+import type { OnChainTransaction, Transaction } from "./transaction.mjs";
 import { defaultDisplayOptions, type DisplayOptions } from "./displayable.mjs";
 import type { Swarm } from "./swarm.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 import { Blockchain } from "./blockchain.mjs";
 import { ValueError } from "./error.mjs";
+import { Account } from "./account.mjs";
+import { ChainAddress } from "./chainaddress.mjs";
 
 type ERC20TokenAddressData = {
   tokenName: string;
@@ -22,9 +24,11 @@ export type AddressData = AnyAddressData & ERC20TokenAddressData;
  *
  * This class does not check the validity of the address format, nor if it exists.
  */
-export class Address {
+export class Address implements Account {
+  readonly chain: string;
+  readonly address: string;
+  readonly chainAddress: ChainAddress; // XXX This is redundant with chain and address above!
   readonly explorer: Explorer;
-  readonly address: string; // this is guaranteed to be lowercase!
   readonly data: Partial<AddressData>;
 
   constructor(swarm: Swarm, chain: Blockchain, address: string) {
@@ -32,9 +36,15 @@ export class Address {
       throw new ValueError("The empty string is not a valid address");
     }
 
-    this.explorer = swarm.getExplorer(chain);
+    this.chainAddress = ChainAddress(chain, address);
+    this.chain = chain.name.toLowerCase();
     this.address = address.toLowerCase();
+    this.explorer = swarm.getExplorer(chain);
     this.data = {};
+  }
+
+  loadTransactions(swarm: Swarm): Promise<Transaction[]> {
+    return this.allValidTransfers(swarm);
   }
 
   /*
@@ -90,23 +100,23 @@ export class Address {
     );
   }
 
-  normalTransactions(swarm: Swarm): Promise<Array<Transaction>> {
+  normalTransactions(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getNormalTransactionsByAddress(swarm, this.address);
   }
 
-  internalTransactions(swarm: Swarm): Promise<Array<Transaction>> {
+  internalTransactions(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getInternalTransactionsByAddress(swarm, this.address);
   }
 
-  tokenTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+  tokenTransfers(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getTokenTransfersByAddress(swarm, this.address);
   }
 
-  allTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+  allTransfers(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getAllTransactionsByAddress(swarm, this.address);
   }
 
-  allValidTransfers(swarm: Swarm): Promise<Array<Transaction>> {
+  allValidTransfers(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getAllValidTransactionsByAddress(swarm, this.address);
   }
 }

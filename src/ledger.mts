@@ -1,18 +1,18 @@
 import { Portfolio } from "./portfolio.mjs";
 import { Transaction } from "./transaction.mjs";
-import { Address } from "./address.mjs";
-import { DisplayOptions } from "./displayable.mjs";
+import { DisplayOptions, toDisplayString } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
 import { Ensure } from "./type.mjs";
 import { CryptoRegistry } from "./cryptoregistry.mjs";
 import { ValueError } from "./error.mjs";
+import { Logged } from "./errorutils.mjs";
 const log = logger("ledger");
 
 // =========================================================================
 // Utilities
 // =========================================================================
-type Sortable = { key: any };
+type Sortable = { key: string | number };
 
 /**
  * Sort an array by its item's key.
@@ -70,53 +70,54 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
 // =========================================================================
 // Ledger and entries
 // =========================================================================
-
 type Filter = (
   registry: CryptoRegistry,
   entries: Entry[],
   value: any
 ) => Entry[];
-const FILTERS: Record<string, Filter> = {
-  // @ts-ignore
+
+const FILTERS: Record<string, Filter | undefined> = {
+  // @ts-expect-error TypeScript does not handle properly null-prototype object literals
   __proto__: null,
 
-  // NB: All filters SHOULD be "arrow" functions
-  // Keep the entries in alphabetical order
-
-  chain(registry: CryptoRegistry, entries: Entry[], chainName: any) {
+  chain(registry: CryptoRegistry, entries: Entry[], chainName: unknown) {
     chainName = Ensure.isString(chainName);
     return entries.filter((entry) => {
-      return entry.record.explorer.chain.name === chainName;
+      return entry.transaction.chainName === chainName;
     });
   },
 
-  comment(registry: CryptoRegistry, entries: Entry[], chainName: any) {
+  comment(registry: CryptoRegistry, entries: Entry[], chainName: unknown) {
     // NOOP
     return entries;
   },
 
-  "crypto-asset"(registry: CryptoRegistry, entries: Entry[], cryptoId: any) {
+  "crypto-asset"(
+    registry: CryptoRegistry,
+    entries: Entry[],
+    cryptoId: unknown
+  ) {
     cryptoId = Ensure.isString(cryptoId);
     return entries.filter((entry) => {
-      return entry.record.amount.crypto.id === cryptoId;
+      return entry.transaction.amount.crypto.id === cryptoId;
     });
   },
 
   "crypto-resolver"(
     registry: CryptoRegistry,
     entries: Entry[],
-    resolverName: any
+    resolverName: unknown
   ) {
     resolverName = Ensure.isString(resolverName);
     return entries.filter((entry) => {
       return (
-        registry.getNamespaceData(entry.record.amount.crypto, "STANDARD")
+        registry.getNamespaceData(entry.transaction.amount.crypto, "STANDARD")
           ?.resolver === resolverName
       );
     });
   },
 
-  from(registry: CryptoRegistry, entries: Entry[], address: any) {
+  from(registry: CryptoRegistry, entries: Entry[], address: unknown) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
     } else {
@@ -124,11 +125,11 @@ const FILTERS: Record<string, Filter> = {
     }
 
     return entries.filter((entry) => {
-      return entry.record.from.address === address;
+      return entry.transaction.from.address === address;
     });
   },
 
-  to(registry: CryptoRegistry, entries: Entry[], address: any) {
+  to(registry: CryptoRegistry, entries: Entry[], address: unknown) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
     } else {
@@ -136,7 +137,15 @@ const FILTERS: Record<string, Filter> = {
     }
 
     return entries.filter((entry) => {
-      return entry.record.to.address === address;
+      return entry.transaction.to.address === address;
+    });
+  },
+
+  type(registry: CryptoRegistry, entries: Entry[], type: unknown) {
+    type = Ensure.isString(type);
+
+    return entries.filter((entry) => {
+      return entry.transaction.type === type;
     });
   },
 } as const;
@@ -149,29 +158,25 @@ const FILTERS: Record<string, Filter> = {
  * in another unrelated ledger.
  */
 export class Entry implements Sortable {
-  record: Transaction;
+  transaction: Transaction;
   tags: Map<string, any>;
 
   key: string;
 
-  constructor(record: Transaction) {
-    this.record = record;
+  constructor(transaction: Transaction) {
+    this.transaction = transaction;
     this.tags = new Map();
-    const data = record.data as any;
     this.key =
-      data.timeStamp.padStart(12) +
-      record.explorer.chain +
-      data.blockNumber.padStart(12) +
-      (data.nonce ?? "0").padStart(10);
+      String(transaction.timeStamp).padStart(12) + transaction.chainName;
   }
 
   toString(): string {
-    const record = this.record;
-    return `${record.type[0]}:${this.key}:${record.from}:${record.to}:${record.amount}`;
+    const transaction = this.transaction;
+    return `${transaction.type[0]}:${this.key}:${transaction.from}:${transaction.to}:${transaction.amount}`;
   }
 
   toDisplayString(options: DisplayOptions): string {
-    return this.record.toDisplayString(options);
+    return toDisplayString(this.transaction, options);
   }
 
   tag(name: string, data: any = true) {
@@ -269,8 +274,7 @@ export class Ledger implements Iterable<Entry> {
       if (fn) {
         entries = fn(registry, entries, selector[key]);
       } else {
-        log.error("C2004", "Ignoring unknown filter key:", key);
-        throw new ValueError(`Unknown filter key: ${key}`);
+        throw Logged("C2004", ValueError, `Unknown filter key: ${key}`);
       }
     }
     return new Ledger(entries);
@@ -278,12 +282,14 @@ export class Ledger implements Iterable<Entry> {
   /**
    * Return a new Ledger containing only events from the given address.
    */
-  from(address: Address): Ledger {
+  from(account: { chain: string; address: string }): Ledger {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object
     const entries = this.entries.filter(
-      (entry) => entry.record.from === address
+      (entry) =>
+        entry.transaction.from.address === account.address &&
+        entry.transaction.from.chain === account.chain
     );
 
     return new Ledger(entries);
@@ -292,11 +298,15 @@ export class Ledger implements Iterable<Entry> {
   /**
    * Return a new Ledger containing only events to the given address.
    */
-  to(address: Address): Ledger {
+  to(account: { chain: string; address: string }): Ledger {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object
-    const entries = this.entries.filter((entry) => entry.record.to === address);
+    const entries = this.entries.filter(
+      (entry) =>
+        entry.transaction.to.address === account.address &&
+        entry.transaction.to.chain === account.chain
+    );
 
     return new Ledger(entries);
   }

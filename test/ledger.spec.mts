@@ -4,7 +4,7 @@ import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
-import { Transaction } from "../src/transaction.mjs";
+import { OnChainTransaction } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
@@ -66,7 +66,7 @@ describe("Ledger", () => {
   let swarm: Swarm;
   let chain: Blockchain;
   let explorer: Explorer;
-  let transactions: Transaction[];
+  let transactions: OnChainTransaction[];
   const cryptoResolver = LazyCryptoResolver.create();
   let registry: CryptoRegistry;
 
@@ -93,7 +93,7 @@ describe("Ledger", () => {
       )
     );
 
-    transactions = (a as Transaction[]).concat(b, c);
+    transactions = (a as OnChainTransaction[]).concat(b, c);
   });
 
   describe("constructor", () => {
@@ -140,7 +140,7 @@ describe("Ledger", () => {
       assert.notEqual(subset, ledger);
       assert.equal(subset.entries.length, 48);
       for (const entry of subset) {
-        assert.equal(entry.record.from, address);
+        assert.equal(entry.transaction.from, address);
       }
     });
   });
@@ -167,15 +167,15 @@ describe("Ledger", () => {
     it("should have from and to addresses", () => {
       const ledger = Ledger.create(transactions);
       for (const entry of ledger) {
-        assert.exists(entry.record.from);
-        assert.exists(entry.record.to);
+        assert.exists(entry.transaction.from);
+        assert.exists(entry.transaction.to);
       }
     });
 
     it("should have their amount set", () => {
       const ledger = Ledger.create(transactions);
       for (const entry of ledger) {
-        assert.exists(entry.record.amount);
+        assert.exists(entry.transaction.amount);
       }
     });
 
@@ -183,7 +183,7 @@ describe("Ledger", () => {
       const ledger = Ledger.create(transactions);
       let curr_ts = 0;
       for (const entry of ledger) {
-        const entry_ts = entry.record.timeStamp;
+        const entry_ts = entry.transaction.timeStamp;
         assert.exists(entry_ts);
         assert.isAtLeast(entry_ts, curr_ts);
         curr_ts = entry_ts;

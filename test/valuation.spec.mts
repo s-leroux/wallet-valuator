@@ -21,6 +21,7 @@ import { FiatCurrency } from "../src/fiatcurrency.mjs";
 import { testQuantityInterface } from "./support/quantity.helper.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
+import { PriceResolver } from "../src/priceresolver.mjs";
 
 describe("Value", () => {
   const { EUR, USD } = FakeFiatCurrency;
@@ -75,13 +76,13 @@ describe("SnapshotValuation", () => {
       const registry = CryptoRegistry.create();
       const fiatCurrency = FakeFiatCurrency.USD;
       const oracle = new FakeOracle();
+      const priceResolver = new PriceResolver(oracle, fiatConverter);
       const snapshots = snapshotsFromMovements(movements);
       const valuations = await Promise.all(
         snapshots.map((snapshot) =>
           SnapshotValuation.createFromSnapshot(
             registry,
-            oracle,
-            fiatConverter,
+            priceResolver,
             fiatCurrency,
             snapshot,
             null

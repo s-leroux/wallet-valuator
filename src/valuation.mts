@@ -21,7 +21,8 @@ import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
 import { Quantity } from "./quantity.mjs";
-const log = logger("provider");
+import { PriceResolver } from "./priceresolver.mjs";
+const log = logger("valuation");
 
 //======================================================================
 //  Value
@@ -46,6 +47,18 @@ export class Value implements Quantity<FiatCurrency, Value> {
     readonly fiatCurrency: FiatCurrency,
     readonly value: BigNumber = BigNumber.ZERO
   ) {}
+
+  /**
+   * Creates a Value instance from a fiat currency identifier and numeric value.
+   * Handles both string currency codes and FiatCurrency objects.
+   *
+   * @param fiat - The fiat currency identifier (string code or FiatCurrency object)
+   * @param value - The numeric value to create the Value instance with
+   * @returns A new Value instance
+   */
+  static from(fiat: string | FiatCurrency, value: BigNumberSource) {
+    return new Value(FiatCurrency(fiat), BigNumber.from(value));
+  }
 
   plus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
@@ -212,6 +225,7 @@ export class SnapshotValuation {
     readonly cryptoValueBefore: PointInTimeValuation,
     readonly cryptoValueAfter: PointInTimeValuation,
     readonly tags: Map<string, any>,
+    readonly comments: string[],
     readonly fiatDeposits: Value,
     readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
     readonly gainOrLoss: Value | undefined,
@@ -220,8 +234,7 @@ export class SnapshotValuation {
 
   static async createFromSnapshot(
     registry: CryptoRegistry,
-    oracle: Oracle,
-    fiatConverter: FiatConverter,
+    priceResolver: PriceResolver,
     fiatCurrency: FiatCurrency,
     snapshot: Snapshot,
     parent: SnapshotValuation | null
@@ -240,19 +253,16 @@ export class SnapshotValuation {
         return crypto.price(fiatCurrency, 0); // XXX Is this correct
       }
       // This is a regular crypto-asset. Use the oracle to get the price.
-      const prices = await oracle.getPrice(
-        registry,
-        crypto,
-        date,
-        [fiatCurrency],
-        fiatConverter
-      );
+      const prices = await priceResolver.getPrice(registry, crypto, date, [
+        fiatCurrency,
+      ]);
 
       const price = prices[fiatCurrency];
       if (price === undefined) {
+        // XXX This is very unlikely since Priceresolver throws if a price is not found
         // prettier-ignore
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
-        log.warn("C3001", message, registry.getNamespaces(crypto));
+        log.warn("C3001", message, registry.getNamespaces(crypto), prices);
         throw new MissingPriceError(crypto, fiatCurrency, date);
       }
 
@@ -287,8 +297,9 @@ export class SnapshotValuation {
       exchangeRates
     );
 
-    // Copy tags
+    // Copy auxiliary data
     const tags = new Map<string, any>(snapshot.tags);
+    const comments = snapshot.comments;
 
     // Track cash movements
     let deposits = parent ? parent.fiatDeposits : new Value(fiatCurrency);
@@ -323,6 +334,7 @@ export class SnapshotValuation {
       start,
       end,
       tags,
+      comments,
       deposits,
       cashIn,
       gainOrLoss,
@@ -403,11 +415,11 @@ export class PortfolioValuation implements Iterable<SnapshotValuation> {
 
     // we need a bit of serialization here to keep track of the deposits
     let curr: SnapshotValuation | null = null;
+    const priceResolver = new PriceResolver(oracle, fiatConverter);
     for (const snapshot of snapshots) {
       curr = await SnapshotValuation.createFromSnapshot(
         registry,
-        oracle,
-        fiatConverter,
+        priceResolver,
         fiatCurrency,
         snapshot,
         curr

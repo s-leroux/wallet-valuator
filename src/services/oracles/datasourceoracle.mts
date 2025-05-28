@@ -3,11 +3,10 @@ import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import type { Price } from "../../price.mjs";
 
-import { NotImplementedError } from "../../error.mjs";
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
-import type { DataSource } from "../../coofile.mjs";
-import { CSVFile } from "../../coofile.mjs";
+import type { DataSource } from "../../csvfile.mjs";
+import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
 
 interface DataSourceOracleOptions {
@@ -70,7 +69,11 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
     columMapping: Record<FiatCurrency, string>,
     options: DataSourceOracleOptions = {}
   ) {
-    const dataSource = await CSVFile.createFromPath(path, BigNumber.from);
+    const dataSource = await CSVFile.createFromPath(
+      path,
+      String,
+      BigNumber.from
+    );
 
     return new DataSourceOracle(crypto, dataSource, columMapping, options);
   }

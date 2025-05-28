@@ -6,24 +6,70 @@ import { Amount } from "./cryptoasset.mjs";
 import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
+import { ChainAddressNG } from "./chainaddress.mjs";
 
-type TransactionType =
+type OnChainTransactionType =
   | "NORMAL" // a normal transaction
   | "INTERNAL" // an internal transaction
   | "ERC20"; // an ERC-20 token transfer
 
+export type OffChainTransactionType =
+  | "BUY" // Buy crypto from fiat
+  | "SELL" // Sell crypto for fiat
+  | "RECEIVE" // Receive crypto from external account (rewards)
+  | "SEND" // Send crypto to external account (gift)
+  | "TRADE" // Swap cryptos
+  | "DEPOSIT"; // Fiat deposit
+
+type TransactionDestination = ChainAddressNG;
+type TransactionSource = ChainAddressNG;
+
 const defaultFormat = tabular(" | ", "", "10", "", "", "");
 
 /**
- * Abstract base class for all blockchain transfers and transactions.
- *
- * Instance of this class or any of it sub-classes should be considered as immutable.
+ * Abstract base class for all blockchub-classes should be considered as immutable.
  */
+export interface Transaction {
+  readonly type: string; // RTTI?
+  readonly chainName: string;
 
-export abstract class Transaction {
+  readonly timeStamp: number; // Unix time (seconds since January 1, 1970, 00:00:00 UTC).
+  readonly amount: Amount;
+  readonly from: TransactionSource;
+  readonly to: TransactionDestination;
+
+  readonly comments: string[];
+  addComment(comment: string): Transaction;
+}
+
+export class CEXTransaction implements Transaction {
+  readonly comments: string[];
+
+  constructor(
+    readonly chainName: string,
+    readonly type: OffChainTransactionType,
+    readonly timeStamp: number,
+    readonly amount: Amount,
+    readonly from: TransactionSource,
+    readonly to: TransactionDestination,
+    comments?: string[]
+  ) {
+    this.comments = [...(comments ?? [])];
+  }
+
+  addComment(comment: string): this {
+    this.comments.push(comment);
+    return this;
+  }
+}
+
+export abstract class OnChainTransaction implements Transaction {
+  readonly chainName: string;
   readonly explorer: Explorer;
   readonly data: Record<string, string>;
-  readonly type: TransactionType;
+  readonly type: OnChainTransactionType;
+
+  readonly comments: string[];
 
   // All data below are set to NULL and initialized only when the effective transaction is retrieved
   blockNumber: number;
@@ -35,10 +81,17 @@ export abstract class Transaction {
   fees: BigNumber; // fees are always expressed in the blockchain native currency
   feesAsString: string;
 
-  constructor(swarm: Swarm, chain: Blockchain, type: TransactionType) {
+  constructor(swarm: Swarm, chain: Blockchain, type: OnChainTransactionType) {
+    this.chainName = chain.name;
     this.type = type;
     this.explorer = swarm.getExplorer(chain);
     this.data = {};
+    this.comments = [];
+  }
+
+  addComment(comment: string): this {
+    this.comments.push(comment);
+    return this;
   }
 
   toString(): string {
@@ -61,7 +114,10 @@ export abstract class Transaction {
 
   abstract isValid(swarm: Swarm): Promise<boolean>;
 
-  async assign(swarm: Swarm, data: Record<string, any>): Promise<Transaction> {
+  async assign(
+    swarm: Swarm,
+    data: Record<string, any>
+  ): Promise<OnChainTransaction> {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
       console.dir(data);
@@ -96,7 +152,7 @@ export abstract class Transaction {
   }
 }
 
-export class NormalTransaction extends Transaction {
+export class NormalTransaction extends OnChainTransaction {
   /**
    * A normal transaction is a a transaction where an Externally Owned Address (EOA) sends
    * ETH directly to another EOA.
@@ -139,7 +195,7 @@ export class NormalTransaction extends Transaction {
   }
 }
 
-export class InternalTransaction extends Transaction {
+export class InternalTransaction extends OnChainTransaction {
   /**
    * Internal transactions are not initiated by a user. Instead, theyare initiated by smart
    * contract code when certain conditions within the contract are met.
@@ -179,7 +235,7 @@ export class InternalTransaction extends Transaction {
   }
 }
 
-export class ERC20TokenTransfer extends Transaction {
+export class ERC20TokenTransfer extends OnChainTransaction {
   /**
    * An ERC-20 token transfer;
    */

@@ -13,7 +13,7 @@ import {
 } from "../oracles/coingecko.mjs";
 import { logger } from "../../debug.mjs";
 
-const log = logger("defillama");
+const log = logger("defillama-oracle");
 
 const USD = FiatCurrency("USD");
 
@@ -47,8 +47,8 @@ export class DefiLlamaOracle extends Oracle {
       crypto.price(USD, price),
       { origin: "DEFILLAMA" }
     ));
-    log.info("C1003", `Found price for ${crypto} at ${date.toISOString()}`);
-
+    log.info("C1003", `Found price for ${crypto}/USD at ${date.toISOString()}`);
+    /*
     for (const fiat of fiats) {
       if (fiat !== USD) {
         result[fiat] = await fiatConverter.convert(
@@ -59,6 +59,7 @@ export class DefiLlamaOracle extends Oracle {
         );
       }
     }
+    */
     return result;
   }
 

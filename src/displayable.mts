@@ -1,5 +1,8 @@
 import { formatDate as dateUtilsFormatDate } from "./date.mjs";
+import { logger } from "./debug.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
+
+const log = logger("displayable");
 
 export interface Displayable {
   toDisplayString(options: Readonly<DisplayOptions>): string;
@@ -46,13 +49,16 @@ function noDisplayString(obj: object & {}, options: DisplayOptions): string {
 
   // Other standard container?
   const values = (obj as any).values?.();
+  const classname = obj.constructor?.name ?? "[null prototype]";
+
   if (values) {
-    const classname = obj.constructor?.name ?? "[null prototype]";
     return `${classname}(${noDisplayString(Array.from(values), options)})`;
   }
 
+  log.trace("C1015", `Unable to format as display string ${classname} ${obj}`);
+  log.debug(classname, obj);
   throw new NotImplementedError(
-    `Missing toDisplayString() in ${obj.constructor.name}`
+    `Missing toDisplayString() in ${classname} ${obj}`
   );
 }
 

@@ -5,7 +5,7 @@ import { Price } from "../../price.mjs";
 import type { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
-const log = logger("database");
+const log = logger("caching-oracle");
 
 import Database from "better-sqlite3";
 import { FiatConverter } from "../fiatconverter.mjs";
@@ -176,10 +176,16 @@ export class Caching {
   }
 
   insertPrice(date: string, prices: Record<string, Price>): void {
+    // XXX Above    ^^^^^^^ Use a Date parameter
     const stmt = this.db.prepare(
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin) VALUES (?,?,?,?,?)"
     );
     for (const price of Object.values(prices)) {
+      log.trace(
+        "C1010",
+        `Caching price for ${price.crypto}/${price.fiatCurrency} at ${date}`
+      );
+
       const metadata = GlobalMetadataRegistry.getMetadata(price);
       const origin =
         (metadata?.origin && this.dictionary(metadata.origin)) || undefined;
@@ -200,6 +206,7 @@ export class Caching {
     currencies: FiatCurrency[],
     fiatConverter: FiatConverter
   ): Promise<Partial<Record<string, Price>>> {
+    // XXX Return type should be Record<FiatCurrency, Price>
     const result: Record<string, Price> = Object.create(null);
     const dateYyyyMmDd = date.toISOString().substring(0, 10);
     const missing: FiatCurrency[] = [];
@@ -211,6 +218,10 @@ export class Caching {
       if (row) {
         result[currency] = new Price(crypto, currency, row.price);
       } else {
+        log.trace(
+          "C1007",
+          `Cache miss for ${crypto}/${currency} as ${dateYyyyMmDd}`
+        );
         missing.push(currency);
       }
     }
@@ -225,7 +236,6 @@ export class Caching {
       missing, // request only missing data!
       fiatConverter
     );
-    log.trace("C9999", `caching price for ${crypto} at ${date.toISOString()}`);
     this.backend_calls += 1;
     this.insertPrice(dateYyyyMmDd, new_values as Record<string, Price>);
 

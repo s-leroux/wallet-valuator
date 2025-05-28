@@ -1,0 +1,98 @@
+import type { CryptoAsset } from "../../cryptoasset.mjs";
+import type { FiatCurrency } from "../../fiatcurrency.mjs";
+import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type { Price } from "../../price.mjs";
+
+import { formatDate } from "../../date.mjs";
+import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
+import type { CSVFileOptionBag, DataSource } from "../../csvfile.mjs";
+import { CSVFile } from "../../csvfile.mjs";
+import { Oracle } from "../oracle.mjs";
+import { logger } from "../../debug.mjs";
+import { GlobalMetadataRegistry } from "../../metadata.mjs";
+
+const log = logger("ohlc-oracle");
+
+interface OHLCOracleOptions {
+  dateFormat?: string;
+  origin?: string;
+}
+
+/**
+ * A class to read OHLC data source.
+ * First column is assumed to be the date
+ * Columns are assumed to be named "open", "high, "low", and "close"
+ */
+export class OHLCOracle<T extends BigNumberSource> extends Oracle {
+  // option
+  readonly dateFormat: string;
+  readonly origin: string;
+
+  constructor(
+    readonly crypto: CryptoAsset,
+    readonly fiat: FiatCurrency,
+    readonly data: DataSource<string, T>,
+    options: OHLCOracleOptions = {}
+  ) {
+    super();
+    this.dateFormat = options.dateFormat ?? "YYYY-MM-DD";
+    this.origin = options.origin?.toLocaleUpperCase() ?? "OHLC";
+  }
+
+  async getPrice(
+    registry: CryptoRegistry,
+    crypto: CryptoAsset,
+    date: Date,
+    fiats: FiatCurrency[]
+  ): Promise<Partial<Record<FiatCurrency, Price>>> {
+    const result = Object.create(null) as Record<FiatCurrency, Price>;
+
+    // We do not handle that crypto
+    if (crypto !== this.crypto || !fiats.includes(this.fiat)) {
+      log.debug(
+        "Not our business",
+        crypto !== this.crypto,
+        fiats.includes(this.fiat)
+      );
+      return result;
+    }
+
+    const formattedDate = formatDate(this.dateFormat, date);
+
+    // Estimate the fair price from OHLC data using the common fair value estimate
+    // Typical Price = (High + Low + Close) / 3
+    // XXX These multiple calls are highly inefficient. Change Datasource.get to accept several column specifiers.
+    const high = this.data.get(formattedDate, "High");
+    const low = this.data.get(formattedDate, "Low");
+    const close = this.data.get(formattedDate, "Close");
+
+    if (high && low && close) {
+      const price = (result[this.fiat] = crypto.price(
+        this.fiat,
+        BigNumber.sum(high[1], low[1], close[1]).div(3)
+      ));
+      GlobalMetadataRegistry.setMetadata(price, { origin: this.origin });
+      log.trace("C1012", `Found ${price} at ${formattedDate}`);
+    } else {
+      log.trace("C1011", `Date not found: ${formattedDate}`);
+    }
+
+    return result;
+  }
+
+  static async createFromPath(
+    crypto: CryptoAsset,
+    fiat: FiatCurrency,
+    path: string,
+    options: OHLCOracleOptions & CSVFileOptionBag = {}
+  ) {
+    const dataSource = await CSVFile.createFromPath(
+      path,
+      String,
+      BigNumber.from,
+      options
+    );
+
+    return new OHLCOracle(crypto, fiat, dataSource, options);
+  }
+}

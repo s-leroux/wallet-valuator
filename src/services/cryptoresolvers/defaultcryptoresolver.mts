@@ -1,3 +1,5 @@
+import { Namespaces } from "../../cryptoregistry.mjs";
+import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
 import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
 //prettier-ignore
@@ -60,32 +62,21 @@ const defaultCryptoTable = [
   ["xdai", "gnosis", null],
 ] as const;
 
-//prettier-ignore
-const defaultKeyDomainsMap = [
-  ["armm-v3-usdc", "RealT RMM V3 USDC", "armmv3USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
-  ["armm-v3-wxdai", "RealT RMM V3 WXDAI", "armmv3WXDAI", 18, { STANDARD: { coingeckoId: "xdai" } }],
-  ["binance-coin", "Binance Coin", "BNB", 18, { STANDARD: { coingeckoId: "binancecoin" } }],
-  ["bitcoin", "Bitcoin", "BTC", 8, { STANDARD: { coingeckoId: "bitcoin" } }],
-  ["crv", "Curve DAO", "CRV", 18 , { STANDARD: { coingeckoId: "curve-dao-token" } }],
-  ["crvusd", "crvUSD", "CRVUSD", 18 , { STANDARD: { coingeckoId: "crvusd" } }],
-  ["dai", "Dai Stablecoin", "DAI", 18, { STANDARD: { coingeckoId: "dai" } }],
-  ["ethereum", "Ethereum", "ETH", 18, { STANDARD: { coingeckoId: "ethereum" } }],
-  ["matic", "MATIC", "MATIC", 18 , { STANDARD: { coingeckoId: "matic-network" } }],
-  ["monerium-eure","Monerium EURe", "EURe", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
-  ["pol", "POL (ex-MATIC)", "POL", 18 , { STANDARD: { coingeckoId: "polygon-ecosystem-token" } }],
-  ["reg", "RealToken Ecosystem Governance", "REG", 18, { STANDARD: { coingeckoId: "realtoken-ecosystem-governance" } }],
-  ["ripple", "XRP", "XRP", 6 , { STANDARD: { coingeckoId: "ripple" } }],
-  ["savings-dai", "Savings Dai", "sDAI", 18, { STANDARD: { coingeckoId: "savings-dai" } }],
-  ["savings-xdai", "Savings xDai", "sDAI", 18, { STANDARD: { coingeckoId: "savings-xdai" } }],
-  ["solana", "Solana", "SOL", 9, { STANDARD: { coingeckoId: "solana" } }],
-  ["usdc", "USD Coin", "USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
-  ["usdt", "Tether USD", "USDT", 6, { STANDARD: { coingeckoId: "tether" } }],
-  ["wbeth", "Wrapped Beacon ETH", "WBETH", 18 , { STANDARD: { coingeckoId: "wrapped-beacon-eth" } }],
-  ["wbtc","Wrapped Bitcoin","WBTC" ,8 , { STANDARD: { coingeckoId: "wrapped-bitcoin" } }],
-  ["weth", "Wrapped Ether", "WETH", 18, { STANDARD: { coingeckoId: "weth" } }],
-  ["wsteth", "Wrapped stETH", "WSTETH", 18 , { STANDARD: { coingeckoId: "wrapped-steth" } }],
-  ["xdai", "xDai", "xDAI", 18 , { STANDARD: { coingeckoId: "xdai" } }],
-] as const;
+const defaultKeyDomainsMap = WellKnownCryptoAssets.map(
+  ([id, name, symbol, decimals, metadata]) => [
+    id,
+    name,
+    symbol,
+    decimals,
+    { STANDARD: metadata },
+  ]
+) as [
+  key: string,
+  name: string,
+  symbol: string,
+  decimal: number,
+  domains: Namespaces
+][];
 
 /**
  * The default crypto-resolver, rewritten as a sub-class of StaticCryptoResolver.

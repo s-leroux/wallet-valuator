@@ -6,7 +6,7 @@ import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
-import { DisplayOptions, format, toDisplayString } from "../../displayable.mjs";
+import { DisplayOptions, format } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import {
@@ -22,6 +22,9 @@ import { CryptoAsset } from "../../cryptoasset.mjs";
 import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mjs";
 import { PortfolioValuationReporter } from "../../services/reporters/valuationreporter.mjs";
 import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
+import { MakeAccount } from "../../account.mjs";
+import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
+import { OHLCOracle } from "../../services/oracles/ohlcoracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -52,19 +55,40 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
   return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
-function createOracle(envvars: EnvVars) {
-  // @ts-expect-error TypeScript does not support null-prototype object literals
-  const wellKnownCoingeckoId = {
-    __proto__: null,
-
-    bitcoin: "bitcoin",
-  } as InternalToCoinGeckoIdMapping;
+async function createOracle(envvars: EnvVars, registry: CryptoRegistry) {
+  const wellKnownCoingeckoId = WellKnownCryptoAssets.reduce(
+    (acc, [key, name, symbol, decimal, metadata]) => {
+      acc[key] = metadata.coingeckoId;
+      return acc;
+    },
+    Object.create(null) as InternalToCoinGeckoIdMapping
+  );
 
   return CompositeOracle.create([
     // My oracles
     CurveOracle.create(),
     CoinGecko.create(envvars["COINGECKO_API_KEY"], wellKnownCoingeckoId),
     DefiLlamaOracle.create(undefined, wellKnownCoingeckoId),
+    await OHLCOracle.createFromPath(
+      registry.createCryptoAsset("bitcoin"),
+      FiatCurrency("EUR"),
+      "bitcoin-eur-yahoo.csv",
+      {
+        origin: "Yahoo",
+        dateFormat: "MMM D, YYYY",
+        separator: ";",
+      }
+    ),
+    await OHLCOracle.createFromPath(
+      registry.createCryptoAsset("bitcoin"),
+      FiatCurrency("USD"),
+      "bitcoin-usd-yahoo.csv",
+      {
+        origin: "Yahoo",
+        dateFormat: "MMM D, YYYY",
+        separator: ";",
+      }
+    ),
   ]).cache(envvars["CACHE_PATH"]);
 }
 
@@ -83,52 +107,70 @@ function loadEnvironmentVariables() {
   return result;
 }
 
+// Configuration model for address processing
 type Config = {
+  accounts?: ([chain: string, address: string] | [false, unknown[]])[]; // The user accounts. Prefix by `false` to disable.
   addresses?: [chain: string, address: string, data: object][];
   filters?: [filter: object, key: string, value?: unknown][];
 };
-export async function processAddresses(
-  hexAddresses: string[],
-  configPath?: string
-): Promise<void> {
+
+export async function processAddresses(configPath?: string): Promise<void> {
+  // Load configuration from file if provided, otherwise use empty object
   const config = (
     configPath ? JSON.parse(await readFile(configPath, "utf8")) : {}
   ) as Config;
 
+  // Initialize core services and dependencies
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
   const registry = CryptoRegistry.create();
   const explorers = createExplorers(registry, envvars);
   const swarm = Swarm.create(explorers, registry, resolver);
-  const chain = asBlockchain("gnosis");
-  const addresses = await Promise.all(
-    hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress))
+
+  // Convert hex addresses to internal account objects
+  const accounts = await Promise.all(
+    (config.accounts ?? []).map(([chain, address]) =>
+      chain !== false ? MakeAccount(swarm, chain, address) : null
+    )
   );
 
+  // Pre-populate the address table with the user-provided data
   await Promise.all(
     (config.addresses ?? []).map(([chain, address, data]) =>
       swarm.address(asBlockchain(chain), address, data)
     )
   );
 
+  // Load all transfers from the user accounts
   const transfers = await Promise.all(
-    addresses.map((address) => address.allValidTransfers(swarm))
+    accounts.map((account) => (account ? account.loadTransactions(swarm) : []))
   );
+
+  // Create a ledger to track all transfers and their directions
+  // This helps identify incoming and outgoing transactions
   const ledger = Ledger.create(...transfers);
-  for (const address of addresses) {
-    ledger.from(address).tag("EGRESS");
-    ledger.to(address).tag("INGRESS");
+  for (const account of accounts) {
+    if (account) {
+      ledger.from(account).tag("EGRESS");
+      ledger.to(account).tag("INGRESS");
+    }
   }
 
+  // Apply user-defined filters to categorize transactions
+  // This allows for custom tagging of transactions based on rules
   for (const [selector, tag, value] of config.filters ?? []) {
     ledger.filter(registry, selector).tag(tag, value);
   }
+
+  // Create a portfolio representation of all transactions
   const portfolio = ledger.portfolio();
 
-  const oracle = createOracle(envvars);
+  // Set up price oracle and fiat conversion services
   const bitcoin: CryptoAsset = registry.createCryptoAsset("bitcoin");
+  const oracle = await createOracle(envvars, registry);
   const fiatConverter = ImplicitFiatConverter.create(oracle, bitcoin);
 
+  // Calculate the portfolio valuation in EUR
   const valuation = await portfolio.evaluate(
     registry,
     oracle,
@@ -136,13 +178,14 @@ export async function processAddresses(
     FiatCurrency("EUR")
   );
 
+  // Configure display options for the output
   const displayOptions: DisplayOptions = {
     "address.compact": false,
     "address.name": true,
     "amount.value.format": format("16.4"),
   };
-  console.log("%s", toDisplayString(valuation, displayOptions));
 
+  // Generate and output a detailed report
   const reporter = new PortfolioValuationReporter(valuation, displayOptions);
   console.log("%s", reporter.report());
 }

@@ -13,12 +13,13 @@ import { ValueError } from "./error.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 
 interface Movement {
+  // XXX We should revise this type. Maybe replace by the existing Transaction interface?
   explorer?: Explorer;
   timeStamp: number;
   amount: Amount;
-  from?: Address;
-  to?: Address;
-  hash?: string;
+  from?: { address: string };
+  to?: { address: string };
+  hash?: string; // XXX What is this hash? Looks specific to blochain transaction, or isn't?
 }
 
 export class Snapshot {
@@ -26,12 +27,14 @@ export class Snapshot {
   readonly timeStamp: number;
   readonly holdings: Map<CryptoAsset, Amount>; // Portfolio balance _after_ update
   readonly tags: Map<string, any>; // Copy of the transaction's tags
+  readonly comments: string[];
 
   constructor(
     ingress: boolean,
     egress: boolean,
     movement: Movement,
     tags: Map<string, any>,
+    comments: string[],
     parent: Snapshot | null = null
   ) {
     this.parent = parent;
@@ -39,6 +42,7 @@ export class Snapshot {
     // Naive implementation: just clone the whole map
     this.holdings = new Map(parent?.holdings);
     this.tags = new Map(tags);
+    this.comments = [...comments];
     this.update(ingress, egress, movement, tags);
   }
 
@@ -159,7 +163,7 @@ export class Portfolio {
    * This maps ledger's entries to Snapshots
    */
   static createFromLedger(ledger: Ledger): Portfolio {
-    let snapshots = [] as Snapshot[];
+    const snapshots = [] as Snapshot[];
     let curr: Snapshot | null = null;
 
     for (const entry of ledger) {
@@ -171,7 +175,14 @@ export class Portfolio {
         // Ignoring
         continue;
       } else if (ingress || egress) {
-        curr = new Snapshot(ingress, egress, entry.record, entry.tags, curr);
+        curr = new Snapshot(
+          ingress,
+          egress,
+          entry.transaction,
+          entry.tags,
+          entry.transaction.comments,
+          curr
+        );
         snapshots.push(curr);
       } else {
         // Not our business

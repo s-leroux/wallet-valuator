@@ -10,10 +10,7 @@ program
   .showHelpAfterError()
   .version("1.1.0")
   .option("-c, --config <config.json>", "JSON configuration")
-  .arguments("<addresses...>")
-  .action(async (addresses, options) =>
-    processAddresses(addresses, options.config)
-  );
+  .action(async (options) => processAddresses(options.config));
 
 // Parse and execute
 program.parse(process.argv);

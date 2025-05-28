@@ -1,4 +1,4 @@
-import type { DataSource } from "../../src/coofile.mjs";
+import type { DataSource } from "../../src/csvfile.mjs";
 import { bsearch } from "../../src/bsearch.mjs";
 
 export class FakeDataSource<T> implements DataSource<T, number> {
@@ -35,5 +35,9 @@ export class FakeDataSource<T> implements DataSource<T, number> {
       default:
         return undefined;
     }
+  }
+
+  [Symbol.iterator](): Iterator<[T, ...number[]]> {
+    return this.prices[Symbol.iterator]();
   }
 }
