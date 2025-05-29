@@ -228,6 +228,7 @@ export class SnapshotValuation {
     readonly comments: string[],
     readonly fiatDeposits: Value,
     readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
+    readonly cashInMulShare: Value | undefined, // The share of initial capital according to the French fiscal rules
     readonly gainOrLoss: Value | undefined,
     readonly parent: SnapshotValuation | null
   ) {}
@@ -305,6 +306,7 @@ export class SnapshotValuation {
     let deposits = parent ? parent.fiatDeposits : new Value(fiatCurrency);
     let cashIn = parent ? parent.fiscalCash : new Value(fiatCurrency);
     let gainOrLoss: Value | undefined;
+    let cashInMulShare: Value | undefined;
 
     if (tags.get("CASH-IN") && tags.get("CASH-OUT")) {
       const message = `A transaction cannot be CASH-IN and CASH-OUT at the same time`;
@@ -322,7 +324,7 @@ export class SnapshotValuation {
       // Specific French accounting formula (2025)
       // see https://www.waltio.com/fr/comment-calculer-impots-crypto/
       const share = cachOut.relativeTo(start.totalCryptoValue); // positive
-      const cashInMulShare = cashIn.scaledBy(share);
+      cashInMulShare = cashIn.scaledBy(share);
       gainOrLoss = cachOut.minus(cashInMulShare);
       cashIn = cashIn.minus(cashInMulShare); // same as cashIn * (1 - share)
     }
@@ -337,6 +339,7 @@ export class SnapshotValuation {
       comments,
       deposits,
       cashIn,
+      cashInMulShare,
       gainOrLoss,
       parent
     );

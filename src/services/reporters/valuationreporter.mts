@@ -1,6 +1,7 @@
 import { PortfolioValuation } from "../../valuation.mjs";
 import { DisplayOptions, toDisplayString } from "../../displayable.mjs";
 import { logger } from "../../debug.mjs";
+import { formatDate } from "../../date.mjs";
 
 const log = logger("valuation-reporter");
 
@@ -13,7 +14,6 @@ export class PortfolioValuationReporter {
   report() {
     const lines = [] as string[];
     for (const snapshot of this.portfolio) {
-      const date = snapshot.date.toISOString().slice(0, 10); // YYYY-MM-DD
       const totalValueBeforeStr =
         snapshot.cryptoValueBefore.totalCryptoValue.toDisplayString(
           this.displayOptions
@@ -22,8 +22,11 @@ export class PortfolioValuationReporter {
         snapshot.cryptoValueAfter.totalCryptoValue.toDisplayString(
           this.displayOptions
         );
+      const difference = snapshot.cryptoValueBefore.totalCryptoValue.minus(
+        snapshot.cryptoValueAfter.totalCryptoValue
+      );
 
-      lines.push(date);
+      lines.push(`D 211: ${formatDate("DD/MM/YYYY", snapshot.date)}`);
 
       // Add a line for the tags
       if (snapshot.tags.size) {
@@ -40,16 +43,37 @@ export class PortfolioValuationReporter {
 
       lines.push(...snapshot.comments);
 
-      lines.push(`V: ${totalValueBeforeStr} -> ${totalValueAfterStr}`);
+      // Portforlio value
+      lines.push(`V 212: ${totalValueBeforeStr} -> ${totalValueAfterStr}`);
 
+      // Value of the cash-out
+      lines.push(`P 213: ${difference.toDisplayString(this.displayOptions)}`);
+
+      // For cash-out, share of the total price to buy in the cash-out
+      if (snapshot.cashInMulShare) {
+        // Total price to buy BEFORE that transaction
+        lines.push(
+          `T 220: ${snapshot.fiscalCash
+            .plus(snapshot.cashInMulShare)
+            .toDisplayString(this.displayOptions)}`
+        );
+
+        // For cash-out, share of the total price to buy in the cash-out
+        lines.push(
+          `S 221: ${snapshot.cashInMulShare.toDisplayString(
+            this.displayOptions
+          )}`
+        );
+      }
+
+      // Total fiat deposits
       lines.push(
-        `D: ${snapshot.fiatDeposits.toDisplayString(this.displayOptions)}`
+        `    D: ${snapshot.fiatDeposits.toDisplayString(this.displayOptions)}`
       );
+
+      // Gain or loss
       lines.push(
-        `C: ${snapshot.fiscalCash.toDisplayString(this.displayOptions)}`
-      );
-      lines.push(
-        `G: ${snapshot.gainOrLoss?.toDisplayString(this.displayOptions)}`
+        `  G/L: ${snapshot.gainOrLoss?.toDisplayString(this.displayOptions)}`
       );
 
       // Now our holdings
