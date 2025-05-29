@@ -5,15 +5,30 @@ tmp/**/*
 .env
 *.env
 
-# Garbage
+# Archives
+/*.tar
+/*.tgz
+/*.tar.gz
+/*.zip
+
+# Diff and backups
+/*.diff
+/*.bak
+/*.orig
+
+# Misc. data
 /*.js
 /*.json
 /*.log
 /*.ts
 /*.txt
+/*.tsv
+/*.csv
+/*.html
 
-# Editor swap
+# Editor swap and lock files
 *.swp
+.~lock*
 
 # Vim
 *.vim
