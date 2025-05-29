@@ -30,7 +30,7 @@ describe("CurveDB utilities", () => {
         register(`case ${poolName} on ${chainName}`, () => {
           assert.equal(
             findLiquidityPool(chainName, lpTokenAddress),
-            poolAddress
+            poolAddress.toLowerCase()
           );
         });
       }
@@ -46,7 +46,7 @@ describe("CurveDB utilities", () => {
           register(`case ${poolName} on ${chainName}`, () => {
             assert.equal(
               findLiquidityPool(chainName, gaugeAddress),
-              poolAddress
+              poolAddress.toLowerCase()
             );
           });
         }

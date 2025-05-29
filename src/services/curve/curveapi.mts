@@ -84,14 +84,16 @@ export type CurveOHLC = {
 // We provide the ToCurveChainName and FromCurveChainName utilities to perform
 // the conversion transparently:
 
-const ToCurveChainName: Record<string, string> = {
+export const ToCurveChainName: Record<string, string> = {
+  // XXX string | undefined
   // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
   __proto__: null,
 
   gnosis: "xdai",
 } as const;
 
-const FromCurveChainName: Record<string, string> = {
+export const FromCurveChainName: Record<string, string> = {
+  // XXX string | undefined
   // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
   __proto__: null,
 
@@ -160,6 +162,8 @@ export class DefaultCurveAPI {
         {},
         {
           failover: (res: any, payload: Payload) => {
+            //            ^^^
+            // XXX Replace all `any` in the Provider interface by something more meaningful (RequestResponse?)
             if (res.status > 500) {
               return PricesChainsFallback;
             }

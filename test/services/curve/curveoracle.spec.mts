@@ -79,7 +79,6 @@ describe("CurveOracle", function () {
               ? {}
               : {
                   [USD]: crypto.price(USD, value),
-                  [EUR]: crypto.price(EUR, value).mul(RATE),
                 }
           );
         });

@@ -6,6 +6,9 @@ import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 import { ChainAddress } from "../../chainaddress.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
+import { logger } from "../../debug.mjs";
+
+const log = logger("curve-resolver");
 
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
@@ -57,6 +60,10 @@ export class CurveResolver extends CryptoResolver {
       smartContractAddress
     );
     if (!poolAddress) {
+      log.info(
+        "C1016",
+        `Curve pool not found for ${chainName} ${smartContractAddress}`
+      );
       return null;
     }
     const entry = {

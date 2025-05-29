@@ -18,6 +18,7 @@ export const ERRORS = {
   "C1013": "Need fiat convertion to synthetise some prices (PriceResolver)",
   "C1014": "Synthetize a price (ImplicitFiatconverter)",
   "C1015": "Unable to format and no fallback (noDisplayString)",
+  "C1016": "Pool not found (CurveResolver)",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",

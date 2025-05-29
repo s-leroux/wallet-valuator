@@ -4,6 +4,7 @@ import {
   CurveOHLC,
   CurvePriceHistory,
   CurvePriceList,
+  ToCurveChainName,
 } from "../../src/services/curve/curveapi.mjs";
 import { formatDate } from "../../src/date.mjs";
 import { NotImplementedError, ValueError } from "../../src/error.mjs";
@@ -12,6 +13,7 @@ import { NotImplementedError, ValueError } from "../../src/error.mjs";
 import MockPriceHistory from "../../fixtures/Curve/prices/priceHistory.json" assert { type: "json" };
 import MockUSDPriceEthereum from "../../fixtures/Curve/prices/usd_price/ethereum.json" assert { type: "json" };
 import MockUSDPriceGnosis from "../../fixtures/Curve/prices/usd_price/gnosis.json" assert { type: "json" };
+import { findLiquidityPool } from "../../src/services/curve/curvedb.mjs";
 
 export class FakeCurveAPI implements CurveAPI {
   static create(): CurveAPI {
@@ -48,7 +50,7 @@ export class FakeCurveAPI implements CurveAPI {
           name: "ethereum",
         },
         {
-          name: "gnosis",
+          name: "gnosis", // Originaly it is xdai but the library makes the update transparent
         },
       ],
     } as CurveChainList;
@@ -89,10 +91,12 @@ export class FakeCurveAPI implements CurveAPI {
     throw new NotImplementedError("Method not implemented.");
   }
 
-  getLiquidityPoolFromToken(
+  async getLiquidityPoolFromToken(
     chainName: string,
     tokenAddress: string
   ): Promise<string | null> {
-    throw new NotImplementedError("Method not implemented.");
+    chainName = ToCurveChainName[chainName] ?? chainName;
+
+    return findLiquidityPool(chainName, tokenAddress);
   }
 }
