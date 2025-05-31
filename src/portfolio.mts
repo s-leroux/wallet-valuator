@@ -13,13 +13,13 @@ import { ValueError } from "./error.mjs";
 import type { Explorer } from "./services/explorer.mjs";
 
 interface Movement {
-  // XXX We should revise this type. Maybe replace by the existing Transaction interface?
+  // ISSUE #123 We should revise this type. Maybe replace by the existing Transaction interface?
   explorer?: Explorer;
   timeStamp: number;
   amount: Amount;
   from?: { address: string };
   to?: { address: string };
-  hash?: string; // XXX What is this hash? Looks specific to blochain transaction, or isn't?
+  hash?: string; // ISSUE #123 What is this hash? Looks specific to blochain transaction, or isn't?
 }
 
 export class Snapshot {
@@ -105,7 +105,7 @@ export class Snapshot {
     }
   }
 
-  // XXX I am not sure this is meaningful without the previous snapshot valuation,
+  // ISSUE #124 I am not sure this is meaningful without the previous snapshot valuation,
   // notably to update the total deposits (in fiat currency).
   /*
   evaluate(

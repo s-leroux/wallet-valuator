@@ -44,7 +44,7 @@ export abstract class CryptoResolver {
     swarm: Swarm,
     chain: Blockchain,
     block: number,
-    smartContractAddress: string, // XXX Do we have a special value for native coins?
+    smartContractAddress: string, // ISSUE #97 Do we have a special value for native coins?
     name: string,
     symbol: string,
     decimal: number

@@ -5,7 +5,7 @@ export const ERRORS = {
   // Info- and trace-level codes (1000-1999)
   "C1001": "Download retry",
   "C1002": "Retrieved price data from CoinGecko",
-  "C1003": "Cahing database update", // XXX Typo
+  "C1003": "Caching database update",
   "C1004": "Retrieved price data from DefiLlama",
   "C1005": "Switching from binary to linear search",
   "C1006": "Trace CompositeOracle.getPrice",

@@ -33,7 +33,7 @@ const defaultFetchOptions = {
 
 export type FetchOptionBag = Readonly<Partial<typeof defaultFetchOptions>>;
 
-export type Payload = Record<string, any> | string; // XXX We should at least type the payload to be a valid JSON object
+export type Payload = Record<string, any> | string; // ISSUE #129 We should at least type the payload to be a valid JSON object
 
 export class Provider implements ProviderInterface {
   /**

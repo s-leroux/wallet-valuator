@@ -71,7 +71,7 @@ export class CoinGecko extends Oracle {
   static create(
     api_key: string,
     idMapping: InternalToCoinGeckoIdMapping | undefined = undefined,
-    options = {} as OptionBag & { origin?: string } // XXX Not the canonical way to use option bags
+    options = {} as OptionBag & { origin?: string } // ISSUE #110 Not the canonical way to use option bags
   ) {
     return new CoinGecko(
       new CoinGeckoProvider(
@@ -106,7 +106,7 @@ export class CoinGecko extends Oracle {
             date: formatDate("DD-MM-YYYY", pricing_date),
           }
         );
-        // XXX market_data may be undefined if there was no price at the given date
+        // #ISSUE 111 market_data may be undefined if there was no price at the given date
         if (historical_data.market_data) break;
 
         // Try one day earlier
@@ -139,7 +139,7 @@ export class CoinGecko extends Oracle {
       );
       result[currency] = GlobalMetadataRegistry.setMetadata(
         new Price(crypto, currency, value as string),
-        { origin: "COINGECKO" } // XXX Why all-caps?
+        { origin: "COINGECKO" } // ISSUE #112 Why all-caps?
       );
     }
 

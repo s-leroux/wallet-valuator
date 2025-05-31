@@ -49,7 +49,7 @@ export class ImplicitFiatConverter implements FiatConverter {
       this.crypto,
       date,
       [from, to],
-      new NullFiatConverter() // XXX We might use `this` here but isn't there some cases leading to infinite recursion?
+      new NullFiatConverter() // ISSUE #106 We might use `this` here but isn't there some cases leading to infinite recursion?
     ); // ISSUE #64 What to do if this fails?
 
     const toPrice = ref[to];

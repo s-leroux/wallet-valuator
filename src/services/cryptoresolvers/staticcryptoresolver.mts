@@ -95,7 +95,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     _symbol: string,
     _decimal: number
   ): Promise<ResolutionResult> {
-    const chainAddress = ChainAddress(chain.name, smartContractAddress); // XXX could this be done at higher level?
+    const chainAddress = ChainAddress(chain.name, smartContractAddress); // ISSUE #99 could this be done at higher level?
 
     // 1. Check that we know something about the crypto-asset
     const physicalCryptoAsset = this.physicalCryptoAssets.get(chainAddress);

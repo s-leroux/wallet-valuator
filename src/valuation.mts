@@ -40,7 +40,8 @@ const log = logger("valuation");
  * const eurValue = new Value(FiatCurrency("EUR"), BigNumber.from(85));
  * // usdValue.plus(eurValue) // Throws InconsistentUnitsError
  *
- * XXX Unify that class with `Amount` usign generics.
+ * FIXED Unify that class with `Amount` usign generics.
+ * FIXED This was fixed when `Quantity` was implemented.
  */
 export class Value implements Quantity<FiatCurrency, Value> {
   constructor(
@@ -134,7 +135,7 @@ type Position = {
 /**
  * A portfolio value at a given point-in-time.
  *
- * XXX We should rename PointInTimeValuation to SnapshotValuation but
+ * ISSUE #130 We should rename PointInTimeValuation to SnapshotValuation but
  * for historical reasons that later has inherited a (now) wrong name.
  */
 export class PointInTimeValuation {
@@ -251,7 +252,7 @@ export class SnapshotValuation {
       const standardMetadata = registry.getNamespaceData(crypto, "STANDARD");
       if (standardMetadata?.fiscalCategory === "SECURITY") {
         // SECURITY tokens have no fiscal price
-        return crypto.price(fiatCurrency, 0); // XXX Is this correct
+        return crypto.price(fiatCurrency, 0); // ISSUE #131 Is this correct
       }
       // This is a regular crypto-asset. Use the oracle to get the price.
       const prices = await priceResolver.getPrice(registry, crypto, date, [
@@ -260,7 +261,7 @@ export class SnapshotValuation {
 
       const price = prices[fiatCurrency];
       if (price === undefined) {
-        // XXX This is very unlikely since Priceresolver throws if a price is not found
+        // ISSUE #135 This is very unlikely since Priceresolver throws if a price is not found
         // prettier-ignore
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
         log.warn("C3001", message, registry.getNamespaces(crypto), prices);

@@ -32,13 +32,14 @@ export class CurveResolver extends CryptoResolver {
   async load() {
     const tokens = this.tokens;
     /*
-    
+    // ISSUE #104:
+
     Prepopulation strategie is flawed!
 
     if (tokens.size === 0) {
       // We assume we haven't loaded the tokens yet
       for (const chain of (await this.api.getChains()).data) {
-        // XXX Below:
+        // Below:
         // It is not obvious that `getAllUSDPrices` returns all the tokens for a chain
         for (const token of (await this.api.getAllUSDPrices(chain.name)).data) {
           const entry = {};

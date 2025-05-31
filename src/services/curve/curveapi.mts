@@ -85,7 +85,7 @@ export type CurveOHLC = {
 // the conversion transparently:
 
 export const ToCurveChainName: Record<string, string> = {
-  // XXX string | undefined
+  // ISSUE #100 string | undefined
   // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
   __proto__: null,
 
@@ -93,7 +93,7 @@ export const ToCurveChainName: Record<string, string> = {
 } as const;
 
 export const FromCurveChainName: Record<string, string> = {
-  // XXX string | undefined
+  // ISSUE #100 string | undefined
   // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
   __proto__: null,
 
@@ -107,7 +107,7 @@ export const FromCurveChainName: Record<string, string> = {
  * @returns Unix timestamp in seconds
  */
 function toCurveDate(date: Date) {
-  return Math.floor(date.getTime() / 1000); // XXX Should we round that to the nearest day?
+  return Math.floor(date.getTime() / 1000); // ISSUE #101 Should we round that to the nearest day?
 }
 
 //==========================================================================
@@ -163,7 +163,7 @@ export class DefaultCurveAPI {
         {
           failover: (res: any, payload: Payload) => {
             //            ^^^
-            // XXX Replace all `any` in the Provider interface by something more meaningful (RequestResponse?)
+            // ISSUE #102 Replace all `any` in the Provider interface by something more meaningful (RequestResponse?)
             if (res.status > 500) {
               return PricesChainsFallback;
             }
@@ -215,7 +215,7 @@ export class DefaultCurveAPI {
         // The remote API does not seem to handle pagination properly,
         // so we will simply loop until there is no more data to retrieve.
         if (page.data.length) {
-          contracts.push(...page.data); // XXX Ensure contractsPerPage will not exceed the spread operator capacity
+          contracts.push(...page.data); // ISSUE #103 Ensure contractsPerPage will not exceed the spread operator capacity
         } else {
           break;
         }

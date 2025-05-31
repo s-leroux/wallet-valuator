@@ -54,8 +54,6 @@ export function isCryptoAsset(obj: unknown): obj is CryptoAsset {
  * An `Amount` is used to store a quantity of a given CryptoAsset.
  * `Amount` must not be used to store values (as quantity of money
  * expressed in a given currency).
- *
- * XXX Unify that class with `Value` using generics.
  */
 export class Amount implements Quantity<CryptoAsset, Amount> {
   crypto: CryptoAsset;

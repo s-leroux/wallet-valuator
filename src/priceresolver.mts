@@ -38,7 +38,7 @@ export class PriceResolver {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[] // XXX This parameter should be a set. Probably requires NodeJS >= 22
+    fiats: FiatCurrency[] // ISSUE #127 This parameter should be a set. Probably requires NodeJS >= 22
   ): Promise<Partial<Record<FiatCurrency, Price>>> {
     const dummyFiatConverter = new NullFiatConverter(); // Force failure during the transition period introduced by issue #88
     const baseFiat = FiatCurrency("USD"); // The base fiat value used to infer the other. Hard-coded here as the USD.
@@ -85,8 +85,8 @@ export class PriceResolver {
         );
       }
 
-      // 4. Cache synthetized values
-      // XXX Hack! Hack! Hack!
+      // 4. Cache synthetised values
+      // ISSUE #128 Hack! Hack! Hack!
       if ("insertPrice" in this.oracle) {
         const dateYyyyMmDd = date.toISOString().substring(0, 10);
         const cache = this.oracle as Caching;

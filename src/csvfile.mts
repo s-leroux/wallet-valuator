@@ -60,7 +60,7 @@ export class CSVFileOptionBag {
  *
  *  This class make many asumptions:
  *  - column 0 is the key column sorted in ascending lexicographic order.
- *  - all lines are filled with data of type T // XXX Change that!
+ *  - all lines are filled with data of type T // ISSUE #120 Change that!
  */
 export class CSVFile<K, T> implements DataSource<K, T> {
   constructor(

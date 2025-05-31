@@ -151,7 +151,7 @@ const severity = {
   warn: ["Warn", 2, "yellow"],
   info: ["Info", 4, "green"],
   trace: ["Trace", 5, "green"],
-  debug: ["Debug", 6, "yellow"], // XXX Choose a proper color for debug informations
+  debug: ["Debug", 6, "yellow"], // ISSUE #121 Choose a proper color for debug informations
 } as const;
 
 type SeverityLevel = keyof typeof severity;

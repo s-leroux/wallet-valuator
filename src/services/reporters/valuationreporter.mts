@@ -79,11 +79,11 @@ export class PortfolioValuationReporter {
       // Now our holdings
       snapshot.cryptoValueAfter.positions.forEach(
         ({ value, amount }, cryptoAsset) => {
-          const isNegative = value.value.isNegative(); // XXX Add isNegative to the Value interface
+          const isNegative = value.value.isNegative(); // ISSUE #115 Add isNegative to the Quantity interface
           const significant =
-            isNegative || value.value.greaterThanOrEqualTo(0.0001); // XXX Add greaterThanOrEqualTo to the Value interface
+            isNegative || value.value.greaterThanOrEqualTo(0.0001); // ISSUE #116 Add greaterThanOrEqualTo to the Quantity interface
           if (significant) {
-            const flags = isNegative ? "XXX NEGATIVE" : "";
+            const flags = isNegative ? "!!! NEGATIVE" : "";
             lines.push(
               "  " +
                 value.toDisplayString(this.displayOptions) +

@@ -14,7 +14,7 @@ type PartialMetadataFor<T> = Partial<MetadataFor<T>>;
 /**
  * Registry for storing and retrieving metadata associated with library value objects.
  *
- * XXX Consider merging with CryptoRegistry as they serve similar purposes.
+ * ISSUE #122 Consider merging with CryptoRegistry as they serve similar purposes.
  */
 export class MetadataRegistry {
   readonly metadata = new WeakMap<object, object>();

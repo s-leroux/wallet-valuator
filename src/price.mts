@@ -14,7 +14,7 @@ import { BigNumber, BigNumberSource } from "./bignumber.mjs";
  * const ethPrice = new Price(ethereum, usd, 2000); // 1 ETH = 2000 USD
  * const eurPrice = ethPrice.to(eur, 0.85); // Convert to EUR using USD/EUR rate
  *
- * XXX Consider rewriting that as a (CryptoAsset, Value) tupple.
+ * ISSUE #126 Consider rewriting that as a (CryptoAsset, Value) tupple.
  */
 export class Price {
   readonly crypto: CryptoAsset;

@@ -34,7 +34,7 @@ export class DefiLlamaOracle extends Oracle {
   ): Promise<Record<FiatCurrency, Price>> {
     const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
     if (!coinGeckoId) {
-      // XXX We could query other metadata such as the canonical ChainAddress for the crypto-asset
+      // ISSUE #105 We could query other metadata such as the canonical ChainAddress for the crypto-asset
       return Object.create(null);
     }
 

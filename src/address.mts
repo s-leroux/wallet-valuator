@@ -27,7 +27,7 @@ export type AddressData = AnyAddressData & ERC20TokenAddressData;
 export class Address implements Account {
   readonly chain: string;
   readonly address: string;
-  readonly chainAddress: ChainAddress; // XXX This is redundant with chain and address above!
+  readonly chainAddress: ChainAddress; // #ISSUE 118 This is redundant with chain and address above!
   readonly explorer: Explorer;
   readonly data: Partial<AddressData>;
 

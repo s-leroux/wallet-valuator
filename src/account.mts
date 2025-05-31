@@ -16,7 +16,7 @@ import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
 
 export interface Account {
   readonly chain: string;
-  readonly address: string; // XXX This is named that way by compatibility with the Address class
+  readonly address: string; // ISSUE #125 This is named that way by compatibility with the Address class
 
   loadTransactions(swarm: Swarm): Promise<Transaction[]>;
 }
@@ -114,7 +114,7 @@ class BinanceAccount implements Account {
       const timeStamp = Math.floor(new Date(date).getTime() / 1000);
       const comments = comment && comment !== '""' ? [comment] : [];
       //                          ^^^^^^^^^^^^^^^
-      // XXX Hack to deal with quotes in csv
+      // ISSUE #119 Hack to deal with quotes in csv
       comments.unshift(`BINANCE TRANSACTION ${id}`);
 
       switch (type.toUpperCase() as OffChainTransactionType) {

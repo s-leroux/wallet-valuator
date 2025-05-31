@@ -47,7 +47,7 @@ export type DefiLlamaPriceData = {
  * @returns Unix timestamp in seconds
  */
 function toDefiLlamaDate(date: Date) {
-  return Math.floor(date.getTime() / 1000); // XXX Should we round that to the nearest day?
+  return Math.floor(date.getTime() / 1000); // ISSUE #101 Should we round that to the nearest day?
 }
 
 // ===========================================================================

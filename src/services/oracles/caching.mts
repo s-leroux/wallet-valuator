@@ -127,7 +127,7 @@ export class Caching {
    * If the string is not present, it is stored and its new index is returned.
    */
   dictionary(text: string) {
-    // XXX Cache those data!
+    // ISSUE #107 Cache those data!
     const select_stmt = this.db.prepare<[string], { rowid: number }>(
       "SELECT rowid FROM dictionary WHERE value = ?"
     );
@@ -176,7 +176,7 @@ export class Caching {
   }
 
   insertPrice(date: string, prices: Record<string, Price>): void {
-    // XXX Above    ^^^^^^^ Use a Date parameter
+    // ISSUE #108 Above    ^^^^^^^ Use a Date parameter
     const stmt = this.db.prepare(
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin) VALUES (?,?,?,?,?)"
     );
@@ -206,7 +206,7 @@ export class Caching {
     currencies: FiatCurrency[],
     fiatConverter: FiatConverter
   ): Promise<Partial<Record<string, Price>>> {
-    // XXX Return type should be Record<FiatCurrency, Price>
+    // ISSUE #109 Return type should be Record<FiatCurrency, Price|undefined>
     const result: Record<string, Price> = Object.create(null);
     const dateYyyyMmDd = date.toISOString().substring(0, 10);
     const missing: FiatCurrency[] = [];

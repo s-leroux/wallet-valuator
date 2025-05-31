@@ -5,7 +5,7 @@ import { MMap } from "../../memoizer.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 
-// XXX We may factor out the ChainAddress utility
+// ISSUE #98 We may factor out the ChainAddress utility
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
   chain: string,
