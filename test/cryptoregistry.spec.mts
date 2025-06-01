@@ -29,7 +29,7 @@ describe("CryptoRegistry", () => {
       assert.include(bitcoin, {
         id: toCryptoAssetID("bitcoin"),
         name: "Bitcoin",
-        decimal: 18,
+        decimal: 8,
       });
     });
   });
