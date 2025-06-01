@@ -2,10 +2,6 @@ import { assert } from "chai";
 
 import { Blockchain } from "../src/blockchain.mjs";
 
-before(function () {
-  process.env.NODE_ENV = "test"; // ISSUE #132 Ensures NODE_ENV is set for this test file. We should find a more global solution.
-});
-
 describe("Blockchain Singleton", function () {
   beforeEach(() => (Blockchain as any).__testResetRegistry());
 
