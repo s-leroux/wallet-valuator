@@ -44,7 +44,6 @@
     "@types/eslint__js": "^8.42.3",
     "@types/mocha": "^10",
     "@types/node": "^22.9.0",
-    "@types/node-fetch": "^2.6.11",
     "@types/source-map-support": "^0",
     "chai": "^5.1.1",
     "chai-as-promised": "^8.0.0",
@@ -57,7 +56,6 @@
   "dependencies": {
     "better-sqlite3": "^11.5.0",
     "commander": "^12.1.0",
-    "decimal.js": "^10.4.3",
-    "node-fetch": "^3.3.2"
+    "decimal.js": "^10.4.3"
   }
 }

@@ -19,6 +19,7 @@ export const ERRORS = {
   "C1014": "Synthetize a price (ImplicitFiatconverter)",
   "C1015": "Unable to format and no fallback (noDisplayString)",
   "C1016": "Pool not found (CurveResolver)",
+  "C1017": "An error was thrown while fetching URL (provider)",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",

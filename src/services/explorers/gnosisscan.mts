@@ -1,15 +1,8 @@
-import { Provider } from "../../provider.mjs";
+import { JSONValue, Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
-import { CryptoAsset } from "../../cryptoasset.mjs";
-import {
-  OnChainTransaction,
-  NormalTransaction,
-  InternalTransaction,
-  ERC20TokenTransfer,
-} from "../../transaction.mjs";
+import { NormalTransaction } from "../../transaction.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
-import { ChainAddress } from "../../chainaddress.mjs";
 import { CryptoRegistry } from "../../cryptoregistry.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
@@ -121,6 +114,16 @@ export class GnosisScanProvider extends Provider {
 }
 
 //==========================================================================
+//  Domain types
+//==========================================================================
+
+export type GnosisScanResponse = {
+  result: JSONValue;
+  status: string;
+  message: string;
+};
+
+//==========================================================================
 //  API
 //==========================================================================
 
@@ -153,7 +156,7 @@ export class GnosisScanAPI {
       closest: closest,
     };
 
-    return await this.provider.fetch("", params);
+    return (await this.provider.fetch("", params)) as GnosisScanResponse;
   }
 
   async normalTransaction(txhash: string) {
@@ -163,7 +166,10 @@ export class GnosisScanAPI {
       txhash,
     };
 
-    const response = await this.provider.fetch("", params);
+    const response = (await this.provider.fetch(
+      "",
+      params
+    )) as GnosisScanResponse;
     const iserror = response.result === null;
     return {
       status: iserror ? "0" : "1",
@@ -180,7 +186,7 @@ export class GnosisScanAPI {
       endBlock: blockNumber,
       sort: "asc",
     };
-    return this.provider.fetch("", params);
+    return this.provider.fetch("", params) as Promise<GnosisScanResponse>;
   }
 
   accountNormalTransactions(address: string, block?: number) {
@@ -192,10 +198,10 @@ export class GnosisScanAPI {
       sort: "asc",
       address: address,
     };
-    return this.provider.fetch("", params);
+    return this.provider.fetch("", params) as Promise<GnosisScanResponse>;
   }
 
-  async accountInternalTransactions(address: string) {
+  accountInternalTransactions(address: string) {
     const params = {
       module: "account",
       action: "txlistinternal",
@@ -204,10 +210,10 @@ export class GnosisScanAPI {
       sort: "asc",
       address: address,
     };
-    return this.provider.fetch("", params);
+    return this.provider.fetch("", params) as Promise<GnosisScanResponse>;
   }
 
-  async accountTokenTransfers(address: string) {
+  accountTokenTransfers(address: string) {
     const params = {
       module: "account",
       action: "tokentx",
@@ -216,7 +222,7 @@ export class GnosisScanAPI {
       sort: "asc",
       address: address,
     };
-    return this.provider.fetch("", params);
+    return this.provider.fetch("", params) as Promise<GnosisScanResponse>;
   }
 }
 
@@ -285,7 +291,8 @@ export class GnosisScan extends CommonExplorer {
     swarm: Swarm,
     txhash: string
   ): Promise<NormalTransaction> {
-    const ethTransaction = (await this.api.normalTransaction(txhash)).result;
+    const ethTransaction = (await this.api.normalTransaction(txhash))
+      .result as Record<string, any>;
     const from = ethTransaction.from;
     // apparently the gnosis aPI does not accept hexadecimal numbers!
     const blockNumber = parseInt(ethTransaction.blockNumber);
@@ -293,7 +300,7 @@ export class GnosisScan extends CommonExplorer {
 
     const records = (
       await this.api.accountNormalTransactions(from, blockNumber)
-    ).result;
+    ).result as Record<string, any>[];
 
     for (const record of records) {
       const t = await swarm.normalTransaction(this.chain, record.hash, record);
@@ -313,22 +320,30 @@ export class GnosisScan extends CommonExplorer {
   async blockInternalTransactions(
     blockNumber: number
   ): Promise<Record<string, any>[]> {
-    return (await this.api.blockInternalTransactions(blockNumber)).result;
+    return (await this.api.blockInternalTransactions(blockNumber))
+      .result as Record<string, any>[];
   }
 
   async accountNormalTransactions(
     address: string
   ): Promise<Record<string, any>[]> {
-    return (await this.api.accountNormalTransactions(address)).result;
+    return (await this.api.accountNormalTransactions(address)).result as Record<
+      string,
+      any
+    >[];
   }
 
   async accountInternalTransactions(
     address: string
   ): Promise<Record<string, any>[]> {
-    return (await this.api.accountInternalTransactions(address)).result;
+    return (await this.api.accountInternalTransactions(address))
+      .result as Record<string, any>[];
   }
 
   async accountTokenTransfers(address: string): Promise<Record<string, any>[]> {
-    return (await this.api.accountTokenTransfers(address)).result;
+    return (await this.api.accountTokenTransfers(address)).result as Record<
+      string,
+      any
+    >[];
   }
 }

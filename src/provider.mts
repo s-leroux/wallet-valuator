@@ -5,10 +5,17 @@ import { logger as logger } from "./debug.mjs";
 const log = logger("provider");
 
 export interface ProviderInterface {
-  fetch(endpoint: string, params: Record<string, string>): Promise<object>;
+  fetch(endpoint: string, params: Record<string, string>): Promise<Payload>;
 }
 
-function is_json(res: any): boolean {
+export type JSONValue = JSONAtom | JSONArray | JSONObject;
+export type JSONAtom = string | number | boolean | null;
+export type JSONArray = [...JSONValue[]];
+export interface JSONObject {
+  [key: string]: JSONValue | undefined;
+}
+
+function is_json(res: Response): boolean {
   const content_type = res.headers.get("content-type");
   if (content_type && content_type.indexOf("application/json") > -1) {
     return true;
@@ -28,12 +35,12 @@ export type ProviderOptionBag = Readonly<
 >;
 
 const defaultFetchOptions = {
-  failover: (res: any, payload: Payload) => {},
+  failover: (res: Response, payload: Payload): Payload | void => {},
 };
 
 export type FetchOptionBag = Readonly<Partial<typeof defaultFetchOptions>>;
 
-export type Payload = Record<string, any> | string; // ISSUE #129 We should at least type the payload to be a valid JSON object
+export type Payload = JSONValue | string;
 
 export class Provider implements ProviderInterface {
   /**
@@ -71,7 +78,7 @@ export class Provider implements ProviderInterface {
    * @param payload - The response payload (e.g., parsed JSON or text).
    * @returns True if the response represents an error condition; false otherwise.
    */
-  isError(res: any, payload: Payload) {
+  isError(res: Response, payload: Payload) {
     // OVERRIDE ME
     return res.status != 200;
   }
@@ -84,7 +91,7 @@ export class Provider implements ProviderInterface {
    * @param payload - The response payload or error object.
    * @returns True if the request should be retried; false otherwise.
    */
-  shouldRetry(res: any, payload: Payload) {
+  shouldRetry(res: Response, payload: Payload) {
     // OVERRIDE ME
     if (!res) return true; // internal error: we assume it was a transient issue
 
@@ -100,7 +107,7 @@ export class Provider implements ProviderInterface {
    * @param payload - The response payload or error details.
    * @returns An Error instance representing the failure.
    */
-  newError(res: any, payload: Payload) {
+  newError(res: Response, payload: Payload) {
     // OVERRIDE ME
     return new Error( // ISSUE 29 We should have a specific HTTPStatusError
       `Error status ${res.status} while fetching ${res.url}\n${payload}`
@@ -116,7 +123,7 @@ export class Provider implements ProviderInterface {
    * @param params - An object containing query parameters.
    * @returns A URL object representing the full URL.
    */
-  buildUrl(endpoint: string, params: Record<string, any>): URL {
+  buildUrl(endpoint: string, params: Record<string, string>): URL {
     const url = new URL(endpoint, this.base);
     const search_params = new URLSearchParams(params);
     this.injectExtraParams(search_params);
@@ -136,13 +143,13 @@ export class Provider implements ProviderInterface {
    * @returns An object containing the Response (if available), the payload, and an is_error flag.
    */
   private async performFetch(url: URL) {
-    let res;
-    let payload;
+    let res: Response;
+    let payload: Payload;
     try {
       res = await this.semaphore.do(fetch, url);
       payload = await (is_json(res) ? res.json() : res.text());
     } catch (err) {
-      return { result: err, is_error: true };
+      return { err, is_error: true };
     }
 
     // Call this.isError outside the try block so that exceptions from user code are not swallowed
@@ -161,20 +168,34 @@ export class Provider implements ProviderInterface {
    */
   async fetch(
     endpoint: string,
-    params: Record<string, any> = {},
+    params: Record<string, string | number> = {},
     options: FetchOptionBag = {}
-  ) {
+  ): Promise<Payload> {
     options = Object.assign(Object.create(null), defaultFetchOptions, options);
 
     let { cooldown, retry } = this.options;
-    const url = this.buildUrl(endpoint, params);
+    const url = this.buildUrl(endpoint, params as Record<string, string>);
 
     while (true) {
-      const { res, payload, is_error } = await this.performFetch(url);
+      const { res, payload, is_error, err } = await this.performFetch(url);
 
       if (is_error) {
-        // it's an error
-        if (retry-- > 0 && this.shouldRetry(res, payload)) {
+        log.warn("C2002", `Failed to download ${url}`);
+
+        // Two possible cases:
+        // 1. `fetch` has returned an error response. In that case `err` is undefined, but `res` and `payload` are.
+        // 2. There was an error not related to fetch's response, and `err` is defined but not `res` and `payload`
+        if (err) {
+          log.trace("C1017", String(err));
+          if (retry-- > 0) {
+            continue;
+          }
+          // propagate
+          throw err;
+        }
+
+        // Starting from here, `res` and `payload` are defined
+        if (retry-- > 0 && this.shouldRetry(res!, payload!)) {
           await Promise.timeout(cooldown);
           cooldown *= 1.4 + 0.2 * Math.random();
 
@@ -187,17 +208,18 @@ export class Provider implements ProviderInterface {
           continue;
         }
 
-        log.warn("C2002", `Failed to download ${url}`);
-        const failover = options.failover?.(res, payload);
+        // This is our last chance to return something useful:
+        const failover = options.failover?.(res!, payload!);
         if (failover !== undefined) {
           log.warn("C2005", `Using failover value`);
 
           return failover;
         }
-        throw this.newError(res, payload);
+        throw this.newError(res!, payload!);
       }
 
-      return payload;
+      // Here, `isError` is false and so `res` and `payload` are defined
+      return payload!;
     }
   }
 }

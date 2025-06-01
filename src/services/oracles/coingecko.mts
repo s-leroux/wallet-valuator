@@ -8,6 +8,7 @@ import { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { Ensure } from "../../type.mjs";
 
 const log = logger("coingecko");
 
@@ -42,7 +43,21 @@ export class CoinGeckoProvider extends Provider {
   }
 }
 
-type OptionBag = {};
+type OptionBag = object;
+
+//==========================================================================
+//  Domain types
+//==========================================================================
+
+export type CoinGeckoPriceHistory = {
+  market_data: {
+    current_price: Record<FiatCurrency, Price | undefined>;
+  };
+};
+
+//==========================================================================
+//  CoinGecko Oracle
+//==========================================================================
 
 export class CoinGecko extends Oracle {
   readonly provider: Provider;
@@ -92,7 +107,7 @@ export class CoinGecko extends Oracle {
     currencies: FiatCurrency[]
   ): Promise<Partial<Record<FiatCurrency, Price>>> {
     let prices;
-    let historical_data;
+    let historical_data: CoinGeckoPriceHistory | undefined;
     const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
     if (!coinGeckoId) {
       return Object.create(null);
@@ -100,13 +115,13 @@ export class CoinGecko extends Oracle {
     try {
       const pricing_date = new Date(date);
       for (let i = 0; i < MAX_HISTORICAL_ATTEMPTS; ++i) {
-        historical_data = await this.provider.fetch(
+        historical_data = (await this.provider.fetch(
           `coins/${encodeURIComponent(coinGeckoId)}/history`,
           {
             date: formatDate("DD-MM-YYYY", pricing_date),
           }
-        );
-        // #ISSUE 111 market_data may be undefined if there was no price at the given date
+        )) as CoinGeckoPriceHistory;
+        // ISSUE #111 market_data might be undefined if there is no price for the given date
         if (historical_data.market_data) break;
 
         // Try one day earlier
@@ -118,7 +133,8 @@ export class CoinGecko extends Oracle {
           crypto
         );
       }
-      prices = historical_data.market_data.current_price;
+
+      prices = Ensure.isDefined(historical_data).market_data.current_price;
     } catch (err) {
       log.trace("C1009", `Error while getting price for ${crypto}: ${err}`);
       log.debug(date, currencies, crypto, coinGeckoId, historical_data, err);
