@@ -6,9 +6,6 @@ import { bsearch, linsearch } from "./bsearch.mjs";
 import { logger } from "./debug.mjs";
 const log = logger("csvfile");
 
-type Row<T> = [string, T];
-type Column<T> = Row<T>[];
-
 type CSVParserOption = {
   separator?: string;
 };
@@ -18,12 +15,13 @@ type CSVParserOption = {
 // =====================================================================
 
 /*
- * Lightweight RFC-4180-compatible CSV parser.
- * - Handles quoted fields
- * - Supports embedded commas, quotes, and newlines
- * - No external dependencies
+ * RFC-4180-compatible CSV parser implemented as a state machine.
  *
- * The parser is implemented as the state machine described ins `csv.dot`
+ * The parser handles:
+ * - Quoted fields with escaped quotes (doubled)
+ * - Fields containing commas, quotes, and line breaks
+ * - Empty fields and records
+ * - Both LF and CRLF line endings
  */
 
 const enum State {
@@ -296,7 +294,6 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     toData: (arg0: string) => T,
     options: CSVFileOptionBag = {}
   ): CSVFile<K, T> {
-    let lineNum = 0;
     const reorder = options.reorder;
 
     const sentinel = Symbol();
@@ -307,7 +304,6 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     const rows = [] as [K, ...T[]][];
 
     for (const line of parseCSV(text, options)) {
-      lineNum += 1;
       if (headings === undefined) {
         // read the heading
         headings = line;

@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { readFile } from "node:fs/promises";
 
 import { prepare } from "./support/register.helper.mjs";
 
@@ -107,6 +108,28 @@ describe("CSV parser", function () {
     for (const [text, error, description] of testcases) {
       register(description, () => {
         assert.throws(() => Array.from(parseCSV(text)), error);
+      });
+    }
+  });
+
+  describe("Should parse realistic input", async function () {
+    const register = prepare(this);
+    const text = await readFile("fixtures/fake-report.csv", {
+      encoding: "utf8",
+    });
+    const testpoints = [
+      [0, 7, "Fee Coin"],
+      [1, 3, "42,150.50"],
+      [4, 8, 'Note with quotes: "Special" transaction'],
+      [6, 2, "TRADE"],
+      [6, 3, ""],
+      [6, 6, ""],
+    ] as const;
+
+    const data = Array.from(parseCSV(text));
+    for (const [row, col, expected] of testpoints) {
+      register(`data[${row}][${col}] = "${expected}"`, () => {
+        assert.strictEqual(data[row][col], expected);
       });
     }
   });
