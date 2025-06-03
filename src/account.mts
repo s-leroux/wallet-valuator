@@ -112,9 +112,7 @@ class BinanceAccount implements Account {
       comment,
     ] of this.transactionReport) {
       const timeStamp = Math.floor(new Date(date).getTime() / 1000);
-      const comments = comment && comment !== '""' ? [comment] : [];
-      //                          ^^^^^^^^^^^^^^^
-      // ISSUE #119 Hack to deal with quotes in csv
+      const comments = comment ? [comment] : [];
       comments.unshift(`BINANCE TRANSACTION ${id}`);
 
       switch (type.toUpperCase() as OffChainTransactionType) {
