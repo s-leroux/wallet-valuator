@@ -62,14 +62,13 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     // Estimate the fair price from OHLC data using the common fair value estimate
     // Typical Price = (High + Low + Close) / 3
     // ISSUE #114 These multiple calls are highly inefficient. Change Datasource.get to accept several column specifiers.
-    const high = this.data.get(formattedDate, "High");
-    const low = this.data.get(formattedDate, "Low");
-    const close = this.data.get(formattedDate, "Close");
+    const [_, high, low, close] =
+      this.data.getMany(formattedDate, ["High", "Low", "Close"]) ?? [];
 
     if (high && low && close) {
       const price = (result[this.fiat] = crypto.price(
         this.fiat,
-        BigNumber.sum(high[1], low[1], close[1]).div(3)
+        BigNumber.sum(high, low, close).div(3)
       ));
       GlobalMetadataRegistry.setMetadata(price, { origin: this.origin });
       log.trace("C1012", `Found ${price} at ${formattedDate}`);
