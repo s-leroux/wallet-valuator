@@ -168,6 +168,30 @@ describe("CSVFile", function () {
       }
     });
 
+    describe("getMany()", async function () {
+      const register = prepare(this);
+      const csvFile = await CSVFile.createFromPath(
+        CSV_TEST_FILE,
+        String,
+        String
+      );
+      // prettier-ignore
+      const testcases: [string, string[], string[]][] = [
+        ["2020-04-22 00:00:00 UTC", ["price", "total_volume"], ["0.5728269210770057", "9610841.993019182"]],
+        ["2020-04-29 00:00:00 UTC", ["total_volume", "market_cap"], ["7387289.032147021", "5283691.351331575"]],
+      ];
+
+      for (const [row, cols, expected] of testcases) {
+        register(
+          `case ${row} ${cols.join(",")} = ${expected.join(",")}`,
+          () => {
+            const actual = csvFile.getMany(row, cols);
+            assert.deepEqual(actual && actual.slice(1), expected);
+          }
+        );
+      }
+    });
+
     it("should be iterable", async function () {
       const csvFile = await CSVFile.createFromPath(
         CSV_TEST_FILE,
@@ -209,25 +233,23 @@ describe("CSVFile", function () {
       const testcases = [
         ["2023-01-14 12:36", "Sent Amount", "69.924364"],
         ["2023-01-14 15:33", "ID", "ce7d4d..5c"],
-        ["2023-01-14 16:19", "Date", "2023-01-14 16:19", ValueError], // Should fail
+        ["2023-01-14 16:19", "Age", undefined, ValueError], // Should fail
+        ["2023-01-14 17:29", "Date", undefined],
       ] as const;
 
       for (const [row, col, expected, error] of testcases) {
-        register(
-          `case ${row} ${col} = ${expected}${error ? " 💣" : ""} `,
-          () => {
-            function doIt() {
-              const actual = csvFile.get(row, col);
-              assert.deepEqual(actual && actual[1], expected);
-            }
-
-            if (error) {
-              assert.throws(doIt, error);
-            } else {
-              doIt();
-            }
+        register(`case ${row} ${col} = ${error ? "💣" : expected} `, () => {
+          function doIt() {
+            const actual = csvFile.get(row, col);
+            assert.deepEqual(actual && actual[1], expected);
           }
-        );
+
+          if (error) {
+            assert.throws(doIt, error);
+          } else {
+            doIt();
+          }
+        });
       }
     });
   });
