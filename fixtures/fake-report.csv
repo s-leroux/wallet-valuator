@@ -1,7 +1,7 @@
 "UTC_Time",Pair,Type,"Price (USD)","Amount","Total (USD)","Fee","Fee Coin",Note
-2024-01-15 09:23:45,BTC/USDT,BUY,"42,150.50",0.02345678,"987.65",0.00098765,BNB,"Market order"
-2024-01-16 14:22:11,"BTC,ETH",SELL,"2.5",100.0,"250.00",,,"Arbitrage trade, multiple coins"
-2024-01-18 16:45:23,ETH USDT,WITHDRAWAL,,0.45123456,,,ETH,"Withdrawal to external wallet: 0x1234...abcd"
-2024-01-20 11:30:15,ADA-EUR,SELL,"0.4850","2000.00000000","970.00","1.2345",ADA,"Note with quotes: ""Special"" transaction"
-2024-01-22 08:17:42,XRP-BTC,BUY,"0.00002584",1500.0,"0.03876",0.00000012,BTC,
-2024-01-25 13:42:18,"STETH,ETH",TRADE,,,,"",,"Empty, fields, test"
+2024-01-15,BTC/USDT,BUY,"42,150.50",0.02345678,"987.65",0.00098765,BNB,"Market order"
+2024-01-16,"BTC,ETH",SELL,"2.5",100.0,"250.00",,,"Arbitrage trade, multiple coins"
+2024-01-18,ETH USDT,WITHDRAWAL,,0.45123456,,,ETH,"Withdrawal to external wallet: 0x1234...abcd"
+2024-01-20,ADA-EUR,SELL,"0.4850","2000.00000000","970.00","1.2345",ADA,"Note with quotes: ""Special"" transaction"
+2024-01-22,XRP-BTC,BUY,"0.00002584",1500.0,"0.03876",0.00000012,BTC,
+2024-01-25,"STETH,ETH",TRADE,,,,"",,"Empty, fields, test"

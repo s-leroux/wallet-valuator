@@ -37,6 +37,26 @@ export class FakeDataSource<T> implements DataSource<T, number> {
     }
   }
 
+  getMany(date: T, cols: string[]): [T, ...number[]] | undefined {
+    const row = bsearch(this.prices, date);
+    if (!row) return undefined;
+
+    const result: [T, ...number[]] = [row[0]];
+    for (const col of cols) {
+      switch (col) {
+        case "USD":
+          result.push(row[1]);
+          break;
+        case "EUR":
+          result.push(row[2]);
+          break;
+        default:
+          return undefined;
+      }
+    }
+    return result;
+  }
+
   [Symbol.iterator](): Iterator<[T, ...number[]]> {
     return this.prices[Symbol.iterator]();
   }

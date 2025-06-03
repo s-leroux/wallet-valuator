@@ -232,16 +232,54 @@ export function itemIterator(
   return _itemIterator();
 }
 
-export interface DataSource<K, V> {
-  get(row: K, col: string): [K, V] | undefined;
+//======================================================================
+//  DataSource
+//======================================================================
 
-  [Symbol.iterator](): Iterator<[K, ...V[]]>; // implements IterableIterator<[K, ...V[]]>
+/**
+ * Interface representing a tabular data source where rows are keyed by a unique value.
+ *
+ * @typeParam K - The type of the row key (e.g., string, number, or Date).
+ * @typeParam V - The type of the values stored in each column.
+ */
+export interface DataSource<K, V> {
+  /**
+   * Retrieves the value in a specific column of the row identified by the given key.
+   *
+   * @param key - The row key to look up.
+   * @param field - The column name to retrieve.
+   * @returns A tuple `[K, V]` if the row and column are found; otherwise, `undefined`.
+   * @throws If the column name is not valid, an error (typically a `ValueError`) should be thrown.
+   */
+  get(key: K, field: string): [K, V] | undefined;
+
+  /**
+   * Retrieves multiple column values from the row identified by the given key.
+   *
+   * @param key - The row key to look up.
+   * @param fields - An array of column names to retrieve.
+   * @returns A tuple `[K, ...V[]]` if the row is found; otherwise, `undefined`.
+   * @throws If any of the specified column names are invalid, an error (typically a `ValueError`) should be thrown.
+   */
+  getMany(key: K, fields: string[]): [K, ...V[]] | undefined;
+
+  /**
+   * Returns an iterator over all rows in the data source.
+   *
+   * Each row is represented as a tuple `[K, ...V[]]`, where the first element is the row key
+   * and the rest are the column values, in the order defined by the data source's headings.
+   */
+  [Symbol.iterator](): Iterator<[K, ...V[]]>; // Implements IterableIterator<[K, ...V[]]>
 }
 
 export class CSVFileOptionBag {
   reorder?: (input: string[], heading: boolean) => string[]; // FWIW, the reorder helper may resize the row or synthetise new data
   separator?: string;
 }
+
+//======================================================================
+//  CSV
+//======================================================================
 
 /**
  *  Read homogenous simple CSV files.
@@ -251,26 +289,40 @@ export class CSVFileOptionBag {
  *  - all lines are filled with data of type T // ISSUE #120 Change that!
  */
 export class CSVFile<K, T> implements DataSource<K, T> {
+  readonly headings: Record<string, number | undefined> = Object.create(null);
+
   constructor(
-    readonly headings: string[],
+    headings: string[],
     readonly rows: [K, ...T[]][],
     readonly sorted: boolean
-  ) {}
-
-  get(row: K, col: string): [K, T] | undefined {
-    const idx = this.headings.indexOf(col);
-    if (idx < 1) {
-      throw new ValueError(`Invalid data column ${col}`);
+  ) {
+    for (let i = 0; i < headings.length; i++) {
+      this.headings[headings[i]] = i;
     }
+  }
 
-    const result = this.sorted
-      ? bsearch(this.rows, row)
-      : linsearch(this.rows, row);
-    if (result === undefined) {
+  getMany(key: K, fields: string[]): [K, ...T[]] | undefined {
+    const row = this.sorted
+      ? bsearch(this.rows, key)
+      : linsearch(this.rows, key);
+    if (row === undefined) {
       return undefined;
     }
 
-    return [result[0], result[idx] as T];
+    const result: [K, ...T[]] = [row[0]];
+    for (const i of fields) {
+      const idx = this.headings[i];
+      if (idx === undefined) {
+        throw new ValueError(`Invalid data column ${i}`);
+      }
+      result.push(row[idx]);
+    }
+    return result;
+  }
+
+  get(key: K, field: string): [K, T] | undefined {
+    // below, we know for sure that the result is a tuple of length 2
+    return this.getMany(key, [field]) as [K, T] | undefined;
   }
 
   [Symbol.iterator](): Iterator<[K, ...T[]]> {
