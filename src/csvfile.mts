@@ -1,13 +1,201 @@
 import { readFile } from "node:fs/promises";
 
-import { NotImplementedError, ValueError } from "./error.mjs";
+import { ValueError, ProtocolError } from "./error.mjs";
 import { bsearch, linsearch } from "./bsearch.mjs";
 
 import { logger } from "./debug.mjs";
 const log = logger("csvfile");
 
-type Row<T> = [string, T];
-type Column<T> = Row<T>[];
+type CSVParserOption = {
+  separator?: string;
+};
+
+// =====================================================================
+// CSV parser
+// =====================================================================
+
+/*
+ * RFC-4180-compatible CSV parser implemented as a state machine.
+ *
+ * The parser handles:
+ * - Quoted fields with escaped quotes (doubled)
+ * - Fields containing commas, quotes, and line breaks
+ * - Empty fields and records
+ * - Both LF and CRLF line endings
+ */
+
+const enum State {
+  Start,
+  NewRow,
+  NewField,
+  InQuotedField,
+  TestEndQuote,
+  InField,
+  CR,
+  LF,
+  Error,
+  EndOfField,
+  EndOfRow,
+  End,
+}
+
+/**
+ * Lightweight RFC-4180-compatible CSV parser.
+ * - Handles quoted fields
+ * - Supports embedded commas, quotes, and newlines
+ * - No external dependencies
+ */
+export function* parseCSV(
+  text: string,
+  options: CSVParserOption = {}
+): IterableIterator<string[]> {
+  const separator = options.separator ?? ",";
+
+  let idx = 0;
+  let state = State.Start;
+  let error: Error;
+  let token: string;
+  let row: string[];
+  let field: string;
+
+  for (;;) {
+    switch (state) {
+      case State.Start:
+        token = text[idx++] ?? "\0";
+        state = State.NewRow;
+        break;
+
+      case State.NewRow:
+        row = [];
+        // @ts-expect-error: State machine ensures token is initialized
+        if (token === "\0") {
+          state = State.End;
+        } else {
+          state = State.NewField;
+        }
+        break;
+
+      case State.NewField:
+        field = "";
+        // @ts-expect-error: State machine ensures token is initialized
+        if (token === '"') {
+          token = text[idx++] ?? "\0";
+          state = State.InQuotedField;
+        } else {
+          state = State.InField;
+        }
+        break;
+
+      case State.InQuotedField:
+        // @ts-expect-error: State machine ensures token is initialized
+        switch (token) {
+          case "\0":
+            error = new ProtocolError(
+              "Unexpected end of file: quoted field not properly terminated"
+            );
+            state = State.Error;
+            break;
+          case '"':
+            token = text[idx++] ?? "\0";
+            state = State.TestEndQuote;
+            break;
+          default:
+            // @ts-expect-error: State machine ensures field and token are initialized
+            field += token;
+            token = text[idx++] ?? "\0";
+        }
+        break;
+
+      case State.TestEndQuote:
+        // @ts-expect-error: State machine ensures token is initialized
+        if (token === '"') {
+          // @ts-expect-error: State machine ensures field and token are initialized
+          field += token;
+          token = text[idx++] ?? "\0";
+          state = State.InQuotedField;
+        } else {
+          state = State.InField;
+        }
+        break;
+
+      case State.InField:
+        // @ts-expect-error: State machine ensures token is initialized
+        switch (token) {
+          case "\0":
+            state = State.EndOfField;
+            break;
+          case "\r":
+            token = text[idx++] ?? "\0";
+            state = State.CR;
+            break;
+          case "\n":
+            state = State.LF;
+            break;
+          case separator:
+            state = State.EndOfField;
+            break;
+          default:
+            // @ts-expect-error: State machine ensures field and token are initialized
+            field += token;
+            token = text[idx++] ?? "\0";
+        }
+        break;
+
+      case State.CR:
+        // @ts-expect-error: State machine ensures token is initialized
+        if (token === "\n") {
+          state = State.LF;
+        } else {
+          error = new ProtocolError(
+            "Invalid line ending: expected CRLF sequence, found standalone CR"
+          );
+          state = State.Error;
+        }
+        break;
+
+      case State.LF:
+        state = State.EndOfField;
+        break;
+
+      case State.Error:
+        // @ts-expect-error: State machine ensures error is initialized
+        throw error;
+
+      case State.EndOfField:
+        // @ts-expect-error: State machine ensures row and field are initialized
+        row.push(field);
+        // @ts-expect-error: State machine ensures token is initialized
+        switch (token) {
+          case "\0":
+            state = State.EndOfRow;
+            break;
+          case "\n":
+            token = text[idx++] ?? "\0";
+            state = State.EndOfRow;
+            break;
+          case separator:
+            token = text[idx++] ?? "\0";
+            state = State.NewField;
+            break;
+        }
+        break;
+
+      case State.EndOfRow:
+        // @ts-expect-error: State machine ensures row is initialized
+        yield row;
+        // @ts-expect-error: State machine ensures token is initialized
+        if (token === "\0") {
+          state = State.End;
+        } else {
+          state = State.NewRow;
+        }
+        break;
+
+      case State.End:
+        return;
+    }
+  }
+}
 
 export function* lineIterator(input: string): IterableIterator<string> {
   const lineRegex = /([^\r\n]+)(?:[\r\n]+|$)/g;
@@ -106,8 +294,6 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     toData: (arg0: string) => T,
     options: CSVFileOptionBag = {}
   ): CSVFile<K, T> {
-    let lineNum = 0;
-    const separator = options.separator ?? ",";
     const reorder = options.reorder;
 
     const sentinel = Symbol();
@@ -117,18 +303,17 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     let headings: string[] | undefined;
     const rows = [] as [K, ...T[]][];
 
-    for (const line of lineIterator(text)) {
-      lineNum += 1;
+    for (const line of parseCSV(text, options)) {
       if (headings === undefined) {
         // read the heading
-        headings = Array.from(itemIterator(line, separator));
+        headings = line;
         if (reorder) {
           headings = reorder(headings, true);
         }
       } else {
         // read a data line
         empty = false;
-        let row = Array.from(itemIterator(line, separator));
+        let row = line;
         if (reorder) {
           row = reorder(row, true);
         }

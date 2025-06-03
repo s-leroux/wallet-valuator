@@ -1,0 +1,48 @@
+digraph CSVStateMachine {
+    // Define states to parse CSV according to RFC 4180
+    node [shape = circle;];
+    Start [label = "Start";];
+    NewRow [label = "New Row";];
+    NewField [label = "New Field";];
+    EndOfRow [label = "End of Row";];
+    EndOfField [label = "End of Field";];
+    InField [label = "In Field";];
+    InQuotedField [label = "In Quoted Field";];
+    TestEndQuote [label = "Test End Quote";];
+    Error [label = "Error";];
+    End [label = "End";];
+    
+    // Define transitions
+    Start -> NewRow [style = dashed;];
+    
+    NewRow -> End [label = "EOF"; style = dashed;];
+    NewRow -> NewField [style = dashed;];
+    
+    EndOfRow -> End [label = "EOF"; style = dashed;];
+    EndOfRow -> NewRow [style = dashed;];
+    
+    NewField -> InQuotedField [label = "quote";];
+    NewField -> InField [label = "regular char"; style = dashed;];
+    
+    EndOfField -> EndOfRow [label = "EOF"; style = dashed;];
+    EndOfField -> EndOfRow [label = "LF";];
+    EndOfField -> NewField [label = "separator";];
+    
+    InField -> EndOfField [label = "separator"; style = dashed;];
+    InField -> CR [label = "CR";];
+    InField -> LF [label = "LF"; style = dashed;];
+    InField -> EndOfField [label = "EOF"; style = dashed;];
+    InField -> InField [label = "regular char";];
+    
+    CR -> LF [label = "LF"; style = dashed;];
+    CR -> Error [style = dashed;];
+    
+    LF -> EndOfField [style = dashed;];
+    
+    InQuotedField -> TestEndQuote [label = "quote";];
+    InQuotedField -> Error [label = "EOF"; style = dashed;];
+    InQuotedField -> InQuotedField [label = "regular char";];
+    
+    TestEndQuote -> InQuotedField [label = "quote";];
+    TestEndQuote -> InField [label = "regular char"; style = dashed;];
+}
