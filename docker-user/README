@@ -1,0 +1,4 @@
+This directory serves as the user's home directory inside the development Docker container.
+
+It is required for proper container operation. Do not delete or rename this directory.
+
