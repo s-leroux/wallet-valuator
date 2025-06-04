@@ -89,7 +89,7 @@ describe("Ledger", () => {
     );
     const c = await Promise.all(
       InternalTransactions.result.map((tr) =>
-        swarm.internalTransaction(chain, tr)
+        swarm.internalTransaction(chain, tr.hash, tr.traceId, tr)
       )
     );
 

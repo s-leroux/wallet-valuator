@@ -1,7 +1,12 @@
 import { Provider } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
 import { NormalTransaction } from "../../transaction.mjs";
-import { CommonExplorer } from "../explorer.mjs";
+import {
+  CommonExplorer,
+  TokenTransferRecord,
+  InternalTransactionRecord,
+  NormalTransactionRecord,
+} from "../explorer.mjs";
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 import { CryptoRegistry } from "../../cryptoregistry.mjs";
 
@@ -125,72 +130,6 @@ export type GnosisScanResponse<T> = {
   message: string;
 };
 
-export type GnosisScanAccountTokenTransfer = {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  nonce: string;
-  blockHash: string;
-  from: string;
-  contractAddress: string;
-  to: string;
-  value: string;
-  tokenName: string;
-  tokenSymbol: string;
-  tokenDecimal: string;
-  transactionIndex: string;
-  gas: string;
-  gasPrice: string;
-  gasUsed: string;
-  cumulativeGasUsed: string;
-  input: string;
-  confirmations: string;
-};
-
-export type GnosisScanAccountTokenTransfers = GnosisScanResponse<
-  GnosisScanAccountTokenTransfer[]
->;
-
-export type GnosisScanAccountInternalTransaction = {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  from: string;
-  to: string;
-  value: string;
-  contractAddress: string;
-  input: string;
-  type: string;
-  gas: string;
-  gasUsed: string;
-  traceId: string;
-  isError: string;
-  errCode: string;
-};
-
-export type GnosisScanNormalTransaction = {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  nonce: string;
-  blockHash: string;
-  transactionIndex: string;
-  from: string;
-  to: string;
-  value: string;
-  gas: string;
-  gasPrice: string;
-  isError: string;
-  txreceipt_status: string;
-  input: string;
-  contractAddress: string;
-  cumulativeGasUsed: string;
-  gasUsed: string;
-  confirmations: string;
-  methodId: string;
-  functionName: string;
-};
-
 type JSONRpcVersion = "2.0";
 
 export type GethResponse<T> = {
@@ -291,7 +230,7 @@ export class GnosisScanAPI {
       sort: "asc",
     };
     return this.provider.fetch("", params) as Promise<
-      GnosisScanResponse<GnosisScanAccountInternalTransaction[]>
+      GnosisScanResponse<InternalTransactionRecord[]>
     >;
   }
 
@@ -305,7 +244,7 @@ export class GnosisScanAPI {
       address: address,
     };
     return this.provider.fetch("", params) as Promise<
-      GnosisScanResponse<GnosisScanNormalTransaction[]>
+      GnosisScanResponse<NormalTransactionRecord[]>
     >;
   }
 
@@ -319,7 +258,7 @@ export class GnosisScanAPI {
       address: address,
     };
     return this.provider.fetch("", params) as Promise<
-      GnosisScanResponse<GnosisScanAccountInternalTransaction[]>
+      GnosisScanResponse<InternalTransactionRecord[]>
     >;
   }
 
@@ -333,7 +272,7 @@ export class GnosisScanAPI {
       address: address,
     };
     return this.provider.fetch("", params) as Promise<
-      GnosisScanResponse<GnosisScanAccountTokenTransfer[]>
+      GnosisScanResponse<TokenTransferRecord[]>
     >;
   }
 }

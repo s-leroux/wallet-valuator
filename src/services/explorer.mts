@@ -102,7 +102,7 @@ export class Explorer {
 export class CommonExplorer extends Explorer {
   async blockInternalTransactions(
     blockNumber: number
-  ): Promise<Record<string, any>[]> {
+  ): Promise<InternalTransactionRecord[]> {
     // OVERRIDE ME
     return [];
   }
@@ -114,13 +114,15 @@ export class CommonExplorer extends Explorer {
     const res = await this.blockInternalTransactions(blockNumber);
 
     return await Promise.all(
-      res.map((t) => swarm.internalTransaction(this.chain, t))
+      res.map((t) =>
+        swarm.internalTransaction(this.chain, t.hash, t.traceId, t)
+      )
     );
   }
 
   async accountNormalTransactions(
     address: string
-  ): Promise<Record<string, any>[]> {
+  ): Promise<NormalTransactionRecord[]> {
     // OVERRIDE ME
     return [];
   }
@@ -137,7 +139,7 @@ export class CommonExplorer extends Explorer {
 
   async accountInternalTransactions(
     address: string
-  ): Promise<Record<string, any>[]> {
+  ): Promise<InternalTransactionRecord[]> {
     // OVERRIDE ME
     return [];
   }
@@ -145,15 +147,17 @@ export class CommonExplorer extends Explorer {
   async getInternalTransactionsByAddress(
     swarm: Swarm,
     address: string
-  ): Promise<Array<InternalTransaction>> {
+  ): Promise<InternalTransaction[]> {
     const res = await this.accountInternalTransactions(address);
 
     return await Promise.all(
-      res.map((t) => swarm.internalTransaction(this.chain, t))
+      res.map((t) =>
+        swarm.internalTransaction(this.chain, t.hash, t.traceId, t)
+      )
     );
   }
 
-  async accountTokenTransfers(address: string): Promise<Record<string, any>[]> {
+  async accountTokenTransfers(address: string): Promise<TokenTransferRecord[]> {
     // OVERRIDE ME
     return [];
   }
@@ -166,3 +170,65 @@ export class CommonExplorer extends Explorer {
     );
   }
 }
+
+export type TokenTransferRecord = {
+  blockNumber: string;
+  timeStamp: string;
+  hash: string;
+  nonce: string;
+  blockHash: string;
+  from: string;
+  contractAddress: string;
+  to: string;
+  value: string;
+  tokenName: string;
+  tokenSymbol: string;
+  tokenDecimal: string;
+  transactionIndex: string;
+  gas: string;
+  gasPrice: string;
+  gasUsed: string;
+  cumulativeGasUsed: string;
+  input: string;
+  confirmations: string;
+};
+
+export type InternalTransactionRecord = {
+  blockNumber: string;
+  timeStamp: string;
+  hash: string;
+  from: string;
+  to: string;
+  value: string;
+  contractAddress: string;
+  input: string;
+  type: string;
+  gas: string;
+  gasUsed: string;
+  traceId: string;
+  isError: string;
+  errCode: string;
+};
+
+export type NormalTransactionRecord = {
+  blockNumber: string;
+  timeStamp: string;
+  hash: string;
+  nonce: string;
+  blockHash: string;
+  transactionIndex: string;
+  from: string;
+  to: string;
+  value: string;
+  gas: string;
+  gasPrice: string;
+  isError: string;
+  txreceipt_status: string;
+  input: string;
+  contractAddress: string;
+  cumulativeGasUsed: string;
+  gasUsed: string;
+  confirmations: string;
+  methodId: string;
+  functionName: string;
+};

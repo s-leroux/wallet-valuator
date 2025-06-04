@@ -1,5 +1,10 @@
 import { asBlockchain, type Blockchain } from "./blockchain.mjs";
-import type { Explorer } from "./services/explorer.mjs";
+import type {
+  Explorer,
+  InternalTransactionRecord,
+  NormalTransactionRecord,
+  TokenTransferRecord,
+} from "./services/explorer.mjs";
 import type {
   CryptoResolver,
   ResolutionResult,
@@ -7,12 +12,11 @@ import type {
 import type { CryptoRegistry } from "./cryptoregistry.mjs";
 import { Address } from "./address.mjs";
 import {
-  OnChainTransaction,
   NormalTransaction,
   InternalTransaction,
   ERC20TokenTransfer,
 } from "./transaction.mjs";
-import { NotImplementedError, ValueError } from "./error.mjs";
+import { ValueError } from "./error.mjs";
 import { Block } from "./block.mjs";
 
 export interface Storable {
@@ -25,8 +29,8 @@ export interface Storable {
 export class Swarm {
   readonly blocks: Map<string, Block>;
   readonly addresses: Map<string, Address>;
-  readonly records: OnChainTransaction[];
-  readonly transactions: Map<string, NormalTransaction>;
+  readonly normalTransactions: Map<string, NormalTransaction>;
+  readonly internalTransactions: Map<string, InternalTransaction>;
   readonly explorers: Map<Blockchain, Explorer>;
 
   protected constructor(
@@ -36,8 +40,8 @@ export class Swarm {
   ) {
     this.blocks = new Map();
     this.addresses = new Map();
-    this.records = [];
-    this.transactions = new Map();
+    this.normalTransactions = new Map();
+    this.internalTransactions = new Map();
     this.explorers = new Map();
     for (const explorer of explorers) {
       this.explorers.set(explorer.chain, explorer);
@@ -133,18 +137,15 @@ export class Swarm {
   async normalTransaction(
     chain: Blockchain,
     hash: string,
-    data?: Record<string, any>
+    data?: NormalTransactionRecord
   ): Promise<NormalTransaction> {
-    const tr = await this.store(
-      this.transactions,
+    return this.store(
+      this.normalTransactions,
       NormalTransaction,
       chain,
       hash,
       data
     );
-    this.records.push(tr);
-
-    return tr;
   }
 
   /**
@@ -152,12 +153,9 @@ export class Swarm {
    */
   async tokenTransfer(
     chain: Blockchain,
-    data: Record<string, any>
+    data: TokenTransferRecord
   ): Promise<ERC20TokenTransfer> {
-    const result = await new ERC20TokenTransfer(this, chain).assign(this, data);
-    this.records.push(result);
-
-    return result;
+    return new ERC20TokenTransfer(this, chain).assign(this, data);
   }
 
   /**
@@ -165,14 +163,16 @@ export class Swarm {
    */
   async internalTransaction(
     chain: Blockchain,
-    data: Record<string, any>
+    txHash: string,
+    traceId: string,
+    data: InternalTransactionRecord
   ): Promise<InternalTransaction> {
-    const result = await new InternalTransaction(this, chain).assign(
-      this,
+    return this.store(
+      this.internalTransactions,
+      InternalTransaction,
+      chain,
+      `${txHash}-${traceId}`,
       data
     );
-    this.records.push(result);
-
-    return result;
   }
 }
