@@ -14,12 +14,12 @@ import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 
-import RateLimit from "../../../fixtures/GnosisScan/RateLimit.json" assert { type: "json" };
-import ClientError from "../../../fixtures/GnosisScan/ClientError.json" assert { type: "json" };
-import NoTransactionFound from "../../../fixtures/GnosisScan/NoTransactionsFound.json" assert { type: "json" };
-import TokenTransfer from "../../../fixtures/GnosisScan/TokenTransfer.json" assert { type: "json" };
-import Proxy from "../../../fixtures/GnosisScan/Proxy.json" assert { type: "json" };
-import ProxyError from "../../../fixtures/GnosisScan/ProxyError.json" assert { type: "json" };
+import RateLimit from "../../../fixtures/GnosisScan/RateLimit.json" with { type: "json" };
+import ClientError from "../../../fixtures/GnosisScan/ClientError.json" with { type: "json" };
+import NoTransactionFound from "../../../fixtures/GnosisScan/NoTransactionsFound.json" with { type: "json" };
+import TokenTransfer from "../../../fixtures/GnosisScan/TokenTransfer.json" with { type: "json" };
+import Proxy from "../../../fixtures/GnosisScan/Proxy.json" with { type: "json" };
+import ProxyError from "../../../fixtures/GnosisScan/ProxyError.json" with { type: "json" };
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["GNOSISSCAN_API_KEY"];

@@ -10,9 +10,9 @@ import { formatDate } from "../../src/date.mjs";
 import { NotImplementedError, ValueError } from "../../src/error.mjs";
 
 // Test data
-import MockPriceHistory from "../../fixtures/Curve/prices/priceHistory.json" assert { type: "json" };
-import MockUSDPriceEthereum from "../../fixtures/Curve/prices/usd_price/ethereum.json" assert { type: "json" };
-import MockUSDPriceGnosis from "../../fixtures/Curve/prices/usd_price/gnosis.json" assert { type: "json" };
+import MockPriceHistory from "../../fixtures/Curve/prices/priceHistory.json" with { type: "json" };
+import MockUSDPriceEthereum from "../../fixtures/Curve/prices/usd_price/ethereum.json" with { type: "json" };
+import MockUSDPriceGnosis from "../../fixtures/Curve/prices/usd_price/gnosis.json" with { type: "json" };
 import { findLiquidityPool } from "../../src/services/curve/curvedb.mjs";
 
 export class FakeCurveAPI implements CurveAPI {

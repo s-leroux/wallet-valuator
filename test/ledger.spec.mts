@@ -9,9 +9,9 @@ import { FakeExplorer } from "./fake-explorer.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
-import NormalTransactions from "../fixtures/NormalTransactions.json" assert { type: "json" };
-import InternalTransactions from "../fixtures/InternalTransactions.json" assert { type: "json" };
-import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
+import NormalTransactions from "../fixtures/NormalTransactions.json" with { type: "json" };
+import InternalTransactions from "../fixtures/InternalTransactions.json" with { type: "json" };
+import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
 import { Blockchain } from "../src/blockchain.mjs";
 
 const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";

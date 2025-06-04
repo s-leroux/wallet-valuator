@@ -12,7 +12,7 @@ import { formatDate } from "../../src/date.mjs";
 //     < "$f" jq -c --arg DATE "${DATE}" '[ $DATE, .id, (.market_data.current_price | { eur, usd, btc }) ]'
 //   done
 // done
-import HistoricalPrices from "../../fixtures/HistoricalPrices.json" assert { type: "json" };
+import HistoricalPrices from "../../fixtures/HistoricalPrices.json" with { type: "json" };
 
 type HistoricalDataRecord = [
   date: string, // dd-mm-yyyy format like in the CoinGecko API

@@ -1,6 +1,6 @@
 // cat fixtures/Curve/api/getPools/all/*.json | jq --slurp -f allPool.jq
 // [ .[] | .data.poolData | .[] | { chain: .blockchainId, name, symbol, poolAddress: .address, lpTokenAddress, gaugeAddress }]
-import DB from "./curvedb.json" assert { type: "json" };
+import DB from "./curvedb.json" with { type: "json" };
 
 /**
  * Interface to the hard-coded snapshot of the Curve pools database.

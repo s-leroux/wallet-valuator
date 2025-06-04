@@ -4,7 +4,7 @@ Documentation and user interface improvements will follow in future updates.
 
 ## Project Status
 
-🚧 **Under Active Development (05-2025)** 🚧
+🚧 **Under Active Development (06-2025)** 🚧
 
 # Stage 0
 

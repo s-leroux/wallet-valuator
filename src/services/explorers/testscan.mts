@@ -2,9 +2,9 @@ import { Swarm } from "../../swarm.mjs";
 import { CommonExplorer } from "../explorer.mjs";
 import { NormalTransaction } from "../../transaction.mjs";
 
-import NormalTransactions from "../../../fixtures/NormalTransactions.json" assert { type: "json" };
-import InternalTransactions from "../../../fixtures/InternalTransactions.json" assert { type: "json" };
-import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
+import NormalTransactions from "../../../fixtures/NormalTransactions.json" with { type: "json" };
+import InternalTransactions from "../../../fixtures/InternalTransactions.json" with { type: "json" };
+import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 import { CryptoRegistry } from "../../cryptoregistry.mjs";
 

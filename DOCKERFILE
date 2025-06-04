@@ -8,24 +8,33 @@
 # Open a shell for interactive testing:
 #   sudo docker run -it --rm -v /path/to/project:/home:ro node-14 bash
 #
-FROM heroku/heroku:20
+FROM debian:bullseye
 
 ARG NODE_ARCH=linux-x64
-ARG NODE_VERSION=18.20.3
-RUN cd /usr/local && \
-    wget -O- --progress=dot:mega https://nodejs.org/dist/v"${NODE_VERSION}"/node-v"${NODE_VERSION}-${NODE_ARCH}".tar.xz | tar xJf - && \
-    ln -sT "node-v${NODE_VERSION}-${NODE_ARCH}" node
-ENV PATH="/usr/local/node/bin:${PATH}"
-RUN npm config -g set update-notifier false
-RUN corepack enable
-RUN corepack install -g yarn
+ARG NODE_VERSION=24.1.0
 
+# Core utilities
 ARG DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update
+RUN apt-get install -y gcc git g++ make python python3 wget xz-utils
+
+# ViM editor
 RUN apt-get install -y vim
 ENV EDITOR=/usr/bin/vim
 
+# Node.js
+RUN cd /opt && \
+    wget -O- --progress=dot:mega https://nodejs.org/dist/v"${NODE_VERSION}"/node-v"${NODE_VERSION}-${NODE_ARCH}".tar.xz | tar xJf - && \
+    ln -sT "node-v${NODE_VERSION}-${NODE_ARCH}" node
+ENV PATH="/opt/node/bin:${PATH}"
+RUN npm config -g set update-notifier false
+
+# Enable corepack (required by Yarn)
+RUN corepack enable
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
+# Set the workdir and user settings
 WORKDIR /home
-RUN useradd -d /home node
-USER node
+ENV HOME=/home/docker-user
+USER 1000:1000
 CMD ["npm", "test"]
