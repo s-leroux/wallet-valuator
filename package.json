@@ -9,7 +9,7 @@
   "main": "index.js",
   "config": {
     "container": {
-      "tag": "typescriptdemo/dev"
+      "tag": "wallet-valuator/dev:1"
     }
   },
   "scripts": {
