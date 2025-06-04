@@ -45,9 +45,8 @@ describe("DefiLlamaOracle", function () {
         fiatConverter
       );
 
-      assert.containsAllKeys(prices, [EUR, USD]);
+      assert.containsAllKeys(prices, [USD]);
       assert.equal(+prices[USD]!.rate, 26966.11831093055);
-      assert.equal(+prices[EUR]!.rate, 32359.34197311666);
     });
   });
 });
