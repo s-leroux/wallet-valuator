@@ -206,8 +206,7 @@ export class InternalTransaction extends OnChainTransaction {
   isError?: boolean;
   transaction?: NormalTransaction;
 
-  constructor(swarm: Swarm, chain: Blockchain) {
-    debugger;
+  constructor(swarm: Swarm, chain: Blockchain, id: string) {
     super(swarm, chain, "INTERNAL");
   }
 

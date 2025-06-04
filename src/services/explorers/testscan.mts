@@ -7,6 +7,7 @@ import InternalTransactions from "../../../fixtures/InternalTransactions.json" w
 import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 import { CryptoRegistry } from "../../cryptoregistry.mjs";
+import { NormalTransactionRecord } from "../explorer.mjs";
 
 export class TestScan extends CommonExplorer {
   constructor(registry: CryptoRegistry, chain?: Blockchain) {
@@ -38,7 +39,7 @@ export class TestScan extends CommonExplorer {
 
   async accountNormalTransactions(
     address: string
-  ): Promise<Record<string, any>[]> {
+  ): Promise<NormalTransactionRecord[]> {
     return NormalTransactions.result.filter(
       (record) => record.from === address || record.to === address
     );
@@ -46,13 +47,13 @@ export class TestScan extends CommonExplorer {
 
   async accountInternalTransactions(
     address: string
-  ): Promise<Record<string, any>[]> {
+  ) {
     return InternalTransactions.result.filter(
       (record) => record.from === address || record.to === address
     );
   }
 
-  async accountTokenTransfers(address: string): Promise<Record<string, any>[]> {
+  async accountTokenTransfers(address: string) {
     return ERC20TokenTransferEvents.result.filter(
       (record) => record.from === address || record.to === address
     );

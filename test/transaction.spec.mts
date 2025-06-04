@@ -11,8 +11,9 @@ import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
-import ERC20TokenTransfers from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
-import InternalTransactions from "../fixtures/InternalTransactions.json" with { type: "json" };
+import ERC20TokenTransfersFixture from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
+import internalTransactionsFixture from "../fixtures/InternalTransactions.json" with { type: "json" };
+import normalTransactionsFixture from "../fixtures/NormalTransactions.json" with { type: "json" };
 
 import {
   ERC20TokenTransfer,
@@ -82,11 +83,11 @@ describe("Swarm and Transaction integration", () => {
       }
     });
 
-    describe("", () => {
+    describe("NormalTransaction", () => {
       let transactions: NormalTransaction[];
 
       beforeEach(async () => {
-        const transactionData = ERC20TokenTransfers.result;
+        const transactionData = normalTransactionsFixture.result;
         transactions = await Promise.all(
           transactionData.map((tr) =>
             swarm.normalTransaction(chain, tr.hash, tr)
@@ -105,9 +106,9 @@ describe("Swarm and Transaction integration", () => {
     let transactions: InternalTransaction[];
 
     beforeEach(async () => {
-      const transactionData = InternalTransactions.result;
+      const transactionData = internalTransactionsFixture.result;
       transactions = await Promise.all(
-        transactionData.map((tr) => swarm.normalTransaction(chain, tr.hash, tr))
+        transactionData.map((tr) => swarm.internalTransaction(chain, tr.hash, tr.traceId, tr))
       );
     });
 
@@ -121,7 +122,7 @@ describe("Swarm and Transaction integration", () => {
     let transactions: ERC20TokenTransfer[];
 
     beforeEach(async () => {
-      const transactionData = ERC20TokenTransfers.result;
+      const transactionData = ERC20TokenTransfersFixture.result;
       transactions = await Promise.all(
         transactionData.map((tr) => swarm.tokenTransfer(chain, tr))
       );
@@ -129,7 +130,7 @@ describe("Swarm and Transaction integration", () => {
 
     it("should load transactions from data", () => {
       for (let i = 0; i < transactions.length; ++i)
-        assert.deepEqual(transactions[i].data, ERC20TokenTransfers.result[i]);
+        assert.deepEqual(transactions[i].data, ERC20TokenTransfersFixture.result[i]);
     });
 
     it("should have a contract address", () => {
