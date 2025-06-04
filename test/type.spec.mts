@@ -7,6 +7,10 @@ describe("Type utilities", function () {
   describe("Ensure", function () {
     const register = prepare(this);
 
+    function ownsProperty(obj: unknown) {
+      return Ensure.ownsProperty(obj, "prop");
+    }
+
     // prettier-ignore
     const test_cases = [
       ["isString", null, TypeError],
@@ -24,11 +28,20 @@ describe("Type utilities", function () {
       ["isNumber", 123.456],
       ["isNumber", {}, TypeError],
       ["isNumber", [], TypeError],
+
+      [ownsProperty, { prop: "value" }],
+      [ownsProperty, { other: "value" }, TypeError],
+      [ownsProperty, {}, TypeError],
+      [ownsProperty, null, TypeError],
+      [ownsProperty, undefined, TypeError],
+      [ownsProperty, 123, TypeError],
+      [ownsProperty, "string", TypeError],
+      [ownsProperty, [], TypeError],
     ] as const;
 
     for (const [fn, value, errType] of test_cases) {
       register(`case ${fn}(${value}) [${errType?.name || "OK"}]`, () => {
-        const fct = Ensure[fn];
+        const fct = typeof fn === "string" ? Ensure[fn] : fn;
         assert.isDefined(fct, `Ensure.${fn}() does not exist`);
 
         if (errType) {

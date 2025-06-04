@@ -55,4 +55,15 @@ export class Ensure {
 
     return obj as NotUndefined<T>;
   }
+
+  static ownsProperty<T>(obj: T, property: string): T {
+    if (typeof obj !== "object" || obj === null) {
+      throw new TypeError(`Expected object but got ${typeof obj}`);
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(obj, property)) {
+      throw new TypeError(`Object does not have property "${property}"`);
+    }
+    return obj;
+  }
 }
