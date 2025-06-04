@@ -47,8 +47,8 @@ tmp/**/*
 /*.db
 /*.sqlite3
 
-# Heroku
-/heroku/
+# Docker
+/docker-user/
 
 # Package manager
 node_ignore/**/*

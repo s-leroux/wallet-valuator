@@ -2,7 +2,7 @@ import { formatDate } from "../../src/date.mjs";
 import { NotImplementedError } from "../../src/error.mjs";
 
 // Test data
-import MockPriceHistory from "../../fixtures/DefiLlama/prices/historical/2023-10-01/coingecko:bitcoin.json" assert { type: "json" };
+import MockPriceHistory from "../../fixtures/DefiLlama/prices/historical/2023-10-01/coingecko:bitcoin.json" with { type: "json" };
 import {
   DefiLlamaAPI,
   DefiLlamaPriceData,

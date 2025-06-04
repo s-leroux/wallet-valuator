@@ -11,8 +11,8 @@ import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 
-import ERC20TokenTransfers from "../fixtures/ERC20TokenTransferEvents.json" assert { type: "json" };
-import InternalTransactions from "../fixtures/InternalTransactions.json" assert { type: "json" };
+import ERC20TokenTransfers from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
+import InternalTransactions from "../fixtures/InternalTransactions.json" with { type: "json" };
 
 import {
   ERC20TokenTransfer,

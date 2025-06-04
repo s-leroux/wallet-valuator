@@ -2,7 +2,7 @@ import { Payload, Provider, ProviderOptionBag } from "../../provider.mjs";
 import { findLiquidityPool } from "./curvedb.mjs";
 
 // Failback when the API is unavailable
-import PricesChainsFallback from "../../../fixtures/Curve/prices/chains.json" assert { type: "json" };
+import PricesChainsFallback from "../../../fixtures/Curve/prices/chains.json" with { type: "json" };
 
 const CURVE_API_BASEADDRESS = "https://prices.curve.finance/";
 
