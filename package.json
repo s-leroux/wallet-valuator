@@ -9,7 +9,7 @@
   "main": "index.js",
   "config": {
     "container": {
-      "tag": "wallet-valuator/dev:1.0.0"
+      "tag": "wallet-valuator/dev:1.0.1"
     }
   },
   "scripts": {

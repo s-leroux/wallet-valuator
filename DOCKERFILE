@@ -16,10 +16,10 @@ ARG NODE_VERSION=24.1.0
 # Core utilities
 ARG DEBIAN_FRONTEND="noninteractive"
 RUN apt-get update
-RUN apt-get install -y gcc git g++ make python python3 wget xz-utils
+RUN apt-get install -y binutils gcc git g++ make procps python3 wget xz-utils && apt-get clean
 
 # ViM editor
-RUN apt-get install -y vim
+RUN apt-get install -y vim && apt-get clean
 ENV EDITOR=/usr/bin/vim
 
 # Node.js
