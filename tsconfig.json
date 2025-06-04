@@ -82,6 +82,7 @@
     "test/support/snapshot.fake.mts",
     "test/support/oracle.fake.mts",
     "test/support/register.helper.mts",
+    "test/support/test.helper.mts",
 
     "src/address.mts",
     "src/account.mts",

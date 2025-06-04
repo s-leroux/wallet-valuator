@@ -7,6 +7,7 @@ import {
 } from "../../../src/services/curve/curveapi.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
+import { when } from "../../support/test.helper.mjs";
 
 const MOCHA_TEST_TIMEOUT = 10000;
 const ETH = "ethereum";
@@ -81,7 +82,7 @@ describe("DefaultCurveAPI", function () {
     });
   });
 
-  describe("getChainContracts()", function () {
+  when("SLOW_TESTS", describe)("getChainContracts()", function () {
     it("should return all contracts for a chain", async function () {
       this.timeout(10 * MOCHA_TEST_TIMEOUT);
 

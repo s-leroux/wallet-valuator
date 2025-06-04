@@ -1,9 +1,6 @@
 import { Test } from "mocha";
 import type { Suite } from "mocha";
 
-import { ValueError } from "../../src/error.mjs";
-import { Table } from "../../src/bsearch.mjs";
-
 /**
  * Create a wrapper to dynamiccally register nes tests with Mocha.
  *
@@ -18,7 +15,7 @@ import { Table } from "../../src/bsearch.mjs";
  * })
  */
 export function prepare(suite: Suite) {
-  return function (msg: string, fn: any) {
+  return function (msg: string, fn: Mocha.Func) {
     suite.addTest(new Test(msg, fn));
   };
 }
