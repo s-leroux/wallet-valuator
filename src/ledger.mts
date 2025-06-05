@@ -7,6 +7,9 @@ import { Ensure } from "./type.mjs";
 import { CryptoRegistry } from "./cryptoregistry.mjs";
 import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
+import { asBlockchain } from "./blockchain.mjs";
+import { ChainAddress } from "./chainaddress.mjs";
+
 const log = logger("ledger");
 
 // =========================================================================
@@ -81,9 +84,9 @@ const FILTERS: Record<string, Filter | undefined> = {
   __proto__: null,
 
   chain(registry: CryptoRegistry, entries: Entry[], chainName: unknown) {
-    chainName = Ensure.isString(chainName);
+    const blockchain = asBlockchain(Ensure.isString(chainName));
     return entries.filter((entry) => {
-      return entry.transaction.chainName === chainName;
+      return entry.transaction.chainName === blockchain;
     });
   },
 
@@ -282,7 +285,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    * Return a new Ledger containing only events from the given address.
    */
-  from(account: { chain: string; address: string }): Ledger {
+  from(account: ChainAddress): Ledger {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object
@@ -298,7 +301,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    * Return a new Ledger containing only events to the given address.
    */
-  to(account: { chain: string; address: string }): Ledger {
+  to(account: ChainAddress): Ledger {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object

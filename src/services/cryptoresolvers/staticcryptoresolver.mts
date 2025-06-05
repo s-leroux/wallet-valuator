@@ -31,7 +31,10 @@ export type LogicalCryptoAsset = readonly [
 export class StaticCryptoResolver extends CryptoResolver {
   // Database:
   private readonly logicalCryptoAssets: Map<string, LogicalCryptoAsset>;
-  private readonly physicalCryptoAssets: Map<ChainAddress, PhysicalCryptoAsset>;
+  private readonly physicalCryptoAssets: Map<
+    ChainAddress,
+    PhysicalCryptoAsset
+  >;
 
   // Cache
   private readonly cache: Map<ChainAddress, CryptoAsset>;

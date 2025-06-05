@@ -6,7 +6,7 @@ import { Amount } from "./cryptoasset.mjs";
 import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
-import { ChainAddressNG } from "./chainaddress.mjs";
+import { ChainAddress } from "./chainaddress.mjs";
 
 type OnChainTransactionType =
   | "NORMAL" // a normal transaction
@@ -21,8 +21,8 @@ export type OffChainTransactionType =
   | "TRADE" // Swap cryptos
   | "DEPOSIT"; // Fiat deposit
 
-type TransactionDestination = ChainAddressNG;
-type TransactionSource = ChainAddressNG;
+type TransactionDestination = ChainAddress;
+type TransactionSource = ChainAddress;
 
 const defaultFormat = tabular(" | ", "", "10", "", "", "");
 
@@ -31,7 +31,7 @@ const defaultFormat = tabular(" | ", "", "10", "", "", "");
  */
 export interface Transaction {
   readonly type: string; // RTTI?
-  readonly chainName: string;
+  readonly chainName: Blockchain;
 
   readonly timeStamp: number; // Unix time (seconds since January 1, 1970, 00:00:00 UTC).
   readonly amount: Amount;
@@ -46,7 +46,7 @@ export class CEXTransaction implements Transaction {
   readonly comments: string[];
 
   constructor(
-    readonly chainName: string,
+    readonly chainName: Blockchain,
     readonly type: OffChainTransactionType,
     readonly timeStamp: number,
     readonly amount: Amount,
@@ -64,7 +64,7 @@ export class CEXTransaction implements Transaction {
 }
 
 export abstract class OnChainTransaction implements Transaction {
-  readonly chainName: string;
+  readonly chainName: Blockchain;
   readonly explorer: Explorer;
   readonly data: Record<string, string>;
   readonly type: OnChainTransactionType;
@@ -82,7 +82,7 @@ export abstract class OnChainTransaction implements Transaction {
   feesAsString: string;
 
   constructor(swarm: Swarm, chain: Blockchain, type: OnChainTransactionType) {
-    this.chainName = chain.name;
+    this.chainName = chain;
     this.type = type;
     this.explorer = swarm.getExplorer(chain);
     this.data = {};

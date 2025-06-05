@@ -71,6 +71,11 @@ export class InvalidTreeStructureError extends Error {
  * This error indicates that the caller has not followed the required sequence of operations
  * or has violated the expected protocol for using an API or component.
  *
+ * Examples:
+ * - Calling a method before initialization is complete
+ * - Using an API in an order that violates its contract
+ * - Calling a method that requires a previous method to be called first
+ *
  * @see AssertionError - For errors related to failed assertions or pre-conditions
  */
 export class ProtocolError extends Error {
@@ -82,7 +87,15 @@ export class ProtocolError extends Error {
 }
 
 /**
- * Thrown when an assertion or pre-requisite is violated
+ * Thrown when a pre-condition or invariant is violated.
+ * This error indicates that a fundamental assumption about the state or input
+ * of the system has been broken.
+ *
+ * Examples:
+ * - A required property is missing or invalid
+ * - A value is outside its expected range
+ * - A type constraint is violated
+ * - A factory returns an object that doesn't match its contract
  */
 export class AssertionError extends Error {
   constructor(message: string = "Assertion error.") {

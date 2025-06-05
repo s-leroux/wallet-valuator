@@ -40,6 +40,7 @@ export const ERRORS = {
   "C3010": "Unknown transaction type",
   "C3011": "Unknown crypto-asset",
   "C3012": "Base price missing (PriceResolver)",
+  "C3013": "Broken invariant (InstanceCache)",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",
