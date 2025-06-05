@@ -8,6 +8,7 @@ import { CryptoRegistry } from "./cryptoregistry.mjs";
 import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { ChainAddressNG } from "./chainaddress.mjs";
+import { asBlockchain } from "./blockchain.mjs";
 const log = logger("ledger");
 
 // =========================================================================
@@ -82,9 +83,9 @@ const FILTERS: Record<string, Filter | undefined> = {
   __proto__: null,
 
   chain(registry: CryptoRegistry, entries: Entry[], chainName: unknown) {
-    chainName = Ensure.isString(chainName);
+    const blockchain = asBlockchain(Ensure.isString(chainName));
     return entries.filter((entry) => {
-      return entry.transaction.chainName === chainName;
+      return entry.transaction.chainName === blockchain;
     });
   },
 
