@@ -1,7 +1,6 @@
 import os from "node:os";
 
 import { type CryptoAsset, Amount } from "./cryptoasset.mjs";
-import type { Address } from "./address.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
 import { PortfolioValuation } from "./valuation.mjs";
@@ -17,8 +16,8 @@ interface Movement {
   explorer?: Explorer;
   timeStamp: number;
   amount: Amount;
-  from?: { address: string };
-  to?: { address: string };
+  from?: { address: string | null };
+  to?: { address: string | null };
   hash?: string; // ISSUE #123 What is this hash? Looks specific to blochain transaction, or isn't?
 }
 

@@ -7,6 +7,7 @@ import { Ensure } from "./type.mjs";
 import { CryptoRegistry } from "./cryptoregistry.mjs";
 import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
+import { ChainAddressNG } from "./chainaddress.mjs";
 const log = logger("ledger");
 
 // =========================================================================
@@ -282,7 +283,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    * Return a new Ledger containing only events from the given address.
    */
-  from(account: { chain: string; address: string }): Ledger {
+  from(account: ChainAddressNG): Ledger {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object
@@ -298,7 +299,7 @@ export class Ledger implements Iterable<Entry> {
   /**
    * Return a new Ledger containing only events to the given address.
    */
-  to(account: { chain: string; address: string }): Ledger {
+  to(account: ChainAddressNG): Ledger {
     // Above: we do not accept 'string' addresses because we also need the chain.
 
     // Swarm should ensure the uniqueness of the address object

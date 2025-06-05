@@ -1,4 +1,4 @@
-import { asBlockchain } from "./blockchain.mjs";
+import { asBlockchain, Blockchain } from "./blockchain.mjs";
 import { ChainAddressNG } from "./chainaddress.mjs";
 import { Amount, CryptoAsset } from "./cryptoasset.mjs";
 import { CSVFile, DataSource } from "./csvfile.mjs";
@@ -15,7 +15,7 @@ import { Value } from "./valuation.mjs";
 import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
 
 export interface Account {
-  readonly chain: string;
+  readonly chain: Blockchain;
   readonly address: string; // ISSUE #125 This is named that way by compatibility with the Address class
 
   loadTransactions(swarm: Swarm): Promise<Transaction[]>;
@@ -61,12 +61,12 @@ const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
 const nowhere = ChainAddressNG("binance-cex", "nowhere");
 
 class BinanceAccount implements Account {
-  readonly chain: string;
+  readonly chain: Blockchain;
   readonly address: string;
   transactions: Transaction[];
 
   constructor(readonly transactionReport: DataSource<string, string>) {
-    this.chain = "binance-cex";
+    this.chain = asBlockchain("binance-cex");
     this.address = "my-binance-account";
   }
 
@@ -284,7 +284,7 @@ class BinanceAccount implements Account {
 
 export function MakeAccount(
   swarm: Swarm,
-  chain: string,
+  chain: string | Blockchain,
   id: string,
   data?: object
 ): Promise<Account> {

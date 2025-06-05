@@ -25,7 +25,7 @@ export type AddressData = AnyAddressData & ERC20TokenAddressData;
  * This class does not check the validity of the address format, nor if it exists.
  */
 export class Address implements Account {
-  readonly chain: string;
+  readonly chain: Blockchain;
   readonly address: string;
   readonly chainAddress: ChainAddress; // #ISSUE 118 This is redundant with chain and address above!
   readonly explorer: Explorer;
@@ -37,7 +37,7 @@ export class Address implements Account {
     }
 
     this.chainAddress = ChainAddress(chain, address);
-    this.chain = chain.name.toLowerCase();
+    this.chain = chain;
     this.address = address.toLowerCase();
     this.explorer = swarm.getExplorer(chain);
     this.data = {};

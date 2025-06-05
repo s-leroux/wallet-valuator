@@ -1,5 +1,6 @@
 import { Blockchain } from "./blockchain.mjs";
-import { DisplayOptions } from "./displayable.mjs";
+import { DisplayOptions, toDisplayString } from "./displayable.mjs";
+import { InstanceCache } from "./instancecache.mjs";
 
 /**
  * A glorified string with normalized format used to represent a globally unique
@@ -23,21 +24,43 @@ export function ChainAddress(
 }
 
 export interface ChainAddressNG {
-  chain: string | Blockchain;
-  address: string;
+  readonly chain: Blockchain;
+  readonly address: string | null;
 
-  toDisplayString(options: DisplayOptions): string;
+  // toString(): string;
+  // toDisplayString(options: DisplayOptions): string;
 }
+
+class StandardChainAddress implements ChainAddressNG {
+  readonly chain: Blockchain;
+  readonly address: string | null;
+
+  constructor(chain: string | Blockchain, address: string | null) {
+    // Normalize input data
+    this.chain = typeof chain === "string" ? Blockchain.create(chain) : chain;
+    this.address = address ? address.toLowerCase() : address;
+  }
+
+  toString() {
+    return `${this.chain}:${this.address || ""}`;
+  }
+
+  toDisplayString(options: DisplayOptions): string {
+    return `${toDisplayString(this.chain, options)}:${this.address || ""}`;
+  }
+}
+
+const chainAddressCache = new InstanceCache<string, ChainAddressNG>();
 
 export function ChainAddressNG(
   chain: string | Blockchain,
   address: string | null
 ): ChainAddressNG {
-  return {
+  const key = `${chain}:${address || ""}`.toLowerCase();
+  return chainAddressCache.getOrCreate(
+    key,
+    StandardChainAddress,
     chain,
-    address: address ?? "",
-    toDisplayString(options: DisplayOptions): string {
-      return `${this.chain}:${this.address || ""}`.toLowerCase();
-    },
-  };
+    address
+  );
 }
