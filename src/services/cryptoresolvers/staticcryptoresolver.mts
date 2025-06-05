@@ -5,7 +5,7 @@ import type { CryptoRegistry, Namespaces } from "../../cryptoregistry.mjs";
 import { CryptoResolver, type ResolutionResult } from "../cryptoresolver.mjs";
 
 import { InternalError } from "../../error.mjs";
-import { ChainAddress } from "../../chainaddress.mjs";
+import { ChainAddressNG } from "../../chainaddress.mjs";
 
 type BasePhysicalCryptoAsset = readonly [
   key: string,
@@ -31,10 +31,13 @@ export type LogicalCryptoAsset = readonly [
 export class StaticCryptoResolver extends CryptoResolver {
   // Database:
   private readonly logicalCryptoAssets: Map<string, LogicalCryptoAsset>;
-  private readonly physicalCryptoAssets: Map<ChainAddress, PhysicalCryptoAsset>;
+  private readonly physicalCryptoAssets: Map<
+    ChainAddressNG,
+    PhysicalCryptoAsset
+  >;
 
   // Cache
-  private readonly cache: Map<ChainAddress, CryptoAsset>;
+  private readonly cache: Map<ChainAddressNG, CryptoAsset>;
 
   protected constructor(
     physicalCryptoAssets: Iterable<Readonly<PhysicalCryptoAsset>>,
@@ -52,7 +55,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     // Populate the mapping from physical crypto-assets to logical crypto-assets
     this.physicalCryptoAssets = new Map();
     for (const [key, chain, contractAddress, ...data] of physicalCryptoAssets) {
-      const chainAddress = ChainAddress(chain, contractAddress);
+      const chainAddress = ChainAddressNG(chain, contractAddress);
       this.physicalCryptoAssets.set(chainAddress, [
         key,
         chain,
@@ -95,7 +98,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     _symbol: string,
     _decimal: number
   ): Promise<ResolutionResult> {
-    const chainAddress = ChainAddress(chain.name, smartContractAddress); // ISSUE #99 could this be done at higher level?
+    const chainAddress = ChainAddressNG(chain.name, smartContractAddress); // ISSUE #99 could this be done at higher level?
 
     // 1. Check that we know something about the crypto-asset
     const physicalCryptoAsset = this.physicalCryptoAssets.get(chainAddress);
@@ -146,7 +149,7 @@ export class StaticCryptoResolver extends CryptoResolver {
    *
    * For testing purposes only
    */
-  get(key: ChainAddress): CryptoAsset | null {
+  get(key: ChainAddressNG): CryptoAsset | null {
     return this.cache.get(key) ?? null;
   }
 }

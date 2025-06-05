@@ -64,3 +64,12 @@ export function ChainAddressNG(
     address
   );
 }
+
+/**
+ * Formats a ChainAddressNG into a string in the format "<chain>:<address>"
+ * @param chainAddress - The ChainAddressNG to format
+ * @returns A string in the format "<chain>:<address>"
+ */
+export function mangleChainAddress(chainAddress: ChainAddressNG): string {
+  return `${chainAddress.chain}:${chainAddress.address || ""}`;
+}
