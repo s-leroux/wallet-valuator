@@ -3,7 +3,7 @@ import { Logged } from "./errorutils.mjs";
 import { CryptoAssetID, CryptoAsset, toCryptoAssetID } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
 import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
-import { ChainAddressNG, mangleChainAddress } from "./chainaddress.mjs";
+import { ChainAddress, mangleChainAddress } from "./chainaddress.mjs";
 const log = logger("crypto-registry");
 
 type RegisteredCryptoAssets = {
@@ -77,11 +77,11 @@ export class CryptoRegistry {
    * @returns The existing or newly created CryptoAsset
    */
   // prettier-ignore
-  createCryptoAsset(id: string | ChainAddressNG): CryptoAsset;
+  createCryptoAsset(id: string | ChainAddress): CryptoAsset;
   // prettier-ignore
-  createCryptoAsset(id: string | ChainAddressNG, name: string, symbol: string, decimal: number ): CryptoAsset;
+  createCryptoAsset(id: string | ChainAddress, name: string, symbol: string, decimal: number ): CryptoAsset;
   createCryptoAsset(
-    id: string | ChainAddressNG,
+    id: string | ChainAddress,
     name?: string,
     symbol?: string,
     decimal?: number

@@ -1,5 +1,5 @@
 import { asBlockchain, Blockchain } from "./blockchain.mjs";
-import { ChainAddressNG } from "./chainaddress.mjs";
+import { ChainAddress } from "./chainaddress.mjs";
 import { Amount, CryptoAsset } from "./cryptoasset.mjs";
 import { CSVFile, DataSource } from "./csvfile.mjs";
 import { DisplayOptions } from "./displayable.mjs";
@@ -58,7 +58,7 @@ const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
   XRP: "ripple",
 } as const;
 
-const nowhere = ChainAddressNG("binance-cex", "nowhere");
+const nowhere = ChainAddress("binance-cex", "nowhere");
 
 class BinanceAccount implements Account {
   readonly chain: Blockchain;
@@ -240,8 +240,8 @@ class BinanceAccount implements Account {
     type: OffChainTransactionType,
     timeStamp: number,
     amount: Amount,
-    from: ChainAddressNG,
-    to: ChainAddressNG,
+    from: ChainAddress,
+    to: ChainAddress,
     comments: string[] = []
   ): CEXTransaction {
     return new CEXTransaction(

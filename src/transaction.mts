@@ -6,7 +6,7 @@ import { Amount } from "./cryptoasset.mjs";
 import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
-import { ChainAddressNG } from "./chainaddress.mjs";
+import { ChainAddress } from "./chainaddress.mjs";
 
 type OnChainTransactionType =
   | "NORMAL" // a normal transaction
@@ -21,8 +21,8 @@ export type OffChainTransactionType =
   | "TRADE" // Swap cryptos
   | "DEPOSIT"; // Fiat deposit
 
-type TransactionDestination = ChainAddressNG;
-type TransactionSource = ChainAddressNG;
+type TransactionDestination = ChainAddress;
+type TransactionSource = ChainAddress;
 
 const defaultFormat = tabular(" | ", "", "10", "", "", "");
 

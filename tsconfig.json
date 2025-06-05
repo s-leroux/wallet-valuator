@@ -21,6 +21,7 @@
     "test/block.spec.mts",
     "test/blockchain.spec.mts",
     "test/bsearch.spec.mts",
+    "test/chainaddress.spec.mts",
     "test/csvfile.spec.mts",
     "test/cryptoasset.spec.mts",
     "test/cryptoregistry.spec.mts",

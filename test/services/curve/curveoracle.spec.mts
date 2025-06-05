@@ -15,7 +15,7 @@ import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs"
 import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
-import { ChainAddressNG } from "../../../src/chainaddress.mjs";
+import { ChainAddress } from "../../../src/chainaddress.mjs";
 
 const { EUR, USD } = FakeFiatCurrency;
 const RATE = 1.2;
@@ -47,7 +47,7 @@ describe("CurveOracle", function () {
         ["20250305", 1.0399812908886852],
       ] as const;
 
-      const ID = ChainAddressNG(CHAIN, TOKEN);
+      const ID = ChainAddress(CHAIN, TOKEN);
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
           const registry = CryptoRegistry.create();

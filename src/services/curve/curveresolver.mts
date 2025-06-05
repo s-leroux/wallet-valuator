@@ -4,7 +4,7 @@ import type { CryptoRegistry } from "../../cryptoregistry.mjs";
 import { type CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
-import { ChainAddressNG } from "../../chainaddress.mjs";
+import { ChainAddress } from "../../chainaddress.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
 import { logger } from "../../debug.mjs";
 
@@ -18,7 +18,7 @@ type Entry = {
 };
 
 export class CurveResolver extends CryptoResolver {
-  readonly tokens: Map<ChainAddressNG, Entry>;
+  readonly tokens: Map<ChainAddress, Entry>;
 
   constructor(readonly api: CurveAPI) {
     super();
@@ -71,7 +71,7 @@ export class CurveResolver extends CryptoResolver {
       poolAddress,
     };
 
-    this.tokens.set(ChainAddressNG(chainName, smartContractAddress), entry); // cache the search result
+    this.tokens.set(ChainAddress(chainName, smartContractAddress), entry); // cache the search result
     return entry;
   }
 
@@ -87,7 +87,7 @@ export class CurveResolver extends CryptoResolver {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
 
-    const chainAddress = ChainAddressNG(chain.name, smartContractAddress);
+    const chainAddress = ChainAddress(chain.name, smartContractAddress);
     const entry =
       tokens.get(chainAddress) ??
       (await this.findLiquidityPool(chain, smartContractAddress));
