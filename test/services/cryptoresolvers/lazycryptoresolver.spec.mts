@@ -31,7 +31,7 @@ describe("LazyCryptoResolver", function () {
       8,
     ] as const;
 
-    assert.notExists(cryptoResolver.get("polygon", POLYGON_WBTC[0]));
+    assert.throws(() => cryptoResolver.get("polygon", POLYGON_WBTC[0]));
     const wbtc = await cryptoResolver.resolve(swarm, P, 1234, ...POLYGON_WBTC);
     if (!wbtc || wbtc.status !== "resolved") {
       assert.fail(`wbtc was ${wbtc}`);

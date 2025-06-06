@@ -76,7 +76,12 @@ export class LazyCryptoResolver extends CryptoResolver {
    *
    * For testing purposes only
    */
-  get(chain: string, contractAddress: string): CryptoAsset | null {
-    return this.cryptos.get(ChainAddress(chain, contractAddress)) ?? null;
+  get(chain: string, contractAddress: string): CryptoAsset {
+    if (process.env.NODE_ENV !== "test") {
+      throw new Error(
+        "This method is for testing purposes only and cannot be called in production code"
+      );
+    }
+    return this.cryptos.get(ChainAddress(chain, contractAddress));
   }
 }

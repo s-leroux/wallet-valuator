@@ -134,7 +134,7 @@ type JSONRpcVersion = "2.0";
 
 export type GethResponse<T> = {
   jsonrpc: JSONRpcVersion;
-  result: T;
+  result: T | null;
   id: number;
 };
 
@@ -217,7 +217,7 @@ export class GnosisScanAPI {
     return {
       status: iserror ? "0" : "1",
       message: iserror ? `Error finding normal transaction ${txhash}` : "OK",
-      result: response.result,
+      result: response.result!, // XXX This seems a bit forced
     };
   }
 

@@ -156,7 +156,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
 
   valueAt(price: Price) {
     if (this.crypto !== price.crypto) {
-      throw new InconsistentUnitsError(this, price);
+      throw new InconsistentUnitsError(this.crypto, price.crypto);
     }
     return new Value(price.fiatCurrency, this.value.mul(price.rate));
   }
