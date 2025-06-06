@@ -2,11 +2,24 @@
 
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import localPlugin from "./build/linter/index.mjs";
 
 export default tseslint.config(
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   {
+    languageOptions: {
+      parserOptions: {
+        // Critical for type-aware rules:
+        project: "./tsconfig.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    plugins: {
+      local: localPlugin,
+    },
     rules: {
       semi: ["error", "always"],
       "@typescript-eslint/no-unused-vars": [
@@ -16,6 +29,11 @@ export default tseslint.config(
           caughtErrors: "none",
         },
       ],
+      "local/inconsistent-comparison": "error", // Add your custom rule here
     },
+  },
+  {
+    files: ["**/*.mjs"],
+    extends: [tseslint.configs.disableTypeChecked],
   }
 );
