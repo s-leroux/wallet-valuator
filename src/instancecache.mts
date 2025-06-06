@@ -1,5 +1,4 @@
 import { logger } from "./debug.mjs";
-import { AssertionError } from "./error.mjs";
 
 const log = logger("instancecache");
 
@@ -27,7 +26,7 @@ type Atom = string | number;
  *
  * @see {MetadataRegistry} for attaching mutable properties to value objects
  */
-export class InstanceCache<K extends Atom, Obj extends WeakKey> {
+export class InstanceCache<K extends Atom, Obj extends DeepReadonly<WeakKey>> {
   generation: number = 0;
   /*
    * According to the ECMAScript spec, and clarified in relevant V8 / TC39 discussions:

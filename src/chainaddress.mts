@@ -45,7 +45,6 @@ export function ChainAddress(
  * Formats a ChainAddress into a string in the format "<chain>:<address>"
  * Formats a ChainAddress into a string in the format "<chain>:<address>"
  * @param chainAddress - The ChainAddress to format
- * @param chainAddress - The ChainAddress to format
  * @returns A string in the format "<chain>:<address>"
  */
 export function mangleChainAddress(chainAddress: ChainAddress): string {
