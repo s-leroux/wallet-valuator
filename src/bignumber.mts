@@ -1,13 +1,14 @@
 import { Decimal as DecimalImplementation } from "decimal.js";
 
 export function toInteger(src: number | string) {
-  const result = parseInt(src.toString());
+  const asString = src.toString();
+  const asInt = parseInt(asString);
 
-  if (src != result) {
+  if (asString != String(asInt)) {
     throw new TypeError(`Can't convert ${src} to an integer`);
   }
 
-  return result;
+  return asInt;
 }
 
 export type BigNumberSource =

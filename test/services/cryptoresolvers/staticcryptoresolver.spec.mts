@@ -202,7 +202,7 @@ describe("StaticCryptoResolver", function () {
       const USDC = ["USD Coin", "USDC", 6] as const;
 
       // prettier-ignore
-      const testcase = [B,null, "Bitcoin", "BTC", 8] as const
+      const testcase = [B,null, "Bitcoin", "BTC", 8] as const;
 
       const [chain, address, name, symbol, decimal] = testcase;
       const result = await cryptoResolver.resolve(

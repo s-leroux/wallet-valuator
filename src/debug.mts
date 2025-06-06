@@ -4,7 +4,8 @@ import { ValueError } from "./error.mjs";
 // =====================================================================
 // Utility types
 // =====================================================================
-const id = <T extends any>(x: T) => x;
+// prettier-ignore
+const id = <T,>(x: T) => x;
 
 // =====================================================================
 // ANSI escape code sequences
@@ -171,7 +172,7 @@ interface DebugConsole {
     module: string,
     errorCode: ErrorCode,
     message: string,
-    ...rest: any[]
+    ...rest: unknown[]
   ): void;
 }
 
@@ -191,7 +192,7 @@ class DefaultDebugConsole implements DebugConsole {
     module: string,
     errorCode: ErrorCode,
     message: string,
-    ...rest: any[]
+    ...rest: unknown[]
   ) {
     const [type, level, color] = severity;
     if (LOG_LEVEL >= level) {
@@ -217,27 +218,39 @@ class DebugFacade {
     public readonly module: string
   ) {}
 
-  public error(errorCode: ErrorCode, message?: string, ...rest: any[]): void {
+  public error(
+    errorCode: ErrorCode,
+    message?: string | Error,
+    ...rest: unknown[]
+  ): void {
     this.console.log(
       severity.error,
       this.module,
       errorCode,
-      errorMessage(errorCode, message),
+      errorMessage(errorCode, message && String(message)),
       ...rest
     );
   }
 
-  public warn(errorCode: ErrorCode, message?: string, ...rest: any[]): void {
+  public warn(
+    errorCode: ErrorCode,
+    message?: string | Error,
+    ...rest: unknown[]
+  ): void {
     this.console.log(
       severity.warn,
       this.module,
       errorCode,
-      errorMessage(errorCode, message),
+      errorMessage(errorCode, message && String(message)),
       ...rest
     );
   }
 
-  public info(errorCode: ErrorCode, message?: string, ...rest: any[]): void {
+  public info(
+    errorCode: ErrorCode,
+    message?: string,
+    ...rest: unknown[]
+  ): void {
     this.console.log(
       severity.info,
       this.module,
@@ -247,7 +260,7 @@ class DebugFacade {
     );
   }
 
-  public trace(errorCode: ErrorCode, message?: string, ...rest: any[]) {
+  public trace(errorCode: ErrorCode, message?: string, ...rest: unknown[]) {
     this.console.log(
       severity.trace,
       this.module,
@@ -262,7 +275,7 @@ class DebugFacade {
    * When debug messages trace errors or exceptional conditions that should remain in the code,
    * they *must* be preceded by a message of another log level (trace to error) with proper error code attribution.
    */
-  public debug(...rest: any[]) {
+  public debug(...rest: unknown[]) {
     this.console.log(
       severity.debug,
       this.module,
@@ -275,22 +288,4 @@ class DebugFacade {
 
 export function logger(module: string) {
   return new DebugFacade(defaulDebugConsole, module);
-}
-
-export class ObjectAlreadyRegisteredError extends Error {
-  readonly obj: object;
-  readonly id: string;
-
-  constructor(obj: object, id: string) {
-    // Synthesize an error message
-    const message = `Object ${obj} is already registered with ID "${id}".`;
-    super(message);
-
-    this.name = "ObjectAlreadyRegisteredError";
-    this.obj = obj;
-    this.id = id;
-
-    // Ensure the prototype chain is properly set for extending Error
-    Object.setPrototypeOf(this, ObjectAlreadyRegisteredError.prototype);
-  }
 }

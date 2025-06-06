@@ -48,7 +48,7 @@ export class Ensure {
     return obj as number;
   }
 
-  static isDefined<T>(obj: T): NotUndefined<T> {
+  static isDefined<T>(obj: T | undefined): NotUndefined<T> {
     if (obj === undefined) {
       throw new ValueError("Expected defined value but got undefined");
     }

@@ -371,7 +371,7 @@ export class CSVFile<K, T> implements DataSource<K, T> {
         }
         const [date, ...rest] = row;
         if (prev !== sentinel) {
-          if (sorted && date < (prev as K)) {
+          if (sorted && date < (prev)) {
             sorted = false;
             log.trace("C1005", "The data are not sorted by column 0");
           }

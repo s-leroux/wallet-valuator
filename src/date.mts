@@ -7,7 +7,7 @@ const intlDateTimeFormats = {
 } as const;
 
 const formatters: Record<string, (date: Date) => string> = {
-  // @ts-ignore
+  // @ts-expect-error __proto__ is intentionally set to null to prevent prototype pollution
   __proto__: null,
   YYYY: (date) => String(date.getUTCFullYear()).padStart(4, "0"),
   MMM: (date) => intlDateTimeFormats["en-US"]["MMM"].format(date),
@@ -27,7 +27,7 @@ export function formatDate(format: string, date: Date) {
 }
 
 const parsers: Record<string, RegExp> = {
-  // @ts-ignore
+  // @ts-expect-error __proto__ is intentionally set to null to prevent prototype pollution
   __proto__: null,
   YYYYMMDD: /^(?<year>\d\d\d\d)(?<month>\d\d)(?<day>\d\d)$/,
   "YYYY-MM-DD": /^(?<year>\d\d\d\d)-(?<month>\d\d)-(?<day>\d\d)$/,
@@ -49,15 +49,19 @@ export function parseDate(format: string | RegExp, date: string) {
     throw new ValueError(`${date} does not match ${pattern}`);
   }
 
-  // let fail with a TypeError if match.group is undefined
-  const { year, month, day } = match.groups!;
-  if ((year && month && day) === undefined) {
+  // Let fail as a TypeError if match.groups is `undefined`
+  const { year, month, day } = match.groups as {
+    year?: string;
+    month?: string;
+    day?: string;
+  };
+  if (!year || !month || !day) {
     throw new ValueError(
       `The format must defined capturing groups for day, month and year`
     );
   }
 
-  if (year && month && day && /^\d+$/.test(`${year}${month}${day}`)) {
+  if (/^\d+$/.test(`${year}${month}${day}`)) {
     return new Date(
       parseInt(year, 10),
       parseInt(month, 10) - 1,

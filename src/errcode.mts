@@ -41,6 +41,7 @@ export const ERRORS = {
   "C3011": "Unknown crypto-asset",
   "C3012": "Base price missing (PriceResolver)",
   "C3013": "Broken invariant (InstanceCache)",
+  "C3014": "Key not found (memoizer)",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

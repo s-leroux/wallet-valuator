@@ -46,7 +46,7 @@ describe("Table", function () {
   describe("get()", function () {
     const register = prepare(this);
 
-    let data: [string, number][] = [
+    const data: [string, number][] = [
       ["D", 1],
       ["E", 2],
       ["F", 3],

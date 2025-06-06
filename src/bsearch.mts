@@ -19,7 +19,7 @@ function isSorted<K extends unknown, T extends readonly [K, ...unknown[]]>(
   let iter = it.next();
   let prev: K | undefined;
   while (!iter.done) {
-    let curr: K = iter.value[0];
+    const curr: K = iter.value[0];
     if (curr < (prev ?? curr)) {
       return false;
     }

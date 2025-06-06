@@ -38,7 +38,7 @@ export const defaultDisplayOptions: Required<DisplayOptions> = {
 
 function noDisplayString(obj: object & {}, options: DisplayOptions): string {
   if (Array.isArray(obj)) {
-    const body = (obj as Array<any>)
+    const body = (obj)
       .map((item) => toDisplayString(item, options))
       .join("\n");
     if (body) {
