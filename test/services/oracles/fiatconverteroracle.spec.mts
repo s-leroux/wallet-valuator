@@ -61,7 +61,7 @@ describe("FiatConverterOracle", function () {
 
       assert.containsAllKeys(prices, [eur, usd]);
       assert.closeTo(+prices[eur]!.rate, 217.91046376268642, EPSILON);
-      assert.closeTo(+prices[usd]!.rate, 217.91046376268642 * 1.2, EPSILON);
+      assert.closeTo(+prices[usd].rate, 217.91046376268642 * 1.2, EPSILON);
     });
   });
 });

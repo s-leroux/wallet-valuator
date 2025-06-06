@@ -62,7 +62,7 @@ function notFound(id: string): never {
 }
 
 export async function load(start: string, end: string, cryptoids: string[]) {
-  let currDate = parseDate("YYYY-MM-DD", start);
+  const currDate = parseDate("YYYY-MM-DD", start);
   const endDate = parseDate("YYYY-MM-DD", end);
 
   const envvars = loadEnvironmentVariables();
