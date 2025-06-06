@@ -5,11 +5,22 @@ const createRule = ESLintUtils.RuleCreator(
   (name) => `https://your-rules/${name}`
 );
 
-function widenType(type: ts.Type, checker: ts.TypeChecker): ts.Type {
-  if (type.isLiteral()) {
-    return checker.getBaseTypeOfLiteralType(type);
-  }
-  return type;
+function areTypesComparable(
+  a: ts.Type,
+  b: ts.Type,
+  checker: ts.TypeChecker
+): boolean {
+  // Get all members of each type (treating non-unions as single-member unions)
+  const membersA = a.isUnion() ? a.types : [a];
+  const membersB = b.isUnion() ? b.types : [b];
+
+  // Check if any combination is assignable in either direction
+  return membersA.some((t1) =>
+    membersB.some(
+      (t2) =>
+        checker.isTypeAssignableTo(t1, t2) || checker.isTypeAssignableTo(t2, t1)
+    )
+  );
 }
 
 export const inconsistentComparison = createRule({
@@ -37,32 +48,10 @@ export const inconsistentComparison = createRule({
         const rightTsNode = parserServices.esTreeNodeToTSNodeMap.get(
           node.right
         );
+        const leftType = checker.getTypeAtLocation(leftTsNode);
+        const rightType = checker.getTypeAtLocation(rightTsNode);
 
-        const typeA = widenType(checker.getTypeAtLocation(leftTsNode), checker);
-        const typeB = widenType(
-          checker.getTypeAtLocation(rightTsNode),
-          checker
-        );
-
-        // Allow if either side is `any` or both are primitives of the same type
-        if (
-          typeA.flags & ts.TypeFlags.Any ||
-          typeB.flags & ts.TypeFlags.Any ||
-          checker.typeToString(typeA) === checker.typeToString(typeB)
-        ) {
-          return;
-        }
-
-        const leftIsObject = typeA.getFlags() & ts.TypeFlags.Object;
-        const rightIsObject = typeB.getFlags() & ts.TypeFlags.Object;
-
-        // Allow comparing structurally compatible objects (optional)
-        if (
-          leftIsObject &&
-          rightIsObject &&
-          checker.isTypeAssignableTo(typeA, typeB) &&
-          checker.isTypeAssignableTo(typeB, typeA)
-        ) {
+        if (areTypesComparable(leftType, rightType, checker)) {
           return;
         }
 
@@ -71,8 +60,8 @@ export const inconsistentComparison = createRule({
           node,
           messageId: "incompatibleTypes",
           data: {
-            left: checker.typeToString(typeA),
-            right: checker.typeToString(typeB),
+            left: checker.typeToString(leftType),
+            right: checker.typeToString(rightType),
           },
         });
       },
