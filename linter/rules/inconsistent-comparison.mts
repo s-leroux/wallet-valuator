@@ -5,6 +5,13 @@ const createRule = ESLintUtils.RuleCreator(
   (name) => `https://your-rules/${name}`
 );
 
+function widenType(type: ts.Type, checker: ts.TypeChecker): ts.Type {
+  if (type.isLiteral()) {
+    return checker.getBaseTypeOfLiteralType(type);
+  }
+  return type;
+}
+
 export const inconsistentComparison = createRule({
   name: "inconsistent-comparison",
   meta: {
@@ -31,27 +38,30 @@ export const inconsistentComparison = createRule({
           node.right
         );
 
-        const leftType = checker.getTypeAtLocation(leftTsNode);
-        const rightType = checker.getTypeAtLocation(rightTsNode);
+        const typeA = widenType(checker.getTypeAtLocation(leftTsNode), checker);
+        const typeB = widenType(
+          checker.getTypeAtLocation(rightTsNode),
+          checker
+        );
 
         // Allow if either side is `any` or both are primitives of the same type
         if (
-          leftType.flags & ts.TypeFlags.Any ||
-          rightType.flags & ts.TypeFlags.Any ||
-          checker.typeToString(leftType) === checker.typeToString(rightType)
+          typeA.flags & ts.TypeFlags.Any ||
+          typeB.flags & ts.TypeFlags.Any ||
+          checker.typeToString(typeA) === checker.typeToString(typeB)
         ) {
           return;
         }
 
-        const leftIsObject = leftType.getFlags() & ts.TypeFlags.Object;
-        const rightIsObject = rightType.getFlags() & ts.TypeFlags.Object;
+        const leftIsObject = typeA.getFlags() & ts.TypeFlags.Object;
+        const rightIsObject = typeB.getFlags() & ts.TypeFlags.Object;
 
         // Allow comparing structurally compatible objects (optional)
         if (
           leftIsObject &&
           rightIsObject &&
-          checker.isTypeAssignableTo(leftType, rightType) &&
-          checker.isTypeAssignableTo(rightType, leftType)
+          checker.isTypeAssignableTo(typeA, typeB) &&
+          checker.isTypeAssignableTo(typeB, typeA)
         ) {
           return;
         }
@@ -61,8 +71,8 @@ export const inconsistentComparison = createRule({
           node,
           messageId: "incompatibleTypes",
           data: {
-            left: checker.typeToString(leftType),
-            right: checker.typeToString(rightType),
+            left: checker.typeToString(typeA),
+            right: checker.typeToString(typeB),
           },
         });
       },
