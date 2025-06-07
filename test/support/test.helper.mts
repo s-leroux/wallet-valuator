@@ -24,17 +24,25 @@ function flag(envVar: string): boolean {
       'Expected one of: "1", "yes", "0", "no" (case insensitive)'
   );
 }
-
+/*
 type MochaGlobalFunction = (message: string, ...options: unknown[]) => void;
 
 type Skipable = MochaGlobalFunction & {
   skip: MochaGlobalFunction;
 };
+*/
+
+type Skipable = Mocha.SuiteFunction | Mocha.TestFunction;
+type Outcome<T> = T extends Mocha.SuiteFunction
+  ? Mocha.SuiteFunction | Mocha.PendingSuiteFunction
+  : T extends Mocha.TestFunction
+  ? Mocha.TestFunction | Mocha.PendingTestFunction
+  : never;
 
 /**
  * Wrapper to conditionally run or skip tests based on environment variables
  * @param options.envVar - Environment variable to check
  */
-export function when(envVar: string, fn: Skipable) {
-  return flag(envVar) ? fn : fn.skip;
+export function when<T extends Skipable>(envVar: string, fn: T): Outcome<T> {
+  return (flag(envVar) ? fn : fn.skip) as Outcome<T>;
 }

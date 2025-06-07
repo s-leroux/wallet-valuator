@@ -5,8 +5,10 @@ import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeDataSource } from "../../support/datasource.fake.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
+import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
+import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -17,6 +19,7 @@ describe("DataSourceOracle", function () {
   const usd = FakeFiatCurrency.USD;
   let oracle: DataSourceOracle<number>;
   let registry: CryptoRegistry;
+  let fiatConverter: FiatConverter;
 
   beforeEach(() => {
     oracle = new DataSourceOracle(bitcoin, new FakeDataSource((v) => v), {
@@ -24,6 +27,7 @@ describe("DataSourceOracle", function () {
       [eur]: "EUR",
     });
     registry = CryptoRegistry.create();
+    fiatConverter = new NullFiatConverter();
   });
 
   describe("constructor", () => {
@@ -31,13 +35,16 @@ describe("DataSourceOracle", function () {
   });
   describe("getPrice()", () => {
     it("should return the price in requested currency", async () => {
-      const prices = await oracle.getPrice(
+      const priceMap = new Map() as PriceMap;
+      await oracle.getPrice(
         registry,
         bitcoin,
         new Date("2024-12-04"),
-        [eur]
+        [eur],
+        fiatConverter,
+        priceMap
       );
-      const price = prices[eur];
+      const price = priceMap.get(eur);
       if (!price) {
         assert.fail(`price is ${price}`);
       } else {

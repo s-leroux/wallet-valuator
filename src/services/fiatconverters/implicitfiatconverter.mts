@@ -2,7 +2,7 @@ import { FiatConverter, NullFiatConverter } from "../fiatconverter.mjs";
 
 import { NotImplementedError, ValueError } from "../../error.mjs";
 import { Price } from "../../price.mjs";
-import { Oracle } from "../oracle.mjs";
+import { Oracle, PriceMap } from "../oracle.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
@@ -44,16 +44,18 @@ export class ImplicitFiatConverter implements FiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(
+    const priceMap = new Map() as PriceMap;
+    await this.oracle.getPrice(
       registry,
       this.crypto,
       date,
       [from, to],
-      new NullFiatConverter() // ISSUE #106 We might use `this` here but isn't there some cases leading to infinite recursion?
+      new NullFiatConverter(), // ISSUE #106 We might use `this` here but isn't there some cases leading to infinite recursion?
+      priceMap
     ); // ISSUE #64 What to do if this fails?
 
-    const toPrice = ref[to];
-    const fromPrice = ref[from];
+    const toPrice = priceMap.get(to);
+    const fromPrice = priceMap.get(from);
 
     if (toPrice === undefined || fromPrice === undefined) {
       throw new NotImplementedError(

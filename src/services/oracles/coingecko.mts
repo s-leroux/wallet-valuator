@@ -8,6 +8,8 @@ import { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { FiatConverter } from "../fiatconverter.mjs";
+import { PriceMap } from "../oracle.mjs";
 import { Ensure } from "../../type.mjs";
 
 const log = logger("coingecko");
@@ -51,7 +53,7 @@ type OptionBag = object;
 
 export type CoinGeckoPriceHistory = {
   market_data: {
-    current_price: Record<FiatCurrency, Price | undefined>;
+    current_price: Record<string, number | undefined>;
   };
 };
 
@@ -104,13 +106,14 @@ export class CoinGecko extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    currencies: FiatCurrency[]
-  ): Promise<Partial<Record<FiatCurrency, Price>>> {
-    let prices;
+    currencies: FiatCurrency[],
+    fiatConverter: FiatConverter,
+    result: PriceMap
+  ): Promise<void> {
     let historical_data: CoinGeckoPriceHistory | undefined;
     const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
     if (!coinGeckoId) {
-      return Object.create(null);
+      return;
     }
     try {
       const pricing_date = new Date(date);
@@ -128,38 +131,49 @@ export class CoinGecko extends Oracle {
         pricing_date.setDate(pricing_date.getDate() - 1);
         log.trace(
           "C1008",
-          `No price found for ${crypto}. Retrying one day earlier`,
-          pricing_date,
-          crypto
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          `No price found for ${crypto.id} at ${pricing_date}. Retrying one day earlier`,
+          crypto.id
         );
       }
 
-      prices = Ensure.isDefined(historical_data).market_data.current_price;
+      Ensure.isDefined(historical_data); // throw an error if the data are mising
     } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       log.trace("C1009", `Error while getting price for ${crypto}: ${err}`);
-      log.debug(date, currencies, crypto, coinGeckoId, historical_data, err);
-      prices = Object.create(null);
+      log.debug(date, currencies, crypto.id, coinGeckoId, historical_data, err);
+      return;
     }
+    const prices = Ensure.isDefined(historical_data).market_data.current_price;
 
-    const result: Record<FiatCurrency, Price> = Object.create(null);
     for (const [key, value] of Object.entries(prices)) {
+      // Sanitize input
       let currency;
       try {
         currency = FiatCurrency(key);
       } catch {
         continue;
       }
+
+      if (value === undefined) {
+        continue;
+      }
+
+      // Everithing is OK
       log.info(
         "C1002",
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `Found price for ${crypto}/${currency} at ${date.toISOString()}`
       );
-      result[currency] = GlobalMetadataRegistry.setMetadata(
-        new Price(crypto, currency, value as string),
+      const price = new Price(crypto, currency, value);
+      result.set(currency, price);
+      GlobalMetadataRegistry.setMetadata(
+        price,
         { origin: "COINGECKO" } // ISSUE #112 Why all-caps?
       );
     }
 
-    return result;
+    return;
   }
 }
 

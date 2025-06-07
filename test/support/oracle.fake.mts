@@ -2,8 +2,9 @@ import { Oracle } from "../../src/services/oracle.mjs";
 import type { CryptoAsset } from "../../src/cryptoasset.mjs";
 import type { CryptoRegistry } from "../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
-import type { Price } from "../../src/price.mjs";
 import { formatDate } from "../../src/date.mjs";
+import type { FiatConverter } from "../../src/services/fiatconverter.mjs";
+import type { PriceMap } from "../../src/services/oracle.mjs";
 
 // From coingecko v3/coins/currency/history
 // for d in $(seq 25 30); do
@@ -26,8 +27,10 @@ export class FakeOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiat: FiatCurrency[]
-  ): Promise<Partial<Record<FiatCurrency, Price>>> {
+    fiats: FiatCurrency[],
+    fiatConverter: FiatConverter,
+    result: PriceMap
+  ): Promise<void> {
     const cryptoId = crypto.id;
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 
@@ -39,10 +42,9 @@ export class FakeOracle extends Oracle {
     }
     const prices = dataRecord[2];
 
-    return fiat.reduce((acc, key) => {
-      acc[key] = crypto.price(key, prices[key.toLowerCase()]);
-      return acc;
-    }, {} as Record<FiatCurrency, Price>);
+    for (const fiat of fiats) {
+      result.set(fiat, crypto.price(fiat, prices[fiat.toString().toLowerCase()]));
+    }
   }
 
   static create() {
