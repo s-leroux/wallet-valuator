@@ -30,6 +30,7 @@ export default tseslint.config(
         },
       ],
       "local/inconsistent-comparison": "error", // Add your custom rule here
+      "@typescript-eslint/restrict-template-expressions": "off",
     },
   },
   {
