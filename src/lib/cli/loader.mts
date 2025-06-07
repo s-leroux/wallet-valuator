@@ -11,6 +11,7 @@ import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGecko } from "../../services/oracles/coingecko.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { parseDate } from "../../date.mjs";
+import { PriceMap } from "../../services/oracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -83,6 +84,12 @@ export async function load(start: string, end: string, cryptoids: string[]) {
   );
 
   while (currDate <= endDate) {
+    // Create a single PriceMap that will be shared across all getPrice calls.
+    // This is safe in JavaScript because:
+    // 1. JavaScript is single-threaded, so Map operations are atomic
+    // 2. Even though we use Promise.all() for concurrent execution, the actual
+    //    Map modifications happen sequentially in the event loop
+    const prices = new Map() as PriceMap;
     await Promise.all(
       cryptos.map((crypto) => {
         return oracle.getPrice(
@@ -90,7 +97,8 @@ export async function load(start: string, end: string, cryptoids: string[]) {
           crypto,
           currDate,
           [FiatCurrency("EUR")],
-          fiatConverter
+          fiatConverter,
+          prices
         );
       })
     );

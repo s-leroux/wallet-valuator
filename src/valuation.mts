@@ -259,7 +259,7 @@ export class SnapshotValuation {
         fiatCurrency,
       ]);
 
-      const price = prices[fiatCurrency];
+      const price = prices.get(fiatCurrency);
       if (price === undefined) {
         // ISSUE #135 This is very unlikely since Priceresolver throws if a price is not found
         // prettier-ignore

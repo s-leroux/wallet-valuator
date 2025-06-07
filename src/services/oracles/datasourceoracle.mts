@@ -7,7 +7,8 @@ import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
 import type { DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
-import { Oracle } from "../oracle.mjs";
+import { Oracle, PriceMap } from "../oracle.mjs";
+import { FiatConverter } from "../fiatconverter.mjs";
 
 interface DataSourceOracleOptions {
   dateFormat?: string;
@@ -38,13 +39,13 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[]
-  ): Promise<Partial<Record<FiatCurrency, Price>>> {
-    const result = Object.create(null) as Record<FiatCurrency, Price>;
-
+    fiats: FiatCurrency[],
+    fiatConverter: FiatConverter,
+    result: PriceMap
+  ): Promise<void> {
     // We do not handle that crypto
     if (crypto !== this.crypto) {
-      return result;
+      return;
     }
 
     const formattedDate = formatDate(this.dateFormat, date);
@@ -55,12 +56,10 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
         const value = this.data.get(formattedDate, columnName)?.at(1);
 
         if (value !== undefined) {
-          result[fiat] = crypto.price(fiat, BigNumber.from(value));
+          result.set(fiat, crypto.price(fiat, BigNumber.from(value)));
         }
       }
     }
-
-    return result;
   }
 
   static async createFromPath(

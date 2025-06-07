@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
@@ -13,6 +13,7 @@ import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 import { DefiLlamaOracle } from "../../../src/services/defillama/defillamaoracle.mjs";
 import { FakeDefiLlamaAPI } from "../../support/defillamaapi.fake.mjs";
 import { DefiLlamaAPI } from "../../../src/services/defillama/defillamaapi.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 const INTERNAL_TO_COINGECKO_ID = {
   bitcoin: "bitcoin",
@@ -28,7 +29,7 @@ describe("DefiLlamaOracle", function () {
   let registry: CryptoRegistry;
   let fiatConverter: FiatConverter;
 
-  beforeEach(async function () {
+  beforeEach(function () {
     registry = CryptoRegistry.create();
     api = FakeDefiLlamaAPI.create();
     oracle = DefiLlamaOracle.create(api, INTERNAL_TO_COINGECKO_ID);
@@ -37,16 +38,18 @@ describe("DefiLlamaOracle", function () {
 
   describe("getPrice()", () => {
     it("should return the price in the requested fiat currencie", async function () {
-      const prices = await oracle.getPrice(
+      const priceMap = new Map() as PriceMap;
+      await oracle.getPrice(
         registry,
         bitcoin,
         new Date("2023-10-01"),
         [USD, EUR],
-        fiatConverter
+        fiatConverter,
+        priceMap
       );
 
-      assert.containsAllKeys(prices, [USD]);
-      assert.equal(+prices[USD]!.rate, 26966.11831093055);
+      assert.isTrue(priceMap.has(USD));
+      assert.equal(+priceMap.get(USD)!.rate, 26966.11831093055);
     });
   });
 });

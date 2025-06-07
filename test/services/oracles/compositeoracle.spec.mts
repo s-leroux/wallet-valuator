@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
@@ -14,6 +14,7 @@ import {
   FiatConverter,
   NullFiatConverter,
 } from "../../../src/services/fiatconverter.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 describe("CompositeOracle", function () {
   const bitcoin = FakeCryptoAsset.bitcoin;
@@ -35,17 +36,25 @@ describe("CompositeOracle", function () {
 
   describe("getPrice()", () => {
     it("should aggregate the results from several oracles", async function () {
-      const prices = await oracle.getPrice(
+      const priceMap = new Map() as PriceMap;
+      await oracle.getPrice(
         registry,
         bitcoin,
         new Date("2024-12-05"),
         [usd, eur],
-        fiatConverter
+        fiatConverter,
+        priceMap
       );
 
-      assert.containsAllKeys(prices, [eur, usd]);
-      assert.equal(+prices[usd]!.rate, 229.06669921453178);
-      assert.equal(+prices[eur]!.rate, 217.91046376268642);
+      assert.sameMembers(Array.from(priceMap.keys()), [usd, eur]);
+      const usdPrice = priceMap.get(usd);
+      const eurPrice = priceMap.get(eur);
+      assert.exists(usdPrice);
+      assert.exists(eurPrice);
+      if (usdPrice && eurPrice) {
+        assert.equal(+usdPrice.rate, 229.06669921453178);
+        assert.equal(+eurPrice.rate, 217.91046376268642);
+      }
     });
   });
 });

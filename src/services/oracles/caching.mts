@@ -1,8 +1,7 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { FiatCurrency } from "../../fiatcurrency.mjs";
-import { Price } from "../../price.mjs";
-import type { Oracle } from "../oracle.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
+import { type Oracle, PriceMap } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
 const log = logger("caching-oracle");
@@ -63,7 +62,8 @@ INSERT OR REPLACE INTO db_metadata (key, value) VALUES ('version', 'v2');
 
 export const DB_VERSION = "v2";
 
-export class Caching {
+export class Caching /*extends Oracle*/ {
+  // We cannot extend Oracle due to circular dependencies
   readonly backend: Oracle;
   readonly db: Database.Database;
 
@@ -175,12 +175,12 @@ export class Caching {
     }
   }
 
-  insertPrice(date: string, prices: Record<string, Price>): void {
-    // ISSUE #108 Above    ^^^^^^^ Use a Date parameter
+  insertPrice(date: string, prices: PriceMap): void {
+    // ISSUE #108 Above ^^ Use a Date parameter
     const stmt = this.db.prepare(
       "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin) VALUES (?,?,?,?,?)"
     );
-    for (const price of Object.values(prices)) {
+    for (const price of prices.values()) {
       log.trace(
         "C1010",
         `Caching price for ${price.crypto}/${price.fiatCurrency} at ${date}`
@@ -204,11 +204,10 @@ export class Caching {
     crypto: CryptoAsset,
     date: Date,
     currencies: FiatCurrency[],
-    fiatConverter: FiatConverter
-  ): Promise<Partial<Record<string, Price>>> {
-    // ISSUE #109 Return type should be Record<FiatCurrency, Price|undefined>
-    const result: Record<string, Price> = Object.create(null);
-    const dateYyyyMmDd = date.toISOString().substring(0, 10);
+    fiatConverter: FiatConverter,
+    result: PriceMap
+  ): Promise<void> {
+    const dateYyyyMmDd = date.toISOString().substring(0, 10); // XXX replace with formatDate
     const missing: FiatCurrency[] = [];
     const stmt = this.db.prepare<[string, string, string], { price: number }>(
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
@@ -216,7 +215,7 @@ export class Caching {
     for (const currency of currencies) {
       const row = stmt.get(crypto.id, dateYyyyMmDd, currency);
       if (row) {
-        result[currency] = new Price(crypto, currency, row.price);
+        result.set(currency, crypto.price(currency, row.price));
       } else {
         log.trace(
           "C1007",
@@ -226,20 +225,19 @@ export class Caching {
       }
     }
     if (missing.length == 0) {
-      return result;
+      return;
     }
     // else
-    const new_values = await this.backend.getPrice(
+    await this.backend.getPrice(
       registry,
       crypto,
       date,
       missing, // request only missing data!
-      fiatConverter
+      fiatConverter,
+      result
     );
     this.backend_calls += 1;
-    this.insertPrice(dateYyyyMmDd, new_values as Record<string, Price>);
-
-    return Object.assign(result, new_values);
+    this.insertPrice(dateYyyyMmDd, result); // ISSUE #158 We should only insert *missing* prices (or maybe more accurate one? See #94)
   }
 
   cache(path?: string): Oracle {

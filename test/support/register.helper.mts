@@ -15,7 +15,7 @@ import type { Suite } from "mocha";
  * })
  */
 export function prepare(suite: Suite) {
-  return function (msg: string, fn: Mocha.Func) {
+  return function (msg: string, fn: () => void | Promise<void>) {
     suite.addTest(new Test(msg, fn));
   };
 }
