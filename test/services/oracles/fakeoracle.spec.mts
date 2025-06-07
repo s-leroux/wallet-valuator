@@ -9,18 +9,14 @@ import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
 
 describe("FakeOracle", function () {
   let fakeoracle: FakeOracle | undefined;
   let registry: CryptoRegistry;
-  let fiatConverter: FiatConverter;
 
   beforeEach(function () {
     fakeoracle = FakeOracle.create();
     registry = CryptoRegistry.create();
-    fiatConverter = new NullFiatConverter();
   });
 
   describe("API", () => {});
@@ -44,7 +40,6 @@ describe("FakeOracle", function () {
           bitcoin,
           new Date(date),
           Object.keys(expected).map(FiatCurrency),
-          fiatConverter,
           priceMap
         );
 

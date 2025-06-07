@@ -12,8 +12,6 @@ import {
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
@@ -34,12 +32,10 @@ describe("CoinGecko", function () {
 
   let coingecko: CoinGecko;
   let registry: CryptoRegistry;
-  let fiatConverter: FiatConverter;
 
   beforeEach(function () {
     coingecko = CoinGecko.create(API_KEY, INTERNAL_TO_COINGECKO_ID);
     registry = CryptoRegistry.create();
-    fiatConverter = new NullFiatConverter();
   });
 
   describe("API", () => {});
@@ -66,7 +62,6 @@ describe("CoinGecko", function () {
             bitcoin,
             new Date(date),
             Object.keys(expected).map(FiatCurrency),
-            fiatConverter,
             priceMap
           );
           assert.includeMembers(
@@ -100,7 +95,6 @@ describe("CoinGecko", function () {
         maliciousCrypto,
         new Date("2024-12-30"),
         ["eur"] as FiatCurrency[],
-        fiatConverter,
         priceMap
       );
       assert.equal(priceMap.size, 0);

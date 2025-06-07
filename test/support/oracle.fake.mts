@@ -28,7 +28,6 @@ export class FakeOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: FiatCurrency[],
-    fiatConverter: FiatConverter,
     result: PriceMap
   ): Promise<void> {
     const cryptoId = crypto.id;

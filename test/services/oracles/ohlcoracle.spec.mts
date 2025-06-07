@@ -8,8 +8,6 @@ import { CSVFile } from "../../../src/csvfile.mjs";
 import { BigNumber } from "../../../src/bignumber.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -33,7 +31,6 @@ describe("OHLCOracle", function () {
   let oracle: OHLCOracle<BigNumber>;
   const registry = CryptoRegistry.create();
   const bitcoin = registry.createCryptoAsset("bitcoin");
-  let fiatConverter: FiatConverter;
 
   beforeEach(() => {
     const datasource = CSVFile.createFromText(
@@ -47,7 +44,6 @@ describe("OHLCOracle", function () {
     oracle = new OHLCOracle(bitcoin, USD, datasource, {
       dateFormat: "MMM D, YYYY",
     });
-    fiatConverter = new NullFiatConverter();
   });
 
   describe("getPrice()", () => {
@@ -69,7 +65,6 @@ describe("OHLCOracle", function () {
             bitcoin,
             new Date(date),
             [USD],
-            fiatConverter,
             priceMap
           );
           const price = priceMap.get(USD);

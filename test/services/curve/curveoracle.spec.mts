@@ -12,24 +12,19 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeCurveAPI } from "../../support/curveapi.fake.mjs";
 import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { ChainAddress } from "../../../src/chainaddress.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
 const { EUR, USD } = FakeFiatCurrency;
-const RATE = 1.2;
 
 describe("CurveOracle", function () {
   let api: FakeCurveAPI;
   let oracle: CurveOracle;
-  let fiatConverter: FiatConverter;
 
   beforeEach(function () {
     api = FakeCurveAPI.create();
     oracle = CurveOracle.create(api);
-    fiatConverter = FixedFiatConverter.create(USD, EUR, RATE);
   });
 
   describe("getPrice", function () {
@@ -71,7 +66,6 @@ describe("CurveOracle", function () {
               crypto,
               parseDate("YYYYMMDD", date),
               [USD, EUR],
-              fiatConverter,
               priceMap
             )
             .catch((err) => (console.log(err), undefined));

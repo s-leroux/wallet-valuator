@@ -18,7 +18,6 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
 import { BigNumber } from "../../../src/bignumber.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 
 describe("RealTokenUUID", () => {
   it("can be created from string", () => {
@@ -168,7 +167,6 @@ describe("RealTokenOracle", function () {
             crypto,
             parseDate("YYYYMMDD", date),
             [fiat],
-            undefined as unknown as FiatConverter,
             priceMap
           );
 

@@ -10,7 +10,6 @@ import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
-import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
 
 describe("ImplicitFiatConverter", function () {
   const { bitcoin, ethereum } = FakeCryptoAsset;
@@ -36,7 +35,6 @@ describe("ImplicitFiatConverter", function () {
         ethereum,
         date,
         [FakeFiatCurrency.EUR, FakeFiatCurrency.USD],
-        new NullFiatConverter(),
         priceMap
       );
 

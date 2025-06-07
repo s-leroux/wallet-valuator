@@ -10,10 +10,6 @@ import type { Oracle } from "../../../src/services/oracle.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { CompositeOracle } from "../../../src/services/oracles/compositeoracle.mjs";
-import {
-  FiatConverter,
-  NullFiatConverter,
-} from "../../../src/services/fiatconverter.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
 describe("CompositeOracle", function () {
@@ -21,7 +17,6 @@ describe("CompositeOracle", function () {
   const [eur, usd] = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
   let oracle: Oracle;
   let registry: CryptoRegistry;
-  let fiatConverter: FiatConverter;
 
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
@@ -31,7 +26,6 @@ describe("CompositeOracle", function () {
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-usd-max.csv", {[usd]: "price"}, opt),
     ]);
     registry = CryptoRegistry.create();
-    fiatConverter = new NullFiatConverter();
   });
 
   describe("getPrice()", () => {
@@ -42,7 +36,6 @@ describe("CompositeOracle", function () {
         bitcoin,
         new Date("2024-12-05"),
         [usd, eur],
-        fiatConverter,
         priceMap
       );
 

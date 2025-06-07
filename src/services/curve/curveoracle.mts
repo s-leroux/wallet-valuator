@@ -23,7 +23,6 @@ export class CurveOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: FiatCurrency[],
-    fiatConverter: FiatConverter,
     result: PriceMap
   ): Promise<void> {
     const metadata = registry.getNamespaceData(
@@ -64,14 +63,6 @@ export class CurveOracle extends Oracle {
       { origin: "CURVE" }
     );
     result.set(USD, price);
-    /*
-    for (const fiat of fiats) {
-      if (fiat !== USD) {
-        const convertedPrice = await fiatConverter.convert(registry, date, price, fiat);
-        result.set(fiat, convertedPrice);
-      }
-    }
-    */
   }
 
   static create(api?: CurveAPI) {

@@ -27,13 +27,11 @@ describe("DefiLlamaOracle", function () {
   let api: DefiLlamaAPI;
   let oracle: Oracle;
   let registry: CryptoRegistry;
-  let fiatConverter: FiatConverter;
 
   beforeEach(function () {
     registry = CryptoRegistry.create();
     api = FakeDefiLlamaAPI.create();
     oracle = DefiLlamaOracle.create(api, INTERNAL_TO_COINGECKO_ID);
-    fiatConverter = FixedFiatConverter.create(USD, EUR, RATE);
   });
 
   describe("getPrice()", () => {
@@ -44,7 +42,6 @@ describe("DefiLlamaOracle", function () {
         bitcoin,
         new Date("2023-10-01"),
         [USD, EUR],
-        fiatConverter,
         priceMap
       );
 

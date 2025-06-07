@@ -33,7 +33,6 @@ export class FiatConverterOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: FiatCurrency[],
-    fiatConverter: FiatConverter,
     result: PriceMap
   ): Promise<void> {
     let missing = fiats;
@@ -46,7 +45,6 @@ export class FiatConverterOracle extends Oracle {
       crypto,
       date,
       missing,
-      fiatConverter,
       intermediateResult
     );
 

@@ -38,7 +38,6 @@ export class CompositeOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     currencies: FiatCurrency[],
-    fiatConverter: FiatConverter,
     result: PriceMap
   ): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -47,14 +46,7 @@ export class CompositeOracle extends Oracle {
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas
     for (const backend of this.backends) {
-      await backend.getPrice(
-        registry,
-        crypto,
-        date,
-        missing,
-        fiatConverter,
-        result
-      );
+      await backend.getPrice(registry, crypto, date, missing, result);
       for (const currency of result.keys()) {
         // result.set(currency, price); // Fixed in #157 // ISSUE #61 What to do it we already have that price? Should we check consistency?
         missing = missing.filter((item) => item !== currency);

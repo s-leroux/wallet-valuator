@@ -23,7 +23,6 @@ export abstract class Oracle {
    * @param crypto - The crypto-asset for which the price is being retrieved.
    * @param date - The date for which the price is being retrieved.
    * @param fiat - An array of fiat currencies for which the price is being requested.
-   * @param fiatConverter - A converter to help convert between fiat currencies if needed.
    * @param priceMap - The map to store the retrieved prices. This is an output parameter.
    * @returns A promise that resolves when the prices have been added to the map.
    * If the price for a fiat currency is not available, it MUST NOT be added to the map.
@@ -33,7 +32,6 @@ export abstract class Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiat: FiatCurrency[],
-    fiatConverter: FiatConverter,
     priceMap: PriceMap
   ): Promise<void>;
 

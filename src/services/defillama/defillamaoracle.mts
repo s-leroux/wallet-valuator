@@ -31,7 +31,6 @@ export class DefiLlamaOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: FiatCurrency[],
-    fiatConverter: FiatConverter,
     result: PriceMap
   ): Promise<void> {
     const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);

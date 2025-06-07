@@ -12,10 +12,6 @@ import { Caching, DB_VERSION } from "../../../src/services/oracles/caching.mjs";
 import type { Price } from "../../../src/price.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import {
-  FiatConverter,
-  NullFiatConverter,
-} from "../../../src/services/fiatconverter.mjs";
 import { setLogLevel } from "../../../src/debug.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
@@ -54,7 +50,6 @@ describe("Caching", function () {
   const fiatCurrencies = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
   let oracle: Oracle;
   let registry: CryptoRegistry;
-  let fiatConverter: FiatConverter;
 
   /**
    * Check the prices are what we expect from our fake oracle.
@@ -76,7 +71,6 @@ describe("Caching", function () {
   beforeEach(function () {
     oracle = new FakeOracle();
     registry = CryptoRegistry.create();
-    fiatConverter = new NullFiatConverter();
   });
 
   describe("Utilities", () => {
@@ -85,25 +79,11 @@ describe("Caching", function () {
       let priceMap: PriceMap;
       assert.equal(cache.backend_calls, 0);
       priceMap = new Map() as PriceMap;
-      await cache.getPrice(
-        registry,
-        crypto,
-        date,
-        fiatCurrencies,
-        fiatConverter,
-        priceMap
-      );
+      await cache.getPrice(registry, crypto, date, fiatCurrencies, priceMap);
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
       priceMap = new Map() as PriceMap;
-      await cache.getPrice(
-        registry,
-        crypto,
-        date,
-        fiatCurrencies,
-        fiatConverter,
-        priceMap
-      );
+      await cache.getPrice(registry, crypto, date, fiatCurrencies, priceMap);
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
     });

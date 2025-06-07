@@ -45,7 +45,6 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: FiatCurrency[],
-    fiatConverter: FiatConverter,
     result: PriceMap
   ): Promise<void> {
     // We do not handle that crypto

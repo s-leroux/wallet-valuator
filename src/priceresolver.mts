@@ -4,8 +4,7 @@ import { logger } from "./debug.mjs";
 import { AssertionError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
-import { Price } from "./price.mjs";
-import { FiatConverter, NullFiatConverter } from "./services/fiatconverter.mjs";
+import { FiatConverter } from "./services/fiatconverter.mjs";
 import { Oracle, PriceMap } from "./services/oracle.mjs";
 import { Caching } from "./services/oracles/caching.mjs";
 
@@ -41,7 +40,6 @@ export class PriceResolver {
     fiats: FiatCurrency[] // ISSUE #127 This parameter should be a set. Probably requires NodeJS >= 22
   ): Promise<PriceMap> {
     const prices = new Map() as PriceMap;
-    const dummyFiatConverter = new NullFiatConverter(); // Force failure during the transition period introduced by issue #88
     const baseFiat = FiatCurrency("USD"); // The base fiat value used to infer the other. Hard-coded here as the USD.
 
     if (!fiats.includes(baseFiat)) {
@@ -49,14 +47,7 @@ export class PriceResolver {
     }
 
     // 1. Attempt to retrieve prices using the oracle
-    await this.oracle.getPrice(
-      registry,
-      crypto,
-      date,
-      fiats,
-      dummyFiatConverter,
-      prices
-    );
+    await this.oracle.getPrice(registry, crypto, date, fiats, prices);
 
     // 2. Check if we have the requested prices
     const found = Array.from(prices.keys());
