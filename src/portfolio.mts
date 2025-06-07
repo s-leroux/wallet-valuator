@@ -69,9 +69,11 @@ export class Snapshot {
     if (ingress && egress) {
       // Internal transfer. Not to track.
     } else if (ingress) {
+      //console.log(`+${amount}`);
       newAmount = holding ? holding.plus(amount) : amount;
       this.tags.set("DELTA", amount);
     } else if (egress) {
+      //console.log(`-${amount}`);
       // problem: we may encounter an underflow!
       try {
         newAmount = (holding ? holding : new Amount(crypto)).minus(amount);
