@@ -82,6 +82,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    * console.log(amount.toString()); // "1 ETH"
    */
   toString(): string {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `${this.value} ${this.crypto.symbol}`;
   }
 

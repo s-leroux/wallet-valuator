@@ -68,17 +68,13 @@ export class InstanceCache<K extends Atom, Obj extends DeepReadonly<WeakKey>> {
    * and their lifetime overlaps the behavior is unspecified and we will
    * no longer guarantee that value objects are identity comparable.
    */
-  getOrCreate<P extends unknown[]>(
-    key: K,
-    ctor: new (...args: P) => Obj,
-    ...args: P
-  ): Obj {
+  getOrCreate(key: K, factory: () => Obj): Obj {
     const existing = this.cache.get(key)?.deref();
     if (existing) {
       return existing;
     }
 
-    const obj = new ctor(...args);
+    const obj = factory();
     const generation = ++this.generation;
 
     this.cache.set(key, new WeakRef(obj));
