@@ -42,6 +42,7 @@ export const ERRORS = {
   "C3012": "Base price missing (PriceResolver)",
   "C3013": "Broken invariant (InstanceCache)",
   "C3014": "Key not found (memoizer)",
+  "C3015": "Invalid currency format (FiatCurrency)",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

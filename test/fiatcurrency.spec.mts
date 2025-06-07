@@ -3,33 +3,42 @@ import { assert } from "chai";
 import { ValueError } from "../src/error.mjs";
 import { prepare } from "./support/register.helper.mjs";
 
-import { FiatCurrency } from "../src/fiatcurrency.mjs";
+import { FiatCurrencyNG } from "../src/fiatcurrency.mjs";
 
-describe("FiatCurrency", () => {
+describe("FiatCurrencyNG", () => {
   it("can be created from string", () => {
-    const cny = FiatCurrency("CNY");
+    const cny = FiatCurrencyNG("CNY");
   });
 
   describe("are comparable-by-value primitive types", function () {
     const register = prepare(this);
-    const eur = FiatCurrency("EUR");
-    const usd = FiatCurrency("USD");
+    const eur = FiatCurrencyNG("EUR");
+    const usd = FiatCurrencyNG("USD");
 
     // prettier-ignore
     const testcases = [
       [usd, usd, true],
+      [eur, eur, true],
       [usd, eur, false],
-      [usd, "USD", true],
-      [usd, "EUR", false],
-      ["USD", usd, true],
-      ["EUR", usd, false],
-      [usd, FiatCurrency("USD"), true],
-      [usd, FiatCurrency("EUR"), false],
-    ];
+      // direct comparison with string is no longer supported and should
+      // be flagged by the linter
+      // [usd, "USD", true],
+      // [usd, "EUR", false],
+      // ["USD", usd, true],
+      // ["EUR", usd, false],
+      [usd, FiatCurrencyNG("USD"), true],
+      [usd, FiatCurrencyNG("usd"), true],
+      [usd, FiatCurrencyNG("Usd"), true],
+      [usd, FiatCurrencyNG("EUR"), false],
+    ] as const;
+
     for (const [a, b, expected] of testcases) {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
       register(`case "${a}" "${b}"`, () => {
-        // ISSUE #69 Check if this test should be asymmetric: === vs !=
-        (expected ? assert.strictEqual : assert.notEqual)(a, b);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        const fct = expected ? assert.strictEqual : assert.notEqual;
+        fct(a, b);
+        fct(b, a); // FIXED #69
       });
     }
   });
@@ -50,7 +59,7 @@ describe("FiatCurrency", () => {
       ];
       for (const [a] of testcases) {
         register(`case FiatCurrrency("${a}") === "CNY"`, () => {
-          assert.strictEqual(FiatCurrency(a), FiatCurrency("CNY"));
+          assert.strictEqual(FiatCurrencyNG(a), FiatCurrencyNG("CNY"));
         });
       }
     });
@@ -69,7 +78,7 @@ describe("FiatCurrency", () => {
       ];
       for (const [a] of testcases) {
         register(`case FiatCurrrency("${a}")`, () => {
-          assert.throws(() => FiatCurrency(a), ValueError);
+          assert.throws(() => FiatCurrencyNG(a), ValueError);
         });
       }
     });
