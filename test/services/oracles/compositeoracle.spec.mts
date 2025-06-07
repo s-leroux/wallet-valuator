@@ -22,8 +22,8 @@ describe("CompositeOracle", function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
     // prettier-ignore
     oracle = new CompositeOracle([
-      await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-eur-max.csv", {[eur]: "price"}, opt),
-      await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-usd-max.csv", {[usd]: "price"}, opt),
+      await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-eur-max.csv", {[eur.code]: "price"}, opt),
+      await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-usd-max.csv", {[usd.code]: "price"}, opt),
     ]);
     registry = CryptoRegistry.create();
   });

@@ -7,7 +7,6 @@ import { logger as logger } from "../../debug.mjs";
 const log = logger("caching-oracle");
 
 import Database from "better-sqlite3";
-import { FiatConverter } from "../fiatconverter.mjs";
 import { AssertionError, ProtocolError } from "../../error.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
 
@@ -192,7 +191,7 @@ export class Caching /*extends Oracle*/ {
       stmt.run(
         price.crypto.id,
         date,
-        price.fiatCurrency,
+        price.fiatCurrency.code,
         price.rate.toFixed(),
         origin
       );
@@ -212,7 +211,7 @@ export class Caching /*extends Oracle*/ {
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
     );
     for (const currency of currencies) {
-      const row = stmt.get(crypto.id, dateYyyyMmDd, currency);
+      const row = stmt.get(crypto.id, dateYyyyMmDd, currency.code);
       if (row) {
         result.set(currency, crypto.price(currency, row.price));
       } else {

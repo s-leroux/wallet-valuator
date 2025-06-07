@@ -50,7 +50,11 @@ describe("CoinGecko", function () {
         [
           "bitcoin",
           "2024-12-30",
-          { BTC: 1, USD: 93663.44751964067, EUR: 89809.00932731242 },
+          {
+            BTC: 1,
+            USD: 93663.44751964067,
+            EUR: 89809.00932731242,
+          },
         ],
       ];
 
@@ -64,9 +68,12 @@ describe("CoinGecko", function () {
             Object.keys(expected).map(FiatCurrency),
             priceMap
           );
+          const expectedCurrencies = Object.keys(expected).map((code) =>
+            FiatCurrency(code)
+          );
           assert.includeMembers(
             Array.from(priceMap.keys()),
-            Object.keys(expected)
+            expectedCurrencies
           );
           for (const [currency, value] of Object.entries(expected)) {
             const fiatCurrency = FiatCurrency(currency);
@@ -94,7 +101,7 @@ describe("CoinGecko", function () {
         registry,
         maliciousCrypto,
         new Date("2024-12-30"),
-        ["eur"] as FiatCurrency[],
+        [FiatCurrency("eur")],
         priceMap
       );
       assert.equal(priceMap.size, 0);

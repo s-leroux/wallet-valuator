@@ -20,8 +20,8 @@ describe("DataSourceOracle", function () {
 
   beforeEach(() => {
     oracle = new DataSourceOracle(bitcoin, new FakeDataSource((v) => v), {
-      [usd]: "USD",
-      [eur]: "EUR",
+      [usd.code]: "USD",
+      [eur.code]: "EUR",
     });
     registry = CryptoRegistry.create();
   });

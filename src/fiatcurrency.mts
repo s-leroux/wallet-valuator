@@ -5,37 +5,29 @@ import { InstanceCache } from "./instancecache.mjs";
 const log = logger("fiatcurrency");
 
 /**
- * Fiat currency represented in ISO 4217 trigrams
+ * Branded type for ISO 4217 currency codes.
+ * This ensures type safety when working with currency codes.
  */
-export type FiatCurrency = string & { readonly brand: unique symbol }; // "EUR", "BTC", "USD" and others
-
-export function FiatCurrency(currency: string) {
-  if (currency.length != 3) {
-    throw new ValueError(
-      `Currency codes should contain exactly 3 letters: "${currency}" is invalid.`
-    );
-  }
-  return currency.toUpperCase() as FiatCurrency;
-}
+export type FiatCurrencyCode = string & { readonly brand: unique symbol };
 
 /**
  * Value object representing a fiat currency in ISO 4217 format.
  * Instances are cached and identity-comparable.
  */
-interface FiatCurrencyNG {
+export interface FiatCurrency {
   /** The ISO 4217 fiat currency code in uppercase (e.g., "USD", "EUR") */
-  readonly code: string;
+  readonly code: FiatCurrencyCode;
 }
 
 /**
- * Standard implementation of the FiatCurrencyNG interface.
- * Instances are created through the FiatCurrencyNG factory function
+ * Standard implementation of the FiatCurrency interface.
+ * Instances are created through the FiatCurrency factory function
  * and are cached for identity comparison.
  *
  * @internal
  */
-class StandardFiatCurrencyNG {
-  constructor(readonly code: string) {}
+class StandardFiatCurrency {
+  constructor(readonly code: FiatCurrencyCode) {}
 
   /**
    * Returns the currency code in uppercase.
@@ -54,33 +46,37 @@ class StandardFiatCurrencyNG {
   }
 }
 
-// Cache for FiatCurrencyNG instances
-const currencyCache = new InstanceCache<string, FiatCurrencyNG>();
+// Cache for FiatCurrency instances
+const currencyCache = new InstanceCache<FiatCurrencyCode, FiatCurrency>();
 
 /**
- * Creates or retrieves a FiatCurrencyNG instance for the given currency code.
+ * Creates or retrieves a FiatCurrency instance for the given currency code.
  * The currency code is case-insensitive and must be a valid ISO 4217 trigram.
  * Instances are cached and comparable by identity.
  *
  * @param currency - The currency code (e.g., "USD", "eur")
- * @returns A FiatCurrencyNG instance
+ * @returns A FiatCurrency instance
  * @throws ValueError if the currency code is invalid
  * @example
- * const usd = FiatCurrencyNG("USD");
- * const eur = FiatCurrencyNG("eur"); // Case-insensitive
- * assert(usd === FiatCurrencyNG("USD")); // Identity comparison
+ * const usd = FiatCurrency("USD");
+ * const eur = FiatCurrency("eur"); // Case-insensitive
+ * assert(usd === FiatCurrency("USD")); // Identity comparison
  */
-export function FiatCurrencyNG(currency: string): FiatCurrencyNG {
-  const normalizedCode = currency.toUpperCase();
+export function FiatCurrency(currency: string | FiatCurrency): FiatCurrency {
+  if (typeof currency !== "string") {
+    return currency;
+  }
+
+  const normalizedCode = currency.toUpperCase() as FiatCurrencyCode;
   return currencyCache.getOrCreate(normalizedCode, () => {
     // Extra validation
-    if (currency.length !== 3 || currency !== currency.toUpperCase()) {
+    if (normalizedCode.length !== 3) {
       const error = new ValueError(
         `Currency codes should contain exactly 3 upper-case letters: "${currency}" is invalid.`
       );
       log.error("C3015", error);
       throw error;
     }
-    return new StandardFiatCurrencyNG(normalizedCode);
+    return new StandardFiatCurrency(normalizedCode);
   });
 }

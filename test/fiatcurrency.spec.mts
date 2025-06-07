@@ -3,17 +3,17 @@ import { assert } from "chai";
 import { ValueError } from "../src/error.mjs";
 import { prepare } from "./support/register.helper.mjs";
 
-import { FiatCurrencyNG } from "../src/fiatcurrency.mjs";
+import { FiatCurrency } from "../src/fiatcurrency.mjs";
 
-describe("FiatCurrencyNG", () => {
+describe("FiatCurrency", () => {
   it("can be created from string", () => {
-    const cny = FiatCurrencyNG("CNY");
+    const cny = FiatCurrency("CNY");
   });
 
   describe("are comparable-by-value primitive types", function () {
     const register = prepare(this);
-    const eur = FiatCurrencyNG("EUR");
-    const usd = FiatCurrencyNG("USD");
+    const eur = FiatCurrency("EUR");
+    const usd = FiatCurrency("USD");
 
     // prettier-ignore
     const testcases = [
@@ -26,10 +26,10 @@ describe("FiatCurrencyNG", () => {
       // [usd, "EUR", false],
       // ["USD", usd, true],
       // ["EUR", usd, false],
-      [usd, FiatCurrencyNG("USD"), true],
-      [usd, FiatCurrencyNG("usd"), true],
-      [usd, FiatCurrencyNG("Usd"), true],
-      [usd, FiatCurrencyNG("EUR"), false],
+      [usd, FiatCurrency("USD"), true],
+      [usd, FiatCurrency("usd"), true],
+      [usd, FiatCurrency("Usd"), true],
+      [usd, FiatCurrency("EUR"), false],
     ] as const;
 
     for (const [a, b, expected] of testcases) {
@@ -59,7 +59,7 @@ describe("FiatCurrencyNG", () => {
       ];
       for (const [a] of testcases) {
         register(`case FiatCurrrency("${a}") === "CNY"`, () => {
-          assert.strictEqual(FiatCurrencyNG(a), FiatCurrencyNG("CNY"));
+          assert.strictEqual(FiatCurrency(a), FiatCurrency("CNY"));
         });
       }
     });
@@ -78,7 +78,7 @@ describe("FiatCurrencyNG", () => {
       ];
       for (const [a] of testcases) {
         register(`case FiatCurrrency("${a}")`, () => {
-          assert.throws(() => FiatCurrencyNG(a), ValueError);
+          assert.throws(() => FiatCurrency(a), ValueError);
         });
       }
     });

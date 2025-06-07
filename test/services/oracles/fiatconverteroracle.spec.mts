@@ -26,7 +26,7 @@ describe("FiatConverterOracle", function () {
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
     // prettier-ignore
-    oracle = await DataSourceOracle.createFromPath(solana,"fixtures/sol-eur-max.csv", {[eur]: "price"}, opt);
+    oracle = await DataSourceOracle.createFromPath(solana,"fixtures/sol-eur-max.csv", {[eur.code]: "price"}, opt);
     registry = CryptoRegistry.create();
     fiatConverter = new FixedFiatConverter(eur, usd, 1.2);
   });

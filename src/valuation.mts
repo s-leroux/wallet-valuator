@@ -107,7 +107,7 @@ export class Value implements Quantity<FiatCurrency, Value> {
       options["amount.separator"] ?? defaultDisplayOptions["amount.separator"];
 
     return `${valueFormat(this.value.toString())}${sep}${symbolFormat(
-      this.fiatCurrency
+      this.fiatCurrency.code
     )}`;
   }
 
