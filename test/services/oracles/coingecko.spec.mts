@@ -6,7 +6,7 @@ const assert: Chai.Assert = chai.assert;
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import {
-  CoinGecko,
+  CoinGeckoOracle,
   getCoinGeckoId,
 } from "../../../src/services/oracles/coingecko.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
@@ -30,11 +30,11 @@ describe("CoinGecko", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
-  let coingecko: CoinGecko;
+  let coingecko: CoinGeckoOracle;
   let registry: CryptoRegistry;
 
   beforeEach(function () {
-    coingecko = CoinGecko.create(API_KEY, INTERNAL_TO_COINGECKO_ID);
+    coingecko = CoinGeckoOracle.create(API_KEY, INTERNAL_TO_COINGECKO_ID);
     registry = CryptoRegistry.create();
   });
 

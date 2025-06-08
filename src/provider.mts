@@ -176,6 +176,7 @@ export class Provider implements ProviderInterface {
     let { cooldown, retry } = this.options;
     const url = this.buildUrl(endpoint, params as Record<string, string>);
 
+    log.info("C1018", "Fetch", url);
     while (true) {
       const { res, payload, is_error, err } = await this.performFetch(url);
 

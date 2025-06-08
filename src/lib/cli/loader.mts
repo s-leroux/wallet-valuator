@@ -7,7 +7,7 @@ import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { FiatConverter } from "../../services/fiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
-import { CoinGecko } from "../../services/oracles/coingecko.mjs";
+import { CoinGeckoOracle } from "../../services/oracles/coingecko.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { parseDate } from "../../date.mjs";
 import { PriceMap } from "../../services/oracle.mjs";
@@ -38,7 +38,7 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
 function createOracle(envvars: EnvVars) {
   return CompositeOracle.create([
     // My oracles
-    CoinGecko.create(envvars["COINGECKO_API_KEY"]),
+    CoinGeckoOracle.create(envvars["COINGECKO_API_KEY"]),
   ]).cache(envvars["CACHE_PATH"]);
 }
 

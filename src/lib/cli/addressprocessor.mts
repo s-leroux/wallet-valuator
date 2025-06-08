@@ -10,7 +10,7 @@ import { DisplayOptions, format } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import {
-  CoinGecko,
+  CoinGeckoOracle,
   InternalToCoinGeckoIdMapping,
 } from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
@@ -67,7 +67,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistry) {
   return CompositeOracle.create([
     // My oracles
     CurveOracle.create(),
-    CoinGecko.create(envvars["COINGECKO_API_KEY"], wellKnownCoingeckoId),
+    CoinGeckoOracle.create(envvars["COINGECKO_API_KEY"], wellKnownCoingeckoId),
     DefiLlamaOracle.create(undefined, wellKnownCoingeckoId),
     await OHLCOracle.createFromPath(
       registry.createCryptoAsset("bitcoin"),
