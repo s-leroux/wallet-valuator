@@ -7,6 +7,7 @@ This file contains instructions for Codex agents working in this repository. The
   - Build the container with `npm run build-container`.
   - Launch an interactive shell with `npm run shell`.
   - Inside the container, use `yarn` for commands.
+  - Install dependencies with `yarn install` after entering the container.
 - All compilation and tests **must** run inside the container.
   - Execute tests with `yarn test-in-container`.
   - Run the linter with `yarn lint-in-container`.

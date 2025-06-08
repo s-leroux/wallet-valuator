@@ -179,9 +179,9 @@ All compilation and testing should be done within the Docker container defined b
 All new features and fixes must include test coverage. Follow these steps for testing:
 
 1. Write unit tests using [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/).assert.
-2. Run tests locally to verify:
+2. Run tests inside the container to verify:
    ```bash
-   npm test
+   yarn test-in-container
    ```
 
 Thank you for contributing to this project! Your efforts help make it better for everyone.
