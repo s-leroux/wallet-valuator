@@ -37,24 +37,23 @@ export class PriceResolver {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[] // ISSUE #127 This parameter should be a set. Probably requires NodeJS >= 22
+    fiats: Set<FiatCurrency>
   ): Promise<PriceMap> {
     const prices = new Map() as PriceMap;
     const baseFiat = FiatCurrency("USD"); // The base fiat value used to infer the other. Hard-coded here as the USD.
 
-    if (!fiats.includes(baseFiat)) {
-      fiats = [baseFiat, ...fiats];
-    }
+    fiats = new Set(fiats);
+    fiats.add(baseFiat);
 
     // 1. Attempt to retrieve prices using the oracle
     await this.oracle.getPrice(registry, crypto, date, fiats, prices);
 
     // 2. Check if we have the requested prices
-    const found = Array.from(prices.keys());
-    const missing = fiats.filter((fiat) => !found.includes(fiat));
+    const found = new Set(prices.keys());
+    const missing = fiats.difference(found);
 
     // 3. Invoke the fiat currency converter to infer the missing values
-    if (missing.length) {
+    if (missing.size) {
       log.trace(
         "C1013",
         `Fiat converion required for ${crypto}/${missing} at ${date}`

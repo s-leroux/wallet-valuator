@@ -89,7 +89,7 @@ export class RealTokenOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[],
+    fiats: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
     const metadata = registry.getNamespaceData(crypto, "REALTOKEN");

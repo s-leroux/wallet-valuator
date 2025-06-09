@@ -32,10 +32,10 @@ export class FiatConverterOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[],
+    fiats: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
-    let missing = fiats;
+    const missing = new Set(fiats);
     let found = 0;
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas
@@ -51,12 +51,12 @@ export class FiatConverterOracle extends Oracle {
     for (const [currency, price] of intermediateResult) {
       found += 1;
       result.set(currency, price);
-      missing = missing.filter((item) => item !== currency);
+      missing.delete(currency);
       // Above: not necessarily very efficient in the general case. But im practice,
       // the oracles tend to reply prices either with all asked fiat currencies, or none.
     }
 
-    if (found && missing.length) {
+    if (found && missing.size) {
       // We have some work to do: some requested currency were found other were not.
       const converter = this.converterFactory(this);
       for (const dest of missing) {

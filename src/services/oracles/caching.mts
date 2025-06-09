@@ -202,7 +202,7 @@ export class Caching /*extends Oracle*/ {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    currencies: FiatCurrency[],
+    currencies: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
     const dateYyyyMmDd = date.toISOString().substring(0, 10); // XXX replace with formatDate
@@ -230,7 +230,7 @@ export class Caching /*extends Oracle*/ {
       registry,
       crypto,
       date,
-      missing, // request only missing data!
+      new Set(missing), // request only missing data!
       result
     );
     this.backend_calls += 1;

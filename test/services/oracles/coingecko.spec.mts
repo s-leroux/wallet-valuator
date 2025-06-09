@@ -65,7 +65,7 @@ describe("CoinGecko", function () {
             registry,
             bitcoin,
             new Date(date),
-            Object.keys(expected).map(FiatCurrency),
+            new Set(Object.keys(expected).map(FiatCurrency)),
             priceMap
           );
           const expectedCurrencies = Object.keys(expected).map((code) =>
@@ -101,7 +101,7 @@ describe("CoinGecko", function () {
         registry,
         maliciousCrypto,
         new Date("2024-12-30"),
-        [FiatCurrency("eur")],
+        new Set([FiatCurrency("eur")]),
         priceMap
       );
       assert.equal(priceMap.size, 0);

@@ -65,7 +65,7 @@ describe("CurveOracle", function () {
               registry,
               crypto,
               parseDate("YYYYMMDD", date),
-              [USD, EUR],
+              new Set([USD, EUR]),
               priceMap
             )
             .catch((err) => (console.log(err), undefined));

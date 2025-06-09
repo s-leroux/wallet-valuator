@@ -47,23 +47,26 @@ describe("Database", function () {
 describe("Caching", function () {
   const date = new Date("2024-12-30");
   const crypto = FakeCryptoAsset.bitcoin;
-  const fiatCurrencies = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
+  const { EUR, USD } = FakeFiatCurrency;
+  const fiatCurrencies = new Set([EUR, USD]);
   let oracle: Oracle;
   let registry: CryptoRegistry;
 
   /**
    * Check the prices are what we expect from our fake oracle.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function checkPrices(prices: Map<FiatCurrency, Price>) {
-    assert.equal(prices.size, fiatCurrencies.length);
+    // What is the purpose of that function?
+    assert.equal(prices.size, fiatCurrencies.size);
     assert.deepEqual(
       Array.from(prices.values()).map((price: Price) => ({
         currency: price.fiatCurrency,
         amount: +price.rate,
       })),
       [
-        { currency: fiatCurrencies[0], amount: 89809.00932731242 },
-        { currency: fiatCurrencies[1], amount: 93663.44751964067 },
+        { currency: EUR, amount: 89809.00932731242 },
+        { currency: USD, amount: 93663.44751964067 },
       ]
     );
   }

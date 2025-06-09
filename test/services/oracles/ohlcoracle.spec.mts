@@ -64,7 +64,7 @@ describe("OHLCOracle", function () {
             registry,
             bitcoin,
             new Date(date),
-            [USD],
+            new Set([USD]),
             priceMap
           );
           const price = priceMap.get(USD);

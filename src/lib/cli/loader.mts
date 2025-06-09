@@ -91,7 +91,7 @@ export async function load(start: string, end: string, cryptoids: string[]) {
           registry,
           crypto,
           currDate,
-          [FiatCurrency("EUR")],
+          new Set([FiatCurrency("EUR")]),
           prices
         );
       })

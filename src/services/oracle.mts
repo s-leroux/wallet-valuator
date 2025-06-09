@@ -31,7 +31,7 @@ export abstract class Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiat: FiatCurrency[],
+    fiat: Set<FiatCurrency>,
     priceMap: PriceMap
   ): Promise<void>;
 

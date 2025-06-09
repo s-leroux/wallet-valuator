@@ -161,7 +161,7 @@ export class CoinGeckoOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    currencies: FiatCurrency[],
+    currencies: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
     let historical_data: CoinGeckoPriceHistory | undefined;

@@ -36,7 +36,7 @@ describe("DataSourceOracle", function () {
         registry,
         bitcoin,
         new Date("2024-12-04"),
-        [eur],
+        new Set([eur]),
         priceMap
       );
       const price = priceMap.get(eur);

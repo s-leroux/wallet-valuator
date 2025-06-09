@@ -35,7 +35,7 @@ describe("CompositeOracle", function () {
         registry,
         bitcoin,
         new Date("2024-12-05"),
-        [usd, eur],
+        new Set([usd, eur]),
         priceMap
       );
 

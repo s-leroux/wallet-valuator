@@ -1,13 +1,10 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
 
 import { Oracle } from "../oracle.mjs";
 import { CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
-import { FiatConverter } from "../fiatconverter.mjs";
-import { BigNumberSource } from "../../bignumber.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
 import type { PriceMap } from "../oracle.mjs";
 
@@ -22,7 +19,7 @@ export class CurveOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[],
+    fiats: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
     const metadata = registry.getNamespaceData(

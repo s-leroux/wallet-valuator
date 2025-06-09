@@ -1,4 +1,4 @@
-import { FiatConverter, NullFiatConverter } from "../fiatconverter.mjs";
+import { FiatConverter } from "../fiatconverter.mjs";
 
 import { NotImplementedError, ValueError } from "../../error.mjs";
 import { Price } from "../../price.mjs";
@@ -49,7 +49,7 @@ export class ImplicitFiatConverter implements FiatConverter {
       registry,
       this.crypto,
       date,
-      [from, to],
+      new Set([from, to]),
       priceMap
     ); // ISSUE #64 What to do if this fails?
 
@@ -64,6 +64,7 @@ export class ImplicitFiatConverter implements FiatConverter {
 
     log.trace(
       "C1014",
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
       `Synthetize ${price.crypto}/${to} from ${this.crypto} at ${date}`
     );
     const exchangeRage = toPrice.rate.div(fromPrice.rate);

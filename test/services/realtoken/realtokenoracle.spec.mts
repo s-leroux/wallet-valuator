@@ -94,7 +94,7 @@ describe("RealTokenOracle", function () {
       oracle = RealTokenOracle.create(api);
     });
 
-    describe("behsavior", async () => {
+    describe("behsavior", () => {
       it("should load the history on demand", async () => {
         assert.equal(oracle.history.size, 0);
         await oracle.load();
@@ -137,7 +137,7 @@ describe("RealTokenOracle", function () {
       });
     });
 
-    describe("should retrieve the token price", async function () {
+    describe("should retrieve the token price", function () {
       const register = prepare(this);
 
       const testcases = [
@@ -166,14 +166,14 @@ describe("RealTokenOracle", function () {
             registry,
             crypto,
             parseDate("YYYYMMDD", date),
-            [fiat],
+            new Set([fiat]),
             priceMap
           );
 
           if (value === null) {
             assert.equal(priceMap.size, 0);
           } else {
-            assert.isTrue(priceMap.has(fiat) as boolean);
+            assert.isTrue(priceMap.has(fiat));
             assert.deepEqual(priceMap.get(fiat), crypto.price(fiat, value));
           }
         });

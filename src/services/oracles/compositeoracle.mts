@@ -37,23 +37,23 @@ export class CompositeOracle extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    currencies: FiatCurrency[],
+    currencies: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     log.trace("C1006", `Get price for ${crypto}/${currencies} at ${date}`);
-    let missing = currencies;
+    const missing = new Set(currencies);
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas
     for (const backend of this.backends) {
       await backend.getPrice(registry, crypto, date, missing, result);
       for (const currency of result.keys()) {
         // result.set(currency, price); // Fixed in #157 // ISSUE #61 What to do it we already have that price? Should we check consistency?
-        missing = missing.filter((item) => item !== currency);
+        missing.delete(currency);
         // Above: not necessarily very efficient in the general case. But im practice,
         // the oracles tend to reply prices either with all asked fiat currencies, or none.
       }
-      if (!missing.length) {
+      if (!missing.size) {
         break;
       }
     }

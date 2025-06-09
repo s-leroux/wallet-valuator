@@ -39,7 +39,7 @@ describe("FakeOracle", function () {
           registry,
           bitcoin,
           new Date(date),
-          Object.keys(expected).map(FiatCurrency),
+          new Set(Object.keys(expected).map(FiatCurrency)),
           priceMap
         );
 

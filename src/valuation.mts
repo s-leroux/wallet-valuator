@@ -93,6 +93,7 @@ export class Value implements Quantity<FiatCurrency, Value> {
   }
 
   toString(): string {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return `${this.value} ${this.fiatCurrency}`;
   }
 
@@ -255,14 +256,18 @@ export class SnapshotValuation {
         return crypto.price(fiatCurrency, 0); // ISSUE #131 Is this correct
       }
       // This is a regular crypto-asset. Use the oracle to get the price.
-      const prices = await priceResolver.getPrice(registry, crypto, date, [
-        fiatCurrency,
-      ]);
+      const prices = await priceResolver.getPrice(
+        registry,
+        crypto,
+        date,
+        new Set([fiatCurrency])
+      );
 
       const price = prices.get(fiatCurrency);
       if (price === undefined) {
         // ISSUE #135 This is very unlikely since Priceresolver throws if a price is not found
         // prettier-ignore
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
         log.warn("C3001", message, registry.getNamespaces(crypto), prices);
         throw new MissingPriceError(crypto, fiatCurrency, date);
@@ -350,6 +355,7 @@ export class SnapshotValuation {
   //  String representation
   //========================================================================
   toString(): string {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return `${this.cryptoValueAfter} ${this.fiatCurrency}`;
   }
 

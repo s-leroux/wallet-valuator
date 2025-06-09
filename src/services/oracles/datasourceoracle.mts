@@ -37,7 +37,7 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[],
+    fiats: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
     // We do not handle that crypto

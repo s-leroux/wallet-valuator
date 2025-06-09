@@ -6,7 +6,7 @@
     "resolveJsonModule": true,
     "sourceMap" : true,
     "target": "es2024",
-    "lib": ["es2024"],
+    "lib": ["es2024", "esnext"],
     "strictNullChecks": true,
     "noImplicitAny": true,
     "noUnusedParameters": false,

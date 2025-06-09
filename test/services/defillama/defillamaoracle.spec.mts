@@ -41,7 +41,7 @@ describe("DefiLlamaOracle", function () {
         registry,
         bitcoin,
         new Date("2023-10-01"),
-        [USD, EUR],
+        new Set([USD, EUR]),
         priceMap
       );
 

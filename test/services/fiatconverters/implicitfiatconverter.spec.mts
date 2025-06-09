@@ -34,7 +34,7 @@ describe("ImplicitFiatConverter", function () {
         registry,
         ethereum,
         date,
-        [FakeFiatCurrency.EUR, FakeFiatCurrency.USD],
+        new Set([FakeFiatCurrency.EUR, FakeFiatCurrency.USD]),
         priceMap
       );
 

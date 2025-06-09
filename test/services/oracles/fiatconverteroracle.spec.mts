@@ -35,7 +35,13 @@ describe("FiatConverterOracle", function () {
     it("should use the fiat converter to provide missing prices", async function () {
       const date = new Date("2024-12-05");
       const priceMap = new Map() as PriceMap;
-      await oracle.getPrice(registry, solana, date, [usd, eur], priceMap);
+      await oracle.getPrice(
+        registry,
+        solana,
+        date,
+        new Set([usd, eur]),
+        priceMap
+      );
 
       // This is expected to fail given the new design of the fiat converters.
       // Now, Oracle.getPrice should be considered as doing a "best effort"
