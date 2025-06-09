@@ -16,8 +16,8 @@ After that we will work in a specific container.
 ```
 sh$ npm run build-container
 sh$ npm run shell
-node@52939f3b198e:~$ yarn install
-node@52939f3b198e:~$ yarn tsc
+node@52939f3b198e:~$ npm install
+node@52939f3b198e:~$ npx tsc
 
 node@52939f3b198e:~$ pwd
 /home
@@ -36,7 +36,7 @@ node
 sh$ npm test
 # or
 sh$ npm run shell
-node@2b9634cf5c20:~$ exec yarn test-in-container
+node@2b9634cf5c20:~$ exec npm run test-in-container
 ```
 
 # Stage 3: Run ESLint
@@ -45,7 +45,7 @@ node@2b9634cf5c20:~$ exec yarn test-in-container
 sh$ npm run lint
 # or
 sh$ npm run shell
-node@2b9634cf5c20:~$ exec yarn lint-in-container
+node@2b9634cf5c20:~$ exec npm run lint-in-container
 ```
 
 ## Important Notice
