@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
@@ -12,11 +12,8 @@ import { Caching, DB_VERSION } from "../../../src/services/oracles/caching.mjs";
 import type { Price } from "../../../src/price.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import {
-  FiatConverter,
-  NullFiatConverter,
-} from "../../../src/services/fiatconverter.mjs";
 import { setLogLevel } from "../../../src/debug.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 describe("Database", function () {
   // Testing database core features
@@ -53,15 +50,14 @@ describe("Caching", function () {
   const fiatCurrencies = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
   let oracle: Oracle;
   let registry: CryptoRegistry;
-  let fiatConverter: FiatConverter;
 
   /**
    * Check the prices are what we expect from our fake oracle.
    */
-  function checkPrices(prices: Partial<Record<FiatCurrency, Price>>) {
-    assert.equal(Object.values(prices).length, fiatCurrencies.length);
+  function checkPrices(prices: Map<FiatCurrency, Price>) {
+    assert.equal(prices.size, fiatCurrencies.length);
     assert.deepEqual(
-      Object.values(prices).map((price: Price) => ({
+      Array.from(prices.values()).map((price: Price) => ({
         currency: price.fiatCurrency,
         amount: +price.rate,
       })),
@@ -75,31 +71,20 @@ describe("Caching", function () {
   beforeEach(function () {
     oracle = new FakeOracle();
     registry = CryptoRegistry.create();
-    fiatConverter = new NullFiatConverter();
   });
 
   describe("Utilities", () => {
     it("should cache backend data", async function () {
       const cache = new Caching(oracle, ":memory:");
-      let prices;
+      let priceMap: PriceMap;
       assert.equal(cache.backend_calls, 0);
-      prices = await cache.getPrice(
-        registry,
-        crypto,
-        date,
-        fiatCurrencies,
-        fiatConverter
-      );
-      checkPrices(prices);
+      priceMap = new Map() as PriceMap;
+      await cache.getPrice(registry, crypto, date, fiatCurrencies, priceMap);
+      assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
-      prices = await cache.getPrice(
-        registry,
-        crypto,
-        date,
-        fiatCurrencies,
-        fiatConverter
-      );
-      checkPrices(prices);
+      priceMap = new Map() as PriceMap;
+      await cache.getPrice(registry, crypto, date, fiatCurrencies, priceMap);
+      assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
     });
   });

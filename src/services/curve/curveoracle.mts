@@ -9,6 +9,7 @@ import { CurveMetadata } from "./curvecommon.mjs";
 import { FiatConverter } from "../fiatconverter.mjs";
 import { BigNumberSource } from "../../bignumber.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import type { PriceMap } from "../oracle.mjs";
 
 const USD = FiatCurrency("USD");
 
@@ -22,9 +23,8 @@ export class CurveOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: FiatCurrency[],
-    fiatConverter: FiatConverter
-  ): Promise<Record<FiatCurrency, Price>> {
-    const result = {} as Record<FiatCurrency, Price>;
+    result: PriceMap
+  ): Promise<void> {
     const metadata = registry.getNamespaceData(
       crypto,
       "CURVE"
@@ -32,7 +32,7 @@ export class CurveOracle extends Oracle {
 
     if (!metadata) {
       // We do not handle that crypto
-      return result;
+      return;
     }
 
     // We have two path to find the USD price of a token on Curve.
@@ -62,15 +62,7 @@ export class CurveOracle extends Oracle {
       crypto.price(USD, priceAsNumber),
       { origin: "CURVE" }
     );
-    result[USD] = price;
-    /*
-    for (const fiat of fiats) {
-      if (fiat !== USD) {
-        result[fiat] = await fiatConverter.convert(registry, date, price, fiat);
-      }
-    }
-      */
-    return result;
+    result.set(USD, price);
   }
 
   static create(api?: CurveAPI) {

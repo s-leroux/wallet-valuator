@@ -18,6 +18,7 @@ class StandardChainAddress implements ChainAddress {
   }
 
   toString() {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `${this.chain}:${this.address || ""}`;
   }
 
@@ -32,12 +33,11 @@ export function ChainAddress(
   chain: string | Blockchain,
   address: string | null
 ): ChainAddress {
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   const key = `${chain}:${address || ""}`.toLowerCase();
   return chainAddressCache.getOrCreate(
     key,
-    StandardChainAddress,
-    chain,
-    address
+    () => new StandardChainAddress(chain, address)
   );
 }
 
@@ -45,9 +45,9 @@ export function ChainAddress(
  * Formats a ChainAddress into a string in the format "<chain>:<address>"
  * Formats a ChainAddress into a string in the format "<chain>:<address>"
  * @param chainAddress - The ChainAddress to format
- * @param chainAddress - The ChainAddress to format
  * @returns A string in the format "<chain>:<address>"
  */
 export function mangleChainAddress(chainAddress: ChainAddress): string {
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   return `${chainAddress.chain}:${chainAddress.address || ""}`;
 }

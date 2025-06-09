@@ -21,9 +21,10 @@ export class InternalError extends Error {
   }
 }
 
-export class InconsistentUnitsError extends Error {
-  constructor(unitA: unknown, unitB: unknown) {
-    super(`Imcompatible units ${unitA} and ${unitB}`);
+export class InconsistentUnitsError<T> extends Error {
+  constructor(unitA: T, unitB: T) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    super(`Incompatible units ${unitA} and ${unitB}`);
     this.name = "InconsistentUnitsError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain
   }
@@ -107,6 +108,7 @@ export class AssertionError extends Error {
 
 export class MissingPriceError extends Error {
   constructor(asset: CryptoAsset, fiat: FiatCurrency, date: Date) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     super(`No price found for ${asset}/${fiat} at ${date.toISOString()}`);
     this.name = "MissingPriceError";
     Object.setPrototypeOf(this, new.target.prototype); // Restore prototype chain

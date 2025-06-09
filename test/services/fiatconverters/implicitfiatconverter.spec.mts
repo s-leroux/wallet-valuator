@@ -1,50 +1,56 @@
-import { assert } from "chai";
+import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
 
-import { prepare } from "../../support/register.helper.mjs";
-
-import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
-import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
-import { FakeOracle } from "../../support/oracle.fake.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+chai.use(chaiAsPromised);
+const assert: Chai.Assert = chai.assert;
 
 import { ImplicitFiatConverter } from "../../../src/services/fiatconverters/implicitfiatconverter.mjs";
+import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
+import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
+import { FakeOracle } from "../../support/oracle.fake.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 describe("ImplicitFiatConverter", function () {
-  const oracle = new FakeOracle();
   const { bitcoin, ethereum } = FakeCryptoAsset;
   const { EUR: eur, USD: usd } = FakeFiatCurrency;
-  const date = new Date("2024-12-10");
+  const date = new Date("2024-12-30");
+  const error = 0.1;
 
-  it("can be created", function () {
-    const converter = new ImplicitFiatConverter(oracle, bitcoin);
-    assert.strictEqual(converter.oracle, oracle);
-    assert.strictEqual(converter.crypto, bitcoin);
+  let oracle: FakeOracle;
+  let converter: ImplicitFiatConverter;
+  let registry: CryptoRegistry;
+
+  beforeEach(function () {
+    oracle = new FakeOracle();
+    converter = ImplicitFiatConverter.create(oracle, bitcoin);
+    registry = CryptoRegistry.create();
   });
 
-  describe("convert()", function () {
-    const registry = CryptoRegistry.create();
-    const converter = new ImplicitFiatConverter(oracle, bitcoin);
-    const error = 0.1; // acceptable error in %
-
+  describe("convert()", () => {
     it(`should convert prices with ±${error}% error`, async () => {
-      const prices = await oracle.getPrice(registry, ethereum, date, [
-        FakeFiatCurrency.EUR,
-        FakeFiatCurrency.USD,
-      ]);
+      const priceMap = new Map() as PriceMap;
+      await oracle.getPrice(
+        registry,
+        ethereum,
+        date,
+        [FakeFiatCurrency.EUR, FakeFiatCurrency.USD],
+        priceMap
+      );
 
-      assert.exists(prices[eur]);
-      assert.exists(prices[usd]);
+      assert.isTrue(priceMap.has(eur));
+      assert.isTrue(priceMap.has(usd));
       const result = await converter.convert(
         registry,
         date,
-        prices[eur]!,
+        priceMap.get(eur)!,
         FakeFiatCurrency.USD
       );
 
       assert.strictEqual(result.fiatCurrency, usd);
       assert.strictEqual(result.crypto, ethereum);
       assert.approximately(
-        +result.rate.mul(100).div(prices[usd]!.rate),
+        +result.rate.mul(100).div(priceMap.get(usd)!.rate),
         100,
         error
       );

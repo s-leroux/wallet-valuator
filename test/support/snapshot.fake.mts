@@ -54,7 +54,7 @@ export function snapshotsFromMovements(movements: Movement[]): Snapshot[] {
     throw new Error("Invalid argument: must have at least one movement");
   }
 
-  let result = [] as Snapshot[];
+  const result = [] as Snapshot[];
 
   movements.reduce<Snapshot | null>((prev, movement) => {
     const s = new Snapshot(...movement, prev);

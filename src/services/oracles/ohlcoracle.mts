@@ -1,7 +1,6 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
 
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
@@ -10,6 +9,8 @@ import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
 import { logger } from "../../debug.mjs";
 import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import type { FiatConverter } from "../fiatconverter.mjs";
+import type { PriceMap } from "../oracle.mjs";
 
 const log = logger("ohlc-oracle");
 
@@ -43,10 +44,9 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     registry: CryptoRegistry,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[]
-  ): Promise<Partial<Record<FiatCurrency, Price>>> {
-    const result = Object.create(null) as Record<FiatCurrency, Price>;
-
+    fiats: FiatCurrency[],
+    result: PriceMap
+  ): Promise<void> {
     // We do not handle that crypto
     if (crypto !== this.crypto || !fiats.includes(this.fiat)) {
       log.debug(
@@ -54,7 +54,7 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
         crypto !== this.crypto,
         fiats.includes(this.fiat)
       );
-      return result;
+      return;
     }
 
     const formattedDate = formatDate(this.dateFormat, date);
@@ -66,17 +66,17 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
       this.data.getMany(formattedDate, ["High", "Low", "Close"]) ?? [];
 
     if (high && low && close) {
-      const price = (result[this.fiat] = crypto.price(
+      const price = crypto.price(
         this.fiat,
         BigNumber.sum(high, low, close).div(3)
-      ));
+      );
       GlobalMetadataRegistry.setMetadata(price, { origin: this.origin });
+      result.set(this.fiat, price);
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       log.trace("C1012", `Found ${price} at ${formattedDate}`);
     } else {
       log.trace("C1011", `Date not found: ${formattedDate}`);
     }
-
-    return result;
   }
 
   static async createFromPath(

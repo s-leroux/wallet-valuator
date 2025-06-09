@@ -17,7 +17,7 @@ describe("BigNumber", function () {
       //         JavaScript number precision is 17 decimal places
 
       // self-test: ensure we are REALLY testing up to the expected precision
-      assert.equal(N.length, precision, "Please review test source")
+      assert.equal(N.length, precision, "Please review test source");
 
       // the real tests now:
       const bn = new BigNumber(N);

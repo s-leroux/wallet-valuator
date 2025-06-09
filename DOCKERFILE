@@ -29,10 +29,6 @@ RUN cd /opt && \
 ENV PATH="/opt/node/bin:${PATH}"
 RUN npm config -g set update-notifier false
 
-# Enable corepack (required by Yarn)
-RUN corepack enable
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-
 # Set the workdir and user settings
 RUN groupadd -g 1000 node && useradd -M -u 1000 -g 1000 node # XXX Hack related to ISSUE #144
 WORKDIR /home

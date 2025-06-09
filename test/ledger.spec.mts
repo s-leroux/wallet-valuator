@@ -28,7 +28,7 @@ describe("Utilities", () => {
         ["AFECDBAEBE", "AABBCDEEEF"],
       ] as const;
 
-      for (let [src, expected] of useCases) {
+      for (const [src, expected] of useCases) {
         it(`"${src}" is sorted as "${expected}"`, () => {
           const res = sort(s2k(src));
           assert.equal(k2s(res), expected);
@@ -51,7 +51,7 @@ describe("Utilities", () => {
         ["ACE", "BDF", "ABCDEF"],
       ] as const;
 
-      for (let [left, right, expected] of useCases) {
+      for (const [left, right, expected] of useCases) {
         it(`"${left}" ∪ "${right}" = "${expected}"`, () => {
           const res = join(s2k(left), s2k(right));
           assert.equal(k2s(res), expected);
@@ -152,7 +152,7 @@ describe("Ledger", () => {
       const sentinel = {};
       subset.tag("T", sentinel);
 
-      let n = 0;
+      const n = 0;
       for (const entry of ledger) {
         if (n < 2 || n >= 10) {
           assert.notInclude(entry.tags, "T");

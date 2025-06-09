@@ -82,6 +82,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    * console.log(amount.toString()); // "1 ETH"
    */
   toString(): string {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `${this.value} ${this.crypto.symbol}`;
   }
 
@@ -156,7 +157,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
 
   valueAt(price: Price) {
     if (this.crypto !== price.crypto) {
-      throw new InconsistentUnitsError(this, price);
+      throw new InconsistentUnitsError(this.crypto, price.crypto);
     }
     return new Value(price.fiatCurrency, this.value.mul(price.rate));
   }

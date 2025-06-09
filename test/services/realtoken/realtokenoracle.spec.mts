@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { ValueError } from "../../../src/error.mjs";
 import {
@@ -12,6 +12,7 @@ import {
 import { parseDate } from "../../../src/date.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
@@ -160,21 +161,21 @@ describe("RealTokenOracle", function () {
           );
           registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
 
-          const prices = await oracle.getPrice(
+          const priceMap = new Map() as PriceMap;
+          await oracle.getPrice(
             registry,
             crypto,
             parseDate("YYYYMMDD", date),
-            [fiat]
+            [fiat],
+            priceMap
           );
 
-          assert.deepEqual(
-            prices,
-            value === null
-              ? {}
-              : {
-                  [fiat]: crypto.price(fiat, value),
-                }
-          );
+          if (value === null) {
+            assert.equal(priceMap.size, 0);
+          } else {
+            assert.isTrue(priceMap.has(fiat) as boolean);
+            assert.deepEqual(priceMap.get(fiat), crypto.price(fiat, value));
+          }
         });
       }
     });

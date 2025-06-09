@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { CurveOracle } from "../../../src/services/curve/curveoracle.mjs";
 import { parseDate } from "../../../src/date.mjs";
@@ -12,30 +12,26 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeCurveAPI } from "../../support/curveapi.fake.mjs";
 import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs";
-import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { ChainAddress } from "../../../src/chainaddress.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 const { EUR, USD } = FakeFiatCurrency;
-const RATE = 1.2;
 
 describe("CurveOracle", function () {
   let api: FakeCurveAPI;
   let oracle: CurveOracle;
-  let fiatConverter: FiatConverter;
 
   beforeEach(function () {
     api = FakeCurveAPI.create();
     oracle = CurveOracle.create(api);
-    fiatConverter = FixedFiatConverter.create(USD, EUR, RATE);
   });
 
   describe("getPrice", function () {
     const CHAIN = "ethereum";
     const TOKEN = "0x6c3F90f043a72FA612cbac8115EE7e52BDe6e490";
 
-    describe("should retrieve the token price in USD", async function () {
+    describe("should retrieve the token price in USD", function () {
       const register = prepare(this);
 
       const testcases = [
@@ -63,24 +59,23 @@ describe("CurveOracle", function () {
           };
           registry.setNamespaceData(crypto, "CURVE", metadata);
 
-          const prices = await oracle
+          const priceMap = new Map() as PriceMap;
+          await oracle
             .getPrice(
               registry,
               crypto,
               parseDate("YYYYMMDD", date),
               [USD, EUR],
-              fiatConverter
+              priceMap
             )
-            .catch((err) => (console.log(err.message), {}));
+            .catch((err) => (console.log(err), undefined));
 
-          assert.deepEqual(
-            prices,
-            value === null
-              ? {}
-              : {
-                  [USD]: crypto.price(USD, value),
-                }
-          );
+          if (value === null) {
+            assert.equal(priceMap.size, 0);
+          } else {
+            assert.isTrue(priceMap.has(USD));
+            assert.deepEqual(priceMap.get(USD), crypto.price(USD, value));
+          }
         });
       }
     });

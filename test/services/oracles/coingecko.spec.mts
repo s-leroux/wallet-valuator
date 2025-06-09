@@ -2,15 +2,16 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import {
-  CoinGecko,
+  CoinGeckoOracle,
   getCoinGeckoId,
 } from "../../../src/services/oracles/coingecko.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
@@ -29,11 +30,11 @@ describe("CoinGecko", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
-  let coingecko: CoinGecko;
+  let coingecko: CoinGeckoOracle;
   let registry: CryptoRegistry;
 
   beforeEach(function () {
-    coingecko = CoinGecko.create(API_KEY, INTERNAL_TO_COINGECKO_ID);
+    coingecko = CoinGeckoOracle.create(API_KEY, INTERNAL_TO_COINGECKO_ID);
     registry = CryptoRegistry.create();
   });
 
@@ -49,24 +50,38 @@ describe("CoinGecko", function () {
         [
           "bitcoin",
           "2024-12-30",
-          { BTC: 1, USD: 93663.44751964067, EUR: 89809.00932731242 },
+          {
+            BTC: 1,
+            USD: 93663.44751964067,
+            EUR: 89809.00932731242,
+          },
         ],
       ];
 
       for (const [id, date, expected] of test_cases) {
         register(`case ${id} ${date}`, async () => {
-          const prices = await coingecko!.getPrice(
+          const priceMap = new Map() as PriceMap;
+          await coingecko!.getPrice(
             registry,
             bitcoin,
             new Date(date),
-            Object.keys(expected).map(FiatCurrency)
+            Object.keys(expected).map(FiatCurrency),
+            priceMap
           );
-          assert.containsAllKeys(prices, Object.keys(expected));
+          const expectedCurrencies = Object.keys(expected).map((code) =>
+            FiatCurrency(code)
+          );
+          assert.includeMembers(
+            Array.from(priceMap.keys()),
+            expectedCurrencies
+          );
           for (const [currency, value] of Object.entries(expected)) {
-            assert.equal(
-              prices[FiatCurrency(currency)]?.rate.toNumber(),
-              value
-            );
+            const fiatCurrency = FiatCurrency(currency);
+            const price = priceMap.get(fiatCurrency);
+            assert.exists(price, `Price for ${currency} should exist`);
+            if (price) {
+              assert.equal(price.rate.toNumber(), value);
+            }
           }
         });
       }
@@ -81,14 +96,15 @@ describe("CoinGecko", function () {
         "/BTC",
         18
       );
-      const price = await coingecko.getPrice(
+      const priceMap = new Map() as PriceMap;
+      await coingecko.getPrice(
         registry,
         maliciousCrypto,
         new Date("2024-12-30"),
-        ["eur"] as FiatCurrency[]
+        [FiatCurrency("eur")],
+        priceMap
       );
-      const expected = {};
-      assert.deepEqual(price, expected);
+      assert.equal(priceMap.size, 0);
     });
 
     describe("should convert from internal id to CoinGecko id", function () {

@@ -45,4 +45,8 @@ export class Price {
   mul(v: BigNumberSource): Price {
     return new Price(this.crypto, this.fiatCurrency, this.rate.mul(v));
   }
+
+  toString() {
+    return `${this.crypto}/${this.fiatCurrency} ${this.rate}`;
+  }
 }

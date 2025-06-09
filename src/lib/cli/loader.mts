@@ -6,11 +6,11 @@ import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { FiatConverter } from "../../services/fiatconverter.mjs";
-import { ImplicitFiatConverter } from "../../services/fiatconverters/implicitfiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
-import { CoinGecko } from "../../services/oracles/coingecko.mjs";
+import { CoinGeckoOracle } from "../../services/oracles/coingecko.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { parseDate } from "../../date.mjs";
+import { PriceMap } from "../../services/oracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -38,7 +38,7 @@ function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
 function createOracle(envvars: EnvVars) {
   return CompositeOracle.create([
     // My oracles
-    CoinGecko.create(envvars["COINGECKO_API_KEY"]),
+    CoinGeckoOracle.create(envvars["COINGECKO_API_KEY"]),
   ]).cache(envvars["CACHE_PATH"]);
 }
 
@@ -62,17 +62,13 @@ function notFound(id: string): never {
 }
 
 export async function load(start: string, end: string, cryptoids: string[]) {
-  let currDate = parseDate("YYYY-MM-DD", start);
+  const currDate = parseDate("YYYY-MM-DD", start);
   const endDate = parseDate("YYYY-MM-DD", end);
 
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
   const registry = CryptoRegistry.create();
   const oracle = createOracle(envvars);
-  const fiatConverter = ImplicitFiatConverter.create(
-    oracle,
-    registry.createCryptoAsset("bitcoin", "bitcoin", "BTC", 8)
-  );
 
   if (!cryptoids.length) {
     cryptoids = Array.from(resolver.getCryptoIds());
@@ -83,6 +79,12 @@ export async function load(start: string, end: string, cryptoids: string[]) {
   );
 
   while (currDate <= endDate) {
+    // Create a single PriceMap that will be shared across all getPrice calls.
+    // This is safe in JavaScript because:
+    // 1. JavaScript is single-threaded, so Map operations are atomic
+    // 2. Even though we use Promise.all() for concurrent execution, the actual
+    //    Map modifications happen sequentially in the event loop
+    const prices = new Map() as PriceMap;
     await Promise.all(
       cryptos.map((crypto) => {
         return oracle.getPrice(
@@ -90,7 +92,7 @@ export async function load(start: string, end: string, cryptoids: string[]) {
           crypto,
           currDate,
           [FiatCurrency("EUR")],
-          fiatConverter
+          prices
         );
       })
     );

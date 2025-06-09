@@ -14,7 +14,7 @@ import { Portfolio } from "../src/portfolio.mjs";
 import { FiatCurrency } from "../src/fiatcurrency.mjs";
 import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
-import { CoinGecko } from "../src/services/oracles/coingecko.mjs";
+import { CoinGeckoOracle } from "../src/services/oracles/coingecko.mjs";
 import { ImplicitFiatConverter } from "../src/services/fiatconverters/implicitfiatconverter.mjs";
 import { DefaultCryptoResolver } from "../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
 
@@ -28,7 +28,7 @@ function env(name: string): string {
 
 const registry = CryptoRegistry.create();
 const explorer = GnosisScan.create(registry, env("GNOSISSCAN_API_KEY"));
-const oracle = CoinGecko.create(env("COINGECKO_API_KEY")).cache(
+const oracle = CoinGeckoOracle.create(env("COINGECKO_API_KEY")).cache(
   "historical-data.db"
 );
 const cryptoResolver = DefaultCryptoResolver.create();

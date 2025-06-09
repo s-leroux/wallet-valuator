@@ -2,13 +2,12 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
-import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
 import { OHLCOracle } from "../../../src/services/oracles/ohlcoracle.mjs";
 import { CSVFile } from "../../../src/csvfile.mjs";
 import { BigNumber } from "../../../src/bignumber.mjs";
 import { prepare } from "../../support/register.helper.mjs";
-import { CryptoAsset } from "../../../src/cryptoasset.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -60,13 +59,15 @@ describe("OHLCOracle", function () {
 
       for (const [date, expected] of testCases) {
         register(`case ${date}`, async () => {
-          const prices = await oracle.getPrice(
+          const priceMap = new Map() as PriceMap;
+          await oracle.getPrice(
             registry,
             bitcoin,
             new Date(date),
-            [USD]
+            [USD],
+            priceMap
           );
-          const price = prices[USD];
+          const price = priceMap.get(USD);
           if (!price) {
             assert.fail(`price not found`);
           } else {
