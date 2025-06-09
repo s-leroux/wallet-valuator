@@ -17,6 +17,7 @@ After that we will work in a specific container.
 sh$ npm run build-container
 sh$ npm run shell
 node@52939f3b198e:~$ yarn install
+node@52939f3b198e:~$ tsc
 
 node@52939f3b198e:~$ pwd
 /home
