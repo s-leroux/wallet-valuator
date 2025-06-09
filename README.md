@@ -38,7 +38,7 @@ sh$
 sh$ npm start
 # or
 sh$ npm run shell
-node@2b9634cf5c20:~$ exec yarn start-in-container
+node@2b9634cf5c20:~$ exec npm run start-in-container
 ```
 
 # Stage 3: Run Mocha
@@ -47,7 +47,7 @@ node@2b9634cf5c20:~$ exec yarn start-in-container
 sh$ npm test
 # or
 sh$ npm run shell
-node@2b9634cf5c20:~$ exec yarn test-in-container
+node@2b9634cf5c20:~$ exec npm run test-in-container
 ```
 
 # Stage 4: Run ESLint
@@ -56,7 +56,7 @@ node@2b9634cf5c20:~$ exec yarn test-in-container
 sh$ npm run lint
 # or
 sh$ npm run shell
-node@2b9634cf5c20:~$ exec yarn lint-in-container
+node@2b9634cf5c20:~$ exec npm run lint-in-container
 ```
 
 ## Important Notice
