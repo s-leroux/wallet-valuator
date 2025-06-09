@@ -3,5 +3,5 @@ npm run shell
 . .env
 export $(sed 's/=.*//' .env)
 
-yarn node build/examples/find-address.mjs
+npm run build/examples/find-address.mjs
 

@@ -1,5 +1,4 @@
 {
-  "packageManager": "yarn@4.5.0",
   "name": "typescriptdemo",
   "workspaces": [
     "."
@@ -9,7 +8,7 @@
   "main": "index.js",
   "config": {
     "container": {
-      "tag": "wallet-valuator/dev:1.0.1"
+      "tag": "wallet-valuator/dev:2.0.1"
     }
   },
   "scripts": {
@@ -17,13 +16,13 @@
     "shell-in-container": "env $(echo LOCAL_ENV=1; cat .env) /bin/bash",
     "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/src/main.mjs",
     "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha 'build/test/**/*.mjs'",
-    "lint-in-container": "yarn eslint --fix src test",
-    "compile-in-container": "yarn tsc",
-    "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn shell-in-container",
-    "start": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn start-in-container",
-    "test": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn test-in-container",
-    "lint": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn lint-in-container",
-    "compile": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" yarn compile-in-container"
+    "lint-in-container": "eslint --fix src test",
+    "compile-in-container": "tsc",
+    "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script shell-in-container",
+    "start": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script start-in-container",
+    "test": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script test-in-container",
+    "lint": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script lint-in-container",
+    "compile": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script compile-in-container"
   },
   "repository": {
     "type": "git",
@@ -51,7 +50,7 @@
     "eslint": "^9.11.1",
     "mocha": "^10.7.3",
     "source-map-support": "^0.5.21",
-    "typescript": ">=4.7.4 <5.6.0",
+    "typescript": "^5.7.0",
     "typescript-eslint": "^8.8.0"
   },
   "dependencies": {

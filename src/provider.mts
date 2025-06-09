@@ -147,7 +147,9 @@ export class Provider implements ProviderInterface {
     let payload: Payload;
     try {
       res = await this.semaphore.do(fetch, url);
-      payload = await (is_json(res) ? res.json() : res.text());
+      payload = await (is_json(res)
+        ? (res.json() as Promise<JSONValue>)
+        : res.text());
     } catch (err) {
       return { err, is_error: true };
     }
