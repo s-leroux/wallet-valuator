@@ -8,8 +8,8 @@ This file contains instructions for Codex agents working in this repository. The
   - Launch an interactive shell with `npm run shell`.
   - Inside the container, use `yarn` for commands.
   - Install dependencies with `yarn install` after entering the container.
-  - Compile the TypeScript sources with `tsc`.
-- All compilation and tests **must** run inside the container.
+  - Compile the TypeScript sources with `yarn tsc`.
+All compilation, linting, and tests **must** run inside the container.
   - Execute tests with `yarn test-in-container`.
   - Run the linter with `yarn lint-in-container`.
 
