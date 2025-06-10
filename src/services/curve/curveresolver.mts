@@ -63,7 +63,7 @@ export class CurveResolver extends CryptoResolver {
     if (!poolAddress) {
       log.info(
         "C1016",
-        `Curve pool not found for ${chainName} ${smartContractAddress}`
+        `${chainName} ${smartContractAddress} does not seem a Curve pool`
       );
       return null;
     }
