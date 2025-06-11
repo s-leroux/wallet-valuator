@@ -10,7 +10,10 @@ import {
   getCoinGeckoId,
 } from "../../../src/services/oracles/coingecko.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
@@ -31,11 +34,13 @@ describe("CoinGecko", function () {
   this.slow(MOCHA_TEST_TIMEOUT);
 
   let coingecko: CoinGeckoOracle;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(function () {
     coingecko = CoinGeckoOracle.create(API_KEY, INTERNAL_TO_COINGECKO_ID);
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("API", () => {});
@@ -62,7 +67,8 @@ describe("CoinGecko", function () {
         register(`case ${id} ${date}`, async () => {
           const priceMap = new Map() as PriceMap;
           await coingecko!.getPrice(
-            registry,
+            cryptoRegistry,
+            cryptoMetadata,
             bitcoin,
             new Date(date),
             new Set(Object.keys(expected).map(FiatCurrency)),
@@ -90,7 +96,7 @@ describe("CoinGecko", function () {
     it("should properly URI encode the crypto id", async function () {
       // If the URI is not properly encoded, the price of the crypto below
       // will be resolved as if it was the "plain" bitcoin.
-      const maliciousCrypto = registry.createCryptoAsset(
+      const maliciousCrypto = cryptoRegistry.createCryptoAsset(
         "/bitcoin",
         "fake bitcoin",
         "/BTC",
@@ -98,7 +104,8 @@ describe("CoinGecko", function () {
       );
       const priceMap = new Map() as PriceMap;
       await coingecko.getPrice(
-        registry,
+        cryptoRegistry,
+        cryptoMetadata,
         maliciousCrypto,
         new Date("2024-12-30"),
         new Set([FiatCurrency("eur")]),
@@ -119,8 +126,18 @@ describe("CoinGecko", function () {
       ];
       for (const [internalId, expected] of testcases) {
         register(`case ${internalId} ⏵ ${expected}`, () => {
-          const crypto = registry.createCryptoAsset("usdc", "USDC", "USDC", 6);
-          const coinGeckoId = getCoinGeckoId(registry, crypto, idMapping);
+          const crypto = cryptoRegistry.createCryptoAsset(
+            "usdc",
+            "USDC",
+            "USDC",
+            6
+          );
+          const coinGeckoId = getCoinGeckoId(
+            cryptoRegistry,
+            cryptoMetadata,
+            crypto,
+            idMapping
+          );
           assert.equal(coinGeckoId, expected);
         });
       }

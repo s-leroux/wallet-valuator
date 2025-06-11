@@ -7,7 +7,10 @@ const assert: Chai.Assert = chai.assert;
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { CompositeOracle } from "../../../src/services/oracles/compositeoracle.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
@@ -16,7 +19,8 @@ describe("CompositeOracle", function () {
   const bitcoin = FakeCryptoAsset.bitcoin;
   const [eur, usd] = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
   let oracle: Oracle;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
@@ -25,14 +29,16 @@ describe("CompositeOracle", function () {
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-eur-max.csv", {[eur.code]: "price"}, opt),
       await DataSourceOracle.createFromPath(bitcoin,"fixtures/sol-usd-max.csv", {[usd.code]: "price"}, opt),
     ]);
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("getPrice()", () => {
     it("should aggregate the results from several oracles", async function () {
       const priceMap = new Map() as PriceMap;
       await oracle.getPrice(
-        registry,
+        cryptoRegistry,
+        cryptoMetadata,
         bitcoin,
         new Date("2024-12-05"),
         new Set([usd, eur]),

@@ -6,9 +6,9 @@ import { InconsistentUnitsError, ValueError } from "./error.mjs";
 import { defaultDisplayOptions, DisplayOptions } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
-import { CryptoRegistry } from "./cryptoregistry.mjs";
 import { Value } from "./valuation.mjs";
 import { Quantity } from "./quantity.mjs";
+import { InstanceCache } from "./instancecache.mjs";
 const log = logger("crypto-asset");
 
 //======================================================================
@@ -82,7 +82,6 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    * console.log(amount.toString()); // "1 ETH"
    */
   toString(): string {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `${this.value} ${this.crypto.symbol}`;
   }
 
@@ -238,51 +237,38 @@ export class CryptoAsset {
    * Client-code should normally not have to call this method directly,
    * but through the `CryptoRegistry.findCryptoAsset()` method. This is the
    * preferred way to obtain a reference to a logical crypto-asset.
-   *
-   * @example
-   * ```typescript
-   * const cryptoRegistry = CryptoRegistry.create();
-   * const bitcoin = cryptoRegistry.findCryptoAsset(id, name, symbol, decimal);
-   * ```
-   *
-   * @param registry - Map of crypto-asset IDs to their corresponding CryptoAsset instances
-   * @param id - The unique internal identifier for the crypto-asset
-   * @param name - The human-readable name of the crypto
-   * @param symbol - The symbol used to represent the crypto (e.g., "ETH")
-   * @param decimal - The number of decimal places used for the crypto
-   * @returns A new `CryptoAsset` instance
    */
   static create(
-    registry: CryptoRegistry,
+    cache: InstanceCache<CryptoAssetID, CryptoAsset>,
     id: string | CryptoAssetID,
     name: string,
     symbol: string,
     decimal: number
-  ) {
+  ): CryptoAsset {
     const normalizedId = toCryptoAssetID(id);
-    const existing = registry.getCryptoAsset(normalizedId);
-    if (existing) {
-      // consistency checks
-      if (name !== existing.name || symbol !== existing.symbol) {
-        log.warn(
-          "C2003",
-          `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
-        );
-      }
-      if (decimal !== existing.decimal) {
-        log.error(
-          "C3003",
-          `existing precision ${decimal} different from ${existing.decimal} for ${name}`
-        );
-        throw new InconsistentUnitsError(decimal, existing.decimal);
-      }
 
-      return existing;
-    }
-
-    const newCryptoAsset = new CryptoAsset(normalizedId, name, symbol, decimal);
-    registry.registerCryptoAsset(newCryptoAsset);
-    return newCryptoAsset;
+    return cache.getOrCreate(
+      normalizedId,
+      () => {
+        return new CryptoAsset(normalizedId, name, symbol, decimal);
+      },
+      (existing) => {
+        // consistency checks
+        if (name !== existing.name || symbol !== existing.symbol) {
+          log.warn(
+            "C2003",
+            `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
+          );
+        }
+        if (decimal !== existing.decimal) {
+          log.error(
+            "C3003",
+            `existing precision ${decimal} different from ${existing.decimal} for ${name}`
+          );
+          throw new InconsistentUnitsError(decimal, existing.decimal);
+        }
+      }
+    );
   }
 
   /**

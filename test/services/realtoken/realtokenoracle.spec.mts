@@ -11,13 +11,17 @@ import {
 } from "../../../src/services/realtoken/realtokenoracle.mjs";
 import { parseDate } from "../../../src/date.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
 import { BigNumber } from "../../../src/bignumber.mjs";
+import { RealTokenMetadata } from "../../../src/services/realtoken/realtokenresolver.mjs";
 
 describe("RealTokenUUID", () => {
   it("can be created from string", () => {
@@ -37,6 +41,7 @@ describe("RealTokenUUID", () => {
       for (const [a, b, expected] of testcases) {
         register(`case "${a}" "${b}"`, () => {
           // ISSUE #69 Check if this test should be asymmetric: === vs !=
+          // eslint-disable-next-line @typescript-eslint/unbound-method
           (expected ? assert.strictEqual : assert.notEqual)(a, b);
         });
       }
@@ -152,18 +157,22 @@ describe("RealTokenOracle", function () {
       const fiat = FiatCurrency("USD");
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
-          const registry = CryptoRegistry.create();
-          const crypto = registry.createCryptoAsset(
+          const cryptoRegistry = CryptoRegistryNG.create();
+          const cryptoMetadata = CryptoMetadata.create();
+          const crypto = cryptoRegistry.createCryptoAsset(
             uuid,
             "REALTOKEN-X",
             "REALTOKEN-X",
             18
           );
-          registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
+          cryptoMetadata.setMetadata<RealTokenMetadata>(crypto, {
+            "realtoken.uuid": uuid,
+          });
 
           const priceMap = new Map() as PriceMap;
           await oracle.getPrice(
-            registry,
+            cryptoRegistry,
+            cryptoMetadata,
             crypto,
             parseDate("YYYYMMDD", date),
             new Set([fiat]),

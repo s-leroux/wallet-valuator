@@ -98,6 +98,7 @@
     "src/chainaddress.mts",
     "src/csvfile.mts",
     "src/cryptoasset.mts",
+    "src/cryptometadata.mts",
     "src/cryptoregistry.mts",
     "src/date.mts",
     "src/debug.mts",

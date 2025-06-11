@@ -4,7 +4,7 @@ import { DisplayOptions, toDisplayString } from "./displayable.mjs";
 
 import { logger } from "./debug.mjs";
 import { Ensure } from "./type.mjs";
-import { CryptoRegistry } from "./cryptoregistry.mjs";
+import { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { asBlockchain } from "./blockchain.mjs";
@@ -74,29 +74,41 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
 // Ledger and entries
 // =========================================================================
 type Filter = (
-  registry: CryptoRegistry,
+  cryptoRegistry: CryptoRegistryNG,
+  cryptoMetadata: CryptoMetadata,
   entries: Entry[],
-  value: any
+  value: unknown
 ) => Entry[];
 
 const FILTERS: Record<string, Filter | undefined> = {
   // @ts-expect-error TypeScript does not handle properly null-prototype object literals
   __proto__: null,
 
-  chain(registry: CryptoRegistry, entries: Entry[], chainName: unknown) {
+  chain(
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    entries: Entry[],
+    chainName: unknown
+  ) {
     const blockchain = asBlockchain(Ensure.isString(chainName));
     return entries.filter((entry) => {
       return entry.transaction.chainName === blockchain;
     });
   },
 
-  comment(registry: CryptoRegistry, entries: Entry[], chainName: unknown) {
+  comment(
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    entries: Entry[],
+    chainName: unknown
+  ) {
     // NOOP
     return entries;
   },
 
   "crypto-asset"(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     entries: Entry[],
     cryptoId: unknown
   ) {
@@ -107,20 +119,26 @@ const FILTERS: Record<string, Filter | undefined> = {
   },
 
   "crypto-resolver"(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     entries: Entry[],
     resolverName: unknown
   ) {
     resolverName = Ensure.isString(resolverName);
     return entries.filter((entry) => {
       return (
-        registry.getNamespaceData(entry.transaction.amount.crypto, "STANDARD")
+        cryptoMetadata.getMetadata(entry.transaction.amount.crypto)
           ?.resolver === resolverName
       );
     });
   },
 
-  from(registry: CryptoRegistry, entries: Entry[], address: unknown) {
+  from(
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    entries: Entry[],
+    address: unknown
+  ) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
     } else {
@@ -132,7 +150,12 @@ const FILTERS: Record<string, Filter | undefined> = {
     });
   },
 
-  to(registry: CryptoRegistry, entries: Entry[], address: unknown) {
+  to(
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    entries: Entry[],
+    address: unknown
+  ) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
     } else {
@@ -144,7 +167,12 @@ const FILTERS: Record<string, Filter | undefined> = {
     });
   },
 
-  type(registry: CryptoRegistry, entries: Entry[], type: unknown) {
+  type(
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    entries: Entry[],
+    type: unknown
+  ) {
     type = Ensure.isString(type);
 
     return entries.filter((entry) => {
@@ -269,13 +297,17 @@ export class Ledger implements Iterable<Entry> {
   //  Transaction selection
   //========================================================================
 
-  filter(registry: CryptoRegistry, selector: Record<string, any>): Ledger {
+  filter(
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    selector: Record<string, any>
+  ): Ledger {
     let entries = this.entries;
     for (const key of Object.keys(selector)) {
       const fn = FILTERS[key];
 
       if (fn) {
-        entries = fn(registry, entries, selector[key]);
+        entries = fn(registry, cryptoMetadata, entries, selector[key]);
       } else {
         throw Logged("C2004", ValueError, `Unknown filter key: ${key}`);
       }
@@ -321,7 +353,7 @@ export class Ledger implements Iterable<Entry> {
     return new Ledger(this.entries.slice(start, end));
   }
 
-  reduce(fn: Function, acc: any) {
+  reduce<A>(fn: (acc: A, tr: Entry, idx: number, self: this) => A, acc: A) {
     // ISSUE #30 Fix types
     let idx = 0;
 

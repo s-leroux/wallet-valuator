@@ -5,12 +5,13 @@ import { prepare } from "./support/register.helper.mjs";
 import { Swarm } from "../src/swarm.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
-import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
 import { asBlockchain } from "../src/blockchain.mjs";
 import { Block } from "../src/block.mjs";
 
 describe("Block", function () {
-  const registry = CryptoRegistry.create();
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
   const cryptoResolver = FakeCryptoResolver.create();
 
   const G = asBlockchain("gnosis");
@@ -21,8 +22,13 @@ describe("Block", function () {
 
     for (const [chain, blockNumber] of test_cases) {
       register(`case ${chain} ${blockNumber}`, () => {
-        const explorer = new FakeExplorer(registry, chain);
-        const swarm = Swarm.create([explorer], registry, cryptoResolver);
+        const explorer = new FakeExplorer(cryptoRegistry, chain);
+        const swarm = Swarm.create(
+          [explorer],
+          cryptoRegistry,
+          cryptoMetadata,
+          cryptoResolver
+        );
 
         const block = new Block(swarm, chain, blockNumber);
 
@@ -37,8 +43,13 @@ describe("Block", function () {
 
     for (const [chain, blockNumber] of test_cases) {
       register(`case ${chain} ${blockNumber}`, () => {
-        const explorer = new FakeExplorer(registry, chain);
-        const swarm = Swarm.create([explorer], registry, cryptoResolver);
+        const explorer = new FakeExplorer(cryptoRegistry, chain);
+        const swarm = Swarm.create(
+          [explorer],
+          cryptoRegistry,
+          cryptoMetadata,
+          cryptoResolver
+        );
 
         const block = new Block(swarm, chain, blockNumber);
 

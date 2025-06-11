@@ -1,11 +1,9 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
 import { Oracle } from "../oracle.mjs";
-import { FiatConverter } from "../fiatconverter.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
 import { DefaultDefiLlamaAPI, DefiLlamaAPI } from "./defillamaapi.mjs";
 import {
   getCoinGeckoId,
@@ -13,6 +11,7 @@ import {
 } from "../oracles/coingecko.mjs";
 import { logger } from "../../debug.mjs";
 import type { PriceMap } from "../oracle.mjs";
+import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("defillama-oracle");
 
@@ -27,13 +26,19 @@ export class DefiLlamaOracle extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
-    const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
+    const coinGeckoId = getCoinGeckoId(
+      cryptoRegistry,
+      cryptoMetadata,
+      crypto,
+      this.idMapping
+    );
     if (!coinGeckoId) {
       // ISSUE #105 We could query other metadata such as the canonical ChainAddress for the crypto-asset
       return;
@@ -43,7 +48,7 @@ export class DefiLlamaOracle extends Oracle {
     const prices = await this.api.getHistoricalPrices(date, [assetId]);
     const { price } = prices.coins[assetId]; // USD price!
 
-    const priceAsUSD = GlobalMetadataRegistry.setMetadata(
+    const priceAsUSD = GlobalMetadataStore.setMetadata(
       crypto.price(USD, price),
       { origin: "DEFILLAMA" }
     );

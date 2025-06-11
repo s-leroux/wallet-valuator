@@ -1,11 +1,12 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
-import type { CryptoRegistry, Namespaces } from "../../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { CryptoResolver, type ResolutionResult } from "../cryptoresolver.mjs";
 
 import { InternalError } from "../../error.mjs";
 import { ChainAddress } from "../../chainaddress.mjs";
+import { CryptoMetadata } from "../../cryptometadata.mjs";
 
 type BasePhysicalCryptoAsset = readonly [
   key: string,
@@ -22,7 +23,7 @@ export type LogicalCryptoAsset = readonly [
   name: string,
   symbol: string,
   decimal: number,
-  domains: Namespaces
+  metadata: object
 ];
 
 /**
@@ -31,10 +32,7 @@ export type LogicalCryptoAsset = readonly [
 export class StaticCryptoResolver extends CryptoResolver {
   // Database:
   private readonly logicalCryptoAssets: Map<string, LogicalCryptoAsset>;
-  private readonly physicalCryptoAssets: Map<
-    ChainAddress,
-    PhysicalCryptoAsset
-  >;
+  private readonly physicalCryptoAssets: Map<ChainAddress, PhysicalCryptoAsset>;
 
   // Cache
   private readonly cache: Map<ChainAddress, CryptoAsset>;
@@ -76,21 +74,27 @@ export class StaticCryptoResolver extends CryptoResolver {
     return this.logicalCryptoAssets.keys();
   }
 
-  getCryptoAsset(registry: CryptoRegistry, id: string) {
+  getCryptoAsset(
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    id: string
+  ) {
     const logicalCryptoAsset = this.logicalCryptoAssets.get(id);
     if (!logicalCryptoAsset) {
       return undefined;
     }
 
     const [, name, symbol, decimals, namespaces] = logicalCryptoAsset;
-    const crypto = registry.createCryptoAsset(id, name, symbol, decimals);
-    registry.setNamespaces(crypto, namespaces);
+    const crypto = cryptoRegistry.createCryptoAsset(id, name, symbol, decimals);
+    cryptoMetadata.setMetadata(crypto, namespaces);
 
     return crypto;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async resolve(
     swarm: Swarm,
+    cryptoMetadata: CryptoMetadata,
     chain: Blockchain,
     block: number,
     smartContractAddress: string | null,
@@ -132,9 +136,14 @@ export class StaticCryptoResolver extends CryptoResolver {
     }
 
     // 5. Eventually create, update metadata, then return the logical crypto-asset
-    const [, name, symbol, decimals, namespaces] = logicalCryptoAsset;
-    const crypto = swarm.registry.createCryptoAsset(id, name, symbol, decimals);
-    swarm.registry.setNamespaces(crypto, namespaces);
+    const [, name, symbol, decimals, metadata] = logicalCryptoAsset;
+    const crypto = swarm.cryptoRegistry.createCryptoAsset(
+      id,
+      name,
+      symbol,
+      decimals
+    );
+    cryptoMetadata.setMetadata(crypto, metadata);
     this.cache.set(chainAddress, crypto);
 
     return {

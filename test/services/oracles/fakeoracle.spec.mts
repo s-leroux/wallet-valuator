@@ -7,16 +7,21 @@ const assert: Chai.Assert = chai.assert;
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
 describe("FakeOracle", function () {
   let fakeoracle: FakeOracle | undefined;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(function () {
     fakeoracle = FakeOracle.create();
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("API", () => {});
@@ -36,7 +41,8 @@ describe("FakeOracle", function () {
       for (const [id, date, expected] of test_cases) {
         const priceMap = new Map() as PriceMap;
         await fakeoracle!.getPrice(
-          registry,
+          cryptoRegistry,
+          cryptoMetadata,
           bitcoin,
           new Date(date),
           new Set(Object.keys(expected).map(FiatCurrency)),

@@ -1,18 +1,20 @@
 import { ValueError } from "../../error.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
+import type {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../cryptoregistry.mjs";
 
 import { Table } from "../../bsearch.mjs";
 
-import { NotImplementedError, ProtocolError } from "../../error.mjs";
+import { ProtocolError } from "../../error.mjs";
 import { formatDate } from "../../date.mjs";
-import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
+import { BigNumber } from "../../bignumber.mjs";
 import { Oracle } from "../oracle.mjs";
 import { RealTokenAPI, RealTokenEvent } from "./realtokenapi.mjs";
-import type { FiatConverter } from "../fiatconverter.mjs";
 import type { PriceMap } from "../oracle.mjs";
+import { RealTokenMetadata } from "./realtokenresolver.mjs";
 
 type RealTokenUUID = string & { readonly brand: unique symbol };
 export function RealTokenUUID(uuid: string) {
@@ -86,13 +88,14 @@ export class RealTokenOracle extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
-    const metadata = registry.getNamespaceData(crypto, "REALTOKEN");
+    const metadata = cryptoMetadata.getMetadata<RealTokenMetadata>(crypto);
 
     if (!metadata) {
       // We do not handle that crypto
@@ -104,7 +107,7 @@ export class RealTokenOracle extends Oracle {
         // check data are loaded before all
         await this.load();
 
-        const uuid = RealTokenUUID(metadata.uuid as string);
+        const uuid = RealTokenUUID(metadata["realtoken.uuid"] as string);
         const priceTable = this.getPriceTable(uuid);
         const entry = priceTable.get(formatDate("YYYYMMDD", date));
         if (entry) {

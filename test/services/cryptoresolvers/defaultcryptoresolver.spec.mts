@@ -3,7 +3,10 @@ import { assert } from "chai";
 import { prepare } from "../../support/register.helper.mjs";
 
 import { DefaultCryptoResolver } from "../../../src/services/cryptoresolvers/defaultcryptoresolver.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 import { ResolutionResult } from "../../../src/services/cryptoresolver.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
@@ -17,13 +20,15 @@ describe("DefaultCryptoResolver", function () {
 
   describe("default database", function () {
     let cryptoResolver: DefaultCryptoResolver;
-    let registry: CryptoRegistry;
+    let cryptoRegistry: CryptoRegistryNG;
+    let cryptoMetadata: CryptoMetadata;
     let swarm: Swarm;
 
     beforeEach(() => {
       cryptoResolver = DefaultCryptoResolver.create();
-      registry = CryptoRegistry.create();
-      swarm = Swarm.create([], registry, cryptoResolver);
+      cryptoRegistry = CryptoRegistryNG.create();
+      cryptoMetadata = CryptoMetadata.create();
+      swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, cryptoResolver);
     });
 
     describe("should find well known token by chain, block, and address", function () {
@@ -47,9 +52,9 @@ describe("DefaultCryptoResolver", function () {
 
       for (const [chain, block, address, expected] of testcases) {
         register(`case of ${[chain, block, address]}`, async () => {
-          const registry = CryptoRegistry.create();
           const result = await cryptoResolver.resolve(
             swarm,
+            cryptoMetadata,
             chain,
             block,
             address,

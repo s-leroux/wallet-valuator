@@ -1,6 +1,7 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { FiatCurrency, FiatCurrencyCode } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
+import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
@@ -34,7 +35,8 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,

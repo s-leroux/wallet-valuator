@@ -8,7 +8,10 @@ import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
@@ -20,14 +23,16 @@ describe("FiatConverterOracle", function () {
   const { EUR: eur, USD: usd } = FakeFiatCurrency;
 
   let oracle: Oracle;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
   let fiatConverter: FiatConverter;
 
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
     // prettier-ignore
     oracle = await DataSourceOracle.createFromPath(solana,"fixtures/sol-eur-max.csv", {[eur.code]: "price"}, opt);
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
     fiatConverter = new FixedFiatConverter(eur, usd, 1.2);
   });
 
@@ -36,7 +41,8 @@ describe("FiatConverterOracle", function () {
       const date = new Date("2024-12-05");
       const priceMap = new Map() as PriceMap;
       await oracle.getPrice(
-        registry,
+        cryptoRegistry,
+        cryptoMetadata,
         solana,
         date,
         new Set([usd, eur]),
@@ -55,7 +61,7 @@ describe("FiatConverterOracle", function () {
       assert.isTrue(priceMap.has(eur));
       const eurPrice = priceMap.get(eur)!;
       const usdPrice = await fiatConverter.convert(
-        registry,
+        cryptoRegistry,
         date,
         eurPrice,
         usd

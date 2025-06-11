@@ -1,15 +1,16 @@
 import { formatDate } from "../../date.mjs";
 import { Price } from "../../price.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
 import { PriceMap } from "../oracle.mjs";
 import { Ensure } from "../../type.mjs";
+import { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("coingecko");
 
@@ -158,14 +159,20 @@ export class CoinGeckoOracle extends Oracle {
   async init() {}
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
-    currencies: Set<FiatCurrency>,
+    fiats: Set<FiatCurrency>,
     result: PriceMap
   ): Promise<void> {
     let historical_data: CoinGeckoPriceHistory | undefined;
-    const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
+    const coinGeckoId = getCoinGeckoId(
+      cryptoRegistry,
+      cryptoMetadata,
+      crypto,
+      this.idMapping
+    );
     if (!coinGeckoId) {
       return;
     }
@@ -191,7 +198,7 @@ export class CoinGeckoOracle extends Oracle {
       Ensure.isDefined(historical_data); // throw an error if the data are mising
     } catch (err) {
       log.trace("C1009", `Error while getting price for ${crypto}: ${err}`);
-      log.debug(date, currencies, crypto.id, coinGeckoId, historical_data, err);
+      log.debug(date, fiats, crypto.id, coinGeckoId, historical_data, err);
       return;
     }
     const prices = Ensure.isDefined(historical_data).market_data.current_price;
@@ -217,7 +224,7 @@ export class CoinGeckoOracle extends Oracle {
       );
       const price = new Price(crypto, currency, value);
       result.set(currency, price);
-      GlobalMetadataRegistry.setMetadata(
+      GlobalMetadataStore.setMetadata(
         price,
         { origin: "COINGECKO" } // ISSUE #112 Why all-caps?
       );
@@ -228,19 +235,20 @@ export class CoinGeckoOracle extends Oracle {
 }
 
 export function getCoinGeckoId(
-  registry: CryptoRegistry,
-  crypto: CryptoAsset,
+  cryptoRegistry: CryptoRegistryNG,
+  cryptoMetadata: CryptoMetadata,
+  cryptoAsset: CryptoAsset,
   internalId?: InternalToCoinGeckoIdMapping
 ): string | undefined {
   // 1. Check the standard metadata
-  const metadata = registry.getNamespaces(crypto);
-  const id = metadata?.STANDARD?.coingeckoId;
+  const metadata = cryptoMetadata.getMetadata(cryptoAsset);
+  const id = metadata.coingeckoId;
   if (id) {
     return id;
   }
 
   // 2. Use the internal table
-  return internalToCoinGeckoId(crypto.id, internalId);
+  return internalToCoinGeckoId(cryptoAsset.id, internalId);
 }
 
 function internalToCoinGeckoId(

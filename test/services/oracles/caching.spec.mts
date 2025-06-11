@@ -10,7 +10,10 @@ import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
 import { Caching, DB_VERSION } from "../../../src/services/oracles/caching.mjs";
 import type { Price } from "../../../src/price.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { setLogLevel } from "../../../src/debug.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
@@ -50,7 +53,8 @@ describe("Caching", function () {
   const { EUR, USD } = FakeFiatCurrency;
   const fiatCurrencies = new Set([EUR, USD]);
   let oracle: Oracle;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   /**
    * Check the prices are what we expect from our fake oracle.
@@ -73,7 +77,8 @@ describe("Caching", function () {
 
   beforeEach(function () {
     oracle = new FakeOracle();
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("Utilities", () => {
@@ -82,11 +87,25 @@ describe("Caching", function () {
       let priceMap: PriceMap;
       assert.equal(cache.backend_calls, 0);
       priceMap = new Map() as PriceMap;
-      await cache.getPrice(registry, crypto, date, fiatCurrencies, priceMap);
+      await cache.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
+        crypto,
+        date,
+        fiatCurrencies,
+        priceMap
+      );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
       priceMap = new Map() as PriceMap;
-      await cache.getPrice(registry, crypto, date, fiatCurrencies, priceMap);
+      await cache.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
+        crypto,
+        date,
+        fiatCurrencies,
+        priceMap
+      );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
     });

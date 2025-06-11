@@ -1,5 +1,5 @@
 import { CryptoAsset } from "./cryptoasset.mjs";
-import { CryptoRegistry } from "./cryptoregistry.mjs";
+import { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { logger } from "./debug.mjs";
 import { AssertionError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
@@ -34,8 +34,9 @@ export class PriceResolver {
   constructor(readonly oracle: Oracle, readonly fiatConverter: FiatConverter) {}
 
   async getPrice(
-    registry: CryptoRegistry,
-    crypto: CryptoAsset,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    cryptoAsset: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>
   ): Promise<PriceMap> {
@@ -46,7 +47,14 @@ export class PriceResolver {
     fiats.add(baseFiat);
 
     // 1. Attempt to retrieve prices using the oracle
-    await this.oracle.getPrice(registry, crypto, date, fiats, prices);
+    await this.oracle.getPrice(
+      cryptoRegistry,
+      cryptoMetadata,
+      cryptoAsset,
+      date,
+      fiats,
+      prices
+    );
 
     // 2. Check if we have the requested prices
     const found = new Set(prices.keys());
@@ -56,7 +64,8 @@ export class PriceResolver {
     if (missing.size) {
       log.trace(
         "C1013",
-        `Fiat converion required for ${crypto}/${missing} at ${date}`
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        `Fiat converion required for ${cryptoAsset}/${missing} at ${date}`
       );
       // Ensure we have the base price
       const basePrice = prices.get(baseFiat);
@@ -64,14 +73,20 @@ export class PriceResolver {
         throw Logged(
           "C3012",
           AssertionError,
-          `Missing base price ${baseFiat} for ${crypto} at ${date}`
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          `Missing base price ${baseFiat} for ${cryptoAsset} at ${date}`
         );
       }
       // else
       for (const fiat of missing) {
         prices.set(
           fiat,
-          await this.fiatConverter.convert(registry, date, basePrice, fiat)
+          await this.fiatConverter.convert(
+            cryptoRegistry,
+            date,
+            basePrice,
+            fiat
+          )
         );
       }
 

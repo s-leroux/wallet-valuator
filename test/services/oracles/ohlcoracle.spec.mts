@@ -2,7 +2,10 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { OHLCOracle } from "../../../src/services/oracles/ohlcoracle.mjs";
 import { CSVFile } from "../../../src/csvfile.mjs";
 import { BigNumber } from "../../../src/bignumber.mjs";
@@ -29,13 +32,15 @@ May 18, 2025;103186.95;106597.17;103142.60;106446.01;106446.01;49887082058
 describe("OHLCOracle", function () {
   const { USD } = FakeFiatCurrency;
   let oracle: OHLCOracle<BigNumber>;
-  const registry = CryptoRegistry.create();
-  const bitcoin = registry.createCryptoAsset("bitcoin");
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
+  const bitcoin = cryptoRegistry.createCryptoAsset("bitcoin");
 
   beforeEach(() => {
     const datasource = CSVFile.createFromText(
       CSV_DATA,
       String,
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       BigNumber.from,
       {
         separator: ";",
@@ -47,7 +52,7 @@ describe("OHLCOracle", function () {
   });
 
   describe("getPrice()", () => {
-    describe("should return the fair price at date", async function () {
+    describe("should return the fair price at date", function () {
       const register = prepare(this);
 
       const testCases = [
@@ -61,7 +66,8 @@ describe("OHLCOracle", function () {
         register(`case ${date}`, async () => {
           const priceMap = new Map() as PriceMap;
           await oracle.getPrice(
-            registry,
+            cryptoRegistry,
+            cryptoMetadata,
             bitcoin,
             new Date(date),
             new Set([USD]),

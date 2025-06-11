@@ -17,9 +17,17 @@ class StandardChainAddress implements ChainAddress {
     this.address = address ? address.toLowerCase() : address;
   }
 
+  /**
+   * Convert the ChainAddress instance to a string for user consumption.
+   *
+   * The current implementation forwards to the mangleChainAddress() function,
+   * but this behavior is not guaranteed. If you need a stable string
+   * representation of a ChainAddress, you should call mangleChainAddress() directly.
+   *
+   * @returns A string representation of the ChainAddress
+   */
   toString() {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return `${this.chain}:${this.address || ""}`;
+    return mangleChainAddress(this);
   }
 
   toDisplayString(options: DisplayOptions): string {
@@ -33,7 +41,6 @@ export function ChainAddress(
   chain: string | Blockchain,
   address: string | null
 ): ChainAddress {
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   const key = `${chain}:${address || ""}`.toLowerCase();
   return chainAddressCache.getOrCreate(
     key,
@@ -48,6 +55,5 @@ export function ChainAddress(
  * @returns A string in the format "<chain>:<address>"
  */
 export function mangleChainAddress(chainAddress: ChainAddress): string {
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   return `${chainAddress.chain}:${chainAddress.address || ""}`;
 }

@@ -1,7 +1,7 @@
 import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
@@ -11,6 +11,7 @@ import { CoinGeckoOracle } from "../../services/oracles/coingecko.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { parseDate } from "../../date.mjs";
 import { PriceMap } from "../../services/oracle.mjs";
+import { CryptoMetadata } from "../../../src/cryptoregistry.mjs";
 
 type ErrCode = "T0001";
 
@@ -31,7 +32,7 @@ function createCryptoResolver(envvars: EnvVars) {
   return DefaultCryptoResolver.create();
 }
 
-function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
+function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
   return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
@@ -67,7 +68,8 @@ export async function load(start: string, end: string, cryptoids: string[]) {
 
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const registry = CryptoRegistry.create();
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
   const oracle = createOracle(envvars);
 
   if (!cryptoids.length) {
@@ -75,7 +77,9 @@ export async function load(start: string, end: string, cryptoids: string[]) {
   }
 
   const cryptos = cryptoids.map(
-    (id) => resolver.getCryptoAsset(registry, id) ?? notFound(id)
+    (id) =>
+      resolver.getCryptoAsset(cryptoRegistry, cryptoMetadata, id) ??
+      notFound(id)
   );
 
   while (currDate <= endDate) {
@@ -88,7 +92,8 @@ export async function load(start: string, end: string, cryptoids: string[]) {
     await Promise.all(
       cryptos.map((crypto) => {
         return oracle.getPrice(
-          registry,
+          cryptoRegistry,
+          cryptoMetadata,
           crypto,
           currDate,
           new Set([FiatCurrency("EUR")]),
@@ -104,9 +109,15 @@ export async function load(start: string, end: string, cryptoids: string[]) {
 export async function processAddresses(hexAddresses: string[]): Promise<void> {
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const registry = CryptoRegistry.create();
-  const explorers = createExplorers(registry, envvars);
-  const swarm = Swarm.create(explorers, registry, resolver);
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
+  const explorers = createExplorers(cryptoRegistry, envvars);
+  const swarm = Swarm.create(
+    explorers,
+    cryptoRegistry,
+    cryptoMetadata,
+    resolver
+  );
   const chain = asBlockchain("gnosis");
   const addresses = await Promise.all(
     hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress))
@@ -125,7 +136,8 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
 
   const oracle = createOracle(envvars);
   const valuation = await portfolio.evaluate(
-    registry,
+    cryptoRegistry,
+    cryptoMetadata,
     oracle,
     null as unknown as FiatConverter,
     FiatCurrency("EUR")

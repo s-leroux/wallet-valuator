@@ -6,7 +6,10 @@ const assert: Chai.Assert = chai.assert;
 
 import { CurveOracle } from "../../../src/services/curve/curveoracle.mjs";
 import { parseDate } from "../../../src/date.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
@@ -46,24 +49,27 @@ describe("CurveOracle", function () {
       const ID = ChainAddress(CHAIN, TOKEN);
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
-          const registry = CryptoRegistry.create();
-          const crypto = registry.createCryptoAsset(
+          const cryptoRegistry = CryptoRegistryNG.create();
+          const cryptoMetadata = CryptoMetadata.create();
+          const cryptoAsset = cryptoRegistry.createCryptoAsset(
             ID,
             "Curve-X",
             "Curve-X",
             18
           );
           const metadata: CurveMetadata = {
+            resolver: "curve",
             chain: "ethereum",
             address: TOKEN,
           };
-          registry.setNamespaceData(crypto, "CURVE", metadata);
+          cryptoMetadata.setMetadata(cryptoAsset, metadata);
 
           const priceMap = new Map() as PriceMap;
           await oracle
             .getPrice(
-              registry,
-              crypto,
+              cryptoRegistry,
+              cryptoMetadata,
+              cryptoAsset,
               parseDate("YYYYMMDD", date),
               new Set([USD, EUR]),
               priceMap
@@ -71,10 +77,10 @@ describe("CurveOracle", function () {
             .catch((err) => (console.log(err), undefined));
 
           if (value === null) {
-            assert.equal(priceMap.size, 0);
+            assert.isEmpty(priceMap);
           } else {
-            assert.isTrue(priceMap.has(USD));
-            assert.deepEqual(priceMap.get(USD), crypto.price(USD, value));
+            assert.hasAnyKeys(priceMap, USD);
+            assert.deepEqual(priceMap.get(USD), cryptoAsset.price(USD, value));
           }
         });
       }

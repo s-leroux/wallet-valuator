@@ -7,7 +7,7 @@ import {
   ToCurveChainName,
 } from "../../src/services/curve/curveapi.mjs";
 import { formatDate } from "../../src/date.mjs";
-import { NotImplementedError, ValueError } from "../../src/error.mjs";
+import { NotImplementedError } from "../../src/error.mjs";
 
 // Test data
 import MockPriceHistory from "../../fixtures/Curve/prices/priceHistory.json" with { type: "json" };
@@ -20,27 +20,30 @@ export class FakeCurveAPI implements CurveAPI {
     return new FakeCurveAPI();
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getUSDPrice(
     chain: string,
     tokenAddress: string,
     date: Date
   ): Promise<CurvePriceHistory> {
     const dateString = formatDate("YYYY-MM-DDT00:00:00", date);
+    const data = [];
     if (tokenAddress.toLowerCase() === MockPriceHistory.address.toLowerCase()) {
       const price = MockPriceHistory.data.find(
         (value) => value.timestamp === dateString
       );
       if (price) {
-        return {
-          address: tokenAddress,
-          data: [price],
-        };
+        data.push(price);
       }
     }
 
-    throw new ValueError(`No data for ${tokenAddress} at ${dateString}`);
+    return {
+      address: tokenAddress,
+      data,
+    };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getChains() {
     return {
       __proto__: null,
@@ -56,6 +59,7 @@ export class FakeCurveAPI implements CurveAPI {
     } as CurveChainList;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getChainContracts(chainName: string) {
     return {
       chain: chainName,
@@ -72,6 +76,7 @@ export class FakeCurveAPI implements CurveAPI {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getAllUSDPrices(chain: string): Promise<CurvePriceList> {
     switch (chain) {
       case "ethereum":
@@ -91,6 +96,7 @@ export class FakeCurveAPI implements CurveAPI {
     throw new NotImplementedError("Method not implemented.");
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getLiquidityPoolFromToken(
     chainName: string,
     tokenAddress: string

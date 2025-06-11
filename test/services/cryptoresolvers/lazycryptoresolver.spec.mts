@@ -3,13 +3,17 @@ import { assert } from "chai";
 import { prepare } from "../../support/register.helper.mjs";
 
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
 
 describe("LazyCryptoResolver", function () {
   let cryptoResolver: LazyCryptoResolver;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
   let swarm: Swarm;
 
   const E = asBlockchain("ethereum");
@@ -18,9 +22,10 @@ describe("LazyCryptoResolver", function () {
   const S = asBlockchain("solana");
 
   beforeEach(() => {
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
     cryptoResolver = LazyCryptoResolver.create();
-    swarm = Swarm.create([], registry, cryptoResolver);
+    swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, cryptoResolver);
   });
 
   it("Should cache tokens", async () => {
@@ -32,8 +37,15 @@ describe("LazyCryptoResolver", function () {
     ] as const;
 
     assert.throws(() => cryptoResolver.get("polygon", POLYGON_WBTC[0]));
-    const wbtc = await cryptoResolver.resolve(swarm, P, 1234, ...POLYGON_WBTC);
+    const wbtc = await cryptoResolver.resolve(
+      swarm,
+      cryptoMetadata,
+      P,
+      1234,
+      ...POLYGON_WBTC
+    );
     if (!wbtc || wbtc.status !== "resolved") {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
       assert.fail(`wbtc was ${wbtc}`);
     }
     assert.include(wbtc.asset, {
@@ -45,7 +57,13 @@ describe("LazyCryptoResolver", function () {
       cryptoResolver.get("polygon", POLYGON_WBTC[0]),
       wbtc.asset
     );
-    const wbtc2 = await cryptoResolver.resolve(swarm, P, 1234, ...POLYGON_WBTC);
+    const wbtc2 = await cryptoResolver.resolve(
+      swarm,
+      cryptoMetadata,
+      P,
+      1234,
+      ...POLYGON_WBTC
+    );
     assert.deepEqual(wbtc2, wbtc);
   });
 
@@ -65,6 +83,7 @@ describe("LazyCryptoResolver", function () {
       register(`case of ${[chain, name]}`, async () => {
         const result = await cryptoResolver.resolve(
           swarm,
+          cryptoMetadata,
           chain,
           12345,
           address,
@@ -73,6 +92,7 @@ describe("LazyCryptoResolver", function () {
           decimal
         );
         if (!result || result.status !== "resolved") {
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           assert.fail(`result was ${result}`);
         }
         assert.include(result.asset, { name, symbol, decimal });

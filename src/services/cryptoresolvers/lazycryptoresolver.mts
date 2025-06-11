@@ -4,6 +4,7 @@ import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 import { MMap } from "../../memoizer.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
+import { CryptoMetadata } from "../../cryptometadata.mjs";
 
 // ISSUE #98 We may factor out the ChainAddress utility
 type ChainAddress = string & { readonly brand: unique symbol };
@@ -51,8 +52,10 @@ export class LazyCryptoResolver extends CryptoResolver {
     return new LazyCryptoResolver();
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async resolve(
     swarm: Swarm,
+    cryptoMetadata: CryptoMetadata,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
@@ -65,7 +68,12 @@ export class LazyCryptoResolver extends CryptoResolver {
     return {
       status: "resolved",
       asset: this.cryptos.get(chainAddress, () =>
-        swarm.registry.createCryptoAsset(chainAddress, name, symbol, decimal)
+        swarm.cryptoRegistry.createCryptoAsset(
+          chainAddress,
+          name,
+          symbol,
+          decimal
+        )
       ),
     };
   }

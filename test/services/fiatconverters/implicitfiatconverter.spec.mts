@@ -5,7 +5,10 @@ chai.use(chaiAsPromised);
 const assert: Chai.Assert = chai.assert;
 
 import { ImplicitFiatConverter } from "../../../src/services/fiatconverters/implicitfiatconverter.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
@@ -19,19 +22,22 @@ describe("ImplicitFiatConverter", function () {
 
   let oracle: FakeOracle;
   let converter: ImplicitFiatConverter;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(function () {
     oracle = new FakeOracle();
     converter = ImplicitFiatConverter.create(oracle, bitcoin);
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("convert()", () => {
     it(`should convert prices with ±${error}% error`, async () => {
       const priceMap = new Map() as PriceMap;
       await oracle.getPrice(
-        registry,
+        cryptoRegistry,
+        cryptoMetadata,
         ethereum,
         date,
         new Set([FakeFiatCurrency.EUR, FakeFiatCurrency.USD]),
@@ -41,7 +47,7 @@ describe("ImplicitFiatConverter", function () {
       assert.isTrue(priceMap.has(eur));
       assert.isTrue(priceMap.has(usd));
       const result = await converter.convert(
-        registry,
+        cryptoRegistry,
         date,
         priceMap.get(eur)!,
         FakeFiatCurrency.USD

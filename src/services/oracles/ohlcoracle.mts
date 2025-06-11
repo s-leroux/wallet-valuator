@@ -1,6 +1,6 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
@@ -8,9 +8,10 @@ import type { CSVFileOptionBag, DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
 import { logger } from "../../debug.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
 import type { FiatConverter } from "../fiatconverter.mjs";
 import type { PriceMap } from "../oracle.mjs";
+import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("ohlc-oracle");
 
@@ -41,7 +42,8 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
@@ -70,7 +72,7 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
         this.fiat,
         BigNumber.sum(high, low, close).div(3)
       );
-      GlobalMetadataRegistry.setMetadata(price, { origin: this.origin });
+      GlobalMetadataStore.setMetadata(price, { origin: this.origin });
       result.set(this.fiat, price);
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       log.trace("C1012", `Found ${price} at ${formattedDate}`);

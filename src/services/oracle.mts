@@ -1,8 +1,8 @@
 import type { CryptoAsset } from "../cryptoasset.mjs";
-import type { CryptoRegistry } from "../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../cryptoregistry.mjs";
 import type { FiatCurrency } from "../fiatcurrency.mjs";
-import type { FiatConverter } from "./fiatconverter.mjs";
 import type { Price } from "../price.mjs";
+import type { CryptoMetadata } from "../cryptometadata.mts";
 
 import { Caching } from "./oracles/caching.mjs";
 
@@ -20,6 +20,7 @@ export abstract class Oracle {
    * Retrieves the price of a given crypto-asset in the specified fiat currencies on a specific date.
    *
    * @param registry - The registry containing information about crypto-assets.
+   * @param cryptoMetadata - The metadata about the crypto-asset.
    * @param crypto - The crypto-asset for which the price is being retrieved.
    * @param date - The date for which the price is being retrieved.
    * @param fiat - An array of fiat currencies for which the price is being requested.
@@ -28,7 +29,8 @@ export abstract class Oracle {
    * If the price for a fiat currency is not available, it MUST NOT be added to the map.
    */
   abstract getPrice(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     fiat: Set<FiatCurrency>,

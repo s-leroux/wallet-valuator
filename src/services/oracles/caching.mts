@@ -1,5 +1,8 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../cryptoregistry.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { type Oracle, PriceMap } from "../oracle.mjs";
 
@@ -8,7 +11,7 @@ const log = logger("caching-oracle");
 
 import Database from "better-sqlite3";
 import { AssertionError, ProtocolError } from "../../error.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { GlobalPriceMetadata } from "../../price.mjs";
 
 const DB_INIT_SEQUENCE = `
 PRAGMA foreign_keys = ON;
@@ -182,10 +185,11 @@ export class Caching /*extends Oracle*/ {
     for (const price of prices.values()) {
       log.trace(
         "C1010",
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         `Caching price for ${price.crypto}/${price.fiatCurrency} at ${date}`
       );
 
-      const metadata = GlobalMetadataRegistry.getMetadata(price);
+      const metadata = GlobalPriceMetadata.getMetadata(price);
       const origin =
         (metadata?.origin && this.dictionary(metadata.origin)) || undefined;
       stmt.run(
@@ -199,7 +203,8 @@ export class Caching /*extends Oracle*/ {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     currencies: Set<FiatCurrency>,
@@ -217,6 +222,7 @@ export class Caching /*extends Oracle*/ {
       } else {
         log.trace(
           "C1007",
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           `Cache miss for ${crypto}/${currency} as ${dateYyyyMmDd}`
         );
         missing.push(currency);
@@ -227,7 +233,8 @@ export class Caching /*extends Oracle*/ {
     }
     // else
     await this.backend.getPrice(
-      registry,
+      cryptoRegistry,
+      cryptoMetadata,
       crypto,
       date,
       new Set(missing), // request only missing data!

@@ -5,9 +5,10 @@ import { Price } from "../../price.mjs";
 import { Oracle, PriceMap } from "../oracle.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
 import { logger } from "../../debug.mjs";
+import { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("implicit-fiat-converter");
 
@@ -32,7 +33,7 @@ export class ImplicitFiatConverter implements FiatConverter {
   }
 
   async convert(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
     date: Date,
     price: Price,
     to: FiatCurrency
@@ -45,8 +46,11 @@ export class ImplicitFiatConverter implements FiatConverter {
     }
 
     const priceMap = new Map() as PriceMap;
+    const cryptoMetadata = CryptoMetadata.create();
+    cryptoMetadata.setMetadata(this.crypto, {});
     await this.oracle.getPrice(
       registry,
+      cryptoMetadata,
       this.crypto,
       date,
       new Set([from, to]),
@@ -69,7 +73,7 @@ export class ImplicitFiatConverter implements FiatConverter {
     );
     const exchangeRage = toPrice.rate.div(fromPrice.rate);
 
-    return GlobalMetadataRegistry.setMetadata(price.to(to, exchangeRage), {
+    return GlobalMetadataStore.setMetadata(price.to(to, exchangeRage), {
       origin: "CONVERTER",
     });
   }

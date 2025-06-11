@@ -2,9 +2,14 @@ import { assert } from "chai";
 
 import { prepare } from "../../support/register.helper.mjs";
 
-import { CryptoResolver } from "../../../src/services/cryptoresolver.mjs";
-import { RealTokenResolver } from "../../../src/services/realtoken/realtokenresolver.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  RealTokenMetadata,
+  RealTokenResolver,
+} from "../../../src/services/realtoken/realtokenresolver.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { isCryptoAsset } from "../../../src/cryptoasset.mjs";
 
 // Test data
@@ -13,18 +18,20 @@ import { asBlockchain } from "../../../src/blockchain.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
 
 describe("RealTokenResolver", function () {
-  let resolver: CryptoResolver;
-  let registry: CryptoRegistry;
   let swarm: Swarm;
+  let cryptoRegistry: CryptoRegistryNG;
+  let resolver: RealTokenResolver;
+  let cryptoMetadata: CryptoMetadata;
 
   const E = asBlockchain("ethereum");
   const X = asBlockchain("xdai");
   const G = asBlockchain("gnosis");
 
   beforeEach(() => {
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
     resolver = new RealTokenResolver(FakeRealTokenAPI.create());
-    registry = CryptoRegistry.create();
-    swarm = Swarm.create([], registry, resolver);
+    swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, resolver);
   });
 
   describe("resolve()", function () {
@@ -44,6 +51,7 @@ describe("RealTokenResolver", function () {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
             swarm,
+            cryptoMetadata,
             chain,
             0,
             contract,
@@ -53,6 +61,7 @@ describe("RealTokenResolver", function () {
           );
 
           if (!result || result.status !== "resolved") {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             assert.fail(`result was ${result}`);
           }
           assert(isCryptoAsset(result.asset));
@@ -76,6 +85,7 @@ describe("RealTokenResolver", function () {
         register(`case ${chain} ${contract}`, async () => {
           const result = await resolver.resolve(
             swarm,
+            cryptoMetadata,
             chain,
             0,
             contract,
@@ -84,14 +94,15 @@ describe("RealTokenResolver", function () {
             18
           );
 
-          if (!result || result.status !== "resolved")
+          if (!result || result.status !== "resolved") {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             assert.fail(`result was ${result}`);
-          const metadata = swarm.registry.getNamespaceData(
-            result.asset,
-            "REALTOKEN"
+          }
+          const md = cryptoMetadata.getMetadata<RealTokenMetadata>(
+            result.asset
           );
-          assert.isDefined(metadata);
-          assert.equal(metadata.uuid, uuid);
+          assert.isDefined(md);
+          assert.equal(md["realtoken.uuid"], uuid);
         });
       }
     });

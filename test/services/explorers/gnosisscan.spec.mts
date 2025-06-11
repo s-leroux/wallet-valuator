@@ -11,7 +11,7 @@ import {
   GnosisScan,
 } from "../../../src/services/explorers/gnosisscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { CryptoRegistryNG, CryptoMetadata } from "../../../src/cryptoregistry.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 
 import RateLimit from "../../../fixtures/GnosisScan/RateLimit.json" with { type: "json" };
@@ -123,13 +123,15 @@ describe("GnosisScan", function () {
 
   describe("GnosisScan", () => {
     let explorer: GnosisScan;
-    let registry: CryptoRegistry;
+    let cryptoRegistry: CryptoRegistryNG;
+    let cryptoMetadata: CryptoMetadata;
     let sw: Swarm;
 
     beforeEach(() => {
-      registry = CryptoRegistry.create();
-      explorer = new GnosisScan(registry, gs!);
-      sw = Swarm.create([explorer], registry, cryptoResolver);
+      cryptoRegistry = CryptoRegistryNG.create();
+      cryptoMetadata = CryptoMetadata.create();
+      explorer = new GnosisScan(cryptoRegistry, gs!);
+      sw = Swarm.create([explorer], cryptoRegistry, cryptoMetadata, cryptoResolver);
     });
 
     it("should default to the Gnosis chain", () => {

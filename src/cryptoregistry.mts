@@ -1,10 +1,36 @@
-import { DuplicateKeyError, ValueError } from "./error.mjs";
+import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
-import { CryptoAssetID, CryptoAsset, toCryptoAssetID } from "./cryptoasset.mjs";
+import { CryptoAssetID, CryptoAsset } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
 import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
 import { ChainAddress, mangleChainAddress } from "./chainaddress.mjs";
+import { InstanceCache } from "./instancecache.mjs";
+import { MetadataFacade } from "./metadata.mjs";
+
 const log = logger("crypto-registry");
+
+//======================================================================
+//  CryptoMetadata
+//======================================================================
+
+export type MetadataOld = {
+  [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
+};
+
+export interface CryptoAssetMetadata {
+  fiscalCategory?: CryptoAssetFiscalCategory;
+  coingeckoId?: string;
+  resolver: string;
+}
+
+export class CryptoMetadata extends MetadataFacade<
+  CryptoAsset,
+  CryptoAssetMetadata
+> {}
+
+//======================================================================
+//  CryptoRegistry
+//======================================================================
 
 type RegisteredCryptoAssets = {
   [key: string]: [name: string, symbol: string, decimal: number] | undefined;
@@ -18,46 +44,15 @@ const registeredCryptoAssets: RegisteredCryptoAssets =
 
 type CryptoAssetFiscalCategory = undefined | "SECURITY" | "UTILITY TOKEN";
 
-export type Metadata = {
-  [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
-};
+export class CryptoRegistryNG {
+  private readonly cache: InstanceCache<CryptoAssetID, CryptoAsset>;
 
-type StandardMetadata = {
-  fiscalCategory?: CryptoAssetFiscalCategory;
-  coingeckoId?: string;
-  resolver?: string;
-};
-
-export type Namespaces = {
-  [k: string]: Metadata | undefined;
-  STANDARD: StandardMetadata;
-};
-
-/**
- * The CryptoRegistry is a cache for the crypto-assets and their associated metadata.
- */
-export class CryptoRegistry {
-  private readonly cryptoAssets = new Map<CryptoAssetID, CryptoAsset>(); // A mapping from crypto-asset id to logical crypto assets
-  private readonly namespaces = new WeakMap<CryptoAsset, Namespaces>(); // Metadata associated with a logical crypto asset
-
-  // Private constructor to enforce factory method use
-  private constructor() {}
-
-  /**
-   * Factory method to create a new CryptoRegistry instance.
-   */
-  static create(): CryptoRegistry {
-    return new CryptoRegistry();
+  private constructor() {
+    this.cache = new InstanceCache();
   }
 
-  /**
-   * Return a cached crypto-asset by its internal ID.
-   *
-   * If you want to find-or-create a crypto-asset by its internal ID you probably want to use
-   * {@link createCryptoAsset} instead.
-   */
-  getCryptoAsset(id: string) {
-    return this.cryptoAssets.get(toCryptoAssetID(id));
+  static create() {
+    return new this();
   }
 
   /**
@@ -104,110 +99,18 @@ export class CryptoRegistry {
     }
 
     // CryptoAsset.create will internally call our `registerCryptoAsset` method
-    return CryptoAsset.create(this, id, name, symbol, decimal);
+    return CryptoAsset.create(this.cache, id, name, symbol, decimal);
   }
 
-  /**
-   * Register a pre-existing crypto-asset with optional metadata
-   */
-  registerCryptoAsset(asset: CryptoAsset, namespaces?: Namespaces) {
-    if (this.cryptoAssets.has(asset.id)) {
-      log.error("C3004", `Crypto-asset ${asset} already registered`);
-      throw new DuplicateKeyError(asset);
-    }
-
-    this.cryptoAssets.set(asset.id, asset);
-    this.initNamespaces(asset);
-
-    if (namespaces) {
-      this.setNamespaces(asset, namespaces);
-    }
-  }
-
-  setNamespaces(asset: CryptoAsset, namespaces: Namespaces) {
-    for (const [key, value] of Object.entries(namespaces)) {
-      if (value) this.setNamespaceData(asset, key, value);
-    }
-  }
-
-  /**
-   * Associate (upsert) namespace-specific data with a CryptoAsset.
-   * If the namespace doesn't exist, it will be created. If it exists,
-   * the new data will be merged with the existing data.
-   * @param asset - The CryptoAsset to annotate.
-   * @param namespaceName - A well-known namespace identifier for the data.
-   * @param namespaceData - The namespace-specific data to associate with the asset.
-   */
-  setNamespaceData(
-    asset: CryptoAsset,
-    namespaceName: "STANDARD",
-    namespaceData: StandardMetadata
-  ): void;
-  setNamespaceData(
-    asset: CryptoAsset,
-    namespaceName: string,
-    namespaceData: Metadata
-  ): void;
-  setNamespaceData(asset: CryptoAsset, namespaceName: string): void;
-  setNamespaceData(
-    asset: CryptoAsset,
-    namespaceName: string,
-    namespaceData: Metadata = Object.create(null)
-  ): void {
-    const namespaces = this.namespaces.get(asset) ?? this.initNamespaces(asset);
-
-    namespaces[namespaceName] = Object.assign(
-      namespaces[namespaceName] ?? Object.create(null),
-      namespaceData
+  registerCryptoAsset(cryptoAsset: CryptoAsset) {
+    this.cache.getOrCreate(
+      cryptoAsset.id,
+      () => cryptoAsset,
+      (existing) => {
+        const error = new ValueError(`${existing} already registered`);
+        log.error("C3016", error, cryptoAsset);
+        throw error;
+      }
     );
-  }
-
-  initNamespaces(asset: CryptoAsset) {
-    // sanity check
-    if (this.namespaces.get(asset) !== undefined) {
-      log.error("C3007", `Crypto-asset metadata ${asset} already initialized`);
-      throw new DuplicateKeyError(asset);
-    }
-
-    const defaultNamespaces: Namespaces = {
-      // @ts-expect-error TypeScript does not support the null-prototype literal object syntax
-      __proto__: null,
-
-      STANDARD: Object.create(null),
-    };
-
-    this.namespaces.set(asset, defaultNamespaces);
-    return defaultNamespaces;
-  }
-
-  /**
-   * Retrieve the data entry for a given CryptoAsset.
-   * @param asset - The CryptoAsset to query.
-   * @returns The data entry for the asset, or undefined if no data exists.
-   */
-  getNamespaces(asset: CryptoAsset): Namespaces | undefined {
-    return this.namespaces.get(asset);
-  }
-
-  /**
-   * Retrieve namespace-specific data for a CryptoAsset.
-   * @param asset - The CryptoAsset to query.
-   * @param namespace - The expected namespace for the data.
-   * @returns The namespace-specific data, or undefined if no matching entry exists.
-   */
-  getNamespaceData(
-    asset: CryptoAsset,
-    namespaceName: "STANDARD"
-  ): StandardMetadata | undefined;
-  getNamespaceData(
-    asset: CryptoAsset,
-    namespaceName: string
-  ): Metadata | undefined;
-  getNamespaceData(
-    asset: CryptoAsset,
-    namespaceName: string
-  ): Metadata | undefined {
-    const entry = this.getNamespaces(asset);
-    return entry?.[namespaceName];
   }
 }

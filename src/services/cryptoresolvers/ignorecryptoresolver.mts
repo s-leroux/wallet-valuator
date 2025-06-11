@@ -1,6 +1,7 @@
 import { CryptoResolver, type ResolutionResult } from "../cryptoresolver.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
+import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 import { logger as logger } from "../../debug.mjs";
 const log = logger("provider");
@@ -19,8 +20,10 @@ export class IgnoreCryptoResolver extends CryptoResolver {
     return new IgnoreCryptoResolver();
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async resolve(
     swarm: Swarm,
+    cryptoMetadata: CryptoMetadata,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,

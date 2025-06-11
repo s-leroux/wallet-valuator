@@ -1,6 +1,7 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
+import type { CryptoMetadata } from "../../cryptometadata.mjs";
 
 import { Oracle, PriceMap } from "../oracle.mjs";
 import { FiatConverter } from "../fiatconverter.mjs";
@@ -34,7 +35,8 @@ export class CompositeOracle extends Oracle {
   //  Price resolution
   //----------------------------------------------------------------------
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     currencies: Set<FiatCurrency>,
@@ -46,7 +48,14 @@ export class CompositeOracle extends Oracle {
 
     // we DO NOT use concurrency here to avoid wasting API calls from our quotas
     for (const backend of this.backends) {
-      await backend.getPrice(registry, crypto, date, missing, result);
+      await backend.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
+        crypto,
+        date,
+        missing,
+        result
+      );
       for (const currency of result.keys()) {
         // result.set(currency, price); // Fixed in #157 // ISSUE #61 What to do it we already have that price? Should we check consistency?
         missing.delete(currency);

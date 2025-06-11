@@ -271,7 +271,8 @@ class BinanceAccount implements Account {
 
   resolveCryptoAsset(swarm: Swarm, binanceMnemonic: string): CryptoAsset {
     const cryptoAssetId = BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID[binanceMnemonic];
-    if (cryptoAssetId) return swarm.registry.createCryptoAsset(cryptoAssetId);
+    if (cryptoAssetId)
+      return swarm.cryptoRegistry.createCryptoAsset(cryptoAssetId);
 
     // else
     throw Logged(

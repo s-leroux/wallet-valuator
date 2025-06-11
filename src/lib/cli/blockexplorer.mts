@@ -2,10 +2,11 @@ import { Swarm } from "../../../src/swarm.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { Address } from "../../address.mjs";
+import { CryptoMetadata } from "../../../src/cryptometadata.mjs";
 
 type ErrCode = "T0001";
 
@@ -25,7 +26,7 @@ function createCryptoResolver(envvars: EnvVars) {
   ]);
 }
 
-function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
+function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
   return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
@@ -47,9 +48,15 @@ function loadEnvironmentVariables() {
 export async function processBlock(blockNumbers: number[]): Promise<void> {
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const registry = CryptoRegistry.create();
-  const explorers = createExplorers(registry, envvars);
-  const swarm = Swarm.create(explorers, registry, resolver);
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
+  const explorers = createExplorers(cryptoRegistry, envvars);
+  const swarm = Swarm.create(
+    explorers,
+    cryptoRegistry,
+    cryptoMetadata,
+    resolver
+  );
   const chain = asBlockchain("gnosis");
   const blocks = await Promise.all(
     blockNumbers.map((blockNumber) => swarm.block(chain, blockNumber))

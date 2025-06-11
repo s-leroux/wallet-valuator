@@ -9,7 +9,7 @@ import type {
   CryptoResolver,
   ResolutionResult,
 } from "./services/cryptoresolver.mjs";
-import type { CryptoRegistry } from "./cryptoregistry.mjs";
+import type { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { Address } from "./address.mjs";
 import {
   NormalTransaction,
@@ -35,7 +35,8 @@ export class Swarm {
 
   protected constructor(
     explorers: Explorer[],
-    readonly registry: CryptoRegistry,
+    readonly cryptoRegistry: CryptoRegistryNG,
+    readonly cryptoMetadata: CryptoMetadata,
     readonly cryptoResolver: CryptoResolver
   ) {
     this.blocks = new Map();
@@ -51,10 +52,11 @@ export class Swarm {
 
   static create(
     explorers: Explorer[],
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     cryptoResolver: CryptoResolver
   ) {
-    return new Swarm(explorers, registry, cryptoResolver);
+    return new Swarm(explorers, cryptoRegistry, cryptoMetadata, cryptoResolver);
   }
 
   getExplorer(chain: string | Blockchain): Explorer {
@@ -84,6 +86,7 @@ export class Swarm {
 
     return this.cryptoResolver.resolve(
       this,
+      this.cryptoMetadata,
       chain,
       block,
       smartContractAddress,

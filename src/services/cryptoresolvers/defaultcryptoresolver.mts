@@ -1,4 +1,3 @@
-import { Namespaces } from "../../cryptoregistry.mjs";
 import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
 import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
@@ -68,14 +67,14 @@ const defaultKeyDomainsMap = WellKnownCryptoAssets.map(
     name,
     symbol,
     decimals,
-    { STANDARD: metadata },
+    metadata,
   ]
 ) as [
   key: string,
   name: string,
   symbol: string,
   decimal: number,
-  domains: Namespaces
+  metadata: object
 ][];
 
 /**
