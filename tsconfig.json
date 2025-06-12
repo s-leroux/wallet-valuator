@@ -110,7 +110,7 @@
     "src/geckocoin.mts",
     "src/instancecache.mts",
     "src/ledger.mts",
-    "src/lib/cli/addressprocessor.mts",
+    "src/lib/cli/report.mts",
     "src/lib/cli/blockexplorer.mts",
     "src/lib/cli/loader.mts",
     "src/metadata.mts",
@@ -161,12 +161,9 @@
     "examples/find-address.mts",
     "examples/report.mts",
 
-    "cli/blockchain-cli.mts",
+    "cli/report-cli.mts",
     "cli/blockexplorer-cli.mts",
-    "cli/load.mts",
-
-    "src/main.mts",
-    "test/main.spec.mts"
+    "cli/load.mts"
   ],
   "watchOptions": {
     "watchFile": "dynamicprioritypolling",

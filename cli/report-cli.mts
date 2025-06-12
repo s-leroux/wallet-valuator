@@ -1,12 +1,15 @@
 import { Command } from "commander";
-import { processAddresses } from "../src/lib/cli/addressprocessor.mjs";
+import { processAddresses } from "../src/lib/cli/report.mjs";
 
 // Initialize commander
 const program = new Command();
 
+/**
+ * Generate an accounting report from a configuration file.
+ */
 program
-  .name("blockchain-cli")
-  .description("Command-line tool to display blockchain addresses")
+  .name("report-cli")
+  .description("Generate a text report for income tax declarations")
   .showHelpAfterError()
   .version("1.1.0")
   .option("-c, --config <config.json>", "JSON configuration")
