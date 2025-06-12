@@ -1,17 +1,17 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
 import { Oracle } from "../oracle.mjs";
-import { FiatConverter } from "../fiatconverter.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
 import { DefaultDefiLlamaAPI, DefiLlamaAPI } from "./defillamaapi.mjs";
 import {
   getCoinGeckoId,
   InternalToCoinGeckoIdMapping,
 } from "../oracles/coingecko.mjs";
 import { logger } from "../../debug.mjs";
+import type { PriceMap } from "../oracle.mjs";
+import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("defillama-oracle");
 
@@ -26,41 +26,47 @@ export class DefiLlamaOracle extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[],
-    fiatConverter: FiatConverter
-  ): Promise<Record<FiatCurrency, Price>> {
-    const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
+    fiats: Set<FiatCurrency>,
+    result: PriceMap
+  ): Promise<void> {
+    const coinGeckoId = getCoinGeckoId(
+      cryptoRegistry,
+      cryptoMetadata,
+      crypto,
+      this.idMapping
+    );
     if (!coinGeckoId) {
       // ISSUE #105 We could query other metadata such as the canonical ChainAddress for the crypto-asset
-      return Object.create(null);
+      return;
     }
 
-    const result = {} as Record<FiatCurrency, Price>;
     const assetId = `coingecko:${coinGeckoId}`;
     const prices = await this.api.getHistoricalPrices(date, [assetId]);
     const { price } = prices.coins[assetId]; // USD price!
 
-    const priceAsUSD = (result[USD] = GlobalMetadataRegistry.setMetadata(
+    const priceAsUSD = GlobalMetadataStore.setMetadata(
       crypto.price(USD, price),
       { origin: "DEFILLAMA" }
-    ));
+    );
+    result.set(USD, priceAsUSD);
     log.info("C1003", `Found price for ${crypto}/USD at ${date.toISOString()}`);
     /*
     for (const fiat of fiats) {
       if (fiat !== USD) {
-        result[fiat] = await fiatConverter.convert(
+        const convertedPrice = await fiatConverter.convert(
           registry,
           date,
           priceAsUSD,
           fiat
         );
+        result.set(fiat, convertedPrice);
       }
     }
     */
-    return result;
   }
 
   static create(api?: DefiLlamaAPI, idMapping?: InternalToCoinGeckoIdMapping) {

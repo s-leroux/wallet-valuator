@@ -44,7 +44,7 @@ describe("Snapshot", () => {
         FakeMovement(...INGRESS, 40, "300", "ethereum"),
       ];
 
-      let snapshot = snapshotFromMovements(movements);
+      const snapshot = snapshotFromMovements(movements);
 
       assert.isNotNull(snapshot);
       assert.equal(snapshot.holdings.size, 2);
@@ -67,7 +67,7 @@ describe("Snapshot", () => {
       FakeMovement(...INGRESS, 40, "300", "ethereum"),
     ];
 
-    let snapshot = snapshotFromMovements(movements);
+    const snapshot = snapshotFromMovements(movements);
 
     it("should return the assets in the snapshot", () => {
       assert.deepEqual(snapshot.assets(), [
@@ -92,7 +92,7 @@ describe("Portfolio", () => {
     FakeMovement(...INGRESS, 40, "300", "bitcoin"),
   ];
 
-  let portfolio = new Portfolio(snapshotsFromMovements(movements));
+  const portfolio = new Portfolio(snapshotsFromMovements(movements));
 
   describe("allAssetsEverOwned()", () => {
     it("should return the list of all assets ever owned", () => {

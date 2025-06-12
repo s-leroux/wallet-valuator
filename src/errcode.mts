@@ -19,7 +19,9 @@ export const ERRORS = {
   "C1014": "Synthetize a price (ImplicitFiatconverter)",
   "C1015": "Unable to format and no fallback (noDisplayString)",
   "C1016": "Pool not found (CurveResolver)",
-  "C1017": "An error was thrown while fetching URL (provider)",
+  "C1017": "An error was thrown while fetching URL (Provider)",
+  "C1018": "Fetch (Provider)",
+  "C1019": "Price not found (CurveOracle)",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",
@@ -27,6 +29,10 @@ export const ERRORS = {
   "C2003": "Inconsistent data",
   "C2004": "Unknown filter",
   "C2005": undefined,
+  "C2006": "Inconsistent metadata (CurveOracle)",
+  "C2007": "Inconsistent metadata (CurveOracle)",
+  "C2008": "Multiple prices found at date (CurveOracle)",
+
 
   // Error-level codes (3000-3999)
   "C3001": "Report missing data",
@@ -41,6 +47,9 @@ export const ERRORS = {
   "C3011": "Unknown crypto-asset",
   "C3012": "Base price missing (PriceResolver)",
   "C3013": "Broken invariant (InstanceCache)",
+  "C3014": "Key not found (memoizer)",
+  "C3015": "Invalid currency format (FiatCurrency)",
+  "C3016": "CryptoAsset already registered (CryptoRegistry)",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

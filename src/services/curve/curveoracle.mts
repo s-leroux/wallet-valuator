@@ -1,14 +1,16 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
 import { Oracle } from "../oracle.mjs";
 import { CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
-import { FiatConverter } from "../fiatconverter.mjs";
-import { BigNumberSource } from "../../bignumber.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
+import type { PriceMap } from "../oracle.mjs";
+import type { CryptoMetadata } from "../../cryptoregistry.mjs";
+import { logger } from "../../debug.mjs";
+
+const log = logger("curveoracle");
 
 const USD = FiatCurrency("USD");
 
@@ -18,21 +20,23 @@ export class CurveOracle extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
-    crypto: CryptoAsset,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    cryptoAsset: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[],
-    fiatConverter: FiatConverter
-  ): Promise<Record<FiatCurrency, Price>> {
-    const result = {} as Record<FiatCurrency, Price>;
-    const metadata = registry.getNamespaceData(
-      crypto,
-      "CURVE"
-    ) as CurveMetadata;
+    fiats: Set<FiatCurrency>,
+    result: PriceMap
+  ): Promise<void> {
+    const metadata = cryptoMetadata.getMetadata<CurveMetadata>(cryptoAsset);
 
-    if (!metadata) {
+    if (!metadata || metadata.resolver !== "curve") {
       // We do not handle that crypto
-      return result;
+      return;
+    }
+
+    if (!metadata.chain) {
+      log.warn("C2006", "Inconsistent metadata", metadata);
+      return;
     }
 
     // We have two path to find the USD price of a token on Curve.
@@ -49,28 +53,39 @@ export class CurveOracle extends Oracle {
       );
       const { open, high, low, close } = OHLC.data[0];
       priceAsNumber = (open + high + low + close) / 4.0;
-    } else {
+    } else if (metadata.address) {
       const priceAsUSD = await this.api.getUSDPrice(
         metadata.chain,
         metadata.address,
         date
       );
+      const priceData = priceAsUSD.data;
 
+      // Validate priceData for corner cases
+      if (!priceData || priceData.length === 0) {
+        log.trace(
+          "C1019",
+          `No price data available for ${cryptoAsset} at ${date}`
+        );
+        return;
+      } else if (priceData.length > 1) {
+        log.warn(
+          "C2008",
+          `Multiple price entries found for ${cryptoAsset} at ${date}, using first entry`,
+          priceData
+        );
+      }
       priceAsNumber = priceAsUSD.data[0].price;
+    } else {
+      log.warn("C2007", "Inconsistent metadata", metadata);
+      return;
     }
-    const price = GlobalMetadataRegistry.setMetadata(
-      crypto.price(USD, priceAsNumber),
+
+    const price = GlobalMetadataStore.setMetadata(
+      cryptoAsset.price(USD, priceAsNumber),
       { origin: "CURVE" }
     );
-    result[USD] = price;
-    /*
-    for (const fiat of fiats) {
-      if (fiat !== USD) {
-        result[fiat] = await fiatConverter.convert(registry, date, price, fiat);
-      }
-    }
-      */
-    return result;
+    result.set(USD, price);
   }
 
   static create(api?: CurveAPI) {

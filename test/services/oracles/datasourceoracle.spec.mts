@@ -4,9 +4,12 @@ import chaiAsPromised from "chai-as-promised";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeDataSource } from "../../support/datasource.fake.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -16,14 +19,16 @@ describe("DataSourceOracle", function () {
   const eur = FakeFiatCurrency.EUR;
   const usd = FakeFiatCurrency.USD;
   let oracle: DataSourceOracle<number>;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(() => {
     oracle = new DataSourceOracle(bitcoin, new FakeDataSource((v) => v), {
-      [usd]: "USD",
-      [eur]: "EUR",
+      [usd.code]: "USD",
+      [eur.code]: "EUR",
     });
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("constructor", () => {
@@ -31,13 +36,16 @@ describe("DataSourceOracle", function () {
   });
   describe("getPrice()", () => {
     it("should return the price in requested currency", async () => {
-      const prices = await oracle.getPrice(
-        registry,
+      const priceMap = new Map() as PriceMap;
+      await oracle.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
         bitcoin,
         new Date("2024-12-04"),
-        [eur]
+        new Set([eur]),
+        priceMap
       );
-      const price = prices[eur];
+      const price = priceMap.get(eur);
       if (!price) {
         assert.fail(`price is ${price}`);
       } else {

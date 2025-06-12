@@ -23,8 +23,8 @@ describe("InstanceCache", () => {
 
   it("should create and retrieve cached instances", () => {
     const cache = new InstanceCache<string, TestValue>();
-    const value1 = cache.getOrCreate("test1", TestValue, 42);
-    const value2 = cache.getOrCreate("test1", TestValue, 42);
+    const value1 = cache.getOrCreate("test1", () => new TestValue(42));
+    const value2 = cache.getOrCreate("test1", () => new TestValue(42));
 
     assert.strictEqual(value1, value2, "Should return the same instance");
     assert.strictEqual(value1.value, 42, "Should have correct value");
@@ -32,8 +32,8 @@ describe("InstanceCache", () => {
 
   it("should create different instances for different keys", () => {
     const cache = new InstanceCache<string, TestValue>();
-    const value1 = cache.getOrCreate("test1", TestValue, 42);
-    const value2 = cache.getOrCreate("test2", TestValue, 42);
+    const value1 = cache.getOrCreate("test1", () => new TestValue(42));
+    const value2 = cache.getOrCreate("test2", () => new TestValue(42));
 
     assert.notStrictEqual(value1, value2, "Should return different instances");
     assert.strictEqual(value1.value, value2.value, "Should have same value");
@@ -41,8 +41,8 @@ describe("InstanceCache", () => {
 
   it("should handle numeric keys", () => {
     const cache = new InstanceCache<number, NumberTestValue>();
-    const value1 = cache.getOrCreate(1, NumberTestValue, 42);
-    const value2 = cache.getOrCreate(1, NumberTestValue, 42);
+    const value1 = cache.getOrCreate(1, () => new NumberTestValue(42));
+    const value2 = cache.getOrCreate(1, () => new NumberTestValue(42));
 
     assert.strictEqual(value1, value2, "Should return the same instance");
     assert.strictEqual(value1.value, 42, "Should have correct value");
@@ -52,8 +52,11 @@ describe("InstanceCache", () => {
     const stringCache = new InstanceCache<string, TestValue>();
     const numberCache = new InstanceCache<number, NumberTestValue>();
 
-    const stringValue = stringCache.getOrCreate("1", TestValue, 42);
-    const numberValue = numberCache.getOrCreate(1, NumberTestValue, 42);
+    const stringValue = stringCache.getOrCreate("1", () => new TestValue(42));
+    const numberValue = numberCache.getOrCreate(
+      1,
+      () => new NumberTestValue(42)
+    );
 
     assert.notStrictEqual(
       stringValue as object,
@@ -62,10 +65,10 @@ describe("InstanceCache", () => {
     );
   });
 
-  it("should handle constructor arguments correctly", () => {
+  it("should handle factory function correctly", () => {
     const cache = new InstanceCache<string, TestValue>();
-    const value1 = cache.getOrCreate("test1", TestValue, 42);
-    const value2 = cache.getOrCreate("test1", TestValue, 43); // Different value
+    const value1 = cache.getOrCreate("test1", () => new TestValue(42));
+    const value2 = cache.getOrCreate("test1", () => new TestValue(43)); // Different value
 
     assert.strictEqual(value1, value2, "Should return the same instance");
     assert.strictEqual(value1.value, 42, "Should keep original value");

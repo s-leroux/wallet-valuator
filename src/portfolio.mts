@@ -5,7 +5,7 @@ import type { FiatCurrency } from "./fiatcurrency.mjs";
 import type { Ledger } from "./ledger.mjs";
 import { PortfolioValuation } from "./valuation.mjs";
 import type { FiatConverter } from "./services/fiatconverter.mjs";
-import type { CryptoRegistry } from "./cryptoregistry.mjs";
+import type { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import type { Oracle } from "./services/oracle.mjs";
 import { DisplayOptions, TextUtils } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
@@ -255,13 +255,15 @@ export class Portfolio {
   //  Evaluations
   //========================================================================
   evaluate(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     oracle: Oracle,
     fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency
   ): Promise<PortfolioValuation> {
     return PortfolioValuation.create(
-      registry,
+      cryptoRegistry,
+      cryptoMetadata,
       oracle,
       fiatConverter,
       fiatCurrency,

@@ -1,14 +1,16 @@
 import { formatDate } from "../../date.mjs";
 import { Price } from "../../price.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
+import { PriceMap } from "../oracle.mjs";
 import { Ensure } from "../../type.mjs";
+import { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("coingecko");
 
@@ -23,27 +25,26 @@ export type InternalToCoinGeckoIdMapping = {
  * Handle the idiosyncrasies of the CoinGecko API server
  */
 export class CoinGeckoProvider extends Provider {
-  readonly api_key: string;
+  private readonly apiKey: string;
 
   constructor(
-    api_key: string,
+    apiKey: string,
     origin: string = COINGECKO_API_BASE_ADDRESS,
-    options = {} as object
+    options: CoinGeckoOptionBag = {}
   ) {
     const defaults = {
       retry: 40,
       concurrency: 3,
     };
     super(origin, Object.assign(defaults, options));
-    this.api_key = api_key;
+
+    this.apiKey = apiKey;
   }
 
   injectExtraParams(search_params: URLSearchParams) {
-    search_params.set("x-cg-demo-api-key", this.api_key);
+    search_params.set("x-cg-demo-api-key", this.apiKey);
   }
 }
-
-type OptionBag = object;
 
 //==========================================================================
 //  Domain types
@@ -51,76 +52,137 @@ type OptionBag = object;
 
 export type CoinGeckoPriceHistory = {
   market_data: {
-    current_price: Record<FiatCurrency, Price | undefined>;
+    current_price: Record<string, number | undefined>;
   };
 };
+
+//==========================================================================
+//  CoinGecko API
+//==========================================================================
+
+export class DefaultCoinGeckoAPI {
+  constructor(readonly provider: Provider) {}
+
+  static create(
+    apiKey: string,
+    base: string = COINGECKO_API_BASE_ADDRESS,
+    options: CoinGeckoOptionBag = {}
+  ) {
+    return new DefaultCoinGeckoAPI(
+      new CoinGeckoProvider(apiKey, base, options)
+    );
+  }
+
+  getCoinsHistory(coinGeckoId: string, date: Date) {
+    const encodedCoinGeckoId = encodeURIComponent(coinGeckoId);
+    const url = ["coins", encodedCoinGeckoId, "history"].join("/");
+
+    return this.provider.fetch(url, {
+      date: formatDate("DD-MM-YYYY", date),
+    }) as Promise<CoinGeckoPriceHistory>;
+  }
+}
+
+type CoinGeckoOptionBag = {
+  apiKey?: string;
+};
+
+export type CoinGeckoAPI = Pick<DefaultCoinGeckoAPI, "getCoinsHistory">;
 
 //==========================================================================
 //  CoinGecko Oracle
 //==========================================================================
 
-export class CoinGecko extends Oracle {
-  readonly provider: Provider;
-  readonly idMapping;
+export class CoinGeckoOracle extends Oracle {
   readonly ready;
 
-  constructor(provider?: Provider, idMapping?: InternalToCoinGeckoIdMapping) {
+  constructor(
+    readonly api: CoinGeckoAPI,
+    readonly idMapping?: InternalToCoinGeckoIdMapping,
+    options: CoinGeckoOptionBag = {}
+  ) {
     super();
-    if (!provider) {
-      const api_key = process.env["COINGECKO_API_KEY"];
+
+    this.ready = this.init();
+  }
+
+  /**
+   * Creates a new CoinGeckoOracle instance with flexible configuration options.
+   *
+   * @param api - Either a custom CoinGeckoAPI instance or an API key string. If undefined,
+   *             attempts to use the COINGECKO_API_KEY environment variable.
+   * @param idMapping - Optional mapping between internal asset IDs and CoinGecko IDs.
+   * @param options - Additional configuration options for the API client.
+   *
+   * @throws {Error} If no API key is provided and COINGECKO_API_KEY environment variable is not set.
+   *
+   * @example
+   * // Using environment variable
+   * const oracle = CoinGeckoOracle.create();
+   *
+   * @example
+   * // Using API key string
+   * const oracle = CoinGeckoOracle.create('your-api-key');
+   *
+   * @example
+   * // Using custom API instance
+   * const api = DefaultCoinGeckoAPI.create('your-api-key');
+   * const oracle = CoinGeckoOracle.create(api);
+   */
+  static create(
+    api?: CoinGeckoAPI | string,
+    idMapping?: InternalToCoinGeckoIdMapping,
+    options: CoinGeckoOptionBag = {}
+  ) {
+    if (api === undefined) {
+      api = process.env["COINGECKO_API_KEY"];
       // ISSUE #25 Check if implicit key retrieval from the environment is:
       // (1) coherent in the whole library
       // (2) desirable
-      if (!api_key) {
+      if (!api) {
         throw Error(
           "You must specify a provider or define the COINGECKO_API_KEY environment variable"
         );
       }
-      provider = new CoinGeckoProvider(api_key);
     }
-    this.provider = provider;
-    this.idMapping = idMapping;
-    this.ready = this.init();
-  }
 
-  static create(
-    api_key: string,
-    idMapping: InternalToCoinGeckoIdMapping | undefined = undefined,
-    options = {} as OptionBag & { origin?: string } // ISSUE #110 Not the canonical way to use option bags
-  ) {
-    return new CoinGecko(
-      new CoinGeckoProvider(
-        api_key,
-        options?.origin ?? COINGECKO_API_BASE_ADDRESS,
+    if (typeof api === "string") {
+      api = DefaultCoinGeckoAPI.create(
+        api,
+        COINGECKO_API_BASE_ADDRESS,
         options
-      ),
-      idMapping
-    );
+      );
+    }
+    return new CoinGeckoOracle(api, idMapping);
   }
 
   async init() {}
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
-    currencies: FiatCurrency[]
-  ): Promise<Partial<Record<FiatCurrency, Price>>> {
-    let prices;
+    fiats: Set<FiatCurrency>,
+    result: PriceMap
+  ): Promise<void> {
     let historical_data: CoinGeckoPriceHistory | undefined;
-    const coinGeckoId = getCoinGeckoId(registry, crypto, this.idMapping);
+    const coinGeckoId = getCoinGeckoId(
+      cryptoRegistry,
+      cryptoMetadata,
+      crypto,
+      this.idMapping
+    );
     if (!coinGeckoId) {
-      return Object.create(null);
+      return;
     }
     try {
       const pricing_date = new Date(date);
       for (let i = 0; i < MAX_HISTORICAL_ATTEMPTS; ++i) {
-        historical_data = (await this.provider.fetch(
-          `coins/${encodeURIComponent(coinGeckoId)}/history`,
-          {
-            date: formatDate("DD-MM-YYYY", pricing_date),
-          }
-        )) as CoinGeckoPriceHistory;
+        historical_data = await this.api.getCoinsHistory(
+          coinGeckoId,
+          pricing_date
+        );
         // ISSUE #111 market_data might be undefined if there is no price for the given date
         if (historical_data.market_data) break;
 
@@ -128,55 +190,65 @@ export class CoinGecko extends Oracle {
         pricing_date.setDate(pricing_date.getDate() - 1);
         log.trace(
           "C1008",
-          `No price found for ${crypto}. Retrying one day earlier`,
-          pricing_date,
-          crypto
+          `No price found for ${crypto.id} at ${pricing_date}. Retrying one day earlier`,
+          crypto.id
         );
       }
 
-      prices = Ensure.isDefined(historical_data).market_data.current_price;
+      Ensure.isDefined(historical_data); // throw an error if the data are mising
     } catch (err) {
       log.trace("C1009", `Error while getting price for ${crypto}: ${err}`);
-      log.debug(date, currencies, crypto, coinGeckoId, historical_data, err);
-      prices = Object.create(null);
+      log.debug(date, fiats, crypto.id, coinGeckoId, historical_data, err);
+      return;
     }
+    const prices = Ensure.isDefined(historical_data).market_data.current_price;
 
-    const result: Record<FiatCurrency, Price> = Object.create(null);
     for (const [key, value] of Object.entries(prices)) {
+      // Sanitize input
       let currency;
       try {
-        currency = FiatCurrency(key);
+        currency = FiatCurrency(key); // Some keys are NOT proper ISO 4712 trigrams ("bits", "sats", "link")
       } catch {
+        continue; // just ignore
+      }
+
+      if (value === undefined) {
         continue;
       }
-      log.info(
+
+      // Everything is OK
+      log.trace(
         "C1002",
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         `Found price for ${crypto}/${currency} at ${date.toISOString()}`
       );
-      result[currency] = GlobalMetadataRegistry.setMetadata(
-        new Price(crypto, currency, value as string),
+      const price = new Price(crypto, currency, value);
+      result.set(currency, price);
+      GlobalMetadataStore.setMetadata(
+        price,
         { origin: "COINGECKO" } // ISSUE #112 Why all-caps?
       );
     }
 
-    return result;
+    return;
   }
 }
 
 export function getCoinGeckoId(
-  registry: CryptoRegistry,
-  crypto: CryptoAsset,
+  cryptoRegistry: CryptoRegistryNG,
+  cryptoMetadata: CryptoMetadata,
+  cryptoAsset: CryptoAsset,
   internalId?: InternalToCoinGeckoIdMapping
 ): string | undefined {
   // 1. Check the standard metadata
-  const metadata = registry.getNamespaces(crypto);
-  const id = metadata?.STANDARD?.coingeckoId;
+  const metadata = cryptoMetadata.getMetadata(cryptoAsset);
+  const id = metadata.coingeckoId;
   if (id) {
     return id;
   }
 
   // 2. Use the internal table
-  return internalToCoinGeckoId(crypto.id, internalId);
+  return internalToCoinGeckoId(cryptoAsset.id, internalId);
 }
 
 function internalToCoinGeckoId(
@@ -189,6 +261,5 @@ function internalToCoinGeckoId(
     return coinGeckoId;
   }
 
-  console.log("CoinGecko id not known for %s.", internalId);
   return undefined;
 }

@@ -11,6 +11,7 @@ import { walk } from "@root/walk";
 import { promises as fs } from "node:fs";
 import { fork } from "node:child_process";
 import path from "node:path";
+import { when } from "./support/test.helper.mjs";
 
 const MOCHA_TIMEOUT = 4000;
 
@@ -91,10 +92,10 @@ async function walker(err: any, pathname: string, dirent: string) {
 
 function addTest(title: string, fct: any) {
   const test = new Test(title, fct);
-  suite.addTest(test);
+  suite?.addTest(test);
 }
 
-const suite = describe("Example programs", async function () {
+const suite = when("EXAMPLES", describe)("Example programs", async function () {
   this.timeout(MOCHA_TIMEOUT);
   this.slow(MOCHA_TIMEOUT / 2);
 });

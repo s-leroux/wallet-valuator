@@ -16,7 +16,7 @@ import {
   SnapshotValuation,
   Value,
 } from "../src/valuation.mjs";
-import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { CryptoMetadata, CryptoRegistryNG } from "../src/cryptoregistry.mjs";
 import { FiatCurrency } from "../src/fiatcurrency.mjs";
 import { testQuantityInterface } from "./support/quantity.helper.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
@@ -57,6 +57,7 @@ describe("SnapshotValuation", () => {
     it("should check if the amount and rate are consistent", () => {
       assert.throws(() => {
         const price = FakeCryptoAsset.ethereum.price(fiat, 5000);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const value = amount.valueAt(price);
       });
     });
@@ -73,7 +74,8 @@ describe("SnapshotValuation", () => {
     ];
 
     it("should create a Valuation instance from holdings", async () => {
-      const registry = CryptoRegistry.create();
+      const cryptoRegistry = CryptoRegistryNG.create();
+      const cryptoMetadata: CryptoMetadata = CryptoMetadata.create();
       const fiatCurrency = FakeFiatCurrency.USD;
       const oracle = new FakeOracle();
       const priceResolver = new PriceResolver(oracle, fiatConverter);
@@ -81,7 +83,8 @@ describe("SnapshotValuation", () => {
       const valuations = await Promise.all(
         snapshots.map((snapshot) =>
           SnapshotValuation.createFromSnapshot(
-            registry,
+            cryptoRegistry,
+            cryptoMetadata,
             priceResolver,
             fiatCurrency,
             snapshot,
@@ -116,7 +119,8 @@ describe("PortfolioValuation", () => {
   const fiatConverter = new NullFiatConverter();
 
   describe("create()", () => {
-    const registry = CryptoRegistry.create();
+    const cryptoRegistry: CryptoRegistryNG = CryptoRegistryNG.create();
+    const cryptoMetadata: CryptoMetadata = CryptoMetadata.create();
     const oracle = FakeOracle.create();
     const fiat = FakeFiatCurrency.EUR;
     const timeStamp = new Date("2024-12-30").getTime() / 1000;
@@ -136,7 +140,8 @@ describe("PortfolioValuation", () => {
       ];
       const snapshots = snapshotsFromMovements(movements);
       const valuation = await PortfolioValuation.create(
-        registry,
+        cryptoRegistry,
+        cryptoMetadata,
         oracle,
         fiatConverter,
         fiat,

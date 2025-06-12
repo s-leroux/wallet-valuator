@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
@@ -10,13 +10,13 @@ import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
 import { Caching, DB_VERSION } from "../../../src/services/oracles/caching.mjs";
 import type { Price } from "../../../src/price.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
-import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import {
-  FiatConverter,
-  NullFiatConverter,
-} from "../../../src/services/fiatconverter.mjs";
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
+import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { setLogLevel } from "../../../src/debug.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 describe("Database", function () {
   // Testing database core features
@@ -50,56 +50,63 @@ describe("Database", function () {
 describe("Caching", function () {
   const date = new Date("2024-12-30");
   const crypto = FakeCryptoAsset.bitcoin;
-  const fiatCurrencies = [FakeFiatCurrency.EUR, FakeFiatCurrency.USD];
+  const { EUR, USD } = FakeFiatCurrency;
+  const fiatCurrencies = new Set([EUR, USD]);
   let oracle: Oracle;
-  let registry: CryptoRegistry;
-  let fiatConverter: FiatConverter;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   /**
    * Check the prices are what we expect from our fake oracle.
    */
-  function checkPrices(prices: Partial<Record<FiatCurrency, Price>>) {
-    assert.equal(Object.values(prices).length, fiatCurrencies.length);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function checkPrices(prices: Map<FiatCurrency, Price>) {
+    // What is the purpose of that function?
+    assert.equal(prices.size, fiatCurrencies.size);
     assert.deepEqual(
-      Object.values(prices).map((price: Price) => ({
+      Array.from(prices.values()).map((price: Price) => ({
         currency: price.fiatCurrency,
         amount: +price.rate,
       })),
       [
-        { currency: fiatCurrencies[0], amount: 89809.00932731242 },
-        { currency: fiatCurrencies[1], amount: 93663.44751964067 },
+        { currency: EUR, amount: 89809.00932731242 },
+        { currency: USD, amount: 93663.44751964067 },
       ]
     );
   }
 
   beforeEach(function () {
     oracle = new FakeOracle();
-    registry = CryptoRegistry.create();
-    fiatConverter = new NullFiatConverter();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("Utilities", () => {
     it("should cache backend data", async function () {
       const cache = new Caching(oracle, ":memory:");
-      let prices;
+      let priceMap: PriceMap;
       assert.equal(cache.backend_calls, 0);
-      prices = await cache.getPrice(
-        registry,
+      priceMap = new Map() as PriceMap;
+      await cache.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
         crypto,
         date,
         fiatCurrencies,
-        fiatConverter
+        priceMap
       );
-      checkPrices(prices);
+      assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
-      prices = await cache.getPrice(
-        registry,
+      priceMap = new Map() as PriceMap;
+      await cache.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
         crypto,
         date,
         fiatCurrencies,
-        fiatConverter
+        priceMap
       );
-      checkPrices(prices);
+      assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
     });
   });

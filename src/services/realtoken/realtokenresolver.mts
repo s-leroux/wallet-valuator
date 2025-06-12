@@ -2,7 +2,11 @@ import { NotImplementedError } from "../../error.mjs";
 
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type {
+  CryptoAssetMetadata,
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../cryptoregistry.mjs";
 import {
   type RealTokenAPI,
   type RealToken,
@@ -26,11 +30,16 @@ type Entry = {
   data: RealToken; // raw data from the API
 };
 
+export interface RealTokenMetadata extends CryptoAssetMetadata {
+  "realtoken.uuid": string;
+}
+
 /**
  * Return the logical crypto-asset associated with an entry.
  */
 function cryptoAssetFromEntry(
-  registry: CryptoRegistry,
+  registry: CryptoRegistryNG,
+  metadata: CryptoMetadata,
   entry: Entry,
   name: string,
   symmbol: string,
@@ -52,10 +61,10 @@ function cryptoAssetFromEntry(
   );
 
   // Record domain specific metadata
-  registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
-  registry.setNamespaceData(crypto, "STANDARD", {
+  metadata.setMetadata<RealTokenMetadata>(crypto, {
     resolver: "realtoken",
     fiscalCategory: "SECURITY",
+    "realtoken.uuid": uuid,
   });
 
   return crypto;
@@ -102,6 +111,7 @@ export class RealTokenResolver extends CryptoResolver {
 
   async resolve(
     swarm: Swarm,
+    cryptoMetadata: CryptoMetadata,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
@@ -127,7 +137,14 @@ export class RealTokenResolver extends CryptoResolver {
 
     return {
       status: "resolved",
-      asset: cryptoAssetFromEntry(swarm.registry, entry, name, symbol, decimal),
+      asset: cryptoAssetFromEntry(
+        swarm.cryptoRegistry,
+        cryptoMetadata,
+        entry,
+        name,
+        symbol,
+        decimal
+      ),
     };
   }
 

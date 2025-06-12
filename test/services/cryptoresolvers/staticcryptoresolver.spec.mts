@@ -7,7 +7,10 @@ import {
   StaticCryptoResolver,
   LogicalCryptoAsset,
 } from "../../../src/services/cryptoresolvers/staticcryptoresolver.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import type { CryptoAsset } from "../../../src/cryptoasset.mjs";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
@@ -51,28 +54,30 @@ const cryptoTable:PhysicalCryptoAsset[] = [
 
 //prettier-ignore
 const domainTable: LogicalCryptoAsset[] = [
-  ["binance coin", "Binance Coin", "BNB", 18, { STANDARD: { coingeckoId: "binancecoin" } }],
-  ["bitcoin", "Bitcoin", "BTC", 8, { STANDARD: { coingeckoId: "bitcoin" } }],
-  ["dai", "Dai Stablecoin", "DAI", 18, { STANDARD: { coingeckoId: "dai" } }],
-  ["ethereum", "Ethereum", "ETH", 18, { STANDARD: { coingeckoId: "ethereum" } }],
-  ["monerium-eure","Monerium EURe", "EURe", 18, { STANDARD: { coingeckoId: "monerium-eur-money" } }],
-  ["solana", "Solana", "SOL", 9, { STANDARD: { coingeckoId: "solana" } }],
-  ["usdc", "USD Coin", "USDC", 6, { STANDARD: { coingeckoId: "usd-coin" } }],
-  ["usdt", "Tether USD", "USDT", 6, { STANDARD: { coingeckoId: "tether" } }],
-  ["wbtc","Wrapped Bitcoin","WBTC" ,8 , { STANDARD: { coingeckoId: "wrapped-bitcoin" } }],
-  ["weth", "Wrapped Ether", "WETH", 18, { STANDARD: { coingeckoId: "weth" } }],
-  ["xdai", "xDai", "xDAI", 18 , { STANDARD: { coingeckoId: "xdai" } }],
+  ["binance coin", "Binance Coin", "BNB", 18, { coingeckoId: "binancecoin" }],
+  ["bitcoin", "Bitcoin", "BTC", 8, { coingeckoId: "bitcoin" }],
+  ["dai", "Dai Stablecoin", "DAI", 18, { coingeckoId: "dai" }],
+  ["ethereum", "Ethereum", "ETH", 18, { coingeckoId: "ethereum" }],
+  ["monerium-eure","Monerium EURe", "EURe", 18, { coingeckoId: "monerium-eur-money" }],
+  ["solana", "Solana", "SOL", 9, { coingeckoId: "solana" }],
+  ["usdc", "USD Coin", "USDC", 6, { coingeckoId: "usd-coin" }],
+  ["usdt", "Tether USD", "USDT", 6, { coingeckoId: "tether" }],
+  ["wbtc","Wrapped Bitcoin","WBTC" ,8 , { coingeckoId: "wrapped-bitcoin" }],
+  ["weth", "Wrapped Ether", "WETH", 18, { coingeckoId: "weth" }],
+  ["xdai", "xDai", "xDAI", 18 , { coingeckoId: "xdai" }],
 ] as const;
 
 describe("StaticCryptoResolver", function () {
   let cryptoResolver: StaticCryptoResolver;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
   let swarm: Swarm;
 
   beforeEach(() => {
     cryptoResolver = StaticCryptoResolver.create(cryptoTable, domainTable);
-    registry = CryptoRegistry.create();
-    swarm = Swarm.create([], registry, cryptoResolver);
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
+    swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, cryptoResolver);
   });
 
   describe("default database", function () {
@@ -85,6 +90,7 @@ describe("StaticCryptoResolver", function () {
     describe("should find well known token by chain, block, and address", function () {
       const register = prepare(this);
       const USDC = ["USD Coin", "USDC", 6] as const;
+      const BTC = ["Bitcoin", "BTC", 8] as const;
 
       // prettier-ignore
       const testcases = [
@@ -92,12 +98,14 @@ describe("StaticCryptoResolver", function () {
         [P, "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", ...USDC ],
         [E, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC ],
         [S, "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", ...USDC ],
+        [B, null, ...BTC],
       ] as const;
 
       for (const [chain, address, name, symbol, decimal] of testcases) {
         register(`case of ${[chain, name]}`, async () => {
           const result = await cryptoResolver.resolve(
             swarm,
+            cryptoMetadata,
             chain,
             12345,
             address,
@@ -106,11 +114,13 @@ describe("StaticCryptoResolver", function () {
             decimal
           );
           if (!result || result.status !== "resolved") {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             assert.fail(`result was ${result}`);
           }
+          const expectedId = chain === B ? "bitcoin" : "usdc";
           assert.strictEqual(
             result.asset,
-            swarm.registry.getCryptoAsset("usdc")
+            swarm.cryptoRegistry.createCryptoAsset(expectedId)
           );
         });
       }
@@ -143,6 +153,7 @@ describe("StaticCryptoResolver", function () {
         register(`case of ${[chain, name]} ${desc}`, async () => {
           const result = await cryptoResolver.resolve(
             swarm,
+            cryptoMetadata,
             chain,
             block,
             address,
@@ -174,6 +185,7 @@ describe("StaticCryptoResolver", function () {
       for (const [chain, address, name, symbol, decimal] of testcases) {
         const result = await cryptoResolver.resolve(
           swarm,
+          cryptoMetadata,
           chain,
           12345,
           address,
@@ -182,14 +194,12 @@ describe("StaticCryptoResolver", function () {
           decimal
         );
         if (!result || result.status !== "resolved") {
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           assert.fail(`result was ${result}`);
         }
-        assert.include(
-          swarm.registry.getNamespaceData(result.asset, "STANDARD"),
-          {
-            coingeckoId: coingeckoId.USDC,
-          }
-        );
+        assert.include(cryptoMetadata.getMetadata(result.asset), {
+          coingeckoId: coingeckoId.USDC,
+        });
         if (first) {
           assert.strictEqual(result.asset, first);
         } else {
@@ -202,28 +212,38 @@ describe("StaticCryptoResolver", function () {
       const USDC = ["USD Coin", "USDC", 6] as const;
 
       // prettier-ignore
-      const testcase = [B,null, "Bitcoin", "BTC", 8] as const
+      const testcase = [
+        [B, null, "Bitcoin", "BTC", 8, "bitcoin"],
+        [E, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", ...USDC, "usd-coin"],
+       ] as const;
 
-      const [chain, address, name, symbol, decimal] = testcase;
-      const result = await cryptoResolver.resolve(
-        swarm,
+      for (const [
         chain,
-        12345,
         address,
         name,
         symbol,
-        decimal
-      );
-      if (!result || result.status !== "resolved") {
-        assert.fail(`result was ${result}`);
-      }
-
-      assert.deepEqual(
-        swarm.registry.getNamespaceData(result.asset, "STANDARD"),
-        {
-          coingeckoId: "bitcoin",
+        decimal,
+        coingeckoId,
+      ] of testcase) {
+        const result = await cryptoResolver.resolve(
+          swarm,
+          cryptoMetadata,
+          chain,
+          12345,
+          address,
+          name,
+          symbol,
+          decimal
+        );
+        if (!result || result.status !== "resolved") {
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          assert.fail(`result was ${result}`);
         }
-      );
+
+        assert.deepEqual(cryptoMetadata.getMetadata(result.asset), {
+          coingeckoId,
+        });
+      }
     });
   });
 });

@@ -1,16 +1,17 @@
 import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { FiatConverter } from "../../services/fiatconverter.mjs";
-import { ImplicitFiatConverter } from "../../services/fiatconverters/implicitfiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
-import { CoinGecko } from "../../services/oracles/coingecko.mjs";
+import { CoinGeckoOracle } from "../../services/oracles/coingecko.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
 import { parseDate } from "../../date.mjs";
+import { PriceMap } from "../../services/oracle.mjs";
+import { CryptoMetadata } from "../../../src/cryptoregistry.mjs";
 
 type ErrCode = "T0001";
 
@@ -31,14 +32,14 @@ function createCryptoResolver(envvars: EnvVars) {
   return DefaultCryptoResolver.create();
 }
 
-function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
+function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
   return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
 function createOracle(envvars: EnvVars) {
   return CompositeOracle.create([
     // My oracles
-    CoinGecko.create(envvars["COINGECKO_API_KEY"]),
+    CoinGeckoOracle.create(envvars["COINGECKO_API_KEY"]),
   ]).cache(envvars["CACHE_PATH"]);
 }
 
@@ -62,35 +63,41 @@ function notFound(id: string): never {
 }
 
 export async function load(start: string, end: string, cryptoids: string[]) {
-  let currDate = parseDate("YYYY-MM-DD", start);
+  const currDate = parseDate("YYYY-MM-DD", start);
   const endDate = parseDate("YYYY-MM-DD", end);
 
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const registry = CryptoRegistry.create();
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
   const oracle = createOracle(envvars);
-  const fiatConverter = ImplicitFiatConverter.create(
-    oracle,
-    registry.createCryptoAsset("bitcoin", "bitcoin", "BTC", 8)
-  );
 
   if (!cryptoids.length) {
     cryptoids = Array.from(resolver.getCryptoIds());
   }
 
   const cryptos = cryptoids.map(
-    (id) => resolver.getCryptoAsset(registry, id) ?? notFound(id)
+    (id) =>
+      resolver.getCryptoAsset(cryptoRegistry, cryptoMetadata, id) ??
+      notFound(id)
   );
 
   while (currDate <= endDate) {
+    // Create a single PriceMap that will be shared across all getPrice calls.
+    // This is safe in JavaScript because:
+    // 1. JavaScript is single-threaded, so Map operations are atomic
+    // 2. Even though we use Promise.all() for concurrent execution, the actual
+    //    Map modifications happen sequentially in the event loop
+    const prices = new Map() as PriceMap;
     await Promise.all(
       cryptos.map((crypto) => {
         return oracle.getPrice(
-          registry,
+          cryptoRegistry,
+          cryptoMetadata,
           crypto,
           currDate,
-          [FiatCurrency("EUR")],
-          fiatConverter
+          new Set([FiatCurrency("EUR")]),
+          prices
         );
       })
     );
@@ -102,9 +109,15 @@ export async function load(start: string, end: string, cryptoids: string[]) {
 export async function processAddresses(hexAddresses: string[]): Promise<void> {
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const registry = CryptoRegistry.create();
-  const explorers = createExplorers(registry, envvars);
-  const swarm = Swarm.create(explorers, registry, resolver);
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
+  const explorers = createExplorers(cryptoRegistry, envvars);
+  const swarm = Swarm.create(
+    explorers,
+    cryptoRegistry,
+    cryptoMetadata,
+    resolver
+  );
   const chain = asBlockchain("gnosis");
   const addresses = await Promise.all(
     hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress))
@@ -123,7 +136,8 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
 
   const oracle = createOracle(envvars);
   const valuation = await portfolio.evaluate(
-    registry,
+    cryptoRegistry,
+    cryptoMetadata,
     oracle,
     null as unknown as FiatConverter,
     FiatCurrency("EUR")

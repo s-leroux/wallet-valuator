@@ -8,7 +8,7 @@ import {
   NormalTransactionRecord,
 } from "../explorer.mjs";
 import { asBlockchain, Blockchain } from "../../blockchain.mjs";
-import { CryptoRegistry } from "../../cryptoregistry.mjs";
+import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.gnosisscan.io/api";
 const GNOSISSCAN_DEFAULT_RETRY = Infinity;
@@ -134,7 +134,7 @@ type JSONRpcVersion = "2.0";
 
 export type GethResponse<T> = {
   jsonrpc: JSONRpcVersion;
-  result: T;
+  result: T | null;
   id: number;
 };
 
@@ -217,7 +217,7 @@ export class GnosisScanAPI {
     return {
       status: iserror ? "0" : "1",
       message: iserror ? `Error finding normal transaction ${txhash}` : "OK",
-      result: response.result,
+      result: response.result!, // XXX This seems a bit forced
     };
   }
 
@@ -291,7 +291,7 @@ export class GnosisScan extends CommonExplorer {
   readonly api: GnosisScanAPI;
 
   constructor(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
     api: GnosisScanAPI,
     chain?: Blockchain
   ) {
@@ -308,7 +308,7 @@ export class GnosisScan extends CommonExplorer {
   }
 
   static create(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
     api_key: string,
     origin: string = GNOSISSCAN_API_BASE_ADDRESS,
     options = {} as any

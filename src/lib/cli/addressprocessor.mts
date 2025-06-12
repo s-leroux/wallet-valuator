@@ -4,13 +4,13 @@ import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
 import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
 import { DisplayOptions, format } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import {
-  CoinGecko,
+  CoinGeckoOracle,
   InternalToCoinGeckoIdMapping,
 } from "../../services/oracles/coingecko.mjs";
 import { IgnoreCryptoResolver } from "../../services/cryptoresolvers/ignorecryptoresolver.mjs";
@@ -25,6 +25,7 @@ import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
 import { MakeAccount } from "../../account.mjs";
 import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
 import { OHLCOracle } from "../../services/oracles/ohlcoracle.mjs";
+import { CryptoMetadata } from "../../../src/cryptometadata.mjs";
 
 type ErrCode = "T0001";
 
@@ -51,11 +52,11 @@ function createCryptoResolver(envvars: EnvVars) {
   ]);
 }
 
-function createExplorers(registry: CryptoRegistry, envvars: EnvVars) {
+function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
   return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
 }
 
-async function createOracle(envvars: EnvVars, registry: CryptoRegistry) {
+async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
   const wellKnownCoingeckoId = WellKnownCryptoAssets.reduce(
     (acc, [key, name, symbol, decimal, metadata]) => {
       acc[key] = metadata.coingeckoId;
@@ -67,7 +68,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistry) {
   return CompositeOracle.create([
     // My oracles
     CurveOracle.create(),
-    CoinGecko.create(envvars["COINGECKO_API_KEY"], wellKnownCoingeckoId),
+    CoinGeckoOracle.create(envvars["COINGECKO_API_KEY"], wellKnownCoingeckoId),
     DefiLlamaOracle.create(undefined, wellKnownCoingeckoId),
     await OHLCOracle.createFromPath(
       registry.createCryptoAsset("bitcoin"),
@@ -123,9 +124,15 @@ export async function processAddresses(configPath?: string): Promise<void> {
   // Initialize core services and dependencies
   const envvars = loadEnvironmentVariables();
   const resolver = createCryptoResolver(envvars);
-  const registry = CryptoRegistry.create();
-  const explorers = createExplorers(registry, envvars);
-  const swarm = Swarm.create(explorers, registry, resolver);
+  const cryptoRegistry = CryptoRegistryNG.create();
+  const cryptoMetadata = CryptoMetadata.create();
+  const explorers = createExplorers(cryptoRegistry, envvars);
+  const swarm = Swarm.create(
+    explorers,
+    cryptoRegistry,
+    cryptoMetadata,
+    resolver
+  );
 
   // Convert hex addresses to internal account objects
   const accounts = await Promise.all(
@@ -159,20 +166,21 @@ export async function processAddresses(configPath?: string): Promise<void> {
   // Apply user-defined filters to categorize transactions
   // This allows for custom tagging of transactions based on rules
   for (const [selector, tag, value] of config.filters ?? []) {
-    ledger.filter(registry, selector).tag(tag, value);
+    ledger.filter(cryptoRegistry, cryptoMetadata, selector).tag(tag, value);
   }
 
   // Create a portfolio representation of all transactions
   const portfolio = ledger.portfolio();
 
   // Set up price oracle and fiat conversion services
-  const bitcoin: CryptoAsset = registry.createCryptoAsset("bitcoin");
-  const oracle = await createOracle(envvars, registry);
+  const bitcoin: CryptoAsset = cryptoRegistry.createCryptoAsset("bitcoin");
+  const oracle = await createOracle(envvars, cryptoRegistry);
   const fiatConverter = ImplicitFiatConverter.create(oracle, bitcoin);
 
   // Calculate the portfolio valuation in EUR
   const valuation = await portfolio.evaluate(
-    registry,
+    cryptoRegistry,
+    cryptoMetadata,
     oracle,
     fiatConverter,
     FiatCurrency("EUR")

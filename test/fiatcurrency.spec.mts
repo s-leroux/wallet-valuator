@@ -18,18 +18,27 @@ describe("FiatCurrency", () => {
     // prettier-ignore
     const testcases = [
       [usd, usd, true],
+      [eur, eur, true],
       [usd, eur, false],
-      [usd, "USD", true],
-      [usd, "EUR", false],
-      ["USD", usd, true],
-      ["EUR", usd, false],
+      // direct comparison with string is no longer supported and should
+      // be flagged by the linter
+      // [usd, "USD", true],
+      // [usd, "EUR", false],
+      // ["USD", usd, true],
+      // ["EUR", usd, false],
       [usd, FiatCurrency("USD"), true],
+      [usd, FiatCurrency("usd"), true],
+      [usd, FiatCurrency("Usd"), true],
       [usd, FiatCurrency("EUR"), false],
-    ];
+    ] as const;
+
     for (const [a, b, expected] of testcases) {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
       register(`case "${a}" "${b}"`, () => {
-        // ISSUE #69 Check if this test should be asymmetric: === vs !=
-        (expected ? assert.strictEqual : assert.notEqual)(a, b);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        const fct = expected ? assert.strictEqual : assert.notEqual;
+        fct(a, b);
+        fct(b, a); // FIXED #69
       });
     }
   });

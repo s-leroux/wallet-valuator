@@ -2,25 +2,25 @@ import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
-import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
+import { Amount, CryptoAsset, CryptoAssetID } from "../src/cryptoasset.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
 
 import { ValueError } from "../src/error.mjs";
-import { CryptoRegistry } from "../src/cryptoregistry.mjs";
 import { testQuantityInterface } from "./support/quantity.helper.mjs";
+import { InstanceCache } from "../src/instancecache.mjs";
 
 const { ethereum, bitcoin } = FakeCryptoAsset;
 
 describe("CryptoAsset", () => {
-  let registry: CryptoRegistry;
+  let cache: InstanceCache<CryptoAssetID, CryptoAsset>;
 
   beforeEach(() => {
-    registry = CryptoRegistry.create();
+    cache = new InstanceCache();
   });
 
   it("should correctly initialize a CryptoAsset instance", () => {
     const crypto = CryptoAsset.create(
-      registry,
+      cache,
       ethereum.id,
       ethereum.name,
       ethereum.symbol,
@@ -35,7 +35,7 @@ describe("CryptoAsset", () => {
 
   it("should convert base unit value to Amount in display unit", () => {
     const crypto = CryptoAsset.create(
-      registry,
+      cache,
       ethereum.id,
       ethereum.name,
       ethereum.symbol,

@@ -147,7 +147,9 @@ export class Provider implements ProviderInterface {
     let payload: Payload;
     try {
       res = await this.semaphore.do(fetch, url);
-      payload = await (is_json(res) ? res.json() : res.text());
+      payload = await (is_json(res)
+        ? (res.json() as Promise<JSONValue>)
+        : res.text());
     } catch (err) {
       return { err, is_error: true };
     }
@@ -176,6 +178,7 @@ export class Provider implements ProviderInterface {
     let { cooldown, retry } = this.options;
     const url = this.buildUrl(endpoint, params as Record<string, string>);
 
+    log.info("C1018", "Fetch", url);
     while (true) {
       const { res, payload, is_error, err } = await this.performFetch(url);
 

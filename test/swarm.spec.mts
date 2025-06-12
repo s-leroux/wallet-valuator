@@ -5,24 +5,32 @@ import { Swarm } from "../src/swarm.mjs";
 import { Explorer } from "../src/services/explorer.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
-import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
 import { Blockchain } from "../src/blockchain.mjs";
 
 const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
 
 describe("Swarm", () => {
-  const cryptoResolver = FakeCryptoResolver.create();
   let chain: Blockchain;
   let explorer: Explorer;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
   let swarm: Swarm;
+  let cryptoResolver: FakeCryptoResolver;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(() => {
     chain = Blockchain.create(CHAIN_NAME);
-    registry = CryptoRegistry.create();
-    explorer = new FakeExplorer(registry, chain);
-    swarm = Swarm.create([explorer], registry, cryptoResolver);
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
+    cryptoResolver = FakeCryptoResolver.create();
+    explorer = new FakeExplorer(cryptoRegistry, chain);
+    swarm = Swarm.create(
+      [explorer],
+      cryptoRegistry,
+      cryptoMetadata,
+      cryptoResolver
+    );
   });
 
   describe("Addresses", () => {
@@ -85,7 +93,7 @@ describe("Swarm", () => {
 
   describe("registry", () => {
     it("should be stored and accessible in the swarm", () => {
-      assert.strictEqual(swarm.registry, registry);
+      assert.strictEqual(swarm.cryptoRegistry, cryptoRegistry);
     });
   });
 });

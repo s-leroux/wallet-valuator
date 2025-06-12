@@ -1,16 +1,20 @@
 import { ValueError } from "../../error.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
+import { FiatCurrency } from "../../fiatcurrency.mjs";
+import type {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../cryptoregistry.mjs";
 
 import { Table } from "../../bsearch.mjs";
 
-import { NotImplementedError, ProtocolError } from "../../error.mjs";
+import { ProtocolError } from "../../error.mjs";
 import { formatDate } from "../../date.mjs";
-import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
+import { BigNumber } from "../../bignumber.mjs";
 import { Oracle } from "../oracle.mjs";
 import { RealTokenAPI, RealTokenEvent } from "./realtokenapi.mjs";
+import type { PriceMap } from "../oracle.mjs";
+import { RealTokenMetadata } from "./realtokenresolver.mjs";
 
 type RealTokenUUID = string & { readonly brand: unique symbol };
 export function RealTokenUUID(uuid: string) {
@@ -84,29 +88,30 @@ export class RealTokenOracle extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[]
-  ): Promise<Record<FiatCurrency, Price>> {
-    const result = {} as Record<FiatCurrency, Price>;
-    const metadata = registry.getNamespaceData(crypto, "REALTOKEN");
+    fiats: Set<FiatCurrency>,
+    result: PriceMap
+  ): Promise<void> {
+    const metadata = cryptoMetadata.getMetadata<RealTokenMetadata>(crypto);
 
     if (!metadata) {
       // We do not handle that crypto
-      return result;
+      return;
     }
 
     for (const fiat of fiats) {
-      if (fiat === "USD") {
+      if (fiat === FiatCurrency("USD")) {
         // check data are loaded before all
         await this.load();
 
-        const uuid = RealTokenUUID(metadata.uuid as string);
+        const uuid = RealTokenUUID(metadata["realtoken.uuid"] as string);
         const priceTable = this.getPriceTable(uuid);
         const entry = priceTable.get(formatDate("YYYYMMDD", date));
         if (entry) {
-          result[fiat] = crypto.price(fiat, entry[1]);
+          result.set(fiat, crypto.price(fiat, entry[1]));
         }
         // If the price is unavailable for the requested date, default to `{}`
         // in accordance with the discussion in:
@@ -115,7 +120,6 @@ export class RealTokenOracle extends Oracle {
         break;
       }
     }
-    return result;
   }
 
   static create(api: RealTokenAPI) {

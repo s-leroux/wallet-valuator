@@ -2,24 +2,34 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { Swarm } from "../../../src/swarm.mjs";
 import { TestScan } from "../../../src/services/explorers/testscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
 
 describe("TestScan", function () {
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
   let cryptoResolver: FakeCryptoResolver;
   let explorer: TestScan;
   let sw: Swarm;
 
   beforeEach(() => {
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
     cryptoResolver = FakeCryptoResolver.create();
-    explorer = new TestScan(registry);
-    sw = Swarm.create([explorer], registry, cryptoResolver);
+    explorer = new TestScan(cryptoRegistry);
+    sw = Swarm.create(
+      [explorer],
+      cryptoRegistry,
+      cryptoMetadata,
+      cryptoResolver
+    );
   });
 
   it("should default to the fake Gnosis chain", () => {
@@ -52,7 +62,6 @@ describe("TestScan", function () {
 
       assert.lengthOf(transactions, 145);
       for (const transaction of transactions) {
-        // @ts-ignore
         assert.isTrue(
           transaction.to.address == address ||
             transaction.from.address == address

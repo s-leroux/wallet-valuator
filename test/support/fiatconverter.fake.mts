@@ -3,7 +3,7 @@ import { FiatConverter } from "../../src/services/fiatconverter.mjs";
 import { InconsistentUnitsError } from "../../src/error.mjs";
 import type { Price } from "../../src/price.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../src/cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../src/cryptoregistry.mjs";
 
 /**
  * A fake fiat converter that always scale by the same amount
@@ -26,7 +26,7 @@ export class FixedFiatConverter extends FiatConverter {
   }
 
   async convert(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
     date: Date,
     price: Price,
     to: FiatCurrency

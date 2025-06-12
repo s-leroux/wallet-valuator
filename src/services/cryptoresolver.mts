@@ -1,5 +1,6 @@
 import { Blockchain } from "../blockchain.mjs";
 import { CryptoAsset } from "../cryptoasset.mjs";
+import { CryptoMetadata } from "../cryptoregistry.mjs";
 import { Swarm } from "../swarm.mjs";
 
 /**
@@ -42,6 +43,7 @@ export abstract class CryptoResolver {
    */
   abstract resolve(
     swarm: Swarm,
+    cryptoMetadata: CryptoMetadata,
     chain: Blockchain,
     block: number,
     smartContractAddress: string, // ISSUE #97 Do we have a special value for native coins?

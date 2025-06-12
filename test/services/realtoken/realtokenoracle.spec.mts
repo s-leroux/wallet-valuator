@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { ValueError } from "../../../src/error.mjs";
 import {
@@ -11,12 +11,17 @@ import {
 } from "../../../src/services/realtoken/realtokenoracle.mjs";
 import { parseDate } from "../../../src/date.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
 import { BigNumber } from "../../../src/bignumber.mjs";
+import { RealTokenMetadata } from "../../../src/services/realtoken/realtokenresolver.mjs";
 
 describe("RealTokenUUID", () => {
   it("can be created from string", () => {
@@ -36,6 +41,7 @@ describe("RealTokenUUID", () => {
       for (const [a, b, expected] of testcases) {
         register(`case "${a}" "${b}"`, () => {
           // ISSUE #69 Check if this test should be asymmetric: === vs !=
+          // eslint-disable-next-line @typescript-eslint/unbound-method
           (expected ? assert.strictEqual : assert.notEqual)(a, b);
         });
       }
@@ -93,7 +99,7 @@ describe("RealTokenOracle", function () {
       oracle = RealTokenOracle.create(api);
     });
 
-    describe("behsavior", async () => {
+    describe("behsavior", () => {
       it("should load the history on demand", async () => {
         assert.equal(oracle.history.size, 0);
         await oracle.load();
@@ -136,7 +142,7 @@ describe("RealTokenOracle", function () {
       });
     });
 
-    describe("should retrieve the token price", async function () {
+    describe("should retrieve the token price", function () {
       const register = prepare(this);
 
       const testcases = [
@@ -151,30 +157,34 @@ describe("RealTokenOracle", function () {
       const fiat = FiatCurrency("USD");
       for (const [date, value] of testcases) {
         register(`case ${date}`, async () => {
-          const registry = CryptoRegistry.create();
-          const crypto = registry.createCryptoAsset(
+          const cryptoRegistry = CryptoRegistryNG.create();
+          const cryptoMetadata = CryptoMetadata.create();
+          const crypto = cryptoRegistry.createCryptoAsset(
             uuid,
             "REALTOKEN-X",
             "REALTOKEN-X",
             18
           );
-          registry.setNamespaceData(crypto, "REALTOKEN", { uuid });
+          cryptoMetadata.setMetadata<RealTokenMetadata>(crypto, {
+            "realtoken.uuid": uuid,
+          });
 
-          const prices = await oracle.getPrice(
-            registry,
+          const priceMap = new Map() as PriceMap;
+          await oracle.getPrice(
+            cryptoRegistry,
+            cryptoMetadata,
             crypto,
             parseDate("YYYYMMDD", date),
-            [fiat]
+            new Set([fiat]),
+            priceMap
           );
 
-          assert.deepEqual(
-            prices,
-            value === null
-              ? {}
-              : {
-                  [fiat]: crypto.price(fiat, value),
-                }
-          );
+          if (value === null) {
+            assert.equal(priceMap.size, 0);
+          } else {
+            assert.isTrue(priceMap.has(fiat));
+            assert.deepEqual(priceMap.get(fiat), crypto.price(fiat, value));
+          }
         });
       }
     });

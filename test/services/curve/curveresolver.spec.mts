@@ -4,7 +4,10 @@ import { prepare } from "../../support/register.helper.mjs";
 
 import { CryptoResolver } from "../../../src/services/cryptoresolver.mjs";
 import { CurveResolver } from "../../../src/services/curve/curveresolver.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { isCryptoAsset } from "../../../src/cryptoasset.mjs";
 
 // Test data
@@ -25,13 +28,15 @@ const TEST_SET = [
 
 describe("CurveResolver", function () {
   let resolver: CryptoResolver;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
   let swarm: Swarm;
 
   beforeEach(() => {
     resolver = new CurveResolver(FakeCurveAPI.create());
-    registry = CryptoRegistry.create();
-    swarm = Swarm.create([], registry, resolver);
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
+    swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, resolver);
   });
 
   describe("resolve()", function () {
@@ -42,6 +47,7 @@ describe("CurveResolver", function () {
         register(`case ${chain} ${name}`, async () => {
           const result = await resolver.resolve(
             swarm,
+            cryptoMetadata,
             chain,
             0,
             contract,
@@ -51,6 +57,7 @@ describe("CurveResolver", function () {
           );
 
           if (!result || result.status !== "resolved") {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             assert.fail(`result was ${result}`);
           }
           assert(isCryptoAsset(result.asset));
@@ -65,6 +72,7 @@ describe("CurveResolver", function () {
         register(`case ${chain} ${name}`, async () => {
           const result = await resolver.resolve(
             swarm,
+            cryptoMetadata,
             chain,
             0,
             contract,
@@ -74,11 +82,11 @@ describe("CurveResolver", function () {
           );
 
           if (!result || result.status !== "resolved")
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             assert.fail(`result was ${result}`);
-          const metadata = swarm.registry.getNamespaceData(
-            result.asset,
-            "CURVE"
-          ) as CurveMetadata;
+          const metadata = cryptoMetadata.getMetadata<CurveMetadata>(
+            result.asset
+          );
           assert.isDefined(metadata);
           assert.equal(metadata.chain, chain.name.toLowerCase());
           assert.equal(metadata.address, contract.toLowerCase());

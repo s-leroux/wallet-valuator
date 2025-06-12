@@ -1,12 +1,13 @@
 import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { type CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 import { ChainAddress } from "../../chainaddress.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
 import { logger } from "../../debug.mjs";
+import { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("curve-resolver");
 
@@ -29,6 +30,7 @@ export class CurveResolver extends CryptoResolver {
     return new CurveResolver(api ?? DefaultCurveAPI.create());
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async load() {
     const tokens = this.tokens;
     /*
@@ -63,7 +65,7 @@ export class CurveResolver extends CryptoResolver {
     if (!poolAddress) {
       log.info(
         "C1016",
-        `Curve pool not found for ${chainName} ${smartContractAddress}`
+        `${chainName} ${smartContractAddress} does not seem a Curve pool`
       );
       return null;
     }
@@ -77,6 +79,7 @@ export class CurveResolver extends CryptoResolver {
 
   async resolve(
     swarm: Swarm,
+    cryptoMetadata: CryptoMetadata,
     chain: Blockchain,
     block: number,
     smartContractAddress: string,
@@ -96,7 +99,11 @@ export class CurveResolver extends CryptoResolver {
       return null;
     }
 
-    function cryptoAsset(registry: CryptoRegistry, entry: Entry): CryptoAsset {
+    function cryptoAsset(
+      cryptoRegistry: CryptoRegistryNG,
+      cryptoMetadata: CryptoMetadata,
+      entry: Entry
+    ): CryptoAsset {
       let crypto = entry.crypto;
       if (crypto) {
         // ISSUE #65 assert the decimal are consistent with what we alreaady know. This is the only critical field
@@ -104,7 +111,7 @@ export class CurveResolver extends CryptoResolver {
         return crypto;
       }
 
-      crypto = entry.crypto = registry.createCryptoAsset(
+      crypto = entry.crypto = cryptoRegistry.createCryptoAsset(
         chainAddress,
         name,
         symbol,
@@ -112,19 +119,19 @@ export class CurveResolver extends CryptoResolver {
       );
 
       // Record domain specific metadata
-      registry.setNamespaceData(crypto, "CURVE", {
+      cryptoMetadata.setMetadata(crypto, {
+        resolver: "curve",
         chain: chain.name.toLowerCase(),
         address: smartContractAddress.toLowerCase(),
         poolAddress: entry.poolAddress?.toLowerCase(),
       } as CurveMetadata);
-      registry.setNamespaceData(crypto, "STANDARD", { resolver: "curve" });
 
       return crypto;
     }
 
     return {
       status: "resolved",
-      asset: cryptoAsset(swarm.registry, entry),
+      asset: cryptoAsset(swarm.cryptoRegistry, cryptoMetadata, entry),
     };
   }
 }

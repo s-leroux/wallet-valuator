@@ -2,14 +2,15 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { Swarm } from "../src/swarm.mjs";
 import { Address } from "../src/address.mjs";
 import type { Explorer } from "../src/services/explorer.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
-import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
+import { Blockchain } from "../src/blockchain.mjs";
 
 import ERC20TokenTransfersFixture from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
 import internalTransactionsFixture from "../fixtures/InternalTransactions.json" with { type: "json" };
@@ -22,20 +23,23 @@ import {
 } from "../src/transaction.mjs";
 import { asBlockchain } from "../src/blockchain.mjs";
 
-const ADDRESS = "0xAddress";
 const CHAIN_NAME = "MyChain";
 
 describe("Swarm and Transaction integration", () => {
-  const cryptoResolver = LazyCryptoResolver.create();
-  const chain = asBlockchain(CHAIN_NAME);
-  let explorer: Explorer;
-  let registry: CryptoRegistry;
   let swarm: Swarm;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoResolver: LazyCryptoResolver;
+  let cryptoMetadata: CryptoMetadata;
+  let explorer: Explorer;
+  let chain: Blockchain;
 
   beforeEach(() => {
-    registry = CryptoRegistry.create();
-    explorer = new TestScan(registry, chain);
-    swarm = Swarm.create([explorer], registry, cryptoResolver);
+    chain = asBlockchain(CHAIN_NAME);
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
+    cryptoResolver = LazyCryptoResolver.create();
+    explorer = new TestScan(cryptoRegistry, chain);
+    swarm = Swarm.create([explorer], cryptoRegistry, cryptoMetadata, cryptoResolver);
   });
 
   describe("NormalTransaction", () => {
@@ -59,9 +63,7 @@ describe("Swarm and Transaction integration", () => {
         timeStamp: "1614763500",
         isError: "0",
       });
-      // @ts-ignore
       assert.instanceOf(tr1.from, Address);
-      // @ts-ignore
       assert.instanceOf(tr1.to, Address);
     });
 

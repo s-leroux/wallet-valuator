@@ -1,11 +1,11 @@
 import type { Price } from "../price.mts";
 import type { FiatCurrency } from "../fiatcurrency.mts";
-import type { CryptoRegistry } from "../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../cryptoregistry.mjs";
 import { NotImplementedError } from "../error.mjs";
 
 export abstract class FiatConverter {
   abstract convert(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
     date: Date,
     from: Price,
     to: FiatCurrency
@@ -17,7 +17,7 @@ export abstract class FiatConverter {
  */
 export class NullFiatConverter extends FiatConverter {
   convert(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
     date: Date,
     from: Price,
     to: FiatCurrency

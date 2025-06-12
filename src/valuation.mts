@@ -6,7 +6,7 @@ import {
 } from "./error.mjs";
 import { BigNumber, BigNumberSource } from "./bignumber.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
-import type { CryptoRegistry } from "./cryptoregistry.mjs";
+import { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
 import type { Price } from "./price.mjs";
 import type { Oracle } from "./services/oracle.mjs";
@@ -93,6 +93,7 @@ export class Value implements Quantity<FiatCurrency, Value> {
   }
 
   toString(): string {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return `${this.value} ${this.fiatCurrency}`;
   }
 
@@ -107,7 +108,7 @@ export class Value implements Quantity<FiatCurrency, Value> {
       options["amount.separator"] ?? defaultDisplayOptions["amount.separator"];
 
     return `${valueFormat(this.value.toString())}${sep}${symbolFormat(
-      this.fiatCurrency
+      this.fiatCurrency.code
     )}`;
   }
 
@@ -235,7 +236,8 @@ export class SnapshotValuation {
   ) {}
 
   static async createFromSnapshot(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     priceResolver: PriceResolver,
     fiatCurrency: FiatCurrency,
     snapshot: Snapshot,
@@ -249,22 +251,27 @@ export class SnapshotValuation {
 
     // Helper function
     async function getPrice(crypto: CryptoAsset): Promise<Price> {
-      const standardMetadata = registry.getNamespaceData(crypto, "STANDARD");
-      if (standardMetadata?.fiscalCategory === "SECURITY") {
+      const metadata = cryptoMetadata.getMetadata(crypto);
+      if (metadata?.fiscalCategory === "SECURITY") {
         // SECURITY tokens have no fiscal price
         return crypto.price(fiatCurrency, 0); // ISSUE #131 Is this correct
       }
       // This is a regular crypto-asset. Use the oracle to get the price.
-      const prices = await priceResolver.getPrice(registry, crypto, date, [
-        fiatCurrency,
-      ]);
+      const prices = await priceResolver.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
+        crypto,
+        date,
+        new Set([fiatCurrency])
+      );
 
-      const price = prices[fiatCurrency];
+      const price = prices.get(fiatCurrency);
       if (price === undefined) {
         // ISSUE #135 This is very unlikely since Priceresolver throws if a price is not found
         // prettier-ignore
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         const message = `Can't price ${crypto.symbol }/${fiatCurrency} at ${date.toISOString()}`;
-        log.warn("C3001", message, registry.getNamespaces(crypto), prices);
+        log.warn("C3001", message, cryptoMetadata.getMetadata(crypto), prices);
         throw new MissingPriceError(crypto, fiatCurrency, date);
       }
 
@@ -350,6 +357,7 @@ export class SnapshotValuation {
   //  String representation
   //========================================================================
   toString(): string {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return `${this.cryptoValueAfter} ${this.fiatCurrency}`;
   }
 
@@ -409,7 +417,8 @@ export class PortfolioValuation implements Iterable<SnapshotValuation> {
   }
 
   static async create(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     oracle: Oracle,
     fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency,
@@ -422,7 +431,8 @@ export class PortfolioValuation implements Iterable<SnapshotValuation> {
     const priceResolver = new PriceResolver(oracle, fiatConverter);
     for (const snapshot of snapshots) {
       curr = await SnapshotValuation.createFromSnapshot(
-        registry,
+        cryptoRegistry,
+        cryptoMetadata,
         priceResolver,
         fiatCurrency,
         snapshot,

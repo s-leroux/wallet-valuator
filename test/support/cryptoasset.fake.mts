@@ -1,6 +1,6 @@
-import { CryptoRegistry } from "../../src/cryptoregistry.mjs";
+import { CryptoRegistryNG } from "../../src/cryptoregistry.mjs";
 
-const InternalRegistry = CryptoRegistry.create();
+const InternalRegistry = CryptoRegistryNG.create();
 console.log("cryptoasset.fake.mts");
 console.dir(InternalRegistry);
 // prettier-ignore

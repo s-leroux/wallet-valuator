@@ -2,9 +2,7 @@ import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
-import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
 import { Price } from "../src/price.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
 
 describe("Price", () => {
   const { ethereum } = FakeCryptoAsset;
@@ -29,6 +27,13 @@ describe("Price", () => {
       assert.strictEqual(price2.crypto, ethereum);
       assert.strictEqual(price2.fiatCurrency, usd);
       assert.strictEqual(+price2.rate, 4000 * 1.1);
+    });
+  });
+
+  describe("toString()", () => {
+    it("should return a string representation of the price", () => {
+      const price = new Price(ethereum, eur, 3000);
+      assert.strictEqual(price.toString(), `${ethereum}/EUR 3000`);
     });
   });
 });

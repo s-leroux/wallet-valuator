@@ -1,10 +1,12 @@
 import type { CryptoAsset } from "../cryptoasset.mjs";
-import type { CryptoRegistry } from "../cryptoregistry.mjs";
+import type { CryptoRegistryNG } from "../cryptoregistry.mjs";
 import type { FiatCurrency } from "../fiatcurrency.mjs";
-import type { FiatConverter } from "./fiatconverter.mjs";
 import type { Price } from "../price.mjs";
+import type { CryptoMetadata } from "../cryptometadata.mts";
 
 import { Caching } from "./oracles/caching.mjs";
+
+export type PriceMap = Map<FiatCurrency, Price>;
 
 /**
  * Oracle is an abstract class representing a service responsible for retrieving the price of a crypto-asset
@@ -18,21 +20,22 @@ export abstract class Oracle {
    * Retrieves the price of a given crypto-asset in the specified fiat currencies on a specific date.
    *
    * @param registry - The registry containing information about crypto-assets.
+   * @param cryptoMetadata - The metadata about the crypto-asset.
    * @param crypto - The crypto-asset for which the price is being retrieved.
    * @param date - The date for which the price is being retrieved.
    * @param fiat - An array of fiat currencies for which the price is being requested.
-   * @param fiatConverter - A converter to help convert between fiat currencies if needed.
-   * @returns A promise that resolves to a record mapping each requested fiat currency to its price.
-   * If the price for a fiat currency is not available, the corresponding property MUST NOT be set
-   * in the result object. The returned record  MAY be a null-prototype object.
+   * @param priceMap - The map to store the retrieved prices. This is an output parameter.
+   * @returns A promise that resolves when the prices have been added to the map.
+   * If the price for a fiat currency is not available, it MUST NOT be added to the map.
    */
   abstract getPrice(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
-    fiat: FiatCurrency[],
-    fiatConverter: FiatConverter
-  ): Promise<Partial<Record<FiatCurrency, Price>>>;
+    fiat: Set<FiatCurrency>,
+    priceMap: PriceMap
+  ): Promise<void>;
 
   /**
    * Enables caching for the Oracle.

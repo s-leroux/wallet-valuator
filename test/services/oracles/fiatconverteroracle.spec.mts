@@ -2,15 +2,19 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FixedFiatConverter } from "../../support/fiatconverter.fake.mjs";
 import type { Oracle } from "../../../src/services/oracle.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 const EPSILON = 1e-12;
 
@@ -19,26 +23,30 @@ describe("FiatConverterOracle", function () {
   const { EUR: eur, USD: usd } = FakeFiatCurrency;
 
   let oracle: Oracle;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
   let fiatConverter: FiatConverter;
 
   beforeEach(async function () {
     const opt = { dateFormat: "YYYY-MM-DD 00:00:00 UTC" };
     // prettier-ignore
-    oracle = await DataSourceOracle.createFromPath(solana,"fixtures/sol-eur-max.csv", {[eur]: "price"}, opt);
-    registry = CryptoRegistry.create();
+    oracle = await DataSourceOracle.createFromPath(solana,"fixtures/sol-eur-max.csv", {[eur.code]: "price"}, opt);
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
     fiatConverter = new FixedFiatConverter(eur, usd, 1.2);
   });
 
   describe("getPrice()", () => {
     it("should use the fiat converter to provide missing prices", async function () {
       const date = new Date("2024-12-05");
-      const prices = await oracle.getPrice(
-        registry,
+      const priceMap = new Map() as PriceMap;
+      await oracle.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
         solana,
         date,
-        [usd, eur],
-        fiatConverter
+        new Set([usd, eur]),
+        priceMap
       );
 
       // This is expected to fail given the new design of the fiat converters.
@@ -50,18 +58,25 @@ describe("FiatConverterOracle", function () {
       // --------------------------------------------------------------
       // The following lines patch the test for the new
       // fiat-conversion-is-caller's-responsibility semantic
-      assert.containsAllKeys(prices, [eur]);
-      prices[usd] = await fiatConverter.convert(
-        registry,
+      assert.isTrue(priceMap.has(eur));
+      const eurPrice = priceMap.get(eur)!;
+      const usdPrice = await fiatConverter.convert(
+        cryptoRegistry,
         date,
-        prices[eur]!,
+        eurPrice,
         usd
       );
+      priceMap.set(usd, usdPrice);
       // --END OF PATCH------------------------------------------------
 
-      assert.containsAllKeys(prices, [eur, usd]);
-      assert.closeTo(+prices[eur]!.rate, 217.91046376268642, EPSILON);
-      assert.closeTo(+prices[usd]!.rate, 217.91046376268642 * 1.2, EPSILON);
+      assert.isTrue(priceMap.has(eur));
+      assert.isTrue(priceMap.has(usd));
+      assert.closeTo(+priceMap.get(eur)!.rate, 217.91046376268642, EPSILON);
+      assert.closeTo(
+        +priceMap.get(usd)!.rate,
+        217.91046376268642 * 1.2,
+        EPSILON
+      );
     });
   });
 });

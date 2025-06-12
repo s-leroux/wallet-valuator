@@ -12,17 +12,24 @@ import { Swarm } from "../src/swarm.mjs";
 import { Ledger } from "../src/ledger.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { GnosisScan } from "../src/services/explorers/gnosisscan.mjs";
-import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { CryptoRegistryNG } from "../src/cryptoregistry.mjs";
+import { CryptoMetadata } from "../src/cryptometadata.mjs";
 import { tabular, toDisplayString } from "../src/displayable.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 
-const registry = CryptoRegistry.create();
+const cryptoRegistry = CryptoRegistryNG.create();
+const cryptoMetadata = CryptoMetadata.create();
 const explorer = program.args.length
-  ? GnosisScan.create(registry, process.env.GNOSISSCAN_API_KEY ?? "")
-  : new TestScan(registry);
+  ? GnosisScan.create(cryptoRegistry, process.env.GNOSISSCAN_API_KEY ?? "")
+  : new TestScan(cryptoRegistry);
 const cryptoResolver = LazyCryptoResolver.create();
 
-const swarm = Swarm.create([explorer], registry, cryptoResolver);
+const swarm = Swarm.create(
+  [explorer],
+  cryptoRegistry,
+  cryptoMetadata,
+  cryptoResolver
+);
 
 // A "random" address found on GnosisScan
 const address = await swarm.address(

@@ -6,13 +6,13 @@ import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptore
 import { Ledger, sort, join } from "../src/ledger.mjs";
 import { OnChainTransaction } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
-import { CryptoRegistry } from "../src/cryptoregistry.mjs";
+import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
+import { Blockchain } from "../src/blockchain.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
 import NormalTransactions from "../fixtures/NormalTransactions.json" with { type: "json" };
 import InternalTransactions from "../fixtures/InternalTransactions.json" with { type: "json" };
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
-import { Blockchain } from "../src/blockchain.mjs";
 
 const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
 const DISPERSE_APP_ADDRESS = "0xd152f549545093347a162dce210e7293f1452150";
@@ -28,7 +28,7 @@ describe("Utilities", () => {
         ["AFECDBAEBE", "AABBCDEEEF"],
       ] as const;
 
-      for (let [src, expected] of useCases) {
+      for (const [src, expected] of useCases) {
         it(`"${src}" is sorted as "${expected}"`, () => {
           const res = sort(s2k(src));
           assert.equal(k2s(res), expected);
@@ -51,7 +51,7 @@ describe("Utilities", () => {
         ["ACE", "BDF", "ABCDEF"],
       ] as const;
 
-      for (let [left, right, expected] of useCases) {
+      for (const [left, right, expected] of useCases) {
         it(`"${left}" ∪ "${right}" = "${expected}"`, () => {
           const res = join(s2k(left), s2k(right));
           assert.equal(k2s(res), expected);
@@ -68,14 +68,16 @@ describe("Ledger", () => {
   let explorer: Explorer;
   let transactions: OnChainTransaction[];
   const cryptoResolver = LazyCryptoResolver.create();
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(async () => {
     ledger = Ledger.create();
-    registry = CryptoRegistry.create();
-    explorer = new FakeExplorer(registry);
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
+    explorer = new FakeExplorer(cryptoRegistry);
     chain = explorer.chain;
-    swarm = Swarm.create([explorer], registry, cryptoResolver);
+    swarm = Swarm.create([explorer], cryptoRegistry, cryptoMetadata, cryptoResolver);
 
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
@@ -152,7 +154,7 @@ describe("Ledger", () => {
       const sentinel = {};
       subset.tag("T", sentinel);
 
-      let n = 0;
+      const n = 0;
       for (const entry of ledger) {
         if (n < 2 || n >= 10) {
           assert.notInclude(entry.tags, "T");

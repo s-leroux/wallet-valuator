@@ -2,6 +2,14 @@ import { CryptoAsset } from "./cryptoasset.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 
 import { BigNumber, BigNumberSource } from "./bignumber.mjs";
+import { GlobalMetadataStore, MetadataFacade } from "./metadata.mjs";
+
+type PriceMetadataType = {
+  origin: string;
+};
+
+export class PriceMetadata extends MetadataFacade<Price, PriceMetadataType> {}
+export const GlobalPriceMetadata = new PriceMetadata(GlobalMetadataStore);
 
 /**
  * Represents the exchange rate between a crypto-asset and a fiat currency.
@@ -44,5 +52,10 @@ export class Price {
 
   mul(v: BigNumberSource): Price {
     return new Price(this.crypto, this.fiatCurrency, this.rate.mul(v));
+  }
+
+  toString() {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    return `${this.crypto}/${this.fiatCurrency} ${this.rate}`;
   }
 }

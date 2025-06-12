@@ -1,13 +1,13 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { FiatCurrency } from "../../fiatcurrency.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import type { Price } from "../../price.mjs";
+import type { FiatCurrency, FiatCurrencyCode } from "../../fiatcurrency.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
+import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 import { formatDate } from "../../date.mjs";
 import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
 import type { DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
-import { Oracle } from "../oracle.mjs";
+import { Oracle, PriceMap } from "../oracle.mjs";
 
 interface DataSourceOracleOptions {
   dateFormat?: string;
@@ -16,7 +16,7 @@ interface DataSourceOracleOptions {
 export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
   readonly crypto: CryptoAsset;
   readonly data: DataSource<string, T>;
-  readonly columMapping: Record<FiatCurrency, string>;
+  readonly columMapping: Record<FiatCurrencyCode, string>;
 
   // option
   readonly dateFormat: string;
@@ -24,7 +24,7 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
   constructor(
     crypto: CryptoAsset,
     data: DataSource<string, T>,
-    columMapping: Record<FiatCurrency, string>,
+    columMapping: Record<FiatCurrencyCode, string>,
     { dateFormat = "YYYY-MM-DD" } = {}
   ) {
     super();
@@ -35,38 +35,36 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
   }
 
   async getPrice(
-    registry: CryptoRegistry,
+    cryptoRegistry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
-    fiats: FiatCurrency[]
-  ): Promise<Partial<Record<FiatCurrency, Price>>> {
-    const result = Object.create(null) as Record<FiatCurrency, Price>;
-
+    fiats: Set<FiatCurrency>,
+    result: PriceMap
+  ): Promise<void> {
     // We do not handle that crypto
     if (crypto !== this.crypto) {
-      return result;
+      return;
     }
 
     const formattedDate = formatDate(this.dateFormat, date);
     // gather the fiat data we have
     for (const fiat of fiats) {
-      if (Object.hasOwn(this.columMapping, fiat)) {
-        const columnName: string = this.columMapping[fiat];
+      if (Object.hasOwn(this.columMapping, fiat.code)) {
+        const columnName: string = this.columMapping[fiat.code];
         const value = this.data.get(formattedDate, columnName)?.at(1);
 
         if (value !== undefined) {
-          result[fiat] = crypto.price(fiat, BigNumber.from(value));
+          result.set(fiat, crypto.price(fiat, BigNumber.from(value)));
         }
       }
     }
-
-    return result;
   }
 
   static async createFromPath(
     crypto: CryptoAsset,
     path: string,
-    columMapping: Record<FiatCurrency, string>,
+    columMapping: Record<FiatCurrencyCode, string>,
     options: DataSourceOracleOptions = {}
   ) {
     const dataSource = await CSVFile.createFromPath(

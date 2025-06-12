@@ -1,13 +1,14 @@
-import { FiatConverter, NullFiatConverter } from "../fiatconverter.mjs";
+import { FiatConverter } from "../fiatconverter.mjs";
 
 import { NotImplementedError, ValueError } from "../../error.mjs";
 import { Price } from "../../price.mjs";
-import { Oracle } from "../oracle.mjs";
+import { Oracle, PriceMap } from "../oracle.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoRegistry } from "../../cryptoregistry.mjs";
-import { GlobalMetadataRegistry } from "../../metadata.mjs";
+import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
 import { logger } from "../../debug.mjs";
+import { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("implicit-fiat-converter");
 
@@ -32,7 +33,7 @@ export class ImplicitFiatConverter implements FiatConverter {
   }
 
   async convert(
-    registry: CryptoRegistry,
+    registry: CryptoRegistryNG,
     date: Date,
     price: Price,
     to: FiatCurrency
@@ -44,16 +45,20 @@ export class ImplicitFiatConverter implements FiatConverter {
       return price;
     }
 
-    const ref = await this.oracle.getPrice(
+    const priceMap = new Map() as PriceMap;
+    const cryptoMetadata = CryptoMetadata.create();
+    cryptoMetadata.setMetadata(this.crypto, {});
+    await this.oracle.getPrice(
       registry,
+      cryptoMetadata,
       this.crypto,
       date,
-      [from, to],
-      new NullFiatConverter() // ISSUE #106 We might use `this` here but isn't there some cases leading to infinite recursion?
+      new Set([from, to]),
+      priceMap
     ); // ISSUE #64 What to do if this fails?
 
-    const toPrice = ref[to];
-    const fromPrice = ref[from];
+    const toPrice = priceMap.get(to);
+    const fromPrice = priceMap.get(from);
 
     if (toPrice === undefined || fromPrice === undefined) {
       throw new NotImplementedError(
@@ -63,11 +68,12 @@ export class ImplicitFiatConverter implements FiatConverter {
 
     log.trace(
       "C1014",
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
       `Synthetize ${price.crypto}/${to} from ${this.crypto} at ${date}`
     );
     const exchangeRage = toPrice.rate.div(fromPrice.rate);
 
-    return GlobalMetadataRegistry.setMetadata(price.to(to, exchangeRage), {
+    return GlobalMetadataStore.setMetadata(price.to(to, exchangeRage), {
       origin: "CONVERTER",
     });
   }

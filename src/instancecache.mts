@@ -1,6 +1,6 @@
 import { logger } from "./debug.mjs";
-import { AssertionError } from "./error.mjs";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const log = logger("instancecache");
 
 /**
@@ -27,7 +27,7 @@ type Atom = string | number;
  *
  * @see {MetadataRegistry} for attaching mutable properties to value objects
  */
-export class InstanceCache<K extends Atom, Obj extends WeakKey> {
+export class InstanceCache<K extends Atom, Obj extends DeepReadonly<WeakKey>> {
   generation: number = 0;
   /*
    * According to the ECMAScript spec, and clarified in relevant V8 / TC39 discussions:
@@ -62,24 +62,51 @@ export class InstanceCache<K extends Atom, Obj extends WeakKey> {
   constructor() {}
 
   /**
-   * Get the object in the cache with the given key, potentially creating
-   * a new instance if not yet cached.
+   * Retrieves an object from the cache by key, or creates and caches a new instance if none exists.
    *
-   * Note: If multiple distinct objects are registered under the same key,
-   * and their lifetime overlaps the behavior is unspecified and we will
-   * no longer guarantee that value objects are identity comparable.
+   * This method ensures that each key maps to a unique object. If an object with the given key
+   * already exists in the cache:
+   * - And a validation function is provided, the cached object is passed to it.
+   * - The validator may throw an error if an inconsistency is detected.
+   * - If validation passes (or no validator is provided), the cached object is returned.
+   *
+   * If no cached object is found, a new one is created using the provided factory function,
+   * added to the cache, and returned.
+   *
+   * Internally, the cache uses `WeakRef` to allow garbage collection of unused objects.
+   * When an object is collected, its associated cache entry is automatically cleaned up.
+   *
+   * @param key - The key to retrieve or create an object for.
+   * @param factory - A function to create a new object if none is found in the cache.
+   * @param validate - Optional function to check the integrity of cached objects. Can throw to abort if validation fails.
+   * @returns The cached or newly created object.
+   *
+   * @example
+   * ```typescript
+   * const cache = new InstanceCache<string, MyObject>();
+   * const obj = cache.getOrCreate(
+   *   "key",
+   *   () => new MyObject(),
+   *   (cached) => {
+   *     if (!cached.isValid()) {
+   *       throw new Error("Cached object is invalid");
+   *     }
+   *   }
+   * );
+   * ```
    */
-  getOrCreate<P extends unknown[]>(
+  getOrCreate(
     key: K,
-    ctor: new (...args: P) => Obj,
-    ...args: P
+    factory: () => Obj,
+    validate?: (cached: Obj) => void
   ): Obj {
     const existing = this.cache.get(key)?.deref();
     if (existing) {
+      validate?.(existing);
       return existing;
     }
 
-    const obj = new ctor(...args);
+    const obj = factory();
     const generation = ++this.generation;
 
     this.cache.set(key, new WeakRef(obj));

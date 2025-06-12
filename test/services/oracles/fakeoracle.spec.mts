@@ -2,20 +2,26 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
+
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { FiatCurrency } from "../../../src/fiatcurrency.mjs";
-import { Price } from "../../../src/price.mjs";
-import { CryptoRegistry } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
+import { PriceMap } from "../../../src/services/oracle.mjs";
 
 describe("FakeOracle", function () {
   let fakeoracle: FakeOracle | undefined;
-  let registry: CryptoRegistry;
+  let cryptoRegistry: CryptoRegistryNG;
+  let cryptoMetadata: CryptoMetadata;
 
   beforeEach(function () {
     fakeoracle = FakeOracle.create();
-    registry = CryptoRegistry.create();
+    cryptoRegistry = CryptoRegistryNG.create();
+    cryptoMetadata = CryptoMetadata.create();
   });
 
   describe("API", () => {});
@@ -33,23 +39,24 @@ describe("FakeOracle", function () {
       ];
 
       for (const [id, date, expected] of test_cases) {
-        const prices = await fakeoracle!.getPrice(
-          registry,
+        const priceMap = new Map() as PriceMap;
+        await fakeoracle!.getPrice(
+          cryptoRegistry,
+          cryptoMetadata,
           bitcoin,
           new Date(date),
-          Object.keys(expected) as FiatCurrency[]
+          new Set(Object.keys(expected).map(FiatCurrency)),
+          priceMap
         );
-        assert.equal(Object.keys(prices).length, Object.keys(expected).length);
-        assert.deepEqual(
-          Object.values(prices).reduce<Partial<typeof expected>>(
-            (acc, price: Price) => {
-              acc[price.fiatCurrency] = +price.rate;
-              return acc;
-            },
-            {}
-          ),
-          expected
-        );
+
+        assert.equal(priceMap.size, Object.keys(expected).length);
+        for (const [currency, expectedRate] of Object.entries(expected)) {
+          const price = priceMap.get(FiatCurrency(currency));
+          assert.exists(price, `Price for ${currency} should exist`);
+          assert.equal(+price.rate, expectedRate);
+          assert.equal(price.fiatCurrency, FiatCurrency(currency));
+          assert.equal(price.crypto, bitcoin);
+        }
       }
     });
   });
