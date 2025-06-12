@@ -1,3 +1,5 @@
+# Wallet Valuator
+
 ## Overview
 
 Wallet Valuator is a TypeScript project that handles cryptocurrency accounting
@@ -54,7 +56,7 @@ exit
 sh$
 ```
 
-# Start 2: Run the node application
+# Stage 2: Run the node application
 
 ```
 sh$ npm start
@@ -90,3 +92,4 @@ Comprehensive documentation and user interface improvements will be added in sub
 ## License
 
 See [LICENSE](LICENSE) file for details.
+
