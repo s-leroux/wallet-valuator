@@ -1,3 +1,9 @@
+/**
+ * Backend logic for generating a wallet valuation report.
+ *
+ * The report consolidates transfers across multiple addresses and
+ * converts their value in EUR for income tax reporting.
+ */
 import { readFile } from "node:fs/promises";
 
 import { Swarm } from "../../../src/swarm.mjs";

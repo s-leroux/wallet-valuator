@@ -14,7 +14,7 @@
   "scripts": {
     "build-container": "sudo docker build --tag \"${npm_package_config_container_tag}\" - < DOCKERFILE",
     "shell-in-container": "env $(echo LOCAL_ENV=1; cat .env) /bin/bash",
-    "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/src/main.mjs",
+    "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/cli/report-cli.mjs",
     "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha 'build/test/**/*.mjs'",
     "lint-in-container": "eslint --fix src test",
     "compile-in-container": "tsc",

@@ -19,7 +19,8 @@ for multiple wallets.  Accounting requirements forced several design changes:
 - tokens stored on different blockchains now map to logical **crypto assets** so
   that a single asset (for example USDC) can be reported regardless of the
   chain it resides on
-- the library gained a command‑line entry point at `cli/blockchain-cli.mts` for
+- the library gained a command‑line entry point at `cli/report-cli.mts` (formerly
+  `blockchain-cli.mts`) for
   processing wallets and generating reports
 
 Today Wallet Valuator is both a library and a CLI application focused on
@@ -71,6 +72,17 @@ sh$ npm run lint
 sh$ npm run shell
 node@2b9634cf5c20:~$ exec npm run lint-in-container
 ```
+
+## CLI Usage
+
+Once the project is compiled you can generate a report from a configuration file
+inside the container:
+
+```sh
+node build/cli/report-cli.mjs --config mywallet.json
+```
+
+The resulting text can be copied directly into your yearly French tax return.
 
 ## Important Notice
 
