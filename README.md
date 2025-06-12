@@ -1,6 +1,30 @@
-A TypeScript library for cryptocurrency portfolio tracking and tax reporting, specifically designed for French tax regulations.
-This project is currently in development with a focus on the core library and backend functionality.
-Documentation and user interface improvements will follow in future updates.
+# Wallet Valuator
+
+## Overview
+
+Wallet Valuator is a TypeScript project that handles cryptocurrency accounting
+and portfolio valuation.  It includes both a reusable library and a command-line
+interface.
+
+Wallet Valuator began as a small TypeScript library to explore on‑chain data.
+The original goal was to let developers navigate the blockchain in code as
+easily as they would through a block explorer such as GnosisScan. Only the
+`Address` and `Transaction` classes were implemented at that time.
+
+The project pivoted when it became necessary to prepare a French tax declaration
+for multiple wallets.  Accounting requirements forced several design changes:
+
+- navigation features became secondary to the ability to aggregate transactions
+  across chains and centralized exchanges (CEXs)
+- tokens stored on different blockchains now map to logical **crypto assets** so
+  that a single asset (for example USDC) can be reported regardless of the
+  chain it resides on
+- the library gained a command‑line entry point at `cli/blockchain-cli.mts` for
+  processing wallets and generating reports
+
+Today Wallet Valuator is both a library and a CLI application focused on
+crypto‑asset tracking and accounting for French regulations.  The interactive
+navigation layer still exists, but accounting is the main focus.
 
 ## Project Status
 
@@ -57,3 +81,4 @@ Comprehensive documentation and user interface improvements will be added in sub
 ## License
 
 See [LICENSE](LICENSE) file for details.
+
