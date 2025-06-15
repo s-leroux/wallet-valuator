@@ -66,8 +66,24 @@ export class Provider implements ProviderInterface {
     this.retries = 0;
   }
 
+  /**
+   * Hook method to inject additional URL search parameters into the request.
+   * Override this method in subclasses to add custom query parameters.
+   * @param search_params - The URLSearchParams object to modify
+   */
   injectExtraParams(search_params: URLSearchParams) {
     // OVERRIDE ME
+  }
+
+  /**
+   * Hook method to add custom HTTP headers to the request.
+   * Override this method in subclasses to add authentication headers or other custom headers.
+   * @param url - The URL object of the request
+   * @returns Record of header name-value pairs to add to the request
+   */
+  buildCustomHeaders(url: URL): Record<string, string> {
+    // OVERRIDE ME
+    return {};
   }
 
   /**
@@ -142,11 +158,11 @@ export class Provider implements ProviderInterface {
    * @param url - The URL to fetch.
    * @returns An object containing the Response (if available), the payload, and an is_error flag.
    */
-  private async performFetch(url: URL) {
+  private async performFetch(url: URL, customHeaders: Record<string, string>) {
     let res: Response;
     let payload: Payload;
     try {
-      res = await this.semaphore.do(fetch, url);
+      res = await this.semaphore.do(fetch, url, { headers: customHeaders });
       payload = await (is_json(res)
         ? (res.json() as Promise<JSONValue>)
         : res.text());
@@ -177,10 +193,14 @@ export class Provider implements ProviderInterface {
 
     let { cooldown, retry } = this.options;
     const url = this.buildUrl(endpoint, params as Record<string, string>);
+    const customHeaders = this.buildCustomHeaders(url);
 
     log.info("C1018", "Fetch", url);
     while (true) {
-      const { res, payload, is_error, err } = await this.performFetch(url);
+      const { res, payload, is_error, err } = await this.performFetch(
+        url,
+        customHeaders
+      );
 
       if (is_error) {
         log.warn("C2002", `Failed to download ${url}`);
