@@ -2,7 +2,7 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 chai.use(chaiAsPromised);
-const assert = chai.assert;
+const assert: Chai.Assert = chai.assert;
 import {
   JSONAtom,
   Payload,
@@ -34,6 +34,13 @@ class TestProvider extends Provider {
 
   injectExtraParams(search_params: URLSearchParams) {
     search_params.set("apiKey", FAKE_API_KEY);
+  }
+
+  buildCustomHeaders(url: URL): Record<string, string> {
+    return {
+      "X-Test-Header": "test-value",
+      "X-Custom-Header": "custom-value",
+    };
   }
 
   isError(res: Response, payload: Payload) {
@@ -98,5 +105,33 @@ describe("Provider", function () {
       provider.fetch("status/418", {}),
       "status code 418"
     );
+  });
+
+  it("inject custom headers", async function () {
+    const provider = new TestProvider();
+    const payload = (await provider.fetch("headers", {})) as HttpBinResponse;
+
+    assert.isObject(payload);
+    assert.isObject(payload.headers);
+
+    // Verify our custom headers are present
+    assert.equal(payload.headers["X-Test-Header"], "test-value");
+    assert.equal(payload.headers["X-Custom-Header"], "custom-value");
+
+    // Verify some common default headers are still present
+    const expectedDefaultHeaders = [
+      "User-Agent",
+      "Accept",
+      "Accept-Encoding",
+      "Host",
+    ];
+
+    for (const header of expectedDefaultHeaders) {
+      assert.property(
+        payload.headers,
+        header,
+        `Default header '${header}' should be present`
+      );
+    }
   });
 });

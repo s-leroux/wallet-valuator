@@ -50,6 +50,7 @@ export const ERRORS = {
   "C3014": "Key not found (memoizer)",
   "C3015": "Invalid currency format (FiatCurrency)",
   "C3016": "CryptoAsset already registered (CryptoRegistry)",
+  "C3017": "Invalid API key (RealTokenProvider)",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

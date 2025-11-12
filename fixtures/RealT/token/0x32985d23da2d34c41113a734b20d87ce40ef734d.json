@@ -1,0 +1,141 @@
+{
+  "fullName": "LOAN 15375 Freeland St, Detroit, MI 48227",
+  "shortName": "LOAN 15375 Freeland",
+  "symbol": "REALTOKEN-SL-15375-FREELAND-ST-DETROIT-MI",
+  "productType": "loan_income",
+  "tokenPrice": 50.91,
+  "canal": "release",
+  "currency": "USD",
+  "totalTokens": 1100,
+  "totalTokensRegSummed": 1100,
+  "uuid": "0x32985d23da2d34c41113a734b20d87ce40ef734d",
+  "ethereumContract": "0x32985d23da2d34c41113a734b20d87ce40ef734d",
+  "xDaiContract": "0x32985d23da2d34c41113a734b20d87ce40ef734d",
+  "gnosisContract": "0x32985d23da2d34c41113a734b20d87ce40ef734d",
+  "goerliContract": null,
+  "totalInvestment": 56000,
+  "grossRentYear": 6160,
+  "grossRentMonth": 513.33333333333,
+  "propertyManagement": 0,
+  "propertyManagementPercent": 0,
+  "realtPlatform": 0,
+  "realtPlatformPercent": 0,
+  "insurance": 0,
+  "propertyTaxes": 0,
+  "utilities": 0,
+  "initialMaintenanceReserve": null,
+  "netRentDay": 16.876712328767,
+  "netRentMonth": 513.33333333333,
+  "netRentYear": 6160,
+  "netRentDayPerToken": 0.015342465753425,
+  "netRentMonthPerToken": 0.46666666666667,
+  "netRentYearPerToken": 5.6,
+  "annualPercentageYield": 11,
+  "coordinate": {
+    "lat": "42.403382",
+    "lng": "-83.185794"
+  },
+  "marketplaceLink": "https://realt.co/product/15375-freeland-st-detroit-mi-48227/",
+  "imageLink": [
+    "https://realt.co/wp-content/uploads/2025/06/15375-Freeland-front-side-2.jpg",
+    "https://realt.co/wp-content/uploads/2025/06/15375-Freeland-front-side.jpg",
+    "https://realt.co/wp-content/uploads/2025/06/15375-Freeland-side-1.jpg",
+    "https://realt.co/wp-content/uploads/2025/06/15375-Freeland-back-1.jpg",
+    "https://realt.co/wp-content/uploads/2025/06/15375-Freeland-door-1.jpg"
+  ],
+  "propertyType": 1,
+  "propertyTypeName": "Single Family",
+  "squareFeet": 1608,
+  "lotSize": 3789,
+  "bedroomBath": "5 Beds / 2 Baths",
+  "hasTenants": null,
+  "rentedUnits": 1,
+  "totalUnits": 1,
+  "termOfLease": null,
+  "renewalDate": null,
+  "section8paid": null,
+  "subsidyStatus": "no",
+  "subsidyStatusValue": null,
+  "subsidyBy": null,
+  "sellPropertyTo": "intl_investors_only",
+  "secondaryMarketplace": {
+    "UniswapV1": 0,
+    "UniswapV2": 0
+  },
+  "secondaryMarketplaces": [
+    {
+      "chainId": 100,
+      "chainName": "xDaiChain",
+      "dexName": "LevinSwap",
+      "contractPool": "0x2298602f43EE124d5059C8D565075d6ecfd22d6e"
+    }
+  ],
+  "blockchainAddresses": {
+    "ethereum": {
+      "chainName": "Ethereum",
+      "chainId": 1,
+      "contract": "0x32985d23da2d34c41113a734b20d87ce40ef734d",
+      "distributor": "0x46c78cafa3264688514c8C48f6C457AA7004fa32",
+      "maintenance": "0x2944c261Fe6bFbED7e432fcf66a860af7aF7033a"
+    },
+    "xDai": {
+      "chainName": "xDaiChain",
+      "chainId": 100,
+      "contract": "0x32985d23da2d34c41113a734b20d87ce40ef734d",
+      "distributor": "0x46c78cafa3264688514c8C48f6C457AA7004fa32",
+      "rmmPoolAddress": 0,
+      "rmmV3WrapperAddress": 0,
+      "chainlinkPriceContract": 0
+    },
+    "sepolia": {
+      "chainName": "Sepolia testnet",
+      "chainId": 11155111,
+      "contract": 0,
+      "distributor": 0,
+      "rmmPoolAddress": 0,
+      "chainlinkPriceContract": 0
+    }
+  },
+  "underlyingAssetPrice": 56000,
+  "renovationReserve": null,
+  "propertyMaintenanceMonthly": 0,
+  "rentStartDate": {
+    "date": "2025-08-01 00:00:00.000000",
+    "timezone_type": 3,
+    "timezone": "UTC"
+  },
+  "lastUpdate": {
+    "date": "2025-06-13 14:47:27.000000",
+    "timezone_type": 3,
+    "timezone": "UTC"
+  },
+  "originSecondaryMarketplaces": [
+    {
+      "chainId": 100,
+      "chainName": "xDaiChain",
+      "dexName": "LevinSwap",
+      "contractPool": "0x2298602f43EE124d5059C8D565075d6ecfd22d6e"
+    }
+  ],
+  "initialLaunchDate": {
+    "date": "2025-06-13 00:00:00.000000",
+    "timezone_type": 3,
+    "timezone": "UTC"
+  },
+  "seriesNumber": 790,
+  "constructionYear": 1931,
+  "constructionType": "Brick / Frame",
+  "roofType": "Asphalt",
+  "assetParking": null,
+  "foundation": null,
+  "heating": "Gas / Forced Air",
+  "cooling": null,
+  "tokenIdRules": 100778,
+  "rentCalculationType": "constant",
+  "realtListingFeePercent": null,
+  "realtListingFee": null,
+  "miscellaneousCosts": null,
+  "propertyStories": null,
+  "rentalType": "long_term",
+  "neighborhood": "Belmont"
+}

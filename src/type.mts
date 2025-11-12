@@ -56,6 +56,14 @@ export class Ensure {
     return obj as NotUndefined<T>;
   }
 
+  static isNonEmptyString(obj: unknown): string {
+    const type = typeof obj;
+    if (type !== "string" || obj === "") {
+      throw new TypeError(`Expected a non-empty string but got ${obj}`);
+    }
+    return obj as string;
+  }
+
   static ownsProperty<T>(obj: T, property: string): T {
     if (typeof obj !== "object" || obj === null) {
       throw new TypeError(`Expected object but got ${typeof obj}`);
