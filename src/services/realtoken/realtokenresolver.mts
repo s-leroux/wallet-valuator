@@ -78,8 +78,18 @@ export class RealTokenResolver extends CryptoResolver {
     this.tokens = new Map();
   }
 
-  static create(api?: RealTokenAPI) {
-    return new RealTokenResolver(api ?? DefaultRealTokenAPI.create());
+  static create(api?: RealTokenAPI | string) {
+    let resolvedApi: RealTokenAPI;
+
+    if (typeof api === "string") {
+      resolvedApi = DefaultRealTokenAPI.create(api);
+    } else if (api === undefined) {
+      resolvedApi = DefaultRealTokenAPI.create(null);
+    } else {
+      resolvedApi = api;
+    }
+
+    return new RealTokenResolver(resolvedApi);
   }
 
   async load() {

@@ -15,7 +15,7 @@ describe("RealTokenAPI", function () {
 
   describe("token()", function () {
     it("should return a list of token:", async function () {
-      const provider = new RealTokenProvider();
+      const provider = new RealTokenProvider(null);
       const api = new DefaultRealTokenAPI(provider);
 
       const actual = await api.token();
@@ -40,7 +40,7 @@ describe("RealTokenAPI", function () {
 
   describe("tokenHistory()", function () {
     it("should return a list of token:", async function () {
-      const provider = new RealTokenProvider();
+      const provider = new RealTokenProvider(null);
       const api = new DefaultRealTokenAPI(provider);
 
       const actual = await api.tokenHistory();

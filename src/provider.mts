@@ -57,7 +57,7 @@ export class Provider implements ProviderInterface {
     // FIXED #67 Create a type for the option bag
     this.base = base;
     this.options = Object.assign(
-      Object.create(null),
+      Object.create(null) as ProviderOptionBag,
       defaultProviderOptions,
       options
     );
@@ -83,7 +83,10 @@ export class Provider implements ProviderInterface {
    */
   buildCustomHeaders(url: URL): Record<string, string> {
     // OVERRIDE ME
-    return {};
+    return {
+      // @ts-expect-error TypeScript does not know about null-prototype literal objects
+      __proto__: null,
+    };
   }
 
   /**
