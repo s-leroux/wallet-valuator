@@ -7,10 +7,14 @@ import { Provider } from "../../provider.mjs";
 import { Oracle } from "../oracle.mjs";
 
 import { logger as logger } from "../../debug.mjs";
-import { GlobalMetadataStore } from "../../metadata.mjs";
+import { GlobalPriceMetadata } from "../../price.mjs";
 import { PriceMap } from "../oracle.mjs";
 import { Ensure } from "../../type.mjs";
 import { CryptoMetadata } from "../../cryptoregistry.mjs";
+import {
+  baseConfidenceForOrigin,
+  DEFAULT_BASE_CONFIDENCE,
+} from "../../priceconfidence.mjs";
 
 const log = logger("coingecko");
 
@@ -222,12 +226,15 @@ export class CoinGeckoOracle extends Oracle {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         `Found price for ${crypto}/${currency} at ${date.toISOString()}`
       );
-      const price = new Price(crypto, currency, value);
-      result.set(currency, price);
-      GlobalMetadataStore.setMetadata(
-        price,
-        { origin: "COINGECKO" } // ISSUE #112 Why all-caps?
+      const price = GlobalPriceMetadata.setMetadata(
+        new Price(crypto, currency, value),
+        {
+          origin: "COINGECKO",
+          confidence:
+            baseConfidenceForOrigin("COINGECKO") ?? DEFAULT_BASE_CONFIDENCE,
+        }
       );
+      result.set(currency, price);
     }
 
     return;

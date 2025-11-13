@@ -62,7 +62,12 @@ ALTER TABLE prices ADD COLUMN origin INTEGER REFERENCES dictionary (rowid);
 INSERT OR REPLACE INTO db_metadata (key, value) VALUES ('version', 'v2');
 `;
 
-export const DB_VERSION = "v2";
+const DB_UPDATE_TO_V3 = `
+ALTER TABLE prices ADD COLUMN confidence REAL;
+INSERT OR REPLACE INTO db_metadata (key, value) VALUES ('version', 'v3');
+`;
+
+export const DB_VERSION = "v3";
 
 export class Caching /*extends Oracle*/ {
   // We cannot extend Oracle due to circular dependencies
@@ -157,6 +162,11 @@ export class Caching /*extends Oracle*/ {
     this.db.exec(DB_UPDATE_TO_V2);
   }
 
+  updateDbToV3() {
+    log.info("C1003", `Updating the DB to v3`);
+    this.db.exec(DB_UPDATE_TO_V3);
+  }
+
   updateDb() {
     const dbVersion = this.dbVersion();
     switch (dbVersion) {
@@ -171,6 +181,11 @@ export class Caching /*extends Oracle*/ {
         })();
       // falls through
       case "v2":
+        this.db.transaction(() => {
+          this.updateDbToV3();
+        })();
+      // falls through
+      case "v3":
         break;
       default:
         throw new AssertionError(`Unrecognized DB version ${dbVersion}`);
@@ -180,7 +195,7 @@ export class Caching /*extends Oracle*/ {
   insertPrice(date: string, prices: PriceMap): void {
     // ISSUE #108 Above ^^ Use a Date parameter
     const stmt = this.db.prepare(
-      "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin) VALUES (?,?,?,?,?)"
+      "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin, confidence) VALUES (?,?,?,?,?,?)"
     );
     for (const price of prices.values()) {
       log.trace(
@@ -192,12 +207,14 @@ export class Caching /*extends Oracle*/ {
       const metadata = GlobalPriceMetadata.getMetadata(price);
       const origin =
         (metadata?.origin && this.dictionary(metadata.origin)) || undefined;
+      const confidence = metadata?.confidence;
       stmt.run(
         price.crypto.id,
         date,
         price.fiatCurrency.code,
         price.rate.toFixed(),
-        origin
+        origin,
+        confidence
       );
     }
   }
@@ -212,13 +229,23 @@ export class Caching /*extends Oracle*/ {
   ): Promise<void> {
     const dateYyyyMmDd = date.toISOString().substring(0, 10); // XXX replace with formatDate
     const missing: FiatCurrency[] = [];
-    const stmt = this.db.prepare<[string, string, string], { price: number }>(
-      "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
+    const stmt = this.db.prepare<
+      [string, string, string],
+      { price: number; origin: string | null; confidence: number | null }
+    >(
+      "SELECT price, d.value AS origin, confidence FROM prices LEFT JOIN dictionary AS d ON prices.origin = d.rowid WHERE oracle_id = ? AND date = ? AND currency = ?"
     );
     for (const currency of currencies) {
       const row = stmt.get(crypto.id, dateYyyyMmDd, currency.code);
       if (row) {
-        result.set(currency, crypto.price(currency, row.price));
+        const price = GlobalPriceMetadata.setMetadata(
+          crypto.price(currency, row.price),
+          {
+            origin: row.origin ?? undefined,
+            confidence: row.confidence ?? undefined,
+          }
+        );
+        result.set(currency, price);
       } else {
         log.trace(
           "C1007",

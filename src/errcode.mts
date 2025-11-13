@@ -22,6 +22,7 @@ export const ERRORS = {
   "C1017": "An error was thrown while fetching URL (Provider)",
   "C1018": "Fetch (Provider)",
   "C1019": "Price not found (CurveOracle)",
+  "C1020": "Unable to retrieve historical reference price (ImplicitFiatConverter)",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",

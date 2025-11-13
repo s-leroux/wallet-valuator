@@ -15,6 +15,7 @@ import { DefiLlamaOracle } from "../../../src/services/defillama/defillamaoracle
 import { FakeDefiLlamaAPI } from "../../support/defillamaapi.fake.mjs";
 import { DefiLlamaAPI } from "../../../src/services/defillama/defillamaapi.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { GlobalPriceMetadata } from "../../../src/price.mjs";
 
 const INTERNAL_TO_COINGECKO_ID = {
   bitcoin: "bitcoin",
@@ -50,6 +51,8 @@ describe("DefiLlamaOracle", function () {
 
       assert.isTrue(priceMap.has(USD));
       assert.equal(+priceMap.get(USD)!.rate, 26966.11831093055);
+      const metadata = GlobalPriceMetadata.getMetadata(priceMap.get(USD)!);
+      assert.deepEqual(metadata, { origin: "DEFILLAMA", confidence: 0.99 });
     });
   });
 });

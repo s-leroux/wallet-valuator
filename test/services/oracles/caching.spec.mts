@@ -17,6 +17,11 @@ import {
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { setLogLevel } from "../../../src/debug.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { GlobalPriceMetadata } from "../../../src/price.mjs";
+import {
+  baseConfidenceForOrigin,
+  DEFAULT_BASE_CONFIDENCE,
+} from "../../../src/priceconfidence.mjs";
 
 describe("Database", function () {
   // Testing database core features
@@ -108,6 +113,40 @@ describe("Caching", function () {
       );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
+    });
+
+    it("should preserve metadata when serving cached prices", async function () {
+      const cache = new Caching(oracle, ":memory:");
+      const expectedConfidence =
+        baseConfidenceForOrigin("COINGECKO") ?? DEFAULT_BASE_CONFIDENCE;
+
+      const warmup = new Map() as PriceMap;
+      await cache.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
+        crypto,
+        date,
+        fiatCurrencies,
+        warmup
+      );
+
+      const cached = new Map() as PriceMap;
+      await cache.getPrice(
+        cryptoRegistry,
+        cryptoMetadata,
+        crypto,
+        date,
+        fiatCurrencies,
+        cached
+      );
+
+      const price = cached.get(EUR);
+      assert.isDefined(price);
+      const metadata = price && GlobalPriceMetadata.getMetadata(price);
+      assert.deepEqual(metadata, {
+        origin: "COINGECKO",
+        confidence: expectedConfidence,
+      });
     });
   });
 });
