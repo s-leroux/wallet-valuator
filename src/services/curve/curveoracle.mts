@@ -5,10 +5,14 @@ import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { Oracle } from "../oracle.mjs";
 import { CurveAPI, DefaultCurveAPI } from "./curveapi.mjs";
 import { CurveMetadata } from "./curvecommon.mjs";
-import { GlobalMetadataStore } from "../../metadata.mjs";
+import { GlobalPriceMetadata } from "../../price.mjs";
 import type { PriceMap } from "../oracle.mjs";
 import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 import { logger } from "../../debug.mjs";
+import {
+  baseConfidenceForOrigin,
+  DEFAULT_BASE_CONFIDENCE,
+} from "../../priceconfidence.mjs";
 
 const log = logger("curveoracle");
 
@@ -81,9 +85,13 @@ export class CurveOracle extends Oracle {
       return;
     }
 
-    const price = GlobalMetadataStore.setMetadata(
+    const price = GlobalPriceMetadata.setMetadata(
       cryptoAsset.price(USD, priceAsNumber),
-      { origin: "CURVE" }
+      {
+        origin: "CURVE",
+        confidence:
+          baseConfidenceForOrigin("CURVE") ?? DEFAULT_BASE_CONFIDENCE,
+      }
     );
     result.set(USD, price);
   }

@@ -117,6 +117,7 @@
     "src/memoizer.mts",
     "src/portfolio.mts",
     "src/price.mts",
+    "src/priceconfidence.mts",
     "src/priceresolver.mts",
     "src/promise.mts",
     "src/provider.mts",

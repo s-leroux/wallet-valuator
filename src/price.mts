@@ -4,8 +4,9 @@ import type { FiatCurrency } from "./fiatcurrency.mjs";
 import { BigNumber, BigNumberSource } from "./bignumber.mjs";
 import { GlobalMetadataStore, MetadataFacade } from "./metadata.mjs";
 
-type PriceMetadataType = {
-  origin: string;
+export type PriceMetadataType = {
+  origin?: string;
+  confidence?: number;
 };
 
 export class PriceMetadata extends MetadataFacade<Price, PriceMetadataType> {}

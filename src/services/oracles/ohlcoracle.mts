@@ -8,10 +8,14 @@ import type { CSVFileOptionBag, DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
 import { Oracle } from "../oracle.mjs";
 import { logger } from "../../debug.mjs";
-import { GlobalMetadataStore } from "../../metadata.mjs";
+import { GlobalPriceMetadata } from "../../price.mjs";
 import type { FiatConverter } from "../fiatconverter.mjs";
 import type { PriceMap } from "../oracle.mjs";
 import type { CryptoMetadata } from "../../cryptoregistry.mjs";
+import {
+  baseConfidenceForOrigin,
+  DEFAULT_BASE_CONFIDENCE,
+} from "../../priceconfidence.mjs";
 
 const log = logger("ohlc-oracle");
 
@@ -72,9 +76,13 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
         this.fiat,
         BigNumber.sum(high, low, close).div(3)
       );
-      GlobalMetadataStore.setMetadata(price, { origin: this.origin });
+      GlobalPriceMetadata.setMetadata(price, {
+        origin: this.origin,
+        confidence:
+          baseConfidenceForOrigin(this.origin) ?? DEFAULT_BASE_CONFIDENCE,
+      });
       result.set(this.fiat, price);
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+       
       log.trace("C1012", `Found ${price} at ${formattedDate}`);
     } else {
       log.trace("C1011", `Date not found: ${formattedDate}`);

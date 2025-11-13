@@ -6,9 +6,17 @@ import { Oracle, PriceMap } from "../oracle.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
-import { GlobalMetadataStore } from "../../metadata.mjs";
+import { GlobalPriceMetadata } from "../../price.mjs";
 import { logger } from "../../debug.mjs";
 import { CryptoMetadata } from "../../cryptoregistry.mjs";
+import {
+  BTC_PROXY_CONFIDENCE_FACTOR,
+  DEFAULT_BASE_CONFIDENCE,
+  clampConfidence,
+  metadataConfidence,
+  sourceConsistencyFactor,
+  volatilityFactorFromRates,
+} from "../../priceconfidence.mjs";
 
 const log = logger("implicit-fiat-converter");
 
@@ -73,8 +81,51 @@ export class ImplicitFiatConverter implements FiatConverter {
     );
     const exchangeRage = toPrice.rate.div(fromPrice.rate);
 
-    return GlobalMetadataStore.setMetadata(price.to(to, exchangeRage), {
+    let previousReference;
+    try {
+      const previousDate = new Date(date);
+      previousDate.setUTCDate(previousDate.getUTCDate() - 1);
+      const previousPriceMap = new Map() as PriceMap;
+      await this.oracle.getPrice(
+        registry,
+        cryptoMetadata,
+        this.crypto,
+        previousDate,
+        new Set([from]),
+        previousPriceMap
+      );
+      previousReference = previousPriceMap.get(from);
+    } catch (err) {
+      log.trace("C1020", "Unable to retrieve previous reference price", err);
+    }
+
+    const baseMetadata = GlobalPriceMetadata.getMetadata(price);
+    const fromMetadata = GlobalPriceMetadata.getMetadata(fromPrice);
+    const toMetadata = GlobalPriceMetadata.getMetadata(toPrice);
+
+    const baseConfidence = metadataConfidence(
+      baseMetadata,
+      DEFAULT_BASE_CONFIDENCE
+    );
+    const sourceFactor = sourceConsistencyFactor(
+      fromMetadata.origin,
+      toMetadata.origin
+    );
+    const volatilityFactor = volatilityFactorFromRates(
+      fromPrice.rate,
+      previousReference?.rate
+    );
+
+    const convertedConfidence = clampConfidence(
+      baseConfidence *
+        BTC_PROXY_CONFIDENCE_FACTOR *
+        sourceFactor *
+        volatilityFactor
+    );
+
+    return GlobalPriceMetadata.setMetadata(price.to(to, exchangeRage), {
       origin: "CONVERTER",
+      confidence: convertedConfidence,
     });
   }
 }
