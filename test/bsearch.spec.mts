@@ -18,6 +18,13 @@ describe("Table", function () {
     assert.notEqual(table.toArray(), table.table);
   });
 
+  it("can be created from a single tuple", function () {
+    const data: [string, number][] = [["A", 1]];
+
+    const table = new Table(data);
+    assert.deepEqual(table.toArray(), data);
+  });
+
   it("expects ordered data", function () {
     const data: [string, number][] = [
       ["A", 1],

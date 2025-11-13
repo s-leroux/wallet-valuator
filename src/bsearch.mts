@@ -43,7 +43,7 @@ export class Table<K extends unknown, T extends readonly [K, ...unknown[]]>
 
     // check pre-conditions
     check(
-      table.length > 1,
+      table.length > 0,
       ValueError,
       "The table must contain at least one element"
     );
