@@ -15,6 +15,7 @@ import { CryptoMetadata } from "../../cryptoregistry.mjs";
 const log = logger("coingecko");
 
 const COINGECKO_API_BASE_ADDRESS = "https://api.coingecko.com/api/v3/";
+const COINGECKO_BASE_CONFIDENCE = 0.99;
 const MAX_HISTORICAL_ATTEMPTS = 30; // try up to 30 days in the past to find a price
 
 export type InternalToCoinGeckoIdMapping = {
@@ -222,11 +223,14 @@ export class CoinGeckoOracle extends Oracle {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         `Found price for ${crypto}/${currency} at ${date.toISOString()}`
       );
-      const price = new Price(crypto, currency, value);
+      const price = new Price(crypto, currency, value, COINGECKO_BASE_CONFIDENCE);
       result.set(currency, price);
       GlobalMetadataStore.setMetadata(
         price,
-        { origin: "COINGECKO" } // ISSUE #112 Why all-caps?
+        {
+          origin: "COINGECKO",
+          confidence: COINGECKO_BASE_CONFIDENCE,
+        } // ISSUE #112 Why all-caps?
       );
     }
 

@@ -11,6 +11,8 @@ import { CSVFile } from "../../../src/csvfile.mjs";
 import { BigNumber } from "../../../src/bignumber.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { GlobalMetadataStore } from "../../../src/metadata.mjs";
+import type { Price } from "../../../src/price.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -80,6 +82,13 @@ describe("OHLCOracle", function () {
             assert.equal(price.rate.toFixed(4), expected);
             assert.equal(price.fiatCurrency, USD);
             assert.equal(price.crypto, bitcoin);
+            assert.equal(price.confidence, 0.85);
+            const metadata = GlobalMetadataStore.getMetadata<
+              Price,
+              { origin?: string; confidence?: number }
+            >(price);
+            assert.strictEqual(metadata.origin, "OHLC");
+            assert.strictEqual(metadata.confidence, price.confidence);
           }
         });
       }

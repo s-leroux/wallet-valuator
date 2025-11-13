@@ -18,6 +18,7 @@ const log = logger("ohlc-oracle");
 interface OHLCOracleOptions {
   dateFormat?: string;
   origin?: string;
+  confidence?: number;
 }
 
 /**
@@ -29,6 +30,7 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
   // option
   readonly dateFormat: string;
   readonly origin: string;
+  readonly confidence: number;
 
   constructor(
     readonly crypto: CryptoAsset,
@@ -39,6 +41,7 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     super();
     this.dateFormat = options.dateFormat ?? "YYYY-MM-DD";
     this.origin = options.origin?.toLocaleUpperCase() ?? "OHLC";
+    this.confidence = options.confidence ?? 0.85;
   }
 
   async getPrice(
@@ -70,9 +73,13 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
     if (high && low && close) {
       const price = crypto.price(
         this.fiat,
-        BigNumber.sum(high, low, close).div(3)
+        BigNumber.sum(high, low, close).div(3),
+        this.confidence
       );
-      GlobalMetadataStore.setMetadata(price, { origin: this.origin });
+      GlobalMetadataStore.setMetadata(price, {
+        origin: this.origin,
+        confidence: this.confidence,
+      });
       result.set(this.fiat, price);
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       log.trace("C1012", `Found ${price} at ${formattedDate}`);

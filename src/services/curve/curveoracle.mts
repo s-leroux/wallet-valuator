@@ -13,6 +13,7 @@ import { logger } from "../../debug.mjs";
 const log = logger("curveoracle");
 
 const USD = FiatCurrency("USD");
+const CURVE_BASE_CONFIDENCE = 0.97;
 
 export class CurveOracle extends Oracle {
   private constructor(readonly api: CurveAPI) {
@@ -82,8 +83,8 @@ export class CurveOracle extends Oracle {
     }
 
     const price = GlobalMetadataStore.setMetadata(
-      cryptoAsset.price(USD, priceAsNumber),
-      { origin: "CURVE" }
+      cryptoAsset.price(USD, priceAsNumber, CURVE_BASE_CONFIDENCE),
+      { origin: "CURVE", confidence: CURVE_BASE_CONFIDENCE }
     );
     result.set(USD, price);
   }

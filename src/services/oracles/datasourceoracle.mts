@@ -8,9 +8,12 @@ import { BigNumber, BigNumberSource } from "../../bignumber.mjs";
 import type { DataSource } from "../../csvfile.mjs";
 import { CSVFile } from "../../csvfile.mjs";
 import { Oracle, PriceMap } from "../oracle.mjs";
+import { GlobalMetadataStore } from "../../metadata.mjs";
 
 interface DataSourceOracleOptions {
   dateFormat?: string;
+  confidence?: number;
+  origin?: string;
 }
 
 export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
@@ -20,18 +23,22 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
 
   // option
   readonly dateFormat: string;
+  readonly confidence: number;
+  readonly origin: string;
 
   constructor(
     crypto: CryptoAsset,
     data: DataSource<string, T>,
     columMapping: Record<FiatCurrencyCode, string>,
-    { dateFormat = "YYYY-MM-DD" } = {}
+    { dateFormat = "YYYY-MM-DD", confidence = 0.85, origin = "YAHOO" } = {}
   ) {
     super();
     this.crypto = crypto;
     this.data = data;
     this.columMapping = columMapping;
     this.dateFormat = dateFormat;
+    this.confidence = confidence;
+    this.origin = origin;
   }
 
   async getPrice(
@@ -55,7 +62,16 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
         const value = this.data.get(formattedDate, columnName)?.at(1);
 
         if (value !== undefined) {
-          result.set(fiat, crypto.price(fiat, BigNumber.from(value)));
+          const price = crypto.price(
+            fiat,
+            BigNumber.from(value),
+            this.confidence
+          );
+          GlobalMetadataStore.setMetadata(price, {
+            origin: this.origin,
+            confidence: this.confidence,
+          });
+          result.set(fiat, price);
         }
       }
     }
