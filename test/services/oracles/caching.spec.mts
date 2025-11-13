@@ -97,6 +97,9 @@ describe("Caching", function () {
       );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
+      for (const price of priceMap.values()) {
+        assert.strictEqual(price.confidence, 1);
+      }
       priceMap = new Map() as PriceMap;
       await cache.getPrice(
         cryptoRegistry,
@@ -108,6 +111,9 @@ describe("Caching", function () {
       );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
+      for (const price of priceMap.values()) {
+        assert.strictEqual(price.confidence, 1);
+      }
     });
   });
 });

@@ -10,6 +10,8 @@ import {
 } from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { GlobalMetadataStore } from "../../../src/metadata.mjs";
+import type { Price } from "../../../src/price.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -52,6 +54,13 @@ describe("DataSourceOracle", function () {
         assert.equal(+price.rate, 93_966.82);
         assert.equal(price.fiatCurrency, eur);
         assert.equal(price.crypto, bitcoin);
+        assert.equal(price.confidence, 0.85);
+        const metadata = GlobalMetadataStore.getMetadata<
+          Price,
+          { origin?: string; confidence?: number }
+        >(price);
+        assert.strictEqual(metadata.origin, "YAHOO");
+        assert.strictEqual(metadata.confidence, price.confidence);
       }
     });
   });

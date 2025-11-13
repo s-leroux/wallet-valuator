@@ -16,6 +16,7 @@ import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 const log = logger("defillama-oracle");
 
 const USD = FiatCurrency("USD");
+const DEFILLAMA_BASE_CONFIDENCE = 0.98;
 
 export class DefiLlamaOracle extends Oracle {
   private constructor(
@@ -46,11 +47,12 @@ export class DefiLlamaOracle extends Oracle {
 
     const assetId = `coingecko:${coinGeckoId}`;
     const prices = await this.api.getHistoricalPrices(date, [assetId]);
-    const { price } = prices.coins[assetId]; // USD price!
+    const { price, confidence } = prices.coins[assetId]; // USD price!
+    const priceConfidence = confidence ?? DEFILLAMA_BASE_CONFIDENCE;
 
     const priceAsUSD = GlobalMetadataStore.setMetadata(
-      crypto.price(USD, price),
-      { origin: "DEFILLAMA" }
+      crypto.price(USD, price, priceConfidence),
+      { origin: "DEFILLAMA", confidence: priceConfidence }
     );
     result.set(USD, priceAsUSD);
     log.info("C1003", `Found price for ${crypto}/USD at ${date.toISOString()}`);

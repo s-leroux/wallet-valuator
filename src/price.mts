@@ -3,9 +3,12 @@ import type { FiatCurrency } from "./fiatcurrency.mjs";
 
 import { BigNumber, BigNumberSource } from "./bignumber.mjs";
 import { GlobalMetadataStore, MetadataFacade } from "./metadata.mjs";
+import { ValueError } from "./error.mjs";
 
 type PriceMetadataType = {
   origin: string;
+  confidence?: number;
+  volatilityChangePercent?: number;
 };
 
 export class PriceMetadata extends MetadataFacade<Price, PriceMetadataType> {}
@@ -28,30 +31,55 @@ export class Price {
   readonly crypto: CryptoAsset;
   readonly fiatCurrency: FiatCurrency;
   readonly rate: BigNumber;
+  readonly confidence: number;
 
   constructor(
     crypto: CryptoAsset,
     fiatCurrency: FiatCurrency,
-    rate: BigNumberSource
+    rate: BigNumberSource,
+    confidence: number = 1
   ) {
     this.crypto = crypto;
     this.fiatCurrency = fiatCurrency;
     this.rate = BigNumber.from(rate);
+    if (!Number.isFinite(confidence)) {
+      throw new ValueError("Invalid confidence value: must be finite");
+    }
+    if (confidence < 0 || confidence > 1) {
+      throw new ValueError(
+        "Invalid confidence value: must be in the [0, 1] range"
+      );
+    }
+    this.confidence = confidence;
   }
 
   /**
    *  Convert a price to another fiat currency given the exchange rate.
    */
-  to(destinationCurrency: FiatCurrency, exchangeRate: BigNumberSource) {
+  to(
+    destinationCurrency: FiatCurrency,
+    exchangeRate: BigNumberSource,
+    confidence: number = this.confidence
+  ) {
     return new Price(
       this.crypto,
       destinationCurrency,
-      this.rate.mul(exchangeRate)
+      this.rate.mul(exchangeRate),
+      confidence
     );
   }
 
   mul(v: BigNumberSource): Price {
-    return new Price(this.crypto, this.fiatCurrency, this.rate.mul(v));
+    return new Price(
+      this.crypto,
+      this.fiatCurrency,
+      this.rate.mul(v),
+      this.confidence
+    );
+  }
+
+  withConfidence(confidence: number): Price {
+    return new Price(this.crypto, this.fiatCurrency, this.rate, confidence);
   }
 
   toString() {

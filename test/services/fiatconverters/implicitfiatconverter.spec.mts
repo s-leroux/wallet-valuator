@@ -13,6 +13,8 @@ import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { GlobalMetadataStore } from "../../../src/metadata.mjs";
+import type { Price } from "../../../src/price.mjs";
 
 describe("ImplicitFiatConverter", function () {
   const { bitcoin, ethereum } = FakeCryptoAsset;
@@ -60,6 +62,14 @@ describe("ImplicitFiatConverter", function () {
         100,
         error
       );
+      const expectedConfidence = 0.88 * 0.98 * 0.98;
+      assert.approximately(result.confidence, expectedConfidence, 0.000001);
+      const metadata = GlobalMetadataStore.getMetadata<
+        Price,
+        { origin?: string; confidence?: number }
+      >(result);
+      assert.strictEqual(metadata.origin, "CONVERTER");
+      assert.strictEqual(metadata.confidence, result.confidence);
     });
   });
 });

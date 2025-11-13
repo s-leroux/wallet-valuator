@@ -6,6 +6,7 @@ import { formatDate } from "../../src/date.mjs";
 import type { FiatConverter } from "../../src/services/fiatconverter.mjs";
 import type { PriceMap } from "../../src/services/oracle.mjs";
 import type { CryptoMetadata } from "../../src/cryptoregistry.mjs";
+import { GlobalMetadataStore } from "../../src/metadata.mjs";
 
 // From coingecko v3/coins/currency/history
 // for d in $(seq 25 30); do
@@ -44,7 +45,14 @@ export class FakeOracle extends Oracle {
     const prices = dataRecord[2];
 
     for (const fiat of fiats) {
-      result.set(fiat, crypto.price(fiat, prices[fiat.toString().toLowerCase()]));
+      const confidence = 1;
+      const price = crypto.price(
+        fiat,
+        prices[fiat.toString().toLowerCase()],
+        confidence
+      );
+      GlobalMetadataStore.setMetadata(price, { origin: "FAKE", confidence });
+      result.set(fiat, price);
     }
   }
 

@@ -53,6 +53,8 @@ describe("CompositeOracle", function () {
       if (usdPrice && eurPrice) {
         assert.equal(+usdPrice.rate, 229.06669921453178);
         assert.equal(+eurPrice.rate, 217.91046376268642);
+        assert.strictEqual(usdPrice.confidence, 0.85);
+        assert.strictEqual(eurPrice.confidence, 0.85);
       }
     });
   });

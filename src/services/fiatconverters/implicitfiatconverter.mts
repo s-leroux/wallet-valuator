@@ -12,6 +12,60 @@ import { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 const log = logger("implicit-fiat-converter");
 
+const BTC_PROXY_FACTOR = 0.88;
+const SOURCE_CONSISTENCY_FACTORS = {
+  same_source: 0.98,
+  different_tier1: 0.94,
+  mixed_quality: 0.9,
+} as const;
+const DEFAULT_VOLATILITY_FACTOR = 0.98;
+const TIER1_ORIGINS = new Set(["COINGECKO", "DEFILLAMA", "CURVE"]);
+
+type PriceMetadataSnapshot = {
+  origin?: string;
+  confidence?: number;
+  volatilityChangePercent?: number;
+};
+
+function clampConfidence(value: number) {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
+}
+
+function getSourceConsistencyFactor(originA?: string, originB?: string) {
+  if (originA && originB && originA === originB) {
+    return SOURCE_CONSISTENCY_FACTORS.same_source;
+  }
+
+  if (originA && originB) {
+    const bothTier1 = TIER1_ORIGINS.has(originA) && TIER1_ORIGINS.has(originB);
+    if (bothTier1) {
+      return SOURCE_CONSISTENCY_FACTORS.different_tier1;
+    }
+  }
+
+  return SOURCE_CONSISTENCY_FACTORS.mixed_quality;
+}
+
+function getVolatilityFactor(changePercent?: number) {
+  if (changePercent === undefined) {
+    return DEFAULT_VOLATILITY_FACTOR;
+  }
+  const absChange = Math.abs(changePercent);
+  if (absChange < 2) return 0.98;
+  if (absChange < 5) return 0.95;
+  if (absChange < 10) return 0.92;
+  return 0.88;
+}
+
 export class ImplicitFiatConverter implements FiatConverter {
   readonly oracle: Oracle;
   readonly crypto: CryptoAsset;
@@ -66,6 +120,30 @@ export class ImplicitFiatConverter implements FiatConverter {
       );
     }
 
+    const toMetadata =
+      GlobalMetadataStore.getMetadata<Price, PriceMetadataSnapshot>(toPrice);
+    const fromMetadata =
+      GlobalMetadataStore.getMetadata<Price, PriceMetadataSnapshot>(fromPrice);
+
+    const baseConfidence = Math.min(
+      toPrice.confidence,
+      fromPrice.confidence
+    );
+    const sourceConsistencyFactor = getSourceConsistencyFactor(
+      fromMetadata.origin,
+      toMetadata.origin
+    );
+    const volatilityChangePercent =
+      toMetadata.volatilityChangePercent ??
+      fromMetadata.volatilityChangePercent;
+    const volatilityFactor = getVolatilityFactor(volatilityChangePercent);
+    const combinedConfidence = clampConfidence(
+      baseConfidence *
+        BTC_PROXY_FACTOR *
+        sourceConsistencyFactor *
+        volatilityFactor
+    );
+
     log.trace(
       "C1014",
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -73,8 +151,13 @@ export class ImplicitFiatConverter implements FiatConverter {
     );
     const exchangeRage = toPrice.rate.div(fromPrice.rate);
 
-    return GlobalMetadataStore.setMetadata(price.to(to, exchangeRage), {
-      origin: "CONVERTER",
-    });
+    return GlobalMetadataStore.setMetadata(
+      price.to(to, exchangeRage, combinedConfidence),
+      {
+        origin: "CONVERTER",
+        confidence: combinedConfidence,
+        volatilityChangePercent,
+      }
+    );
   }
 }
