@@ -62,11 +62,24 @@ export function parseDate(format: string | RegExp, date: string) {
   }
 
   if (/^\d+$/.test(`${year}${month}${day}`)) {
-    return new Date(
-      parseInt(year, 10),
-      parseInt(month, 10) - 1,
-      parseInt(day, 10)
-    );
+    const yearNumber = parseInt(year, 10);
+    const monthNumber = parseInt(month, 10);
+    const dayNumber = parseInt(day, 10);
+
+    const parsedDate = new Date(yearNumber, monthNumber - 1, dayNumber);
+
+    const isValidDate =
+      parsedDate.getUTCFullYear() === yearNumber &&
+      parsedDate.getUTCMonth() + 1 === monthNumber &&
+      parsedDate.getUTCDate() === dayNumber;
+
+    if (!isValidDate) {
+      throw new ValueError(
+        `${date} is not a valid calendar date`
+      );
+    }
+
+    return parsedDate;
   }
 
   throw new ValueError(
