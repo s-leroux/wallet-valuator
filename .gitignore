@@ -40,6 +40,10 @@ node_modules
 
 # VSCode
 .vscode
+.vscode-server/
+.dotnet/
+.gitconfig
+
 
 # Mocha
 .mocharc.js

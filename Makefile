@@ -44,6 +44,17 @@ docker-test: docker-image
 		--mount type=bind,src="$(WORKSPACE)/user",dst=/home \
 		"$(DOCKER_IMAGE_TAG)" /bin/sh -c "npm test"
 
+
+# Start a new container and run the linter in fix mode
+docker-lint: docker-image
+	$(DOCKER) run --rm \
+		--memory=3g \
+		--user "$$(id -u):$$(id -g)" \
+		-e TERM="$$TERM" \
+		--mount type=bind,src="$(WORKSPACE)",dst=/app \
+		--mount type=bind,src="$(WORKSPACE)/user",dst=/home \
+		"$(DOCKER_IMAGE_TAG)" /bin/sh -c "npm lint"
+
 DEV_CONTAINER ?=
 vscode:
 ifndef DEV_CONTAINER

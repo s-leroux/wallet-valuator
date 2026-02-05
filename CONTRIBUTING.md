@@ -17,7 +17,20 @@ Thank you for considering contributing to this project! By following these guide
 
 ## Getting Started
 
-To be defined
+To begin working on the project, first build the Docker image and then launch a shell inside the container:
+
+```bash
+make docker-image
+make docker-shell
+```
+
+Once inside the container, install the Node.js dependencies:
+
+```bash
+npm install
+```
+
+Now you are ready to compile the TypeScript sources and run tests.
 
 ---
 
@@ -26,7 +39,7 @@ To be defined
 Throughout the project, I have tried to be consistent with the following definitions, especially regarding naming files, classes, variables, and other code artifacts.
 
 - **crypto** (or better **crypto-asset**): a generic term for coins, cryptocurrencies, rwa, tokens, or similar, stored on-chain.
-- **fiat** (or better **fiat-currency**): a generic term for government-issued currency. Fiat currencies are identified by *ISO 4217 currency codes*, a 3-letter code usually made from the country and currency initial: USD, GBP, JPY. A notable exception is EUR for euros.
+- **fiat** (or better **fiat-currency**): a generic term for government-issued currency. Fiat currencies are identified by _ISO 4217 currency codes_, a 3-letter code usually made from the country and currency initial: USD, GBP, JPY. A notable exception is EUR for euros.
 
 ---
 
@@ -100,10 +113,12 @@ let someValue: string | undefined; // `undefined` indicates the variable is not 
 In certain classes, it may be necessary to use both **explicit property declarations** and **implicit property declarations through constructor parameters**. This pattern can improve readability and align with the separation of responsibilities within a class.
 
 #### When to Use Mixed Styles
+
 - Use **implicit declarations** for **dependencies** that are injected into the class, such as services, utilities, or helpers. These parameters should be concise and require minimal initialization logic.
 - Use **explicit declarations** for **data properties** that represent the class's core state or require complex initialization, transformation, or validation logic.
 
 #### Benefits
+
 - **Clarity**: Clearly distinguishes between injected dependencies and the core state of the class.
 - **Responsibility Separation**: Aligns with dependency injection patterns while maintaining flexibility for state initialization.
 - **Reduced Boilerplate**: Keeps constructors concise for dependency injection.
@@ -114,7 +129,7 @@ In certain classes, it may be necessary to use both **explicit property declarat
 class UserService {
   constructor(
     private readonly apiClient: ApiClient, // Dependency Injection
-    private readonly logger: Logger // Dependency Injection
+    private readonly logger: Logger, // Dependency Injection
   ) {}
 
   // Explicitly declared data properties
@@ -125,7 +140,7 @@ class UserService {
     apiClient: ApiClient,
     logger: Logger,
     username: string,
-    age: number
+    age: number,
   ) {
     this.apiClient = apiClient;
     this.logger = logger;
@@ -144,6 +159,7 @@ class UserService {
 ```
 
 #### Guidelines
+
 - Keep **implicit declarations** concise and limited to injected dependencies.
 - Use **explicit declarations** for properties that require additional processing or are integral to the class's state.
 - Avoid mixing styles in small or simple classes where one style is sufficient.
@@ -158,6 +174,7 @@ class UserService {
 When returning a `Record<K, V>`, prefer using **null-prototype objects** (`Object.create(null)`) over plain objects (`{}`). This prevents unintended prototype pollution and avoids accidental property lookups on `Object.prototype`.
 
 **Example:**
+
 ```ts
 // Preferred:
 const myRecord: Record<string, number> = Object.create(null);
@@ -174,16 +191,12 @@ This practice ensures that lookups in the record only access explicitly assigned
 
 ## Testing
 
-All compilation and testing should be done within the Docker container defined by the `Dockerfile` at the root of the project. To set up and use the container, ensure you follow the instructions in the project's README.
+All compilation and testing should be done within the Docker container defined by `docker/Dockerfile`. To set up and use the container, ensure you follow the instructions in the project's README.
 
 All new features and fixes must include test coverage. Follow these steps for testing:
 
 1. Write unit tests using [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/).assert.
-2. Run tests inside the container to verify:
+2. Run tests using `make docker-test`:
    ```bash
-   npm run test-in-container
+   make docker-test
    ```
-
-Thank you for contributing to this project! Your efforts help make it better for everyone.
-
-

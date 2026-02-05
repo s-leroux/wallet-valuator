@@ -3,7 +3,7 @@
 ## Overview
 
 Wallet Valuator is a TypeScript project that handles cryptocurrency accounting
-and portfolio valuation.  It includes both a reusable library and a command-line
+and portfolio valuation. It includes both a reusable library and a command-line
 interface.
 
 Wallet Valuator began as a small TypeScript library to explore on‑chain data.
@@ -12,7 +12,7 @@ easily as they would through a block explorer such as GnosisScan. Only the
 `Address` and `Transaction` classes were implemented at that time.
 
 The project pivoted when it became necessary to prepare a French tax declaration
-for multiple wallets.  Accounting requirements forced several design changes:
+for multiple wallets. Accounting requirements forced several design changes:
 
 - navigation features became secondary to the ability to aggregate transactions
   across chains and centralized exchanges (CEXs)
@@ -24,12 +24,12 @@ for multiple wallets.  Accounting requirements forced several design changes:
   processing wallets and generating reports
 
 Today Wallet Valuator is both a library and a CLI application focused on
-crypto‑asset tracking and accounting for French regulations.  The interactive
+crypto‑asset tracking and accounting for French regulations. The interactive
 navigation layer still exists, but accounting is the main focus.
 
 ## Project Status
 
-🚧 **Under Active Development (06-2025)** 🚧
+🚧 **Under Active Development (02-2026)** 🚧
 
 # Stage 0
 
@@ -38,39 +38,48 @@ After that we will work in a specific container.
 
 # Stage 1: Create and start the container
 
-```
-sh$ npm run build-container
-sh$ npm run shell
-node@52939f3b198e:~$ npm install
-node@52939f3b198e:~$ npx tsc
+First, build the container image:
 
-node@52939f3b198e:~$ pwd
-/home
-node@52939f3b198e:~$ ls -l
-total 12
--rw-rw-r-- 1 node node  841 Oct  1 07:58 DOCKERFILE
--rw-rw-r-- 1 node node 1071 Oct  1 07:56 LICENSE
--rw-rw-r-- 1 node node 1136 Oct  1 08:15 package.json
-node@52939f3b198e:~$ whoami
-node
+```sh
+make docker-image
+```
+
+Then, launch an interactive shell inside the container. This is where you'll perform most development tasks:
+
+```sh
+make docker-shell
+```
+
+Once inside the container, you will need to install Node.js dependencies:
+
+```
+node@...:~$ npm install
+```
+
+And then you can compile the TypeScript sources:
+
+```
+node@...:~$ npx tsc
+# or using make from the host
+# make docker-compile
 ```
 
 # Stage 2: Run Mocha
 
-```
-sh$ npm test
-# or
-sh$ npm run shell
-node@2b9634cf5c20:~$ exec npm run test-in-container
+To run the tests:
+
+```sh
+make docker-test
 ```
 
 # Stage 3: Run ESLint
 
-```
-sh$ npm run lint
-# or
-sh$ npm run shell
-node@2b9634cf5c20:~$ exec npm run lint-in-container
+To run the linter, you must first enter the container shell using `make docker-shell`, then execute the npm command:
+
+```sh
+make docker-shell
+# Inside the container:
+node@...:~$ npm run lint-in-container
 ```
 
 ## CLI Usage
@@ -93,4 +102,3 @@ Comprehensive documentation and user interface improvements will be added in sub
 ## License
 
 See [LICENSE](LICENSE) file for details.
-
