@@ -49,7 +49,7 @@ node_modules
 /*.sqlite3
 
 # Docker
-/docker-user/
+/user/
 
 # Package manager
 node_ignore/**/*

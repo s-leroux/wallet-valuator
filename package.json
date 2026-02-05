@@ -1,5 +1,5 @@
 {
-  "name": "typescriptdemo",
+  "name": "wallet-vaaluator",
   "workspaces": [
     "."
   ],
@@ -7,33 +7,23 @@
   "description": "Library and CLI for crypto-asset tracking and accounting, with a focus on French tax reporting",
   "main": "index.js",
   "config": {
-    "container": {
-      "tag": "wallet-valuator/dev:2.0.1"
-    }
   },
   "scripts": {
-    "build-container": "sudo docker build --tag \"${npm_package_config_container_tag}\" - < DOCKERFILE",
-    "shell-in-container": "env $(echo LOCAL_ENV=1; cat .env) /bin/bash",
-    "start-in-container": "env $(echo LOCAL_ENV=1; cat .env) node -r source-map-support/register build/cli/report-cli.mjs",
-    "test-in-container": "env $(echo LOCAL_ENV=1; cat .env) mocha 'build/test/**/*.mjs'",
-    "lint-in-container": "eslint --fix src test",
-    "compile-in-container": "tsc",
-    "shell": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script shell-in-container",
-    "start": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script start-in-container",
-    "test": "sudo docker run -it --rm -p 9229:9229 --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script test-in-container",
-    "lint": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script lint-in-container",
-    "compile": "sudo docker run -it --rm --user \"$(id -u):$(id -g)\" --mount type=bind,src=\"$(pwd)\",dst=/home \"${npm_package_config_container_tag}\" npm run-script compile-in-container"
+    "start": "node -r source-map-support/register build/cli/report-cli.mjs -c account-config.json",
+    "test": "mocha 'build/test/**/*.mjs'",
+    "lint": "eslint --fix src test",
+    "compile": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/s-leroux/TypeScriptDemo.git"
+    "url": "git+https://github.com/s-leroux/wallet-valuator.git"
   },
   "author": "Sylvain Leroux",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/s-leroux/TypeScriptDemo/issues"
+    "url": "https://github.com/s-leroux/wallet-valuator/issues"
   },
-  "homepage": "https://github.com/s-leroux/TypeScriptDemo#readme",
+  "homepage": "https://github.com/s-leroux/wallet-valuator#readme",
   "devDependencies": {
     "@eslint/js": "^9.11.1",
     "@root/walk": "^1.1.0",
