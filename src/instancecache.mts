@@ -10,10 +10,10 @@ const log = logger("instancecache");
 type DeepReadonly<T> = T extends (...args: unknown[]) => unknown
   ? T
   : T extends readonly unknown[]
-  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-  : T extends object
-  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-  : T;
+    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+    : T extends object
+      ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+      : T;
 
 type Atom = string | number;
 
@@ -98,7 +98,7 @@ export class InstanceCache<K extends Atom, Obj extends DeepReadonly<WeakKey>> {
   getOrCreate(
     key: K,
     factory: () => Obj,
-    validate?: (cached: Obj) => void
+    validate?: (cached: Obj) => void,
   ): Obj {
     const existing = this.cache.get(key)?.deref();
     if (existing) {
