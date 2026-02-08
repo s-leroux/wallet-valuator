@@ -15,7 +15,25 @@ export interface JSONObject {
   [key: string]: JSONValue | undefined;
 }
 
-function is_json(res: Response): boolean {
+export type Payload = JSONValue | string;
+
+export function isJSONObject(v: Payload): v is JSONObject {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+export function jsonValueToText(v: JSONValue | undefined): string {
+  if (v === undefined || v === null) return "";
+  if (typeof v === "string") return v;
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  // object/array
+  try {
+    return JSON.stringify(v);
+  } catch {
+    return String(v);
+  }
+}
+
+function is_json_response(res: Response): boolean {
   const content_type = res.headers.get("content-type");
   if (content_type && content_type.indexOf("application/json") > -1) {
     return true;
@@ -40,8 +58,6 @@ const defaultFetchOptions = {
 
 export type FetchOptionBag = Readonly<Partial<typeof defaultFetchOptions>>;
 
-export type Payload = JSONValue | string;
-
 export class Provider implements ProviderInterface {
   /**
    * Interface to the webservice provider.
@@ -59,7 +75,7 @@ export class Provider implements ProviderInterface {
     this.options = Object.assign(
       Object.create(null) as ProviderOptionBag,
       defaultProviderOptions,
-      options
+      options,
     );
 
     this.semaphore = new Semaphore(this.options.concurrency);
@@ -129,7 +145,7 @@ export class Provider implements ProviderInterface {
   newError(res: Response, payload: Payload) {
     // OVERRIDE ME
     return new Error( // ISSUE 29 We should have a specific HTTPStatusError
-      `Error status ${res.status} while fetching ${res.url}\n${payload}`
+      `Error status ${res.status} while fetching ${res.url}\n${payload}`,
     );
   }
 
@@ -166,7 +182,7 @@ export class Provider implements ProviderInterface {
     let payload: Payload;
     try {
       res = await this.semaphore.do(fetch, url, { headers: customHeaders });
-      payload = await (is_json(res)
+      payload = await (is_json_response(res)
         ? (res.json() as Promise<JSONValue>)
         : res.text());
     } catch (err) {
@@ -190,7 +206,7 @@ export class Provider implements ProviderInterface {
   async fetch(
     endpoint: string,
     params: Record<string, string | number> = {},
-    options: FetchOptionBag = {}
+    options: FetchOptionBag = {},
   ): Promise<Payload> {
     options = Object.assign(Object.create(null), defaultFetchOptions, options);
 
@@ -202,7 +218,7 @@ export class Provider implements ProviderInterface {
     while (true) {
       const { res, payload, is_error, err } = await this.performFetch(
         url,
-        customHeaders
+        customHeaders,
       );
 
       if (is_error) {

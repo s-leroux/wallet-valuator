@@ -1,8 +1,54 @@
 import { DisplayOptions } from "./displayable.mjs";
+import { ValueError } from "./error.mjs";
 import { MMap } from "./memoizer.mjs";
 
-export function asBlockchain(chain: Blockchain | string): Blockchain {
+/**
+ * Branded type for blockchain chain IDs.
+ * Chain IDs are numeric identifiers for blockchains (e.g., "1" for Ethereum, "100" for Gnosis Chain).
+ * This ensures type safety when working with chain IDs.
+ */
+export type ChainID = string & { readonly brand: unique symbol };
+
+/**
+ * Validates and converts a value to a ChainID.
+ * The chain ID must be a string containing only digits (0-9).
+ *
+ * @param chainId - The chain ID to validate (string or number)
+ * @returns A validated ChainID
+ * @throws ValueError if the chain ID is invalid (empty, contains non-digits, or negative)
+ * @example
+ * const ethereumChainId = asChainID("1");
+ * const gnosisChainId = asChainID(100); // Accepts numbers
+ */
+export function asChainID(chainId: string | number | ChainID): ChainID {
+  const chainIdStr = typeof chainId === "number" ? String(chainId) : chainId;
+
+  // Validate that it's not empty
+  if (!chainIdStr || chainIdStr.length === 0) {
+    throw new ValueError("Chain ID cannot be empty");
+  }
+
+  // Validate that it contains only digits
+  if (!/^\d+$/.test(chainIdStr)) {
+    throw new ValueError(
+      `Chain ID must contain only digits: "${chainIdStr}" is invalid`,
+    );
+  }
+
+  // Ensure no leading zeros (except for "0" itself)
+  if (chainIdStr.length > 1 && chainIdStr[0] === "0") {
+    throw new ValueError(
+      `Chain ID cannot have leading zeros: "${chainIdStr}" is invalid`,
+    );
+  }
+
+  return chainIdStr as ChainID;
+}
+
+export function asBlockchain(chain: Blockchain | ChainID | string): Blockchain {
   if (typeof chain === "string") {
+    if ((chain as string) !== "gnosis")
+      throw new Error(`Unsupported chain: ${chain}`); // Only the Gnosis chain is supported.
     return Blockchain.create(chain);
   }
 
@@ -66,7 +112,7 @@ export class Blockchain {
   private static __testResetRegistry(): void {
     if (process.env.NODE_ENV !== "test") {
       throw new Error(
-        "__testResetRegistry should only be used in test environments!"
+        "__testResetRegistry should only be used in test environments!",
       );
     }
     this.registry.clear();

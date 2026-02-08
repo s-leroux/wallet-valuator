@@ -36,6 +36,19 @@ RUN npm config -g set update-notifier false
 RUN npm install -g @anthropic-ai/claude-code && \
     npm install -g @google/gemini-cli
 
+# jq
+RUN apt-get install -y jq && apt-get clean
+
+# GitHub CLI
+RUN \
+	mkdir -p -m 755 /etc/apt/keyrings \
+	&& wget -nv -O/etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+	&& chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+	&& mkdir -p -m 755 /etc/apt/sources.list.d \
+	&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list \
+	&& apt update \
+	&& apt install gh -y
+
 # Set the workdir and user settings
 RUN groupadd -g 1000 app && useradd -M -u 1000 -g 1000 app
 WORKDIR /app

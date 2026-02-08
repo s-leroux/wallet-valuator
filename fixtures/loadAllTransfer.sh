@@ -9,16 +9,19 @@ if [[ -z "$GNOSIS_ACCOUNT" ]]; then
     exit 1
 fi
 
-# Ensure GNOSISSCAN_API_KEY is set
-if [[ -z "$GNOSISSCAN_API_KEY" ]]; then
-    echo "Error: GNOSISSCAN_API_KEY is not set."
+# Ensure ETHERSCAN_API_KEY is set
+if [[ -z "$ETHERSCAN_API_KEY" ]]; then
+    echo "Error: ETHERSCAN_API_KEY is not set."
     exit 1
 fi
 
+API_BASE="https://api.etherscan.io/v2/api"
+
 # Construct URLs
 ERC20TokenTransferEvents=$(tr -d ' \n\r' <<<"
-https://api.gnosisscan.io/api
-   ?module=account
+${API_BASE}
+   ?chainid=100
+   &module=account
    &action=tokentx
    &address=${GNOSIS_ACCOUNT}
    &page=1
@@ -26,12 +29,13 @@ https://api.gnosisscan.io/api
    &startblock=0
    &endblock=99999999
    &sort=asc
-   &apikey=${GNOSISSCAN_API_KEY}
+   &apikey=${ETHERSCAN_API_KEY}
 ")
 
 InternalTransactions=$(tr -d ' \n\r' <<<"
-https://api.gnosisscan.io/api
-   ?module=account
+${API_BASE}
+   ?chainid=100
+   &module=account
    &action=txlistinternal
    &address=${GNOSIS_ACCOUNT}
    &startblock=0
@@ -39,12 +43,13 @@ https://api.gnosisscan.io/api
    &page=1
    &offset=300
    &sort=asc
-   &apikey=${GNOSISSCAN_API_KEY}
+   &apikey=${ETHERSCAN_API_KEY}
 ")
 
 NormalTransactions=$(tr -d ' \n\r' <<<"
-https://api.gnosisscan.io/api
-   ?module=account
+${API_BASE}
+   ?chainid=100
+   &module=account
    &action=txlist
    &address=${GNOSIS_ACCOUNT}
    &startblock=0
@@ -52,7 +57,7 @@ https://api.gnosisscan.io/api
    &page=1
    &offset=300
    &sort=asc
-   &apikey=${GNOSISSCAN_API_KEY}
+   &apikey=${ETHERSCAN_API_KEY}
 ")
 
 # Enable verbose mode for debugging

@@ -10,7 +10,7 @@ import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
 import { Blockchain } from "../src/blockchain.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
-import NormalTransactions from "../fixtures/NormalTransactions.json" with { type: "json" };
+import NormalTransactions from "../fixtures/GnosisScan/NormalTransactions.json" with { type: "json" };
 import InternalTransactions from "../fixtures/InternalTransactions.json" with { type: "json" };
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
 
@@ -77,22 +77,27 @@ describe("Ledger", () => {
     cryptoMetadata = CryptoMetadata.create();
     explorer = new FakeExplorer(cryptoRegistry);
     chain = explorer.chain;
-    swarm = Swarm.create([explorer], cryptoRegistry, cryptoMetadata, cryptoResolver);
+    swarm = Swarm.create(
+      [explorer],
+      cryptoRegistry,
+      cryptoMetadata,
+      cryptoResolver,
+    );
 
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
         return swarm.tokenTransfer(chain, tr);
-      })
+      }),
     );
     const b = await Promise.all(
       NormalTransactions.result.map((tr) =>
-        swarm.normalTransaction(chain, tr.hash, tr)
-      )
+        swarm.normalTransaction(chain, tr.hash, tr),
+      ),
     );
     const c = await Promise.all(
       InternalTransactions.result.map((tr) =>
-        swarm.internalTransaction(chain, tr.hash, tr.traceId, tr)
-      )
+        swarm.internalTransaction(chain, tr.hash, tr.traceId, tr),
+      ),
     );
 
     transactions = (a as OnChainTransaction[]).concat(b, c);

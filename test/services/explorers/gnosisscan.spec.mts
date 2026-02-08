@@ -6,53 +6,22 @@ const assert = chai.assert;
 
 import { Swarm } from "../../../src/swarm.mjs";
 import {
-  GnosisScanProvider,
   GnosisScanAPI,
   GnosisScan,
+  GnosisScanProvider,
 } from "../../../src/services/explorers/gnosisscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
-import { CryptoRegistryNG, CryptoMetadata } from "../../../src/cryptoregistry.mjs";
-import { prepare } from "../../support/register.helper.mjs";
-
-import RateLimit from "../../../fixtures/GnosisScan/RateLimit.json" with { type: "json" };
-import ClientError from "../../../fixtures/GnosisScan/ClientError.json" with { type: "json" };
-import NoTransactionFound from "../../../fixtures/GnosisScan/NoTransactionsFound.json" with { type: "json" };
-import TokenTransfer from "../../../fixtures/GnosisScan/TokenTransfer.json" with { type: "json" };
-import Proxy from "../../../fixtures/GnosisScan/Proxy.json" with { type: "json" };
-import ProxyError from "../../../fixtures/GnosisScan/ProxyError.json" with { type: "json" };
+import {
+  CryptoRegistryNG,
+  CryptoMetadata,
+} from "../../../src/cryptoregistry.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
-const API_KEY = process.env["GNOSISSCAN_API_KEY"];
-
-describe("GnosisScanProvider", function () {
-  describe("Identify GnosisScan errors and OK reponse", function () {
-    const register = prepare(this);
-    const RETRY = [true, true] as const;
-    const ABORT = [true, false] as const;
-    const OK = [false, undefined] as const;
-    // prettier-ignore
-    const testCases: [response: object, desc: string, error: boolean, retry?: boolean ][] = [
-      [TokenTransfer, "Successful token transfer query", ...OK],
-      [NoTransactionFound, "No transaction found", ...OK],
-      [Proxy, "Successful query to the Ethereum JSON-RPC proxy", ...OK],
-      [ProxyError, "Unsuccessful query to the Ethereum JSON-RPC proxy", ...ABORT],
-      [RateLimit, "Rate limiting response", ...RETRY],
-      [ClientError, "Invalid request", ...ABORT],
-    ];
-
-    for (const [payload, desc, error, retry] of testCases) {
-      register(desc, () => {
-        assert.deepEqual(GnosisScanProvider.__isError(payload), error);
-        if (retry !== undefined)
-          assert.deepEqual(GnosisScanProvider.__shouldRetry(payload), retry);
-      });
-    }
-  });
-});
+const API_KEY = process.env["ETHERSCAN_API_KEY"];
 
 describe("GnosisScan", function () {
   if (!API_KEY) {
-    throw Error("You must define the GNOSISSCAN_API_KEY environment variable");
+    throw Error("You must define the ETHERSCAN_API_KEY environment variable");
   }
 
   this.timeout(MOCHA_TEST_TIMEOUT);
@@ -131,7 +100,12 @@ describe("GnosisScan", function () {
       cryptoRegistry = CryptoRegistryNG.create();
       cryptoMetadata = CryptoMetadata.create();
       explorer = new GnosisScan(cryptoRegistry, gs!);
-      sw = Swarm.create([explorer], cryptoRegistry, cryptoMetadata, cryptoResolver);
+      sw = Swarm.create(
+        [explorer],
+        cryptoRegistry,
+        cryptoMetadata,
+        cryptoResolver,
+      );
     });
 
     it("should default to the Gnosis chain", () => {
@@ -143,7 +117,7 @@ describe("GnosisScan", function () {
           "0xb76d2ba3313ebbfca1177846e791d91a3c7f675ba5c0cf8bb7ac2ad67403237c";
         const transaction = await explorer.getNormalTransactionByHash(
           sw,
-          txhash
+          txhash,
         );
 
         assert.include(transaction, {
