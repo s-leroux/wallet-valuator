@@ -14,7 +14,7 @@ const DEFILLAMA_API_BASE = "https://coins.llama.fi";
 export class DefiLlamaProvider extends Provider {
   constructor(
     base: string = DEFILLAMA_API_BASE,
-    options: ProviderOptionBag = {}
+    options: ProviderOptionBag = {},
   ) {
     super(base, options);
   }
@@ -70,7 +70,7 @@ export class DefaultDefiLlamaAPI {
    */
   getHistoricalPrices(
     date: Date,
-    coins: string[]
+    coins: string[],
   ): Promise<DefiLlamaPriceData> {
     const encodedCoins = coins.map(encodeURIComponent).join(",");
     const url = [
@@ -80,7 +80,7 @@ export class DefaultDefiLlamaAPI {
     ].join("/");
 
     return this.provider.fetch(url, {
-      searchWidth: "6h",
+      searchWidth: "12h",
     }) as Promise<DefiLlamaPriceData>;
   }
 }

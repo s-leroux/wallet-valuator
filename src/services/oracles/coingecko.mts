@@ -30,7 +30,7 @@ export class CoinGeckoProvider extends Provider {
   constructor(
     apiKey: string,
     origin: string = COINGECKO_API_BASE_ADDRESS,
-    options: CoinGeckoOptionBag = {}
+    options: CoinGeckoOptionBag = {},
   ) {
     const defaults = {
       retry: 40,
@@ -66,10 +66,10 @@ export class DefaultCoinGeckoAPI {
   static create(
     apiKey: string,
     base: string = COINGECKO_API_BASE_ADDRESS,
-    options: CoinGeckoOptionBag = {}
+    options: CoinGeckoOptionBag = {},
   ) {
     return new DefaultCoinGeckoAPI(
-      new CoinGeckoProvider(apiKey, base, options)
+      new CoinGeckoProvider(apiKey, base, options),
     );
   }
 
@@ -99,7 +99,7 @@ export class CoinGeckoOracle extends Oracle {
   constructor(
     readonly api: CoinGeckoAPI,
     readonly idMapping?: InternalToCoinGeckoIdMapping,
-    options: CoinGeckoOptionBag = {}
+    options: CoinGeckoOptionBag = {},
   ) {
     super();
 
@@ -132,7 +132,7 @@ export class CoinGeckoOracle extends Oracle {
   static create(
     api?: CoinGeckoAPI | string,
     idMapping?: InternalToCoinGeckoIdMapping,
-    options: CoinGeckoOptionBag = {}
+    options: CoinGeckoOptionBag = {},
   ) {
     if (api === undefined) {
       api = process.env["COINGECKO_API_KEY"];
@@ -141,7 +141,7 @@ export class CoinGeckoOracle extends Oracle {
       // (2) desirable
       if (!api) {
         throw Error(
-          "You must specify a provider or define the COINGECKO_API_KEY environment variable"
+          "You must specify a provider or define the COINGECKO_API_KEY environment variable",
         );
       }
     }
@@ -150,7 +150,7 @@ export class CoinGeckoOracle extends Oracle {
       api = DefaultCoinGeckoAPI.create(
         api,
         COINGECKO_API_BASE_ADDRESS,
-        options
+        options,
       );
     }
     return new CoinGeckoOracle(api, idMapping);
@@ -164,14 +164,14 @@ export class CoinGeckoOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     let historical_data: CoinGeckoPriceHistory | undefined;
     const coinGeckoId = getCoinGeckoId(
       cryptoRegistry,
       cryptoMetadata,
       crypto,
-      this.idMapping
+      this.idMapping,
     );
     if (!coinGeckoId) {
       return;
@@ -181,7 +181,7 @@ export class CoinGeckoOracle extends Oracle {
       for (let i = 0; i < MAX_HISTORICAL_ATTEMPTS; ++i) {
         historical_data = await this.api.getCoinsHistory(
           coinGeckoId,
-          pricing_date
+          pricing_date,
         );
         // ISSUE #111 market_data might be undefined if there is no price for the given date
         if (historical_data.market_data) break;
@@ -191,11 +191,11 @@ export class CoinGeckoOracle extends Oracle {
         log.trace(
           "C1008",
           `No price found for ${crypto.id} at ${pricing_date}. Retrying one day earlier`,
-          crypto.id
+          crypto.id,
         );
       }
 
-      Ensure.isDefined(historical_data); // throw an error if the data are mising
+      Ensure.isDefined(historical_data && historical_data.market_data); // throw an error if the data are mising
     } catch (err) {
       log.trace("C1009", `Error while getting price for ${crypto}: ${err}`);
       log.debug(date, fiats, crypto.id, coinGeckoId, historical_data, err);
@@ -220,13 +220,13 @@ export class CoinGeckoOracle extends Oracle {
       log.trace(
         "C1002",
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        `Found price for ${crypto}/${currency} at ${date.toISOString()}`
+        `Found price for ${crypto}/${currency} at ${date.toISOString()}`,
       );
       const price = new Price(crypto, currency, value);
       result.set(currency, price);
       GlobalMetadataStore.setMetadata(
         price,
-        { origin: "COINGECKO" } // ISSUE #112 Why all-caps?
+        { origin: "COINGECKO" }, // ISSUE #112 Why all-caps?
       );
     }
 
@@ -238,7 +238,7 @@ export function getCoinGeckoId(
   cryptoRegistry: CryptoRegistryNG,
   cryptoMetadata: CryptoMetadata,
   cryptoAsset: CryptoAsset,
-  internalId?: InternalToCoinGeckoIdMapping
+  internalId?: InternalToCoinGeckoIdMapping,
 ): string | undefined {
   // 1. Check the standard metadata
   const metadata = cryptoMetadata.getMetadata(cryptoAsset);
@@ -253,7 +253,7 @@ export function getCoinGeckoId(
 
 function internalToCoinGeckoId(
   internalId: string,
-  idMapping?: InternalToCoinGeckoIdMapping
+  idMapping?: InternalToCoinGeckoIdMapping,
 ): string | undefined {
   const coinGeckoId = idMapping?.[internalId];
 

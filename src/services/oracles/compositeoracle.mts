@@ -40,7 +40,7 @@ export class CompositeOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     currencies: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     log.trace("C1006", `Get price for ${crypto}/${currencies} at ${date}`);
@@ -54,7 +54,7 @@ export class CompositeOracle extends Oracle {
         crypto,
         date,
         missing,
-        result
+        result,
       );
       for (const currency of result.keys()) {
         // result.set(currency, price); // Fixed in #157 // ISSUE #61 What to do it we already have that price? Should we check consistency?

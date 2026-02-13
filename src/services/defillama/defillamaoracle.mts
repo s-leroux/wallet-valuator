@@ -20,7 +20,7 @@ const USD = FiatCurrency("USD");
 export class DefiLlamaOracle extends Oracle {
   private constructor(
     readonly api: DefiLlamaAPI,
-    readonly idMapping?: InternalToCoinGeckoIdMapping
+    readonly idMapping?: InternalToCoinGeckoIdMapping,
   ) {
     super();
   }
@@ -31,13 +31,13 @@ export class DefiLlamaOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     const coinGeckoId = getCoinGeckoId(
       cryptoRegistry,
       cryptoMetadata,
       crypto,
-      this.idMapping
+      this.idMapping,
     );
     if (!coinGeckoId) {
       // ISSUE #105 We could query other metadata such as the canonical ChainAddress for the crypto-asset
@@ -46,11 +46,19 @@ export class DefiLlamaOracle extends Oracle {
 
     const assetId = `coingecko:${coinGeckoId}`;
     const prices = await this.api.getHistoricalPrices(date, [assetId]);
-    const { price } = prices.coins[assetId]; // USD price!
+    const coin = prices.coins[assetId]; // USD price!
+    if (!coin) {
+      log.warn(
+        "C2100",
+        `Price not found for ${crypto}/USD at ${date.toISOString()}`,
+      );
+      return;
+    }
+    const { price } = coin; // XXX General question: what to do if an API returns a non-conforming answer?
 
     const priceAsUSD = GlobalMetadataStore.setMetadata(
       crypto.price(USD, price),
-      { origin: "DEFILLAMA" }
+      { origin: "DEFILLAMA" },
     );
     result.set(USD, priceAsUSD);
     log.info("C1003", `Found price for ${crypto}/USD at ${date.toISOString()}`);

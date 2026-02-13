@@ -32,6 +32,7 @@ export const ERRORS = {
   "C2006": "Inconsistent metadata (CurveOracle)",
   "C2007": "Inconsistent metadata (CurveOracle)",
   "C2008": "Multiple prices found at date (CurveOracle)",
+  "C2100": "Price not found",
 
 
   // Error-level codes (3000-3999)
