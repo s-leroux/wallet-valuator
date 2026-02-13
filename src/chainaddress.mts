@@ -13,7 +13,7 @@ class StandardChainAddress implements ChainAddress {
 
   constructor(chain: string | Blockchain, address: string | null) {
     // Normalize input data
-    this.chain = typeof chain === "string" ? asBlockchain(chain) : chain;
+    this.chain = asBlockchain(chain);
     this.address = address ? address.toLowerCase() : address;
   }
 
@@ -55,5 +55,5 @@ export function ChainAddress(
  * @returns A string in the format "<chain>:<address>"
  */
 export function mangleChainAddress(chainAddress: ChainAddress): string {
-  return `${chainAddress.chain}:${chainAddress.address || ""}`;
+  return `${chainAddress.chain.id}:${chainAddress.address || ""}`;
 }

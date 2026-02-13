@@ -46,7 +46,7 @@ describe("DefaultCurveAPI", function () {
         address: TOKEN,
         data: [
           {
-            price: 1.0397308967364005,
+            price: 1.0397308967364007,
             timestamp: `${DATE}T00:00:00`,
           },
         ],

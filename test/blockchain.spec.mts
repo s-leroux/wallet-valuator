@@ -2,9 +2,8 @@ import { assert } from "chai";
 
 import { asChainID, Blockchain } from "../src/blockchain.mjs";
 
-const TEST_CHAIN_ID = asChainID("test:eth:1");
+const TEST_CHAIN_ID = asChainID("test-ethereum");
 const TEST_CHAIN_DATA = {
-  name: "test-ethereum",
   "display-name": "Test Ethereum",
   "explorer-id": "test:1",
 };
@@ -15,14 +14,14 @@ describe("Blockchain Singleton", function () {
   it("should set the name", function () {
     const eth = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
 
-    assert.strictEqual(eth.name, TEST_CHAIN_DATA.name);
+    assert.strictEqual(eth.name, TEST_CHAIN_ID);
   });
 
   it("should return the name of the blockchain when calling toString()", function () {
     const eth = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
     assert.strictEqual(
       eth.toString(),
-      TEST_CHAIN_DATA.name,
+      TEST_CHAIN_ID,
       "toString() should return the blockchain name",
     );
   });
@@ -40,8 +39,7 @@ describe("Blockchain Singleton", function () {
 
   it("should return different instances for different blockchain names", function () {
     const eth = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
-    const btc = Blockchain.create(asChainID("test:btc:1"), {
-      name: "test-bitcoin",
+    const btc = Blockchain.create(asChainID("test-bitcoin"), {
       "display-name": "Test Bitcoin",
       "explorer-id": "test:100",
     });
@@ -78,8 +76,7 @@ describe("Blockchain Singleton", function () {
       "Equality operator (==) should return true for the same blockchain",
     );
 
-    const btc = Blockchain.create(asChainID("test:btc:1"), {
-      name: "test-bitcoin",
+    const btc = Blockchain.create(asChainID("test-bitcoin"), {
       "display-name": "Test Bitcoin",
       "explorer-id": "test:100",
     });
@@ -97,8 +94,7 @@ describe("Blockchain Singleton", function () {
       "Identity operator (===) should return true for the same blockchain",
     );
 
-    const btc = Blockchain.create(asChainID("test:btc:1"), {
-      name: "test-bitcoin",
+    const btc = Blockchain.create(asChainID("test-bitcoin"), {
       "display-name": "Test Bitcoin",
       "explorer-id": "test:100",
     });

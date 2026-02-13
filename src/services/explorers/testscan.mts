@@ -5,12 +5,19 @@ import { NormalTransaction } from "../../transaction.mjs";
 import NormalTransactions from "../../../fixtures/GnosisScan/NormalTransactions.json" with { type: "json" };
 import InternalTransactions from "../../../fixtures/InternalTransactions.json" with { type: "json" };
 import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
-import { asBlockchain, Blockchain } from "../../blockchain.mjs";
+import { asBlockchain, asChainID, Blockchain } from "../../blockchain.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { NormalTransactionRecord } from "../explorer.mjs";
 
+const FAKE_CHAIN_ID = asChainID("gnosis-fake");
+const FAKE_CHAIN_DATA = {
+  "display-name": "Gnosis Fake",
+  "explorer-id": "999",
+};
+
 export class TestScan extends CommonExplorer {
   constructor(registry: CryptoRegistryNG, chain?: Blockchain) {
+    Blockchain.create(FAKE_CHAIN_ID, FAKE_CHAIN_DATA);
     super(
       chain ?? asBlockchain("gnosis-fake"),
       registry.createCryptoAsset("xdai", "xDai", "xDai", 18),

@@ -3,9 +3,8 @@ import { describe, it } from "mocha";
 import { asChainID, Blockchain } from "../src/blockchain.mjs";
 import { ChainAddress, mangleChainAddress } from "../src/chainaddress.mjs";
 
-const TEST_CHAIN_ID = asChainID("MyChain");
+const TEST_CHAIN_ID = asChainID("mychain");
 const TEST_CHAIN_DATA = {
-  name: "MyChainName",
   "display-name": "MyChainName",
   "explorer-id": "MyExplorerId",
 };
@@ -13,8 +12,9 @@ const TEST_CHAIN_DATA = {
 describe("ChainAddress", () => {
   describe("constructor", () => {
     it("should create a ChainAddress with string chain", () => {
+      Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA); // XXX Hack
       const addr = ChainAddress(TEST_CHAIN_ID, "0x123");
-      assert.strictEqual(addr.chain.name, TEST_CHAIN_DATA.name);
+      assert.strictEqual(addr.chain.name, TEST_CHAIN_ID);
       assert.strictEqual(addr.address, "0x123");
     });
 

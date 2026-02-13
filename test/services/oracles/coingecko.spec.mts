@@ -54,11 +54,11 @@ describe("CoinGecko", function () {
       const test_cases: [string, string, Record<string, number>][] = [
         [
           "bitcoin",
-          "2024-12-30",
+          "2025-12-30",
           {
             BTC: 1,
-            USD: 93663.44751964067,
-            EUR: 89809.00932731242,
+            USD: 87156.56266080117,
+            EUR: 74039.32566722526,
           },
         ],
       ];
@@ -72,14 +72,14 @@ describe("CoinGecko", function () {
             bitcoin,
             new Date(date),
             new Set(Object.keys(expected).map(FiatCurrency)),
-            priceMap
+            priceMap,
           );
           const expectedCurrencies = Object.keys(expected).map((code) =>
-            FiatCurrency(code)
+            FiatCurrency(code),
           );
           assert.includeMembers(
             Array.from(priceMap.keys()),
-            expectedCurrencies
+            expectedCurrencies,
           );
           for (const [currency, value] of Object.entries(expected)) {
             const fiatCurrency = FiatCurrency(currency);
@@ -100,7 +100,7 @@ describe("CoinGecko", function () {
         "/bitcoin",
         "fake bitcoin",
         "/BTC",
-        18
+        18,
       );
       const priceMap = new Map() as PriceMap;
       await coingecko.getPrice(
@@ -109,7 +109,7 @@ describe("CoinGecko", function () {
         maliciousCrypto,
         new Date("2024-12-30"),
         new Set([FiatCurrency("eur")]),
-        priceMap
+        priceMap,
       );
       assert.equal(priceMap.size, 0);
     });
@@ -130,13 +130,13 @@ describe("CoinGecko", function () {
             "usdc",
             "USDC",
             "USDC",
-            6
+            6,
           );
           const coinGeckoId = getCoinGeckoId(
             cryptoRegistry,
             cryptoMetadata,
             crypto,
-            idMapping
+            idMapping,
           );
           assert.equal(coinGeckoId, expected);
         });

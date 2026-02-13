@@ -5,7 +5,6 @@ import { MMap } from "./memoizer.mjs";
 import { Logged } from "./errorutils.mjs";
 
 type BlockchainDataRecord = {
-  name: string;
   "display-name": string;
   "explorer-id": string;
 };
@@ -34,7 +33,7 @@ export type ChainID = string & { readonly brand: unique symbol };
  * const gnosisChainId = asChainID(100); // Accepts numbers
  */
 export function asChainID(chainId: string | ChainID): ChainID {
-  const chainIdStr = chainId.trim().toLocaleLowerCase();
+  const chainIdStr = chainId.trim().toLowerCase();
 
   // Validate that it's not empty
   if (!chainIdStr) {
@@ -83,7 +82,7 @@ export class Blockchain {
 
   /** Display name of the blockchain (e.g. "ethereum", "gnosis"). */
   get name(): string {
-    return this.chainRecord.name;
+    return this.id;
   }
 
   get displayName(): string {
