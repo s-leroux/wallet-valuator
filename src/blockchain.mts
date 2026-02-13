@@ -1,9 +1,51 @@
 import { DisplayOptions } from "./displayable.mjs";
+import { ValueError } from "./error.mjs";
 import { MMap } from "./memoizer.mjs";
 
-export function asBlockchain(chain: Blockchain | string): Blockchain {
+import { Logged } from "./errorutils.mjs";
+
+type BlockchainDataRecord = {
+  "display-name": string;
+  "explorer-id": string;
+};
+
+type BlockchainData = Readonly<
+  Record<ChainID, Readonly<BlockchainDataRecord> | undefined>
+>;
+import rawBlockchainData from "./data/blockchains.json" with { type: "json" };
+
+const blockchainData: BlockchainData = rawBlockchainData;
+
+/**
+ * Branded type for blockchain chain IDs.
+ * This ensures type safety when working with chain IDs.
+ */
+export type ChainID = string & { readonly brand: unique symbol };
+
+/**
+ * Validates and converts a value to a ChainID.
+ *
+ * @param chainId - The chain ID to validate (string or number)
+ * @returns A validated ChainID
+ * @throws ValueError if the chain ID is invalid
+ * @example
+ * const ethereumChainId = asChainID("1");
+ * const gnosisChainId = asChainID(100); // Accepts numbers
+ */
+export function asChainID(chainId: string | ChainID): ChainID {
+  const chainIdStr = chainId.trim().toLowerCase();
+
+  // Validate that it's not empty
+  if (!chainIdStr) {
+    throw new ValueError("Chain ID cannot be empty");
+  }
+
+  return chainIdStr as ChainID;
+}
+
+export function asBlockchain(chain: Blockchain | ChainID | string): Blockchain {
   if (typeof chain === "string") {
-    return Blockchain.create(chain);
+    return Blockchain.find(chain);
   }
 
   return chain;
@@ -31,12 +73,45 @@ export function asBlockchain(chain: Blockchain | string): Blockchain {
  * - `Blockchain` should be treated as a **reference** or **label**, similar to an enum value.
  */
 export class Blockchain {
-  private static registry = new MMap<string, Blockchain>();
+  private static registry = new MMap<ChainID, Blockchain>();
 
-  private constructor(public readonly name: string) {}
+  private constructor(
+    public readonly id: ChainID,
+    public readonly chainRecord: BlockchainDataRecord,
+  ) {}
 
-  static create(name: string) {
-    return this.registry.get(name.toLowerCase(), () => new Blockchain(name));
+  /** Display name of the blockchain (e.g. "ethereum", "gnosis"). */
+  get name(): string {
+    return this.id;
+  }
+
+  get displayName(): string {
+    return this.chainRecord["display-name"];
+  }
+
+  /** Explorer ID of the blockchain (e.g. "1", "100" for Ethereum-like chains). */
+  get explorerId(): string {
+    return this.chainRecord["explorer-id"];
+  }
+
+  static create(id: ChainID, chainRecord: BlockchainDataRecord): Blockchain {
+    // FIXME: If found, we do not check consistency between the "old" record and `chainRecord`
+    return this.registry.get(id, () => {
+      // FIXME: We assume chainRecord is deeply immutable.
+      return new Blockchain(id, chainRecord);
+    });
+  }
+
+  static find(id: ChainID | string): Blockchain {
+    const chainId = asChainID(id);
+    return this.registry.get(chainId, () => {
+      const chainData = blockchainData[chainId]; // Lookup in the well-known registry
+
+      if (!chainData) {
+        throw Logged("C3100", ValueError, `Chain not found: ${chainId}`);
+      }
+      return Blockchain.create(chainId, chainData);
+    });
   }
 
   toString() {
@@ -44,7 +119,7 @@ export class Blockchain {
   }
 
   toDisplayString(options: DisplayOptions) {
-    return this.name;
+    return this.displayName;
   }
 
   /**
@@ -66,7 +141,7 @@ export class Blockchain {
   private static __testResetRegistry(): void {
     if (process.env.NODE_ENV !== "test") {
       throw new Error(
-        "__testResetRegistry should only be used in test environments!"
+        "__testResetRegistry should only be used in test environments!",
       );
     }
     this.registry.clear();

@@ -1,4 +1,4 @@
-import { Blockchain } from "./blockchain.mjs";
+import { asBlockchain, Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, toDisplayString } from "./displayable.mjs";
 import { InstanceCache } from "./instancecache.mjs";
 
@@ -13,7 +13,7 @@ class StandardChainAddress implements ChainAddress {
 
   constructor(chain: string | Blockchain, address: string | null) {
     // Normalize input data
-    this.chain = typeof chain === "string" ? Blockchain.create(chain) : chain;
+    this.chain = asBlockchain(chain);
     this.address = address ? address.toLowerCase() : address;
   }
 
@@ -39,12 +39,12 @@ const chainAddressCache = new InstanceCache<string, ChainAddress>();
 
 export function ChainAddress(
   chain: string | Blockchain,
-  address: string | null
+  address: string | null,
 ): ChainAddress {
   const key = `${chain}:${address || ""}`.toLowerCase();
   return chainAddressCache.getOrCreate(
     key,
-    () => new StandardChainAddress(chain, address)
+    () => new StandardChainAddress(chain, address),
   );
 }
 
@@ -55,5 +55,5 @@ export function ChainAddress(
  * @returns A string in the format "<chain>:<address>"
  */
 export function mangleChainAddress(chainAddress: ChainAddress): string {
-  return `${chainAddress.chain}:${chainAddress.address || ""}`;
+  return `${chainAddress.chain.id}:${chainAddress.address || ""}`;
 }

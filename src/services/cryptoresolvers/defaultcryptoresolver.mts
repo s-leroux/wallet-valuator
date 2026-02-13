@@ -68,13 +68,13 @@ const defaultKeyDomainsMap = WellKnownCryptoAssets.map(
     symbol,
     decimals,
     metadata,
-  ]
+  ],
 ) as [
   key: string,
   name: string,
   symbol: string,
   decimal: number,
-  metadata: object
+  metadata: object,
 ][];
 
 /**

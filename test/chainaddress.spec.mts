@@ -1,18 +1,25 @@
 import { assert } from "chai";
 import { describe, it } from "mocha";
-import { Blockchain } from "../src/blockchain.mjs";
+import { asChainID, Blockchain } from "../src/blockchain.mjs";
 import { ChainAddress, mangleChainAddress } from "../src/chainaddress.mjs";
+
+const TEST_CHAIN_ID = asChainID("mychain");
+const TEST_CHAIN_DATA = {
+  "display-name": "MyChainName",
+  "explorer-id": "MyExplorerId",
+};
 
 describe("ChainAddress", () => {
   describe("constructor", () => {
     it("should create a ChainAddress with string chain", () => {
-      const addr = ChainAddress("ethereum", "0x123");
-      assert.strictEqual(addr.chain.name, "ethereum");
+      Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA); // XXX Hack
+      const addr = ChainAddress(TEST_CHAIN_ID, "0x123");
+      assert.strictEqual(addr.chain.name, TEST_CHAIN_ID);
       assert.strictEqual(addr.address, "0x123");
     });
 
     it("should create a ChainAddress with Blockchain instance", () => {
-      const chain = Blockchain.create("ethereum");
+      const chain = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
       const addr = ChainAddress(chain, "0x123");
       assert.strictEqual(addr.chain, chain);
       assert.strictEqual(addr.address, "0x123");
@@ -75,8 +82,8 @@ describe("mangleChainAddress", () => {
   });
 
   it("should handle Blockchain instance", () => {
-    const chain = Blockchain.create("ethereum");
+    const chain = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
     const addr = ChainAddress(chain, "0x123");
-    assert.strictEqual(mangleChainAddress(addr), "ethereum:0x123");
+    assert.strictEqual(mangleChainAddress(addr), TEST_CHAIN_ID + ":0x123");
   });
 });

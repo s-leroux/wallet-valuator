@@ -1,0 +1,58 @@
+{
+    "arbitrum": {
+        "name": "arbitrum",
+        "display-name": "Arbitrum",
+        "explorer-id": "42161"
+    },
+    "base": {
+        "name": "base",
+        "display-name": "Base",
+        "explorer-id": "8453"
+    },
+    "bnb chain": {
+        "name": "bnb chain",
+        "display-name": "BNB Chain",
+        "explorer-id": "56"
+    },
+    "bitcoin": {
+        "name": "bitcoin",
+        "display-name": "Bitcoin",
+        "explorer-id": "bitcoin"
+    },
+    "ethereum": {
+        "name": "ethereum",
+        "display-name": "Ethereum",
+        "explorer-id": "1"
+    },
+    "gnosis": {
+        "name": "gnosis",
+        "display-name": "Gnosis",
+        "explorer-id": "100"
+    },
+    "optimism": {
+        "name": "optimism",
+        "display-name": "Optimism",
+        "explorer-id": "10"
+    },
+    "polygon": {
+        "name": "polygon",
+        "display-name": "Polygon",
+        "explorer-id": "137"
+    },
+    "solana": {
+        "name": "solana",
+        "display-name": "Solana",
+        "explorer-id": "solana"
+    },
+    "xdai": {
+        "comment": "xdai was the former name of the gnosis chain",
+        "name": "gnosis",
+        "display-name": "Gnosis",
+        "explorer-id": "100"
+    },
+    "xrp-ledger": {
+        "name": "xrp-ledger",
+        "display-name": "XRP Ledger",
+        "explorer-id": "xrp-ledger"
+    }
+}
