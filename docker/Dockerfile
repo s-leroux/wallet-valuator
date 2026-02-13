@@ -53,7 +53,7 @@ RUN \
 RUN groupadd -g 1000 app && useradd -M -u 1000 -g 1000 app
 WORKDIR /app
 ENV PATH="/app/node_modules/.bin:${PATH}"
-ENV HOME=/app
+ENV HOME=/home
 USER 1000:1000
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
 CMD ["npm", "test"]
