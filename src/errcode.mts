@@ -51,6 +51,7 @@ export const ERRORS = {
   "C3015": "Invalid currency format (FiatCurrency)",
   "C3016": "CryptoAsset already registered (CryptoRegistry)",
   "C3017": "Invalid API key (RealTokenProvider)",
+  "C3100": "Chain not found",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

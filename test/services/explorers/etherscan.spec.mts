@@ -30,7 +30,9 @@ import { Payload } from "../../../src/provider.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["ETHERSCAN_API_KEY"];
-const CHAINID = "100"; // gnosis
+
+const TEST_CHAIN_NAME = "gnosis";
+const TEST_CHAIN_EXPLORER_ID = "100";
 
 describe("EtherscanProvider", function () {
   describe("Identify Etherscan errors and OK reponse", function () {
@@ -80,13 +82,13 @@ describe("Etherscan", function () {
       this.timeout(0);
       assert.equal(provider.retries, 0);
       await Promise.all([
-        gs!.blockNoByTime(CHAINID, 1578638524),
-        gs!.blockNoByTime(CHAINID, 1578638524),
-        gs!.blockNoByTime(CHAINID, 1578638524),
-        gs!.blockNoByTime(CHAINID, 1578638524),
-        gs!.blockNoByTime(CHAINID, 1578638524),
-        gs!.blockNoByTime(CHAINID, 1578638524),
-        gs!.blockNoByTime(CHAINID, 1578638524),
+        gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524),
+        gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524),
+        gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524),
+        gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524),
+        gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524),
+        gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524),
+        gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524),
       ]);
       assert.isAbove(provider.retries, 0);
     });
@@ -95,7 +97,7 @@ describe("Etherscan", function () {
   describe("EtherscanAPI", () => {
     describe("blockNoByTime()", () => {
       it("should retrieve block by timestamp", async () => {
-        const res = await gs!.blockNoByTime(CHAINID, 1578638524);
+        const res = await gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1578638524);
 
         assert.deepEqual(res, {
           status: "1",
@@ -105,7 +107,10 @@ describe("Etherscan", function () {
       });
       it("should retrieve block by timestamp", async () => {
         const transaction = NormalTransactions.result[0];
-        const res = await gs!.blockNoByTime(CHAINID, +transaction.timeStamp);
+        const res = await gs!.blockNoByTime(
+          TEST_CHAIN_EXPLORER_ID,
+          +transaction.timeStamp,
+        );
 
         assert.deepEqual(res, {
           status: "1",
@@ -114,13 +119,16 @@ describe("Etherscan", function () {
         });
       });
       it("should fail if there is not block at the given timestamp", async () => {
-        return assert.isRejected(gs!.blockNoByTime(CHAINID, 1));
+        return assert.isRejected(gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1));
       });
     });
     describe("normalTransaction()", () => {
       it("should return a NormalTransaction given its hash", async () => {
         const transaction = NormalTransactions.result[0];
-        const res = await gs!.normalTransaction(CHAINID, transaction.hash);
+        const res = await gs!.normalTransaction(
+          TEST_CHAIN_EXPLORER_ID,
+          transaction.hash,
+        );
 
         assert.include(res, {
           status: "1",
@@ -140,7 +148,9 @@ describe("Etherscan", function () {
       it("should fail if the transaction is not found", async () => {
         const txhash =
           "0x000000000000000000000000000000000000000000000000000000000000000";
-        return assert.isRejected(gs!.normalTransaction(CHAINID, txhash));
+        return assert.isRejected(
+          gs!.normalTransaction(TEST_CHAIN_EXPLORER_ID, txhash),
+        );
       });
     });
   });
@@ -154,7 +164,7 @@ describe("Etherscan", function () {
     beforeEach(() => {
       cryptoRegistry = CryptoRegistryNG.create();
       cryptoMetadata = CryptoMetadata.create();
-      explorer = new Etherscan(cryptoRegistry, gs!, CHAINID);
+      explorer = new Etherscan(cryptoRegistry, gs!, TEST_CHAIN_NAME);
       sw = Swarm.create(
         [explorer],
         cryptoRegistry,
@@ -164,7 +174,7 @@ describe("Etherscan", function () {
     });
 
     it("should use the chain given in constructor", () => {
-      assert.equal(explorer.chain.name, "100");
+      assert.equal(explorer.chain.name, TEST_CHAIN_NAME);
     });
     describe("normalTransaction()", () => {
       it("should load a transaction by its hash", async () => {

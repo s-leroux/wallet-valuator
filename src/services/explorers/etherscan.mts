@@ -12,7 +12,7 @@ import {
   InternalTransactionRecord,
   NormalTransactionRecord,
 } from "../explorer.mjs";
-import { asBlockchain, Blockchain } from "../../blockchain.mjs";
+import { asBlockchain, Blockchain, ChainID } from "../../blockchain.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
 const ETHERSCAN_API_BASE_ADDRESS = "https://api.etherscan.io/v2/api";
@@ -329,16 +329,15 @@ export class EtherscanAPI {
  * Note: with version 2 (v2) Etherscan is now a generic cross-chain API.
  */
 export class Etherscan extends CommonExplorer {
-  readonly chainid: string;
+  readonly chainExplorerId: string;
   readonly api: EtherscanAPI;
 
   constructor(
     registry: CryptoRegistryNG,
     api: EtherscanAPI,
-    chainid: string,
-    chain?: Blockchain,
+    chain: Blockchain | ChainID | string,
   ) {
-    const my_chain = chain ?? asBlockchain(chainid);
+    const my_chain = asBlockchain(chain);
     const my_nativeCurrency = registry.createCryptoAsset(
       "xdai",
       "xDai",
@@ -348,7 +347,7 @@ export class Etherscan extends CommonExplorer {
 
     super(my_chain, my_nativeCurrency);
     this.api = api;
-    this.chainid = chainid;
+    this.chainExplorerId = my_chain.explorerId;
   }
 
   static create(
@@ -389,7 +388,7 @@ export class Etherscan extends CommonExplorer {
     txhash: string,
   ): Promise<NormalTransaction> {
     const ethTransaction = (
-      await this.api.normalTransaction(this.chainid, txhash)
+      await this.api.normalTransaction(this.chainExplorerId, txhash)
     ).result;
     const from = ethTransaction.from;
     // apparently the gnosis aPI does not accept hexadecimal numbers!
@@ -397,7 +396,11 @@ export class Etherscan extends CommonExplorer {
     let result;
 
     const records = (
-      await this.api.accountNormalTransactions(this.chainid, from, blockNumber)
+      await this.api.accountNormalTransactions(
+        this.chainExplorerId,
+        from,
+        blockNumber,
+      )
     ).result;
 
     for (const record of records) {
@@ -416,21 +419,28 @@ export class Etherscan extends CommonExplorer {
   }
 
   async blockInternalTransactions(blockNumber: number) {
-    return (await this.api.blockInternalTransactions(this.chainid, blockNumber))
-      .result;
+    return (
+      await this.api.blockInternalTransactions(
+        this.chainExplorerId,
+        blockNumber,
+      )
+    ).result;
   }
 
   async accountNormalTransactions(address: string) {
-    return (await this.api.accountNormalTransactions(this.chainid, address))
-      .result;
+    return (
+      await this.api.accountNormalTransactions(this.chainExplorerId, address)
+    ).result;
   }
 
   async accountInternalTransactions(address: string) {
-    return (await this.api.accountInternalTransactions(this.chainid, address))
-      .result;
+    return (
+      await this.api.accountInternalTransactions(this.chainExplorerId, address)
+    ).result;
   }
 
   async accountTokenTransfers(address: string) {
-    return (await this.api.accountTokenTransfers(this.chainid, address)).result;
+    return (await this.api.accountTokenTransfers(this.chainExplorerId, address))
+      .result;
   }
 }

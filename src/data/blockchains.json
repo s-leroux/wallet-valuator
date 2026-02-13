@@ -1,0 +1,37 @@
+{
+    "ethereum": {
+        "name": "ethereum",
+        "display-name": "Ethereum",
+        "explorer-id": "1"
+    },
+    "gnosis": {
+        "name": "gnosis",
+        "display-name": "Gnosis",
+        "explorer-id": "100"
+    },
+    "bnb chain": {
+        "name": "bnb chain",
+        "display-name": "BNB Chain",
+        "explorer-id": "56"
+    },
+    "polygon": {
+        "name": "polygon",
+        "display-name": "Polygon",
+        "explorer-id": "137"
+    },
+    "solana": {
+        "name": "solana",
+        "display-name": "Solana",
+        "explorer-id": "solana"
+    },
+    "arbitrum": {
+        "name": "arbitrum",
+        "display-name": "Arbitrum",
+        "explorer-id": "42161"
+    },
+    "bitcoin": {
+        "name": "bitcoin",
+        "display-name": "Bitcoin",
+        "explorer-id": "bitcoin"
+    }
+}

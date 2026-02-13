@@ -10,9 +10,10 @@ import {
 } from "./etherscan.mjs";
 import { Provider } from "../../provider.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
-import { Blockchain } from "../../blockchain.mjs";
+import { Blockchain, ChainID } from "../../blockchain.mjs";
 
-const GNOSIS_CHAIN_ID = "100";
+const GNOSIS_CHAIN_NAME = "gnosis";
+const GNOSIS_CHAIN_EXPLORER_ID = "100";
 const GNOSISSCAN_API_BASE_ADDRESS = "https://api.etherscan.io/v2/api";
 
 // Re-export types as aliases
@@ -54,29 +55,39 @@ export class GnosisScanAPI {
     timestamp: number,
     closest: "before" | "after" = "before",
   ) {
-    return this.api.blockNoByTime(GNOSIS_CHAIN_ID, timestamp, closest);
+    return this.api.blockNoByTime(GNOSIS_CHAIN_EXPLORER_ID, timestamp, closest);
   }
 
   async normalTransaction(
     txhash: string,
   ): Promise<GnosisScanResponse<GethTransaction>> {
-    return this.api.normalTransaction(GNOSIS_CHAIN_ID, txhash);
+    return this.api.normalTransaction(GNOSIS_CHAIN_EXPLORER_ID, txhash);
   }
 
   blockInternalTransactions(blockNumber: number) {
-    return this.api.blockInternalTransactions(GNOSIS_CHAIN_ID, blockNumber);
+    return this.api.blockInternalTransactions(
+      GNOSIS_CHAIN_EXPLORER_ID,
+      blockNumber,
+    );
   }
 
   accountNormalTransactions(address: string, block?: number) {
-    return this.api.accountNormalTransactions(GNOSIS_CHAIN_ID, address, block);
+    return this.api.accountNormalTransactions(
+      GNOSIS_CHAIN_EXPLORER_ID,
+      address,
+      block,
+    );
   }
 
   accountInternalTransactions(address: string) {
-    return this.api.accountInternalTransactions(GNOSIS_CHAIN_ID, address);
+    return this.api.accountInternalTransactions(
+      GNOSIS_CHAIN_EXPLORER_ID,
+      address,
+    );
   }
 
   accountTokenTransfers(address: string) {
-    return this.api.accountTokenTransfers(GNOSIS_CHAIN_ID, address);
+    return this.api.accountTokenTransfers(GNOSIS_CHAIN_EXPLORER_ID, address);
   }
 }
 
@@ -91,14 +102,10 @@ export class GnosisScanAPI {
  * by Etherscan v2 multi-chain API.
  */
 export class GnosisScan extends Etherscan {
-  constructor(
-    registry: CryptoRegistryNG,
-    api: GnosisScanAPI,
-    chain?: Blockchain,
-  ) {
+  constructor(registry: CryptoRegistryNG, api: GnosisScanAPI) {
     // Create an EtherscanAPI from the provider for the parent class
     const etherscanAPI = new EtherscanAPI(api.provider);
-    super(registry, etherscanAPI, GNOSIS_CHAIN_ID, chain);
+    super(registry, etherscanAPI, GNOSIS_CHAIN_NAME);
   }
 
   static create(
