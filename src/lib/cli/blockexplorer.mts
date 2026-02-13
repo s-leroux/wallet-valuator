@@ -16,7 +16,7 @@ class CLIError extends Error {
   }
 }
 
-const ENVVARS = ["GNOSISSCAN_API_KEY"] as const;
+const ENVVARS = ["ETHERSCAN_API_KEY"] as const;
 type EnvVars = { [K in (typeof ENVVARS)[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
@@ -27,7 +27,7 @@ function createCryptoResolver(envvars: EnvVars) {
 }
 
 function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
-  return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
+  return [GnosisScan.create(registry, envvars["ETHERSCAN_API_KEY"])];
 }
 
 function loadEnvironmentVariables() {
@@ -55,11 +55,11 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
     explorers,
     cryptoRegistry,
     cryptoMetadata,
-    resolver
+    resolver,
   );
   const chain = asBlockchain("gnosis");
   const blocks = await Promise.all(
-    blockNumbers.map((blockNumber) => swarm.block(chain, blockNumber))
+    blockNumbers.map((blockNumber) => swarm.block(chain, blockNumber)),
   );
 
   const addresses = new Map<Address, number>();
@@ -69,9 +69,9 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
         transfers.forEach((transfer) => {
           addresses.set(transfer.from, 0);
           if (transfer.to) addresses.set(transfer.to, 0);
-        })
-      )
-    )
+        }),
+      ),
+    ),
   );
 
   await Promise.all(
@@ -82,7 +82,7 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
       } catch {
         addresses.set(address, Infinity);
       }
-    })
+    }),
   );
 
   console.log(
@@ -90,6 +90,6 @@ export async function processBlock(blockNumbers: number[]): Promise<void> {
     toDisplayString(Array.from(addresses.entries()), {
       "address.compact": false,
       "amount.value.format": format("6.4"),
-    })
+    }),
   );
 }

@@ -22,7 +22,7 @@ class CLIError extends Error {
 }
 
 const ENVVARS = [
-  "GNOSISSCAN_API_KEY",
+  "ETHERSCAN_API_KEY",
   "COINGECKO_API_KEY",
   "CACHE_PATH",
 ] as const;
@@ -33,7 +33,7 @@ function createCryptoResolver(envvars: EnvVars) {
 }
 
 function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
-  return [GnosisScan.create(registry, envvars["GNOSISSCAN_API_KEY"])];
+  return [GnosisScan.create(registry, envvars["ETHERSCAN_API_KEY"])];
 }
 
 function createOracle(envvars: EnvVars) {
@@ -79,7 +79,7 @@ export async function load(start: string, end: string, cryptoids: string[]) {
   const cryptos = cryptoids.map(
     (id) =>
       resolver.getCryptoAsset(cryptoRegistry, cryptoMetadata, id) ??
-      notFound(id)
+      notFound(id),
   );
 
   while (currDate <= endDate) {
@@ -97,9 +97,9 @@ export async function load(start: string, end: string, cryptoids: string[]) {
           crypto,
           currDate,
           new Set([FiatCurrency("EUR")]),
-          prices
+          prices,
         );
-      })
+      }),
     );
 
     currDate.setDate(currDate.getDate() + 1);
@@ -116,15 +116,15 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
     explorers,
     cryptoRegistry,
     cryptoMetadata,
-    resolver
+    resolver,
   );
   const chain = asBlockchain("gnosis");
   const addresses = await Promise.all(
-    hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress))
+    hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress)),
   );
 
   const transfers = await Promise.all(
-    addresses.map((address) => address.allValidTransfers(swarm))
+    addresses.map((address) => address.allValidTransfers(swarm)),
   );
   const ledger = Ledger.create(...transfers);
   for (const address of addresses) {
@@ -140,7 +140,7 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
     cryptoMetadata,
     oracle,
     null as unknown as FiatConverter,
-    FiatCurrency("EUR")
+    FiatCurrency("EUR"),
   );
 
   console.log(
@@ -148,6 +148,6 @@ export async function processAddresses(hexAddresses: string[]): Promise<void> {
     toDisplayString(valuation, {
       "address.compact": true,
       "amount.value.format": format("16.4"),
-    })
+    }),
   );
 }

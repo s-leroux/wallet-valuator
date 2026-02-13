@@ -1,4 +1,9 @@
 {
+    "binance-cex": {
+        "comment": "pseudo entry for the Binance CEX",
+        "display-name": "Binance",
+        "explorer-id": null
+    },
     "arbitrum": {
         "name": "arbitrum",
         "display-name": "Arbitrum",
