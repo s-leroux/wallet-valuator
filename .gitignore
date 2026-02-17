@@ -43,9 +43,10 @@ node_modules
 /.gemini/
 /.codex/
 
-# VSCode
+# IDE
 .vscode
 .vscode-server/
+.cursor
 .dotnet/
 .gitconfig
 
