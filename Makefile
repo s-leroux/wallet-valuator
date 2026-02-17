@@ -1,12 +1,12 @@
 DOCKER_IMAGE_NAME = wallet-valuator/dev
-DOCKER_IMAGE_VERSION = 2.1.3
+DOCKER_IMAGE_VERSION = 2.1.4
 DOCKER = sudo docker
 DOCKER_CONTEXT = ./docker/
 DOCKERFILE = $(DOCKER_CONTEXT)/Dockerfile
 
 WORKSPACE ?= $$(pwd)
 
-.PHONY: docker-image shell vs-code configure clean test build-all compile archive
+.PHONY: docker-image shell open-ide configure clean test build-all compile archive
 
 DOCKER_IMAGE_TAG ?= $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
 
@@ -56,13 +56,14 @@ docker-lint: docker-image
 		"$(DOCKER_IMAGE_TAG)" /bin/sh -c "npm lint"
 
 DEV_CONTAINER ?=
-vscode:
+IDE ?= code
+open-ide:
 ifndef DEV_CONTAINER
 	@echo "Error: DEV_CONTAINER not specified"
-	@echo "Usage: make vscode DEV_CONTAINER=my-container-name-or-id"
+	@echo "Usage: make open-ide [IDE=code] DEV_CONTAINER=my-container-name-or-id
 	@exit 1
 else
-	code --folder-uri "vscode-remote://attached-container+$$(echo -n "$(DEV_CONTAINER)" | xxd -p)/app"
+	$(IDE) --folder-uri "vscode-remote://attached-container+$$(echo -n "$(DEV_CONTAINER)" | xxd -p)/app"
 endif
 
 
