@@ -50,7 +50,7 @@ export class DefiLlamaOracle extends Oracle {
     if (!coin) {
       log.warn(
         "C2100",
-        `Price not found for ${crypto}/USD at ${date.toISOString()}`,
+        `Price not found for ${crypto}/USD at ${date.toISOString()} (${assetId})`,
       );
       return;
     }
