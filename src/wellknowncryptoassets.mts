@@ -1,6 +1,13 @@
-//prettier-ignore
+export type WellKnownCryptoAsset = [
+  id: string,
+  displayName: string,
+  unitName: string,
+  decimal: number,
+  metadata: Record<string, unknown> & { coingeckoId?: string },
+];
 
-export const WellKnownCryptoAssets = [
+//prettier-ignore
+export const WellKnownCryptoAssets: readonly WellKnownCryptoAsset[] = [
   ["aptos", "Aptos", "APT", 8, { coingeckoId: "aptos" }],
   ["armm-v3-usdc", "RealT RMM V3 USDC", "armmv3USDC", 6, { coingeckoId: "usd-coin" }],
   ["armm-v3-wxdai", "RealT RMM V3 WXDAI", "armmv3WXDAI", 18, { coingeckoId: "xdai" }],

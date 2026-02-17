@@ -5,6 +5,7 @@ import { assert } from "chai";
 
 import { prepare } from "../../support/register.helper.mjs";
 import { DefaultDefiLlamaAPI } from "../../../src/services/defillama/defillamaapi.mjs";
+import { WellKnownCryptoAssets } from "../../../src/wellknowncryptoassets.mjs";
 
 // ===========================================================================
 //  Constants
@@ -29,9 +30,8 @@ describe("DefiLlama API", function () {
     ];
 
     const date = new Date(DATE);
-    const register = prepare(this);
 
-    register("should retrieve prices for known tokens", async () => {
+    it("should retrieve prices for known tokens", async () => {
       const result = await api.getHistoricalPrices(date, TOKENS);
 
       assert.isObject(result);
@@ -46,7 +46,7 @@ describe("DefiLlama API", function () {
       }
     });
 
-    register("should handle unknown tokens gracefully", async () => {
+    it("should handle unknown tokens gracefully", async () => {
       const UNKNOWN = ["ethereum:0x000000000000000000000000000000000000dead"];
       const result = await api.getHistoricalPrices(date, UNKNOWN);
 
@@ -67,6 +67,32 @@ describe("DefiLlama API", function () {
       for (const [dateString, coinGeckoId] of TEST_CASES) {
         register(`${dateString} ${coinGeckoId}`, async function () {
           const date = new Date(dateString);
+          const result = await api.getHistoricalPrices(date, [coinGeckoId]);
+
+          assert.property(result.coins, coinGeckoId);
+          assert.containsAllKeys(result.coins[coinGeckoId], [
+            "price",
+            "symbol",
+            "timestamp",
+          ]);
+        });
+      }
+    });
+
+    describe("should handle all well known crypto-assets", function () {
+      const coinGeckoIds = new Set<string>();
+      for (const cryptoAsset of WellKnownCryptoAssets) {
+        const coinGeckoId = cryptoAsset[4]?.coingeckoId;
+        if (coinGeckoId) {
+          coinGeckoIds.add(coinGeckoId);
+        }
+      }
+
+      const register = prepare(this);
+      for (const id of coinGeckoIds) {
+        const coinGeckoId = `coingecko:${id}`;
+        register(`${coinGeckoId}`, async function () {
+          const date = new Date("2025-02-14");
           const result = await api.getHistoricalPrices(date, [coinGeckoId]);
 
           assert.property(result.coins, coinGeckoId);
