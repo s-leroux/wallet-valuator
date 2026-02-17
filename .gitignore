@@ -38,6 +38,11 @@ node_modules
 .viminfo
 .vimspector.json
 
+# AI
+/.claude*/
+/.gemini/
+/.codex/
+
 # VSCode
 .vscode
 .vscode-server/

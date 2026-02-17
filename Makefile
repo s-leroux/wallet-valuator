@@ -1,5 +1,5 @@
 DOCKER_IMAGE_NAME = wallet-valuator/dev
-DOCKER_IMAGE_VERSION = 2.1.2
+DOCKER_IMAGE_VERSION = 2.1.3
 DOCKER = sudo docker
 DOCKER_CONTEXT = ./docker/
 DOCKERFILE = $(DOCKER_CONTEXT)/Dockerfile

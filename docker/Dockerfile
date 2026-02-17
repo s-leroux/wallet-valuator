@@ -33,8 +33,8 @@ ENV PATH="/opt/node/bin:${PATH}"
 RUN npm config -g set update-notifier false
 
 # CLI AI tools
-RUN npm install -g @anthropic-ai/claude-code && \
-    npm install -g @google/gemini-cli
+RUN curl -fsSL https://claude.ai/install.sh | bash
+RUN npm install -g @google/gemini-cli
 
 # jq
 RUN apt-get install -y jq && apt-get clean
