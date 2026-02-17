@@ -20,7 +20,7 @@ export const WellKnownCryptoAssets = [
   ["harmony", "Harmony", "ONE", 18, { coingeckoId: "harmony" }],
   ["internet-computer", "Internet Computer", "ICP", 8, { coingeckoId: "internet-computer" }],
   ["kusama", "Kusama", "KSM", 12, { coingeckoId: "kusama" }],
-  ["matic", "MATIC", "MATIC", 18 , { coingeckoId: "matic-network" }],
+  ["matic", "MATIC", "MATIC", 18 , { coingeckoId: "polygon-ecosystem-token" }],
   ["monerium-eure","Monerium EURe", "EURe", 18, { coingeckoId: "monerium-eur-money" }],
   ["orchid-protocol", "Orchid", "OXT", 18, { coingeckoId: "orchid-protocol" }],
   ["pol", "POL (ex-MATIC)", "POL", 18 , { coingeckoId: "polygon-ecosystem-token" }],

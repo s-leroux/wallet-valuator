@@ -12,12 +12,6 @@ import { DefaultDefiLlamaAPI } from "../../../src/services/defillama/defillamaap
 const MOCHA_TEST_TIMEOUT = 10000;
 
 const api = DefaultDefiLlamaAPI.create();
-const DATE = "2023-10-01";
-const TOKENS = [
-  "ethereum:0x6B175474E89094C44Da98b954EedeAC495271d0F", // DAI
-  "ethereum:0xA0b86991C6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
-  "coingecko:bitcoin",
-];
 
 // ===========================================================================
 //  Tests
@@ -26,8 +20,15 @@ describe("DefiLlama API", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT / 2);
 
-  const date = new Date(DATE);
   describe("getHistoricalPrices()", function () {
+    const DATE = "2023-10-01";
+    const TOKENS = [
+      "ethereum:0x6B175474E89094C44Da98b954EedeAC495271d0F", // DAI
+      "ethereum:0xA0b86991C6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+      "coingecko:bitcoin",
+    ];
+
+    const date = new Date(DATE);
     const register = prepare(this);
 
     register("should retrieve prices for known tokens", async () => {
@@ -52,6 +53,30 @@ describe("DefiLlama API", function () {
       assert.isObject(result);
       assert.isObject(result.coins);
       assert.notProperty(result.coins, UNKNOWN[0]);
+    });
+
+    describe("should handle chain update from matic-network to polygon-ecosystem-token", function () {
+      // prettier-ignore
+      const TEST_CASES:[dateString:string, coinGeckoId:string][] = [
+        ["2024-11-17", "coingecko:polygon-ecosystem-token"],
+        ["2025-11-17", "coingecko:polygon-ecosystem-token"],
+        ["2025-12-31", "coingecko:polygon-ecosystem-token"],
+      ] as const;
+
+      const register = prepare(this);
+      for (const [dateString, coinGeckoId] of TEST_CASES) {
+        register(`${dateString} ${coinGeckoId}`, async function () {
+          const date = new Date(dateString);
+          const result = await api.getHistoricalPrices(date, [coinGeckoId]);
+
+          assert.property(result.coins, coinGeckoId);
+          assert.containsAllKeys(result.coins[coinGeckoId], [
+            "price",
+            "symbol",
+            "timestamp",
+          ]);
+        });
+      }
     });
   });
 });
