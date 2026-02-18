@@ -51,6 +51,18 @@ describe("toDisplayString", function () {
   it("should indent content of arrays", function () {
     assert.strictEqual(toDisplayString([1, 2, 3]), "[\n  1\n  2\n  3\n]");
   });
+
+  it("should display maps values", function () {
+    const map = new Map<number, string>([
+      [1, "one"],
+      [2, "two"],
+      [3, "three"],
+    ]);
+    assert.strictEqual(
+      toDisplayString(map),
+      "Map([\n  one\n  two\n  three\n])",
+    );
+  });
 });
 
 describe("tabular", function () {
