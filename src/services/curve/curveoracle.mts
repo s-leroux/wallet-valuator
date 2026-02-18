@@ -25,7 +25,7 @@ export class CurveOracle extends Oracle {
     cryptoAsset: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     const metadata = cryptoMetadata.getMetadata<CurveMetadata>(cryptoAsset);
 
@@ -41,7 +41,7 @@ export class CurveOracle extends Oracle {
 
     // We have two path to find the USD price of a token on Curve.
     // 1. some prices are available by token address using `getUSDPrice`
-    // 2. some prices are NOT available from their and requires querying
+    // 2. some prices are NOT available from there and requires querying
     // the pool's price.
     // see https://discord.com/channels/729808684359876718/729812922649542758/1356633193381625961
     let priceAsNumber: number;
@@ -49,15 +49,38 @@ export class CurveOracle extends Oracle {
       const OHLC = await this.api.getLiquidityPoolOHLC(
         metadata.chain,
         metadata.poolAddress,
-        date
+        date,
       );
+
+      // Corner cases:
+      // 1. missing or empty data array
+      if (!OHLC.data || !OHLC.data.length) {
+        log.trace(
+          "C1020",
+          `No price data available for ${cryptoAsset} at ${date}`,
+        );
+        return;
+      }
+
       const { open, high, low, close } = OHLC.data[0];
-      priceAsNumber = (open + high + low + close) / 4.0;
+
+      // 2. no open price
+      if (!open) {
+        log.trace(
+          "C1021",
+          `No price data available for ${cryptoAsset} at ${date}`,
+        );
+        return;
+      }
+
+      // "Normal" case
+      priceAsNumber =
+        high && low && close ? (open + high + low + close) / 4.0 : open;
     } else if (metadata.address) {
       const priceAsUSD = await this.api.getUSDPrice(
         metadata.chain,
         metadata.address,
-        date
+        date,
       );
       const priceData = priceAsUSD.data;
 
@@ -65,14 +88,14 @@ export class CurveOracle extends Oracle {
       if (!priceData || priceData.length === 0) {
         log.trace(
           "C1019",
-          `No price data available for ${cryptoAsset} at ${date}`
+          `No price data available for ${cryptoAsset} at ${date}`,
         );
         return;
       } else if (priceData.length > 1) {
         log.warn(
           "C2008",
           `Multiple price entries found for ${cryptoAsset} at ${date}, using first entry`,
-          priceData
+          priceData,
         );
       }
       priceAsNumber = priceAsUSD.data[0].price;
@@ -83,7 +106,7 @@ export class CurveOracle extends Oracle {
 
     const price = GlobalMetadataStore.setMetadata(
       cryptoAsset.price(USD, priceAsNumber),
-      { origin: "CURVE" }
+      { origin: "CURVE" },
     );
     result.set(USD, price);
   }
