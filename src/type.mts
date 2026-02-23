@@ -2,13 +2,100 @@
 //  Dynamic Type Checking
 // ========================================================================
 
+import { ErrorCode } from "./errcode.mjs";
 import { ValueError } from "./error.mjs";
+import { Logged } from "./errorutils.mjs";
 
 /**
  * Type that represents any value except undefined.
  * This includes null, primitives, objects, arrays, etc.
  */
 export type NotUndefined<T> = T extends undefined ? never : T;
+
+export class EnsureNG {
+  // 1. Default message
+  static isDefined<T>(
+    errCode: ErrorCode,
+    x: T | undefined,
+  ): asserts x is NotUndefined<T>;
+
+  // 2. Custom message
+  static isDefined<T>(
+    errCode: ErrorCode,
+    x: T | undefined,
+    message: string,
+  ): asserts x is NotUndefined<T>;
+
+  // 3. Custom error
+  static isDefined<T, E extends Error, R extends unknown[]>(
+    errCode: ErrorCode,
+    x: T | undefined,
+    ctor: new (...rest: R) => E,
+    ...rest: R
+  ): asserts x is NotUndefined<T>;
+
+  // Implementation
+  static isDefined<T, E extends Error, R extends unknown[]>(
+    errCode: ErrorCode,
+    x: T | undefined,
+    ctor?: (new (...rest: R) => E) | string,
+    ...rest: R
+  ): asserts x is NotUndefined<T> {
+    if (x !== undefined) return;
+
+    if (typeof ctor === "string") {
+      throw Logged(errCode, ValueError, ctor);
+    }
+    if (ctor) {
+      throw Logged(errCode, ctor, ...rest);
+    }
+    throw Logged(
+      errCode,
+      ValueError,
+      "Expected a defined value but got undefined",
+    );
+  }
+
+  // 1. Default message
+  static isTrue(errCode: ErrorCode, x: boolean): asserts x is true;
+
+  // 2. Custom message
+  static isTrue(
+    errCode: ErrorCode,
+    x: boolean,
+    message: string,
+  ): asserts x is true;
+
+  // 3. Custom error
+  static isTrue<E extends Error, R extends unknown[]>(
+    errCode: ErrorCode,
+    x: boolean,
+    ctor: new (...rest: R) => E,
+    ...rest: R
+  ): asserts x is true;
+
+  // Implementation
+  static isTrue<E extends Error, R extends unknown[]>(
+    errCode: ErrorCode,
+    x: boolean,
+    ctor?: (new (...rest: R) => E) | string,
+    ...rest: R
+  ): asserts x is true {
+    if (x) return;
+
+    if (typeof ctor === "string") {
+      throw Logged(errCode, ValueError, ctor);
+    }
+    if (ctor) {
+      throw Logged(errCode, ctor, ...rest);
+    }
+    throw Logged(
+      errCode,
+      ValueError,
+      `Expected a true value but got ${String(x)}`,
+    );
+  }
+}
 
 /**
  * Run-time type checks.
