@@ -46,7 +46,7 @@ const log = logger("valuation");
 export class Value implements Quantity<FiatCurrency, Value> {
   constructor(
     readonly fiatCurrency: FiatCurrency,
-    readonly value: BigNumber = BigNumber.ZERO
+    readonly value: BigNumber = BigNumber.ZERO,
   ) {}
 
   /**
@@ -108,7 +108,7 @@ export class Value implements Quantity<FiatCurrency, Value> {
       options["amount.separator"] ?? defaultDisplayOptions["amount.separator"];
 
     return `${valueFormat(this.value.toString())}${sep}${symbolFormat(
-      this.fiatCurrency.code
+      this.fiatCurrency.code,
     )}`;
   }
 
@@ -145,7 +145,7 @@ export class PointInTimeValuation {
   private constructor(
     readonly date: Date,
     readonly fiatCurrency: FiatCurrency,
-    readonly positions: Map<CryptoAsset, Position>
+    readonly positions: Map<CryptoAsset, Position>,
   ) {
     let totalCryptoValue = new Value(fiatCurrency);
     for (const position of positions.values()) {
@@ -169,7 +169,7 @@ export class PointInTimeValuation {
     date: Date,
     fiatCurrency: FiatCurrency,
     amounts: Map<CryptoAsset, Amount>,
-    exchangeRates: Map<CryptoAsset, Price>
+    exchangeRates: Map<CryptoAsset, Price>,
   ) {
     const positions = new Map<CryptoAsset, Position>();
 
@@ -178,10 +178,11 @@ export class PointInTimeValuation {
       if (exchangeRate === undefined) {
         throw new ProtocolError(`Missing  exchange rate for ${cryptoAsset}`);
       }
+
       if (exchangeRate.fiatCurrency !== fiatCurrency) {
         throw new InconsistentUnitsError(
           exchangeRate.fiatCurrency,
-          fiatCurrency
+          fiatCurrency,
         );
       }
 
@@ -232,7 +233,7 @@ export class SnapshotValuation {
     readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
     readonly cashInMulShare: Value | undefined, // The share of initial capital according to the French fiscal rules
     readonly gainOrLoss: Value | undefined,
-    readonly parent: SnapshotValuation | null
+    readonly parent: SnapshotValuation | null,
   ) {}
 
   static async createFromSnapshot(
@@ -241,7 +242,7 @@ export class SnapshotValuation {
     priceResolver: PriceResolver,
     fiatCurrency: FiatCurrency,
     snapshot: Snapshot,
-    parent: SnapshotValuation | null
+    parent: SnapshotValuation | null,
   ): Promise<SnapshotValuation> {
     const date = new Date(snapshot.timeStamp * 1000);
 
@@ -262,7 +263,7 @@ export class SnapshotValuation {
         cryptoMetadata,
         crypto,
         date,
-        new Set([fiatCurrency])
+        new Set([fiatCurrency]),
       );
 
       const price = prices.get(fiatCurrency);
@@ -297,13 +298,13 @@ export class SnapshotValuation {
       date,
       fiatCurrency,
       previousHoldings,
-      exchangeRates
+      exchangeRates,
     );
     const end = PointInTimeValuation.create(
       date,
       fiatCurrency,
       currentHoldings,
-      exchangeRates
+      exchangeRates,
     );
 
     // Copy auxiliary data
@@ -349,7 +350,7 @@ export class SnapshotValuation {
       cashIn,
       cashInMulShare,
       gainOrLoss,
-      parent
+      parent,
     );
   }
 
@@ -382,7 +383,7 @@ export class SnapshotValuation {
 
     // Add a line for the total valuation
     lines.push(
-      "V:" + this.cryptoValueAfter.totalCryptoValue.toDisplayString(options)
+      "V:" + this.cryptoValueAfter.totalCryptoValue.toDisplayString(options),
     );
 
     // Now our holdings
@@ -393,10 +394,10 @@ export class SnapshotValuation {
             "  " +
               value.toDisplayString(options) +
               " " +
-              amount.toDisplayString(options)
+              amount.toDisplayString(options),
           );
         }
-      }
+      },
     );
 
     return lines.join("\n");
@@ -422,7 +423,7 @@ export class PortfolioValuation implements Iterable<SnapshotValuation> {
     oracle: Oracle,
     fiatConverter: FiatConverter,
     fiatCurrency: FiatCurrency,
-    snapshots: Snapshot[]
+    snapshots: Snapshot[],
   ): Promise<PortfolioValuation> {
     const snapshotValuations = [] as SnapshotValuation[];
 
@@ -436,7 +437,7 @@ export class PortfolioValuation implements Iterable<SnapshotValuation> {
         priceResolver,
         fiatCurrency,
         snapshot,
-        curr
+        curr,
       );
       snapshotValuations.push(curr);
     }

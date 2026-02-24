@@ -22,6 +22,11 @@ export const ERRORS = {
   "C1017": "An error was thrown while fetching URL (Provider)",
   "C1018": "Fetch (Provider)",
   "C1019": "Price not found (CurveOracle)",
+  "C1020": "Price not found (CurveOracle)",
+  "C1021": "Price not found (CurveOracle)",
+  "C1022": "Can't price an asset",
+  "C1023": "Price not in cache",
+  "C1024": "Can't use FiatConverter",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",
@@ -53,6 +58,7 @@ export const ERRORS = {
   "C3016": "CryptoAsset already registered (CryptoRegistry)",
   "C3017": "Invalid API key (RealTokenProvider)",
   "C3100": "Chain not found",
+  "C3101": "Protocol violation in PriceResolver",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

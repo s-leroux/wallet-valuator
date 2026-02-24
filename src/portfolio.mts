@@ -34,7 +34,7 @@ export class Snapshot {
     movement: Movement,
     tags: Map<string, any>,
     comments: string[],
-    parent: Snapshot | null = null
+    parent: Snapshot | null = null,
   ) {
     this.parent = parent;
     this.timeStamp = movement.timeStamp;
@@ -49,7 +49,7 @@ export class Snapshot {
     ingress: boolean,
     egress: boolean,
     movement: Movement,
-    tags: Map<string, any>
+    tags: Map<string, any>,
   ): void {
     /*
      * This is where all the "magic" happens.
@@ -80,7 +80,7 @@ export class Snapshot {
           console.log(
             `Attempt to remove ${amount} from ${holding ?? 0} at ${
               movement.timeStamp
-            }`
+            }`,
           );
           newAmount = new Amount(crypto); // clamp to zero
         } else {
@@ -142,13 +142,30 @@ export class Snapshot {
   toDisplayString(options: DisplayOptions = {}) {
     const lines: string[] = [TextUtils.formatDate(this.timeStamp * 1000)];
     this.holdings.forEach((amount, crypto) =>
-      lines.push(amount.toDisplayString(options))
+      lines.push(amount.toDisplayString(options)),
     );
 
     return lines.join("\n");
   }
 }
 
+/**
+ * A derived, time-ordered view of a {@link Ledger} as a sequence of portfolio balance snapshots.
+ *
+ * Conceptually:
+ * - A {@link Ledger} is the source of truth (raw, tagged movements).
+ * - A {@link Snapshot} is the portfolio state *after* applying one relevant movement.
+ * - A {@link Portfolio} is the ordered list of snapshots, used for display/export and valuation.
+ *
+ * Building rules (see {@link createFromLedger}):
+ * - Only ledger entries tagged as INGRESS or EGRESS affect the portfolio.
+ * - Entries tagged with both INGRESS and EGRESS are treated as internal transfers and ignored.
+ *
+ * Notes:
+ * - Snapshots internally form a parent-linked chain; this class additionally keeps an array for
+ *   efficient iteration and export.
+ * - The chronological order is assumed to be the iteration order of the ledger.
+ */
 export class Portfolio {
   snapshots: Snapshot[];
 
@@ -180,7 +197,7 @@ export class Portfolio {
           entry.transaction,
           entry.tags,
           entry.transaction.comments,
-          curr
+          curr,
         );
         snapshots.push(curr);
       } else {
@@ -231,9 +248,9 @@ export class Portfolio {
       cryptoAssets
         .reduce(
           (acc, cryptoAsset) => (acc.push(cryptoAsset.symbol), acc),
-          ["DATE"]
+          ["DATE"],
         )
-        .join(separator) + os.EOL
+        .join(separator) + os.EOL,
     );
 
     // Data lines
@@ -244,7 +261,7 @@ export class Portfolio {
           acc.push(snapshot.holdings.get(cryptoAsset)?.value.toString() ?? "0"),
           acc
         ),
-        [snapshot.timeStamp.toString()]
+        [snapshot.timeStamp.toString()],
       );
       lines.push(items.join(separator) + os.EOL);
     }
@@ -259,7 +276,7 @@ export class Portfolio {
     cryptoMetadata: CryptoMetadata,
     oracle: Oracle,
     fiatConverter: FiatConverter,
-    fiatCurrency: FiatCurrency
+    fiatCurrency: FiatCurrency,
   ): Promise<PortfolioValuation> {
     return PortfolioValuation.create(
       cryptoRegistry,
@@ -267,7 +284,7 @@ export class Portfolio {
       oracle,
       fiatConverter,
       fiatCurrency,
-      this.snapshots
+      this.snapshots,
     );
   }
 }

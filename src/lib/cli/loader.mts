@@ -1,11 +1,6 @@
-import { Swarm } from "../../../src/swarm.mjs";
-import { Ledger } from "../../../src/ledger.mjs";
-import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
 import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
-import { asBlockchain } from "../../blockchain.mjs";
 import { format, toDisplayString } from "../../displayable.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
-import { FiatConverter } from "../../services/fiatconverter.mjs";
 import { CompositeOracle } from "../../services/oracles/compositeoracle.mjs";
 import { CoinGeckoOracle } from "../../services/oracles/coingecko.mjs";
 import { DefaultCryptoResolver } from "../../services/cryptoresolvers/defaultcryptoresolver.mjs";
@@ -30,10 +25,6 @@ type EnvVars = { [K in (typeof ENVVARS)[number]]: string };
 
 function createCryptoResolver(envvars: EnvVars) {
   return DefaultCryptoResolver.create();
-}
-
-function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
-  return [GnosisScan.create(registry, envvars["ETHERSCAN_API_KEY"])];
 }
 
 function createOracle(envvars: EnvVars) {
@@ -102,52 +93,14 @@ export async function load(start: string, end: string, cryptoids: string[]) {
       }),
     );
 
+    console.log(
+      "%s",
+      toDisplayString(prices, {
+        "address.compact": true,
+        "amount.value.format": format("16.4"),
+      }),
+    );
+
     currDate.setDate(currDate.getDate() + 1);
   }
-}
-
-export async function processAddresses(hexAddresses: string[]): Promise<void> {
-  const envvars = loadEnvironmentVariables();
-  const resolver = createCryptoResolver(envvars);
-  const cryptoRegistry = CryptoRegistryNG.create();
-  const cryptoMetadata = CryptoMetadata.create();
-  const explorers = createExplorers(cryptoRegistry, envvars);
-  const swarm = Swarm.create(
-    explorers,
-    cryptoRegistry,
-    cryptoMetadata,
-    resolver,
-  );
-  const chain = asBlockchain("gnosis");
-  const addresses = await Promise.all(
-    hexAddresses.map((hexAddress) => swarm.address(chain, hexAddress)),
-  );
-
-  const transfers = await Promise.all(
-    addresses.map((address) => address.allValidTransfers(swarm)),
-  );
-  const ledger = Ledger.create(...transfers);
-  for (const address of addresses) {
-    ledger.from(address).tag("EGRESS");
-    ledger.to(address).tag("INGRESS");
-  }
-
-  const portfolio = ledger.portfolio();
-
-  const oracle = createOracle(envvars);
-  const valuation = await portfolio.evaluate(
-    cryptoRegistry,
-    cryptoMetadata,
-    oracle,
-    null as unknown as FiatConverter,
-    FiatCurrency("EUR"),
-  );
-
-  console.log(
-    "%s",
-    toDisplayString(valuation, {
-      "address.compact": true,
-      "amount.value.format": format("16.4"),
-    }),
-  );
 }
