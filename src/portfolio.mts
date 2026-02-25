@@ -42,15 +42,10 @@ export class Snapshot {
     this.holdings = new Map(parent?.holdings);
     this.tags = new Map(tags);
     this.comments = [...comments];
-    this.update(ingress, egress, movement, tags);
+    this.update(ingress, egress, movement);
   }
 
-  update(
-    ingress: boolean,
-    egress: boolean,
-    movement: Movement,
-    tags: Map<string, any>,
-  ): void {
+  update(ingress: boolean, egress: boolean, movement: Movement): void {
     /*
      * This is where all the "magic" happens.
      * This function uses a set of well-known tags and heuristics to
