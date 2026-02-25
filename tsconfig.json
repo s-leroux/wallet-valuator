@@ -4,7 +4,7 @@
     "moduleResolution": "nodenext",
     "module": "nodenext",
     "resolveJsonModule": true,
-    "sourceMap" : true,
+    "sourceMap": true,
     "target": "es2024",
     "lib": ["es2024", "esnext"],
     "strictNullChecks": true,
@@ -71,6 +71,8 @@
     "test/services/realtoken/realtokenoracle.spec.mts",
     "test/services/realtoken/realtokenresolver.spec.mts",
     "test/swarm.spec.mts",
+    "test/tabular/adapters/ledgeradapter.spec.mts",
+    "test/tabular/adapters/snapshotadapter.spec.mts",
     "test/transaction.spec.mts",
     "test/type.spec.mts",
     "test/valuation.spec.mts",
@@ -154,6 +156,9 @@
     "src/services/realtoken/realtokenresolver.mts",
     "src/services/reporters/valuationreporter.mts",
     "src/swarm.mts",
+    "src/tabular/adapter.mts",
+    "src/tabular/adapters/ledgeradapter.mts",
+    "src/tabular/adapters/snapshotadapter.mts",
     "src/transaction.mts",
     "src/type.mts",
     "src/valuation.mts",
@@ -170,6 +175,5 @@
   "watchOptions": {
     "watchFile": "dynamicprioritypolling",
     "watchDirectory": "dynamicprioritypolling"
-
   }
 }

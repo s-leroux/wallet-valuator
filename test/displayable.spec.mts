@@ -7,6 +7,7 @@ import {
   Displayable,
   tabular,
   TextUtils,
+  DateFormat,
 } from "../src/displayable.mjs";
 import { NotImplementedError, ValueError } from "../src/error.mjs";
 
@@ -42,6 +43,15 @@ describe("toDisplayString", function () {
 
   it("should propagate options to toDisplayString()", function () {
     // TBD
+  });
+
+  it("should forward Date to TextUtils.formatDate()", function () {
+    const date = "2026-02-10";
+
+    assert.strictEqual(
+      toDisplayString(new Date(date), { "date.format": "YYYY-MM-DD" }),
+      date,
+    );
   });
 
   it("should return '[]' for empty arrays", function () {
@@ -115,5 +125,24 @@ describe("TextUtils", function () {
     it("should handle an empty input array", function () {
       assert.deepEqual(TextUtils.indent([], 2), []);
     });
+  });
+
+  describe("formatDate", function () {
+    // prettier-ignore
+    const testcases: [date: number | Date, format : DateFormat, expected:string, desc:string][] = [
+      [ new Date("2026-02-10"), "YYYY-MM-DD", "2026-02-10", "formats full ISO date"],
+      [ new Date("2026-02-10"), "YYYY", "2026", "formats year only"],
+      [ new Date("2026-02-10").getTime(), "YYYY-MM-DD", "2026-02-10", "accepts timestamp input"],
+      [ new Date("2026-02-10").getTime(), (date) => String(date.getTime()), "1770681600000", "custom function"],
+    ] as const;
+
+    const register = prepare(this);
+    for (const [date, format, expected, desc] of testcases) {
+      register(desc, function () {
+        const result = TextUtils.formatDate(date, { "date.format": format });
+
+        assert.strictEqual(result, expected);
+      });
+    }
   });
 });

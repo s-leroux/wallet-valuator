@@ -26,13 +26,13 @@ describe("Snapshot", () => {
         value,
         "ethereum",
         ["A", true],
-        ["B", false]
+        ["B", false],
       );
       const snapshot = new Snapshot(...movement);
       assert.equal(snapshot.holdings.size, 1);
       assert.equal(
         snapshot.holdings.get(FakeCryptoAsset.ethereum)!.toString(),
-        `${value} ${FakeCryptoAsset.ethereum.symbol}`
+        `${value} ${FakeCryptoAsset.ethereum.symbol}`,
       );
     });
 
@@ -50,11 +50,11 @@ describe("Snapshot", () => {
       assert.equal(snapshot.holdings.size, 2);
       assert.equal(
         snapshot.holdings.get(FakeCryptoAsset.ethereum)!.toString(),
-        "500 ETH"
+        "500 ETH",
       );
       assert.equal(
         snapshot.holdings.get(FakeCryptoAsset.dai)!.toString(),
-        "75 DAI"
+        "75 DAI",
       );
     });
   });

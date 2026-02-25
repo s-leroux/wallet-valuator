@@ -8,13 +8,15 @@ export interface Displayable {
   toDisplayString(options: Readonly<DisplayOptions>): string;
 }
 
+export type DateFormat = string | ((date: Date) => string);
+
 export type DisplayOptions = Partial<{
   "address.compact": boolean; // Display numeric address in compact form
   "address.name": boolean; // Display address name instead of numeric address
   "amount.separator": string;
   "amount.symbol.format": (arg: string) => string;
   "amount.value.format": (arg: string) => string;
-  "date.format": string; // Defines a date format as understood by formatDate
+  "date.format": DateFormat; // Defines a date format as understood by formatDate
   "record.format": (...obj: unknown[]) => string;
   "shift.width": number; // Defines the indentation width (in number of character)
 }>;
@@ -38,13 +40,16 @@ export const defaultDisplayOptions: Required<DisplayOptions> = {
 
 function noDisplayString(obj: object & {}, options: DisplayOptions): string {
   if (Array.isArray(obj)) {
-    const body = (obj)
-      .map((item) => toDisplayString(item, options))
-      .join("\n");
+    const body = obj.map((item) => toDisplayString(item, options)).join("\n");
     if (body) {
       return `[\n${TextUtils.indent(body, 1, options)}\n]`;
     }
     return "[]";
+  }
+
+  // Date format
+  if (obj instanceof Date) {
+    return TextUtils.formatDate(obj, options);
   }
 
   // Other standard container?
@@ -58,13 +63,13 @@ function noDisplayString(obj: object & {}, options: DisplayOptions): string {
   log.trace("C1015", `Unable to format as display string ${classname} ${obj}`);
   log.debug(classname, obj);
   throw new NotImplementedError(
-    `Missing toDisplayString() in ${classname} ${obj}`
+    `Missing toDisplayString() in ${classname} ${obj}`,
   );
 }
 
 export function toDisplayString(
   obj: unknown,
-  options: DisplayOptions = {}
+  options: DisplayOptions = {},
 ): string {
   const type = typeof obj;
 
@@ -158,26 +163,29 @@ export function tabular(sep: string, ...formats: string[]) {
 //========================================================================
 
 export const TextUtils = {
-  //========================================================================
+  //----------------------------------------------------------------------
   //  Date formatting
-  //========================================================================
+  //----------------------------------------------------------------------
   formatDate(date: Date | number, options = {} as DisplayOptions) {
+    // XXX formatDate is a low-level function that should take DateFormat as argument, not DisplayOptions
     const format =
       options["date.format"] ?? defaultDisplayOptions["date.format"];
     if (typeof date !== "object") {
       date = new Date(date);
     }
 
-    return dateUtilsFormatDate(format, date);
+    return typeof format === "function"
+      ? format(date)
+      : dateUtilsFormatDate(format, date);
   },
 
-  //========================================================================
+  //----------------------------------------------------------------------
   //  Indentation
-  //========================================================================
+  //----------------------------------------------------------------------
   indent(
     text: string[] | string, // FIXME Accept only strings
     n: number = 1,
-    options = {} as DisplayOptions
+    options = {} as DisplayOptions,
   ) {
     let isString = false;
     if (typeof text === "string") {
@@ -189,7 +197,7 @@ export const TextUtils = {
 
     if (!Number.isInteger(n) || n <= 0) {
       throw new ValueError(
-        `indent(): "n" must be a positive integer. Received: ${n}`
+        `indent(): "n" must be a positive integer. Received: ${n}`,
       );
     }
 
