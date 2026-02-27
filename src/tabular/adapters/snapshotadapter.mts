@@ -5,7 +5,7 @@ import { TabularAdapter } from "../adapter.mjs";
 export class SnapshotTabularAdapter implements TabularAdapter {
   constructor(readonly head: Snapshot) {}
 
-  columns() {
+  headings() {
     return [{ name: "date", "date.format": "DD/MM/YYYY" }, { name: "delta" }];
   }
 

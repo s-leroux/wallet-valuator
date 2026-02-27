@@ -21,7 +21,7 @@ describe("SnapshotTabularAdapter", () => {
 
     it("should return the columns specs", () => {
       const tabularAdapter = new SnapshotTabularAdapter(snapshot);
-      const columns = tabularAdapter.columns();
+      const columns = tabularAdapter.headings();
 
       assert.deepEqual(
         columns.map((specs) => specs["name"]),

@@ -130,6 +130,8 @@ export function format(format: string) {
     return id;
   }
 
+  // XXX Add tests to ensure the format max width is honored
+  // XXX Handle the [+-] modifier
   const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
   if (!match) {
     throw new ValueError(`Invalid format ${format}`);
