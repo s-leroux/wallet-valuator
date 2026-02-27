@@ -1,4 +1,4 @@
-import { ColumnSpec, TabularAdapter } from "../../src/tabular/adapter.mjs";
+import { TabularAdapter } from "../../src/tabular/adapter.mjs";
 
 export class FakeTabularAdapter implements TabularAdapter {
   *rows(): IterableIterator<readonly unknown[]> {
@@ -11,10 +11,7 @@ export class FakeTabularAdapter implements TabularAdapter {
 
     for (const row of data) yield row;
   }
-  headings(): readonly ColumnSpec[] {
-    return [
-      { name: "timestamp", "date.format": "YYYY-MM-DD" },
-      { name: "value" },
-    ];
+  headings(): readonly string[] {
+    return ["timestamp", "value"];
   }
 }

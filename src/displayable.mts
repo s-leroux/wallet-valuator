@@ -77,6 +77,7 @@ export function toDisplayString(
     // ^ above: handle null gracefully
 
     // for non-object, use the default toString() implementation
+    // XXX Shouldn't we allow number formatting specifiers?
     return String(obj);
   }
 

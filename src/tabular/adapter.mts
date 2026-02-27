@@ -1,8 +1,7 @@
-import { DisplayOptions } from "../displayable.mjs";
-
-export type ColumnSpec = DisplayOptions & { name: string };
-
+/**
+ * TabularAdapter is an interface for a tabular data source.
+ */
 export interface TabularAdapter {
-  headings(): readonly ColumnSpec[];
-  rows(): IterableIterator<readonly unknown[]>;
+  headings(): readonly string[];
+  rows(): Iterable<readonly unknown[]>;
 }

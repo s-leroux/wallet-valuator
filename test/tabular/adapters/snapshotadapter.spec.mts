@@ -11,7 +11,7 @@ const EGRESS = [false, true] as const;
 describe("SnapshotTabularAdapter", () => {
   describe("assets()", () => {
     const movements = [
-      FakeMovement(...INGRESS, 10, "100", "dai"),
+      FakeMovement(...INGRESS, 10, "100", "dai", ["GRANT", "FUNDINGS"]),
       FakeMovement(...INGRESS, 20, "200", "ethereum"),
       FakeMovement(...EGRESS, 30, "25", "dai"),
       FakeMovement(...INGRESS, 40, "300", "ethereum"),
@@ -23,10 +23,7 @@ describe("SnapshotTabularAdapter", () => {
       const tabularAdapter = new SnapshotTabularAdapter(snapshot);
       const columns = tabularAdapter.headings();
 
-      assert.deepEqual(
-        columns.map((specs) => specs["name"]),
-        ["date", "delta"],
-      );
+      assert.deepEqual(columns, ["date", "delta", "tags"]);
     });
   });
 });
