@@ -26,9 +26,13 @@ const INTERNAL_TO_COINGECKO_ID = {
 };
 
 describe("CoinGecko", function () {
-  if (!API_KEY) {
-    throw Error("You must define the COINGECKO_API_KEY environment variable");
-  }
+  before(function () {
+    if (!API_KEY) {
+      throw Error(
+        "You must define the COINGECKO_API_KEY environment variable to run this test suite",
+      );
+    }
+  });
 
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);

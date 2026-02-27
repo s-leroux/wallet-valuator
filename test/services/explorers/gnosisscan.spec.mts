@@ -20,9 +20,13 @@ const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["ETHERSCAN_API_KEY"];
 
 describe("GnosisScan", function () {
-  if (!API_KEY) {
-    throw Error("You must define the ETHERSCAN_API_KEY environment variable");
-  }
+  before(function () {
+    if (!API_KEY) {
+      throw Error(
+        "You must define the ETHERSCAN_API_KEY environment variable to run this test suite",
+      );
+    }
+  });
 
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
@@ -32,7 +36,7 @@ describe("GnosisScan", function () {
   let gs: GnosisScanAPI | undefined;
 
   beforeEach(function () {
-    provider = new GnosisScanProvider(API_KEY);
+    provider = new GnosisScanProvider(API_KEY!);
     gs = new GnosisScanAPI(provider);
   });
 

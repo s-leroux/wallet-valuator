@@ -61,9 +61,13 @@ describe("EtherscanProvider", function () {
 });
 
 describe("Etherscan", function () {
-  if (!API_KEY) {
-    throw Error("You must define the ETHERSCAN_API_KEY environment variable");
-  }
+  before(function () {
+    if (!API_KEY) {
+      throw Error(
+        "You must define the ETHERSCAN_API_KEY environment variable to run this test suite",
+      );
+    }
+  });
 
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
@@ -73,7 +77,7 @@ describe("Etherscan", function () {
   let gs: EtherscanAPI | undefined;
 
   beforeEach(function () {
-    provider = new EtherscanProvider(API_KEY);
+    provider = new EtherscanProvider(API_KEY!);
     gs = new EtherscanAPI(provider);
   });
 
