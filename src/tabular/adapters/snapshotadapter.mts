@@ -6,7 +6,7 @@ export class SnapshotTabularAdapter implements TabularAdapter {
   constructor(readonly head: Snapshot) {}
 
   headings() {
-    return ["date", "delta", "tags"] as const;
+    return ["date", "type", "delta", "tags"] as const;
   }
 
   *rows() {
@@ -22,6 +22,7 @@ export class SnapshotTabularAdapter implements TabularAdapter {
       const date = new Date(snapshot.timeStamp * 1000);
       yield [
         date,
+        snapshot.type,
         snapshot.tags.get("DELTA") as Amount,
         [...snapshot.tags.keys()].join(", "),
       ];

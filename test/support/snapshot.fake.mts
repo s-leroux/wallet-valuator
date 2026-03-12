@@ -6,8 +6,14 @@ import type { Address } from "../../src/address.mjs";
 type Movement = [
   ingress: boolean,
   egress: boolean,
-  { timeStamp: number; amount: Amount; from?: Address; to?: Address },
-  Map<string, any>,
+  {
+    type: string;
+    timeStamp: number;
+    amount: Amount;
+    from?: Address;
+    to?: Address;
+  },
+  tags: Map<string, any>,
   comments: string[],
 ];
 
@@ -27,6 +33,7 @@ export function FakeMovement( // Capitalized to pretend we are a class. Hin! Hin
     ingress,
     egress,
     {
+      type: "FAKE",
       timeStamp:
         typeof timeStampOrDate === "string"
           ? timeStampFromDate(timeStampOrDate)
