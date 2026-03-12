@@ -42,7 +42,7 @@ function run(scriptPath: string): Promise<string> {
 async function runAndCompare(
   scriptPath: string,
   expectedDataPath: string,
-  outDataPath: string
+  outDataPath: string,
 ) {
   let expectedData: string | undefined;
   try {
@@ -67,7 +67,7 @@ async function runAndCompare(
       await fs.copyFile(outDataPath, expectedDataPath);
     } catch (err) {
       throw new Error(
-        `Cannot copy ${outDataPath} to ${expectedDataPath}\n${err}`
+        `Cannot copy ${outDataPath} to ${expectedDataPath}\n${err}`,
       );
     }
   }
@@ -85,7 +85,7 @@ async function walker(err: any, pathname: string, dirent: string) {
     const expectedDataPath = path.join(stem, file.name + ".txt");
     const outDataPath = path.join(file.dir, file.name + ".txt");
     addTest(`${scriptPath} should run`, () =>
-      runAndCompare(scriptPath, expectedDataPath, outDataPath)
+      runAndCompare(scriptPath, expectedDataPath, outDataPath),
     );
   }
 }

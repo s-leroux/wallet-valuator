@@ -1,14 +1,14 @@
 // ISSUE #34 This is more an 'helper' file than a 'fake' data file
 import type { Amount } from "../../src/cryptoasset.mjs";
 import { FakeCryptoAsset } from "./cryptoasset.fake.mjs";
-import { Snapshot } from "../../src/portfolio.mjs";
+import { Portfolio, Snapshot } from "../../src/portfolio.mjs";
 import type { Address } from "../../src/address.mjs";
 type Movement = [
   ingress: boolean,
   egress: boolean,
   { timeStamp: number; amount: Amount; from?: Address; to?: Address },
   Map<string, any>,
-  comments: string[]
+  comments: string[],
 ];
 
 function timeStampFromDate(YYYY_MM_DD: string) {
@@ -45,7 +45,7 @@ export function snapshotFromMovements(movements: Movement[]): Snapshot {
 
   return movements.reduce<Snapshot | null>(
     (prev, movement) => new Snapshot(...movement, prev),
-    null
+    null,
   )!;
 }
 
@@ -63,4 +63,8 @@ export function snapshotsFromMovements(movements: Movement[]): Snapshot[] {
   }, null);
 
   return result;
+}
+
+export function portfolioFromMovements(movements: Movement[]): Portfolio {
+  return new Portfolio(snapshotsFromMovements(movements));
 }

@@ -72,10 +72,11 @@
     "test/services/realtoken/realtokenresolver.spec.mts",
     "test/swarm.spec.mts",
     "test/tabular/adapters/ledgeradapter.spec.mts",
+    "test/tabular/adapters/portfolioadapter.spec.mts",
     "test/tabular/adapters/snapshotadapter.spec.mts",
     "test/tabular/snapshotprettyview.spec.mts",
-    "test/tabular/views/prettyview.spec.mts",
     "test/tabular/views/csvview.spec.mts",
+    "test/tabular/views/prettyview.spec.mts",
     "test/text.spec.mts",
     "test/transaction.spec.mts",
     "test/type.spec.mts",
@@ -163,6 +164,7 @@
     "src/swarm.mts",
     "src/tabular/adapter.mts",
     "src/tabular/adapters/ledgeradapter.mts",
+    "src/tabular/adapters/portfolioadapter.mts",
     "src/tabular/adapters/snapshotadapter.mts",
     "src/tabular/view.mts",
     "src/tabular/views/csvview.mts",
@@ -175,6 +177,7 @@
 
     "examples/balance.mts",
     "examples/find-address.mts",
+    "examples/portfolio-tabular.mts",
     "examples/report.mts",
 
     "cli/report-cli.mts",
