@@ -23,7 +23,7 @@ describe("SnapshotTabularAdapter", () => {
       const tabularAdapter = new SnapshotTabularAdapter(snapshot);
       const columns = tabularAdapter.headings();
 
-      assert.deepEqual(columns, ["date", "delta", "tags"]);
+      assert.deepEqual(columns, ["date", "type", "delta", "tags"]);
     });
   });
 
@@ -52,8 +52,8 @@ describe("SnapshotTabularAdapter", () => {
       assert.deepEqual(row2[0], new Date(20 * 1000));
       assert.deepEqual(row3[0], new Date(10 * 1000));
 
-      assert.strictEqual(row0[2], "DELTA");
-      assert.strictEqual(row3[2], "GRANT, DELTA");
+      assert.strictEqual(row0[3], "DELTA");
+      assert.strictEqual(row3[3], "GRANT, DELTA");
     });
   });
 });
