@@ -29,7 +29,36 @@ navigation layer still exists, but accounting is the main focus.
 
 ## Project Status
 
-🚧 **Under Active Development (02-2026)** 🚧
+🚧 **Under Active Development (03-2026)** 🚧
+
+## Development environment (Dev Container)
+
+All development is intended to happen **inside the Development Container** built
+from `docker/Dockerfile`. The host system is only used to build and run that
+container and to start your editor attached to it.
+
+- The dev container includes tools such as `vim`, `node`, `npm`, `npx`, `tsc`,
+  `jq`, `gemini` and others; see `docker/Dockerfile` on the host for details.
+- Inside the container, use `npm` and `npx` (see `package.json`) for all
+  compilation, linting and test commands.
+- The `Makefile` and its targets are intended **only for use on the host** to
+  manage the container lifecycle and run commands in the container.
+
+Remote in‑container development from the host is straightforward with VS Code or
+Cursor using the **Dev Containers** extension (`ms-vscode-remote.remote-containers`):
+
+- Start or reuse a dev container as described below.
+- From the host, you can launch your IDE already attached to a running container
+  with:
+
+  ```sh
+  make open-ide IDE=Cursor DEV_CONTAINER=$CONTAINER_ID
+  ```
+
+  (replace `Cursor` if you prefer another supported IDE value — currently only the `Cursor` and `Code` editors are supported).
+
+Once the IDE is attached, you work entirely against the `/app` directory inside
+the container as if it were a local project.
 
 # Stage 0
 

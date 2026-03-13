@@ -4,14 +4,21 @@ This file contains instructions for Codex agents working in this repository. The
 
 ## Development Environment
 
-- Use the Docker container defined by `docker/Dockerfile`.
-  - Build the container with `make docker-image`.
-  - Launch an interactive shell with `make docker-shell`.
-  - Inside the container, use `npm` and `npx` for commands.
-  - Install dependencies with `npm install` after entering the container (via `make docker-shell`).
-  - Compile the TypeScript sources with `make docker-compile`.
-    All compilation, linting, and tests **must** run inside the container.
-  - Execute tests with `make docker-test`.
+- Agents must assume they are already running **inside the Development Container**.
+  The presence of the `/app` directory containing this project’s files is usually
+  sufficient to confirm that. Do not attempt to build or start containers from
+  inside the container.
+- The dev container is defined by `docker/Dockerfile` and is managed **from the host**
+  using the `Makefile`:
+  - Build the container image with `make docker-image` (host only).
+  - Launch an interactive shell with `make docker-shell` (host only).
+  - Optionally, start an IDE attached to an existing container with
+    `make open-ide IDE=Cursor DEV_CONTAINER=$CONTAINER_ID` (host only).
+- Inside the container:
+  - Use `npm` and `npx` for all commands (see `package.json`).
+  - Run compilation, linting, and tests only with `npm`/`npx` (for example,
+    `npm install`, `npm run lint-in-container`, etc.).
+  - Do **not** invoke host `make` targets from within the container.
 
 ## Coding Style
 
