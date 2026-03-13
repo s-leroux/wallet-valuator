@@ -19,7 +19,7 @@ import HistoricalPrices from "../../fixtures/HistoricalPrices.json" with { type:
 type HistoricalDataRecord = [
   date: string, // dd-mm-yyyy format like in the CoinGecko API
   crypto: string,
-  prices: Record<string, number>
+  prices: Record<string, number>,
 ];
 const DATA = HistoricalPrices as HistoricalDataRecord[];
 
@@ -30,13 +30,13 @@ export class FakeOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     const cryptoId = crypto.id;
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 
     const dataRecord = DATA.find(
-      (item) => item[0] === dateDdMmYyyy && item[1] === cryptoId
+      (item) => item[0] === dateDdMmYyyy && item[1] === cryptoId,
     );
     if (!dataRecord) {
       throw new Error(`No record for ${cryptoId} at ${dateDdMmYyyy}`);
@@ -44,7 +44,10 @@ export class FakeOracle extends Oracle {
     const prices = dataRecord[2];
 
     for (const fiat of fiats) {
-      result.set(fiat, crypto.price(fiat, prices[fiat.toString().toLowerCase()]));
+      result.set(
+        fiat,
+        crypto.price(fiat, prices[fiat.toString().toLowerCase()]),
+      );
     }
   }
 
