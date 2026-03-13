@@ -2,16 +2,20 @@ import { Ledger } from "../../ledger.mjs";
 import { TabularAdapter } from "../adapter.mjs";
 
 export class LedgerTabularAdapter implements TabularAdapter {
-  constructor(readonly head: Ledger) {}
+  constructor(readonly ledger: Ledger) {}
 
   headings() {
-    return ["type", "from", "to", "amount"] as const;
+    return ["timestamp", "from", "to", "amount"] as const;
   }
 
   *rows() {
-    for (const entry of this.head) {
-      const tr = entry.transaction;
-      yield [tr.type, tr.from, tr.to, tr.amount];
+    for (const entry of this.ledger.entries) {
+      yield [
+        entry.transaction.timeStamp,
+        entry.transaction.from,
+        entry.transaction.to,
+        entry.transaction.amount,
+      ];
     }
   }
 }

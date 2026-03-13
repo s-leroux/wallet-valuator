@@ -1,10 +1,9 @@
 import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
-import { CryptoAssetID, CryptoAsset } from "./cryptoasset.mjs";
+import { CryptoAsset, CryptoAssetCache } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
 import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
 import { ChainAddress, mangleChainAddress } from "./chainaddress.mjs";
-import { InstanceCache } from "./instancecache.mjs";
 import { MetadataFacade } from "./metadata.mjs";
 
 const log = logger("crypto-registry");
@@ -45,10 +44,10 @@ const registeredCryptoAssets: RegisteredCryptoAssets =
 type CryptoAssetFiscalCategory = undefined | "SECURITY" | "UTILITY TOKEN";
 
 export class CryptoRegistryNG {
-  private readonly cache: InstanceCache<CryptoAssetID, CryptoAsset>;
+  private readonly cache: CryptoAssetCache;
 
   private constructor() {
-    this.cache = new InstanceCache();
+    this.cache = CryptoAssetCache();
   }
 
   static create() {
@@ -79,7 +78,7 @@ export class CryptoRegistryNG {
     id: string | ChainAddress,
     name?: string,
     symbol?: string,
-    decimal?: number
+    decimal?: number,
   ) {
     if (typeof id !== "string") {
       id = mangleChainAddress(id);
@@ -92,7 +91,7 @@ export class CryptoRegistryNG {
         throw Logged(
           "C3006",
           ValueError,
-          `${id} is not a well-known crypto-asset`
+          `${id} is not a well-known crypto-asset`,
         );
       }
       [name, symbol, decimal] = wellKnownAsset;
@@ -110,7 +109,7 @@ export class CryptoRegistryNG {
         const error = new ValueError(`${existing} already registered`);
         log.error("C3016", error, cryptoAsset);
         throw error;
-      }
+      },
     );
   }
 }

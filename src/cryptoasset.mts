@@ -21,7 +21,7 @@ export type CryptoAssetID = Lowercase<string> & {
 export function toCryptoAssetID(id: string): CryptoAssetID {
   if (id !== id.toLowerCase()) {
     throw new ValueError(
-      `The id for crypto-assets must be written in all lowercase (was ${id})`
+      `The id for crypto-assets must be written in all lowercase (was ${id})`,
     );
   }
   return id as CryptoAssetID;
@@ -96,7 +96,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
       options["amount.separator"] ?? defaultDisplayOptions["amount.separator"];
 
     return `${valueFormat(this.value.toString())}${sep}${symbolFormat(
-      this.crypto.symbol
+      this.crypto.symbol,
     )}`;
   }
 
@@ -177,6 +177,11 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
 //  CryptoAsset
 //======================================================================
 
+export type CryptoAssetCache = InstanceCache<CryptoAssetID, CryptoAsset>;
+export function CryptoAssetCache(): CryptoAssetCache {
+  return new InstanceCache();
+}
+
 /**
  * Represents a crypto-asset, such as a native coin or an ERC-20 token.
  *
@@ -222,7 +227,7 @@ export class CryptoAsset {
     id: CryptoAssetID,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ) {
     this.id = id;
     this.name = name;
@@ -239,11 +244,11 @@ export class CryptoAsset {
    * preferred way to obtain a reference to a logical crypto-asset.
    */
   static create(
-    cache: InstanceCache<CryptoAssetID, CryptoAsset>,
+    cache: CryptoAssetCache,
     id: string | CryptoAssetID,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): CryptoAsset {
     const normalizedId = toCryptoAssetID(id);
 
@@ -257,17 +262,17 @@ export class CryptoAsset {
         if (name !== existing.name || symbol !== existing.symbol) {
           log.warn(
             "C2003",
-            `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`
+            `existing ${name} ${symbol} different from ${existing.name} ${existing.symbol}`,
           );
         }
         if (decimal !== existing.decimal) {
           log.error(
             "C3003",
-            `existing precision ${decimal} different from ${existing.decimal} for ${name}`
+            `existing precision ${decimal} different from ${existing.decimal} for ${name}`,
           );
           throw new InconsistentUnitsError(decimal, existing.decimal);
         }
-      }
+      },
     );
   }
 

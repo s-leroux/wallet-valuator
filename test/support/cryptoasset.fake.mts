@@ -1,8 +1,7 @@
 import { CryptoRegistryNG } from "../../src/cryptoregistry.mjs";
 
 const InternalRegistry = CryptoRegistryNG.create();
-console.log("cryptoasset.fake.mts");
-console.dir(InternalRegistry);
+
 // prettier-ignore
 export const FakeCryptoAsset = {
   binancecoin: InternalRegistry.createCryptoAsset( "binancecoin", "Binance Coin", "BNB", 18 ),

@@ -95,6 +95,7 @@
     "test/support/realtokenapi.fake.mts",
     "test/support/quantity.helper.mts",
     "test/support/snapshot.fake.mts",
+    "test/support/transaction.fake.mts",
     "test/support/tabularadapter.fake.mts",
     "test/support/oracle.fake.mts",
     "test/support/register.helper.mts",

@@ -27,19 +27,21 @@ type TransactionSource = ChainAddress;
 const defaultFormat = tabular(" | ", "", "10", "", "", "");
 
 /**
- * Abstract base class for all blockchub-classes should be considered as immutable.
+ * Abstract base class for all transaction classes.
+ * These fields should be considered as immutable.
+ * So, altering the Transaction in a ledger should not alter the same transaction
+ * in another unrelated ledger.
  */
 export interface Transaction {
   readonly type: string; // RTTI?
-  readonly chainName: Blockchain;
+  readonly chainName: Blockchain; // XXX Potentially optional: assumes on-chain transactions.
 
   readonly timeStamp: number; // Unix time (seconds since January 1, 1970, 00:00:00 UTC).
   readonly amount: Amount;
-  readonly from: TransactionSource;
-  readonly to: TransactionDestination;
+  readonly from: TransactionSource; // XXX Potentially optional.
+  readonly to: TransactionDestination; // XXX Potentially optional.
 
   readonly comments: string[];
-  addComment(comment: string): Transaction;
 }
 
 export class CEXTransaction implements Transaction {
@@ -52,7 +54,7 @@ export class CEXTransaction implements Transaction {
     readonly amount: Amount,
     readonly from: TransactionSource,
     readonly to: TransactionDestination,
-    comments?: string[]
+    comments?: string[],
   ) {
     this.comments = [...(comments ?? [])];
   }
@@ -108,7 +110,7 @@ export abstract class OnChainTransaction implements Transaction {
       this.blockNumber,
       from,
       to,
-      amount
+      amount,
     );
   }
 
@@ -116,7 +118,7 @@ export abstract class OnChainTransaction implements Transaction {
 
   async assign(
     swarm: Swarm,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<OnChainTransaction> {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
@@ -134,7 +136,7 @@ export abstract class OnChainTransaction implements Transaction {
     if (data.contractAddress) {
       this.contract = await swarm.address(
         this.explorer.chain,
-        data.contractAddress
+        data.contractAddress,
       );
     }
 
@@ -181,14 +183,14 @@ export class NormalTransaction extends OnChainTransaction {
 
   async assign(
     swarm: Swarm,
-    data: Record<string, any>
+    data: Record<string, any>,
   ): Promise<NormalTransaction> {
     await super.assign(swarm, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
 
     this.amount = this.explorer.nativeCurrency.amountFromBaseUnit(
-      data.value ?? "0"
+      data.value ?? "0",
     );
 
     return this;
@@ -222,12 +224,12 @@ export class InternalTransaction extends OnChainTransaction {
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
         this.explorer.chain,
-        this.data.hash
+        this.data.hash,
       );
     }
 
     this.amount = this.explorer.nativeCurrency.amountFromBaseUnit(
-      data.value ?? "0"
+      data.value ?? "0",
     );
 
     return this;
@@ -258,13 +260,13 @@ export class ERC20TokenTransfer extends OnChainTransaction {
     if (this.transaction === undefined && this.data.hash) {
       this.transaction = await swarm.normalTransaction(
         this.explorer.chain,
-        this.data.hash
+        this.data.hash,
       );
     }
 
     if (!this.contract) {
       throw new ValueError(
-        `The contract must be defined in an ERC20 token tranfer (was ${this.contract}`
+        `The contract must be defined in an ERC20 token tranfer (was ${this.contract}`,
       );
     }
 
@@ -274,12 +276,12 @@ export class ERC20TokenTransfer extends OnChainTransaction {
       this.contract.address,
       this.data.tokenName,
       this.data.tokenSymbol,
-      toInteger(this.data.tokenDecimal)
+      toInteger(this.data.tokenDecimal),
     );
 
     if (!resolution) {
       throw new ValueError(
-        `Unable to resolve the ERC20 token ${this.data.tokenName} (${this.data.tokenSymbol})`
+        `Unable to resolve the ERC20 token ${this.data.tokenName} (${this.data.tokenSymbol})`,
       );
     }
 
