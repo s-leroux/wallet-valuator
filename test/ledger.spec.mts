@@ -7,12 +7,15 @@ import { Ledger, sort, join } from "../src/ledger.mjs";
 import { OnChainTransaction } from "../src/transaction.mjs";
 import { FakeExplorer } from "./fake-explorer.mjs";
 import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
-import { Blockchain } from "../src/blockchain.mjs";
+import { asBlockchain, Blockchain } from "../src/blockchain.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
 import NormalTransactions from "../fixtures/GnosisScan/NormalTransactions.json" with { type: "json" };
 import InternalTransactions from "../fixtures/InternalTransactions.json" with { type: "json" };
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
+import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
+import { FakeTransaction } from "./support/transaction.fake.mjs";
+import { ChainAddress } from "../src/chainaddress.mjs";
 
 const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
 const DISPERSE_APP_ADDRESS = "0xd152f549545093347a162dce210e7293f1452150";
@@ -196,6 +199,45 @@ describe("Ledger", () => {
         curr_ts = entry_ts;
       }
     });
+  });
+});
+
+describe("Ledger", () => {
+  const { bitcoin, ethereum } = FakeCryptoAsset;
+  const addr1 = ChainAddress("gnosis", "0x123");
+  const addr2 = ChainAddress("gnosis", "0x456");
+
+  // prettier-ignore
+  const transactions = [
+    FakeTransaction("TRADE", asBlockchain("gnosis"), "2021-01-01", bitcoin.amountFromString("100"), addr1, addr2),
+    FakeTransaction("TRADE", asBlockchain("gnosis"), "2021-01-02", ethereum.amountFromString("50"), addr2, addr1),
+  ];
+
+  it("should create a fake ledger", () => {
+    const ledger = Ledger.create(transactions);
+
+    assert.equal(ledger.entries.length, 2);
+    assert.equal(ledger.entries[0].transaction.from, addr1);
+    assert.equal(ledger.entries[0].transaction.to, addr2);
+    assert.deepEqual(
+      ledger.entries[0].transaction.amount,
+      bitcoin.amountFromString("100"),
+    );
+    assert.equal(ledger.entries[1].transaction.from, addr2);
+    assert.equal(ledger.entries[1].transaction.to, addr1);
+    assert.deepEqual(
+      ledger.entries[1].transaction.amount,
+      ethereum.amountFromString("50"),
+    );
+  });
+
+  it("should export a ledger as CSV", () => {
+    const ledger = Ledger.create(transactions);
+    const csv = Array.from(ledger.asCSV());
+    assert.deepEqual(csv, [
+      "1609459200,TRADE,gnosis,gnosis:0x123,gnosis:0x456,100 BTC",
+      "1609545600,TRADE,gnosis,gnosis:0x456,gnosis:0x123,50 ETH",
+    ]);
   });
 });
 

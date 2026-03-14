@@ -43,7 +43,8 @@ export function asChainID(chainId: string | ChainID): ChainID {
   return chainIdStr as ChainID;
 }
 
-export function asBlockchain(chain: Blockchain | ChainID | string): Blockchain {
+export type BlockchainSource = Blockchain | ChainID | string;
+export function asBlockchain(chain: BlockchainSource): Blockchain {
   if (typeof chain === "string") {
     return Blockchain.find(chain);
   }
@@ -95,7 +96,7 @@ export class Blockchain {
   }
 
   static create(id: ChainID, chainRecord: BlockchainDataRecord): Blockchain {
-    // FIXME: If found, we do not check consistency between the "old" record and `chainRecord`
+    // FIXME: If found, we should check consistency between the "old" record and `chainRecord`
     return this.registry.get(id, () => {
       // FIXME: We assume chainRecord is deeply immutable.
       return new Blockchain(id, chainRecord);
