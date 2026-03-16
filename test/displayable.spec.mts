@@ -8,8 +8,10 @@ import {
   tabular,
   TextUtils,
   DateFormat,
+  objectFormatter,
 } from "../src/displayable.mjs";
 import { NotImplementedError, ValueError } from "../src/error.mjs";
+import { BigNumber } from "../src/bignumber.mjs";
 
 describe("toDisplayString", function () {
   it("should call toDisplayString() on Displayable objects", function () {
@@ -94,6 +96,36 @@ describe("tabular", function () {
       register(desc, () => {
         const t = tabular("", format);
         assert.equal(t(input), expected);
+      });
+    }
+  });
+});
+
+describe("objectFormatter", function () {
+  describe("format", function () {
+    const register = prepare(this);
+    const src = {
+      __proto__: null,
+      str: "hello",
+      num: 123.456,
+      bignum: BigNumber.from(123.456),
+    };
+    // prettier-ignore
+    const testcases = [
+      [src, "{str:10.2}", "he        "],
+      [src, "{str:10}", "hello     "],
+      [src, "{str:10.0}", "          "],
+      [src, "{num:10.2}", "    123.45"],
+      [src, "{num:10.0}", "       123"],
+      [src, "{num:10}", "123.456000"],
+      [src, "{bignum:10.2}", "    123.45"],
+      [src, "{bignum:10.0}", "       123"],
+      [src, "{bignum:10}", "123.456000"],
+    ] as const;
+    for (const [input, format, expected] of testcases) {
+      register(format, () => {
+        const formatter = objectFormatter(format);
+        assert.strictEqual(formatter(input), expected);
       });
     }
   });

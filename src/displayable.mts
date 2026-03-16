@@ -1,3 +1,5 @@
+import { BigNumber } from "./bignumber.mjs";
+import { type Amount } from "./cryptoasset.mjs";
 import { formatDate as dateUtilsFormatDate } from "./date.mjs";
 import { logger } from "./debug.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
@@ -14,8 +16,9 @@ export type DisplayOptions = Partial<{
   "address.compact": boolean; // Display numeric address in compact form
   "address.name": boolean; // Display address name instead of numeric address
   "amount.separator": string;
-  "amount.symbol.format": (arg: string) => string;
-  "amount.value.format": (arg: string) => string;
+  "amount.symbol.format": (arg: string) => string; // DEPRECATED: use "amount.format" instead
+  "amount.value.format": (arg: string) => string; // DEPRECATED: use "amount.format" instead
+  "amount.format": Formatter; // Defines an amount format as understood by formatAmount
   "date.format": DateFormat; // Defines a date format as understood by formatDate
   "record.format": (...obj: unknown[]) => string;
   "shift.width": number; // Defines the indentation width (in number of character)
@@ -33,6 +36,7 @@ export const defaultDisplayOptions: Required<DisplayOptions> = {
   "amount.separator": " ",
   "amount.symbol.format": id,
   "amount.value.format": id,
+  "amount.format": String,
   "record.format": (...obj: unknown[]) => {
     throw new NotImplementedError();
   },
@@ -126,13 +130,122 @@ function alignChar(width: number, dot: string, decimal: number) {
   };
 }
 
+type OverflowMode = "error" | "expand" | "truncate";
+
+interface OverflowContext {
+  raw: string;
+  width: number;
+  spec: string;
+}
+
+type OverflowPolicy = OverflowMode | ((ctx: OverflowContext) => string);
+interface FormatOptions {
+  overflow?: OverflowPolicy;
+}
+
+type Formatter = (arg: Record<string, unknown>) => string;
+
+type AtomFormatter<T> = (
+  value: T,
+  width: number,
+  precision: number | undefined,
+  zero: boolean,
+) => string;
+
+function formatStringAtom(
+  value: string,
+  width: number,
+  precision: number | undefined,
+  zero: boolean,
+): string {
+  let valueAsString = value;
+  if (precision !== undefined) {
+    valueAsString = valueAsString.slice(0, precision);
+  }
+  if (width) {
+    valueAsString = valueAsString.padEnd(width, " ");
+  }
+
+  return valueAsString;
+}
+
+function formatNumberAtom(
+  value: number | BigNumber,
+  width: number,
+  precision: number | undefined,
+  zero: boolean,
+): string {
+  const asBigNumber = BigNumber.from(value);
+  let valueAsString = asBigNumber.toFixed(precision ?? 6);
+  if (width) {
+    valueAsString = valueAsString.padStart(width, zero ? "0" : " ");
+  }
+
+  return valueAsString;
+}
+
+export function objectFormatter(
+  format: string,
+  options: FormatOptions = {},
+): Formatter {
+  type FormatGroups = {
+    field: string;
+    zero?: "0";
+    width: string;
+    precision?: string;
+  };
+
+  return (arg: Record<string, unknown>): string => {
+    return format.replace(
+      /{(?<field>\w+):(?<zero>0)?(?<width>[1-9]\d*)(?:\.(?<precision>\d+))?}/g,
+      (match, ...args): string => {
+        const groups = args.at(-1)! as FormatGroups;
+        const field = groups.field;
+        const value = arg[field];
+        if (!value) {
+          throw new ValueError(
+            `Invalid format ${format}. Field ${field} not found.`,
+          );
+        }
+
+        let atomFormatter: AtomFormatter<unknown>;
+        if (typeof value === "string") {
+          atomFormatter = formatStringAtom;
+        } else if (typeof value === "number") {
+          atomFormatter = formatNumberAtom;
+        } else if (value instanceof BigNumber) {
+          atomFormatter = formatNumberAtom;
+        } else {
+          throw new ValueError(
+            `Invalid value type ${typeof value}. Expected string or number.`,
+          );
+        }
+
+        return atomFormatter(
+          value,
+          +groups.width,
+          groups.precision ? +groups.precision : undefined,
+          groups.zero === "0",
+        );
+      },
+    );
+  };
+}
+
+/**
+ * @param format - A string representing the format to apply to the input.
+ * @returns A function that formats the input according to the format.
+ *
+ * See {@link cryptoasset.amountFormatter} and {@link cryptoasset.formatAmount}
+ * for the mini-language specifications for number formatting and field alignment.
+ */
 export function format(format: string) {
   if (!format) {
     return id;
   }
 
   // XXX Add tests to ensure the format max width is honored
-  // XXX Handle the [+-] modifier
+  // XXX The semantic of the[+-] modifier is ambiguous. It is used to indicate the sign of the number, but it is also used to indicate the alignment of the number.
   const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
   if (!match) {
     throw new ValueError(`Invalid format ${format}`);
