@@ -184,51 +184,74 @@ function formatNumberAtom(
   return valueAsString;
 }
 
+export const FORMAT_RE =
+  /{(?<field>\w+)(?<format>:(?<zero>0+)?(?<width>[1-9]\d*)(?:\.(?<precision>\d+))?)?}/g;
+
+export type FormatGroups =
+  | {
+      field: string;
+      format: undefined;
+      zero: undefined;
+      width: undefined;
+      precision: undefined;
+    }
+  | {
+      field: string;
+      format: string;
+      zero?: string;
+      width: string;
+      precision?: string;
+    };
+
 export function objectFormatter(
   format: string,
   options: FormatOptions = {},
 ): Formatter {
-  type FormatGroups = {
-    field: string;
-    zero?: "0";
-    width: string;
-    precision?: string;
-  };
-
   return (arg: Record<string, unknown>): string => {
-    return format.replace(
-      /{(?<field>\w+):(?<zero>0)?(?<width>[1-9]\d*)(?:\.(?<precision>\d+))?}/g,
-      (match, ...args): string => {
-        const groups = args.at(-1)! as FormatGroups;
-        const field = groups.field;
-        const value = arg[field];
-        if (!value) {
-          throw new ValueError(
-            `Invalid format ${format}. Field ${field} not found.`,
-          );
-        }
-
-        let atomFormatter: AtomFormatter<unknown>;
-        if (typeof value === "string") {
-          atomFormatter = formatStringAtom;
-        } else if (typeof value === "number") {
-          atomFormatter = formatNumberAtom;
-        } else if (value instanceof BigNumber) {
-          atomFormatter = formatNumberAtom;
-        } else {
-          throw new ValueError(
-            `Invalid value type ${typeof value}. Expected string or number.`,
-          );
-        }
-
-        return atomFormatter(
-          value,
-          +groups.width,
-          groups.precision ? +groups.precision : undefined,
-          groups.zero === "0",
+    return format.replace(FORMAT_RE, (_, ...args): string => {
+      const groups = args.at(-1)! as FormatGroups;
+      const field = groups.field;
+      const value = arg[field];
+      if (!value) {
+        throw new ValueError(
+          `Invalid format ${format}. Field ${field} not found.`,
         );
-      },
-    );
+      }
+
+      if (!groups.format) {
+        return toDisplayString(value);
+      }
+
+      let atomFormatter: AtomFormatter<unknown>;
+      if (typeof value === "string") {
+        atomFormatter = formatStringAtom;
+      } else if (typeof value === "number") {
+        atomFormatter = formatNumberAtom;
+      } else if (value instanceof BigNumber) {
+        atomFormatter = formatNumberAtom;
+      } else {
+        throw new ValueError(
+          `Invalid value type ${typeof value}. Expected string or number.`,
+        );
+      }
+
+      let result = atomFormatter(
+        value,
+        +groups.width,
+        groups.precision ? +groups.precision : undefined,
+        groups.zero !== undefined,
+      );
+
+      const width = +groups.width;
+      if (width) {
+        result =
+          result.length > width
+            ? "…" + result.slice(1 - width)
+            : result.padStart(width);
+      }
+
+      return result;
+    });
   };
 }
 

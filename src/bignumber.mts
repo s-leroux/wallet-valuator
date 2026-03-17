@@ -1,4 +1,5 @@
 import { Decimal as DecimalImplementation } from "decimal.js";
+import type { DisplayOptions } from "./displayable.mjs";
 
 export function toInteger(src: number | string) {
   const asString = src.toString();
@@ -23,6 +24,10 @@ export class BigNumber extends DecimalImplementation.clone({
 }) {
   toString(): string {
     return super.toFixed();
+  }
+
+  toDisplayString(options: DisplayOptions): string {
+    return this.toString();
   }
 
   static fromInteger(v: number | string): BigNumber {

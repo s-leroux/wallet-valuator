@@ -9,6 +9,8 @@ import {
   TextUtils,
   DateFormat,
   objectFormatter,
+  FormatGroups,
+  FORMAT_RE,
 } from "../src/displayable.mjs";
 import { NotImplementedError, ValueError } from "../src/error.mjs";
 import { BigNumber } from "../src/bignumber.mjs";
@@ -102,6 +104,28 @@ describe("tabular", function () {
 });
 
 describe("objectFormatter", function () {
+  describe("FORMAT_RE", function () {
+    const register = prepare(this);
+    const LOCAL_RE = new RegExp(FORMAT_RE.source); // no /g: preserve .groups on match()
+
+    // prettier-ignore
+    const testcases: [format: string, expected: FormatGroups | null][] = [
+      ["{str:10.2}", { field: "str", format: ":10.2", zero: undefined, width: "10", precision: "2" }],
+      ["{str:10.02}", { field: "str", format: ":10.02", zero: undefined, width: "10", precision: "02" }],
+      ["{str:10}", { field: "str", format: ":10", zero: undefined, width: "10", precision: undefined }],
+      ["{str:10.0}", { field: "str", format: ":10.0", zero: undefined, width: "10", precision: "0" }],
+      ["{str:0}", null], // The "0" format is invalid
+      ["{str}", { field: "str", format: undefined, zero: undefined, width: undefined, precision: undefined }],
+    ] as const;
+
+    for (const [format, expected] of testcases) {
+      register(format, () => {
+        const result = format.match(LOCAL_RE);
+        assert.deepEqual(result && (result.groups as FormatGroups), expected);
+      });
+    }
+  });
+
   describe("format", function () {
     const register = prepare(this);
     const src = {
@@ -115,12 +139,15 @@ describe("objectFormatter", function () {
       [src, "{str:10.2}", "he        "],
       [src, "{str:10}", "hello     "],
       [src, "{str:10.0}", "          "],
+      [src, "{str}", "hello"],
       [src, "{num:10.2}", "    123.45"],
       [src, "{num:10.0}", "       123"],
       [src, "{num:10}", "123.456000"],
+      [src, "{num}", "123.456"],
       [src, "{bignum:10.2}", "    123.45"],
       [src, "{bignum:10.0}", "       123"],
       [src, "{bignum:10}", "123.456000"],
+      [src, "{bignum}", "123.456"],
     ] as const;
     for (const [input, format, expected] of testcases) {
       register(format, () => {
