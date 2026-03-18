@@ -4,13 +4,13 @@ overview: Create a least-resistance migration processing order (DAG) for BigNumb
 todos:
   - id: build-baseline-dag
     content: "Confirm BigNumber-backed value classes and their code-level dependencies from: `src/bignumber.mts`, `src/price.mts`, `src/cryptoasset.mts`, `src/valuation.mts`, `src/quantity.mts`, and oracle/transaction files."
-    status: pending
+    status: completed
   - id: define-migration-order
     content: "Use DAG order for least resistance: `Price` -> `Value` -> `Amount` -> `Quantity` -> `Valuation pipeline` -> `Oracles` -> `Transaction fees` -> optional `displayable` cleanup."
     status: pending
   - id: migrate-price-step1-tests-green
     content: "Migrate `Price` (`src/price.mts`) step 1: ensure current focused Mocha coverage runs and is passing; record the baseline `git rev-parse HEAD` and the exact `npx mocha` command used."
-    status: pending
+    status: completed
   - id: migrate-price-step2-rationalize
     content: "Migrate `Price` step 2: rationalize `Price` implementation (what `Fixed` represents, how scale is chosen) and document impacted methods (`constructor`, `to()`, `mul()`), including any rename/intent cleanup."
     status: pending
@@ -164,7 +164,7 @@ We will avoid adapter proliferation and instead rely on constrained compilation 
 
 Based on your choices:
 
-- Test runner approach: “mocha-direct” (Mocha directly; repo’s default test command is `mocha 'build/test/**/*.mjs'`).
+- Test runner approach: “mocha-direct” (Mocha directly; repo’s default test command is `mocha 'build-migration/test/**/*.mjs'`).
 - Pinning strategy: “git-sha”, with additional micro-commits during work-in-progress to keep test runs quickly attributable.
 
 So each class migration step will be:
@@ -188,11 +188,11 @@ Targeted tests (Mocha with explicit file globs):
 - Repo default test run:
   - `npm test`
 - Focused “by file” run (example patterns):
-  - `npx mocha "build/test/**/price.spec.mjs"`
-  - `npx mocha "build/test/**/cryptoasset.spec.mjs"`
-  - `npx mocha "build/test/**/valuation.spec.mjs"`
+  - `npx mocha "build-migration/test/**/price.spec.mjs"`
+  - `npx mocha "build-migration/test/**/cryptoasset.spec.mjs"`
+  - `npx mocha "build-migration/test/**/valuation.spec.mjs"`
 - Focused by grep (when relevant):
-  - `npx mocha "build/test/**/valuation.spec.mjs" --grep "SnapshotValuation"`
+  - `npx mocha "build-migration/test/**/valuation.spec.mjs" --grep "SnapshotValuation"`
 
 (We’ll pick the exact grep strings based on what each spec covers.)
 
@@ -262,7 +262,7 @@ Below, “tests” means Mocha specs that touch the class directly.
 **Step 1: Check test coverage + verify passing (current baseline)**
 
 - Run: `npm test` (full) OR the focused subset:
-  - `npx mocha "build/test/**/price.spec.mjs"`
+  - `npx mocha "build-migration/test/**/price.spec.mjs"`
 - Record git SHA: `git rev-parse HEAD`.
 
 **Step 2: Rationalize implementation**
@@ -282,17 +282,17 @@ Below, “tests” means Mocha specs that touch the class directly.
 **Step 4: Re-run tests**
 
 - Run focused:
-  - `npx mocha "build/test/**/price.spec.mjs"`
+  - `npx mocha "build-migration/test/**/price.spec.mjs"`
 - Run also any directly adjacent suites likely to be affected:
-  - `npx mocha "build/test/**/cryptoasset.spec.mjs"`
-  - `npx mocha "build/test/**/valuation.spec.mjs"` (because it calls `amount.valueAt(price)`)
+  - `npx mocha "build-migration/test/**/cryptoasset.spec.mjs"`
+  - `npx mocha "build-migration/test/**/valuation.spec.mjs"` (because it calls `amount.valueAt(price)`)
 
 ### 2) Migrate `Value` (`src/valuation.mts` class `Value`)
 
 **Step 1:**
 
 - Run focused:
-  - `npx mocha "build/test/**/valuation.spec.mjs"`.
+  - `npx mocha "build-migration/test/**/valuation.spec.mjs"`.
 
 **Step 2:**
 
@@ -313,7 +313,7 @@ Below, “tests” means Mocha specs that touch the class directly.
 **Step 1:**
 
 - Run focused:
-  - `npx mocha "build/test/**/cryptoasset.spec.mjs"`.
+  - `npx mocha "build-migration/test/**/cryptoasset.spec.mjs"`.
 
 **Step 2:**
 
@@ -387,9 +387,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 **Step 1:**
 
 - Run:
-  - `npx mocha "build/test/**/services/oracles/ohlcoracle.spec.mjs"`
-  - `npx mocha "build/test/**/services/oracles/datasourceoracle.spec.mjs"`
-  - `npx mocha "build/test/**/services/realtoken/realtokenoracle.spec.mjs"`
+  - `npx mocha "build-migration/test/**/services/oracles/ohlcoracle.spec.mjs"`
+  - `npx mocha "build-migration/test/**/services/oracles/datasourceoracle.spec.mjs"`
+  - `npx mocha "build-migration/test/**/services/realtoken/realtokenoracle.spec.mjs"`
 
 **Step 2:**
 
@@ -412,7 +412,7 @@ Below, “tests” means Mocha specs that touch the class directly.
 **Step 1:**
 
 - Run:
-  - `npx mocha "build/test/**/transaction.spec.mjs"`
+  - `npx mocha "build-migration/test/**/transaction.spec.mjs"`
 
 **Step 2:**
 

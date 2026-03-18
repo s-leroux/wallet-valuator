@@ -1,13 +1,3 @@
-declare module "decimal.js" {
-  interface Decimal {
-    negated(): this;
-    plus(n: Decimal.Value): this;
-    minus(n: Decimal.Value): this;
-    div(n: Decimal.Value): this;
-    mul(n: Decimal.Value): this;
-  }
-}
-
 import { Decimal as DecimalImplementation } from "decimal.js";
 import { InconsistentUnitsError, ValueError } from "./error.mjs";
 import type { DisplayOptions } from "./displayable.mjs";
@@ -60,6 +50,35 @@ export class BigNumber extends DecimalImplementation.clone({
     }
 
     return new BigNumber(v);
+  }
+
+  /**
+   * Ensure arithmetic returns the `BigNumber` subclass.
+   *
+   * `decimal.js` instances can return a base `Decimal` instance for arithmetic
+   * operations; we normalize them back to this class so `instanceof BigNumber`
+   * remains true for all arithmetic results.
+   *
+   * This is EXACTLY the reason why we are switching away from `decimal.js` to `Fixed` arithmetic.
+   */
+  plus(n: DecimalImplementation.Value): this {
+    return BigNumber.from(super.plus(n)) as this;
+  }
+
+  minus(n: DecimalImplementation.Value): this {
+    return BigNumber.from(super.minus(n)) as this;
+  }
+
+  mul(n: DecimalImplementation.Value): this {
+    return BigNumber.from(super.mul(n)) as this;
+  }
+
+  div(n: DecimalImplementation.Value): this {
+    return BigNumber.from(super.div(n)) as this;
+  }
+
+  negated(): this {
+    return BigNumber.from(super.negated()) as this;
   }
 
   static fromDigits(digits: number | string, precision: number | string) {
