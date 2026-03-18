@@ -72,8 +72,8 @@ export class BigNumber extends DecimalImplementation.clone({
 export const MAX_FIXED_SCALE = 80n;
 
 export class Fixed {
-  readonly value: bigint;
-  readonly scale: bigint;
+  readonly value: bigint; // Integer value
+  readonly scale: bigint; // Decimal scale
 
   constructor(value: bigint, scale: bigint) {
     if (scale < 0n || scale > MAX_FIXED_SCALE) {
@@ -156,20 +156,36 @@ export class Fixed {
     return new Fixed(scaledValue, scale);
   }
 
-  toFixed(): string {
-    const negative = this.value < 0n;
-    const absValue = negative ? -this.value : this.value;
+  toFixed(digits?: number | bigint): string {
+    const displayScale =
+      digits === undefined
+        ? this.scale
+        : typeof digits === "bigint"
+          ? digits
+          : BigInt(toInteger(digits));
 
-    if (this.scale === 0n) {
+    if (displayScale < 0n || displayScale > MAX_FIXED_SCALE) {
+      throw new RangeError(
+        `digits must be in the range [0;${MAX_FIXED_SCALE}]`,
+      );
+    }
+
+    // Note: using `withScale` allocates a new `Fixed`. If `toFixed` becomes a hot
+    // path, consider inlining the scaling to avoid allocations.
+    const displayFixed = displayScale === this.scale ? this : this.withScale(displayScale);
+    const negative = displayFixed.value < 0n;
+    const absValue = negative ? -displayFixed.value : displayFixed.value;
+
+    if (displayScale === 0n) {
       return (negative ? "-" : "") + absValue.toString();
     }
 
-    const scaleFactor = 10n ** this.scale;
+    const scaleFactor = 10n ** displayScale;
     const integerPart = absValue / scaleFactor;
     const fractionalPart = absValue % scaleFactor;
 
     let fractionalString = fractionalPart.toString();
-    const expectedLength = Number(this.scale);
+    const expectedLength = Number(displayScale);
     if (fractionalString.length < expectedLength) {
       fractionalString =
         "0".repeat(expectedLength - fractionalString.length) + fractionalString;

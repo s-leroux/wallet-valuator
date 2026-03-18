@@ -10,8 +10,9 @@ describe("BigNumber", function () {
   it(`can be created from and to string with at least ${precision} significant digits`, function () {
     // prettier-ignore
     {
-      const N = "11111111112222222222333333333344444444445555555555666666666677777777778888888888";
+      // eslint-disable-next-line no-loss-of-precision
       const M = +11111111112222222000000000000000000000000000000000000000000000000000000000000000;
+      const N = "11111111112222222222333333333344444444445555555555666666666677777777778888888888";
       //                         ^
       //         12345678901234567
       //         00000000011111111
@@ -326,6 +327,28 @@ describe("Fixed", function () {
         assert.equal(f.toString(), expected);
       });
     }
+
+    const overrideCases: [bigint, bigint, number, string][] = [
+      [12345n, 3n, 3, "12.345"],
+      [12345n, 3n, 2, "12.34"],
+      [12345n, 3n, 1, "12.3"],
+      [12345n, 3n, 0, "12"],
+      [12345n, 3n, 4, "12.3450"],
+      [12345n, 3n, 6, "12.345000"],
+      [-12345n, 3n, 2, "-12.34"],
+      [7n, 2n, 1, "0.0"],
+      [7n, 2n, 0, "0"],
+    ];
+
+    for (const [value, scale, digits, expected] of overrideCases) {
+      register(
+        `(${value}, ${scale}).toFixed(${digits}) => "${expected}"`,
+        () => {
+          const f = new Fixed(value, scale);
+          assert.equal(f.toFixed(digits), expected);
+        },
+      );
+    }
   });
 
   describe("withScale()", function () {
@@ -348,6 +371,25 @@ describe("Fixed", function () {
           const g = f.withScale(newPrec);
           assert.equal(g.toFixed(), expected);
           assert.equal(g.scale, newPrec);
+        },
+      );
+    }
+
+    const truncationCases: [bigint, bigint, bigint, string][] = [
+      // ensure truncation (no rounding) when reducing scale
+      [12349n, 3n, 2n, "12.34"],
+      [12341n, 3n, 2n, "12.34"],
+      // BigInt division is truncation toward zero; pin current behaviour for negatives
+      [-12349n, 3n, 2n, "-12.34"],
+      [-12341n, 3n, 2n, "-12.34"],
+    ];
+
+    for (const [value, scale, newScale, expected] of truncationCases) {
+      register(
+        `(${value}, ${scale}).withScale(${newScale}) truncates => ${expected}`,
+        () => {
+          const f = new Fixed(value, scale);
+          assert.equal(f.withScale(newScale).toFixed(), expected);
         },
       );
     }
