@@ -203,6 +203,20 @@ function formatNumberAtom(
   return valueAsString;
 }
 
+function formatFixedAtom(
+  value: Fixed,
+  width: number,
+  precision: number | undefined,
+  zero: boolean,
+): string {
+  let valueAsString = value.toFixed(precision);
+  if (width) {
+    valueAsString = valueAsString.padStart(width, zero ? "0" : " ");
+  }
+
+  return valueAsString;
+}
+
 export const FORMAT_RE =
   /{(?<field>\w+)(?<format>:(?<zero>0+)?(?<width>[1-9]\d*)(?:\.(?<precision>\d+))?)?}/g;
 
@@ -248,6 +262,8 @@ export function objectFormatter(
         atomFormatter = formatNumberAtom;
       } else if (value instanceof BigNumber) {
         atomFormatter = formatNumberAtom;
+      } else if (value instanceof Fixed) {
+        atomFormatter = formatFixedAtom;
       } else {
         throw new ValueError(
           `Invalid value type ${typeof value}. Expected string or number.`,

@@ -140,6 +140,7 @@ describe("objectFormatter", function () {
       str: "hello",
       num: 123.456,
       bignum: BigNumber.from(123.456),
+      fixed: Fixed.fromString("123.4560"),
     };
     // prettier-ignore
     const testcases = [
@@ -155,6 +156,10 @@ describe("objectFormatter", function () {
       [src, "{bignum:10.0}", "       123"],
       [src, "{bignum:10}", "123.456000"],
       [src, "{bignum}", "123.456"],
+      [src, "{fixed}", "123.4560"],
+      [src, "{fixed:10.2}", "    123.45"],
+      [src, "{fixed:10.0}", "       123"],
+      [src, "{fixed:10}", "  123.4560"],
     ] as const;
     for (const [input, format, expected] of testcases) {
       register(format, () => {
