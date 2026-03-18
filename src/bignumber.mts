@@ -71,17 +71,63 @@ export class BigNumber extends DecimalImplementation.clone({
 
 export const MAX_FIXED_SCALE = 80n;
 
+export type FixedSource = bigint | string | Fixed;
+
 export class Fixed {
   readonly value: bigint; // Integer value
   readonly scale: bigint; // Decimal scale
 
-  constructor(value: bigint, scale: bigint) {
+  static E18 = new Fixed(10n ** 18n, 0n);
+
+  private constructor(value: bigint, scale: bigint) {
     if (scale < 0n || scale > MAX_FIXED_SCALE) {
       throw new RangeError(`Scale must be in the range [0;${MAX_FIXED_SCALE}]`);
     }
 
     this.value = value;
     this.scale = scale;
+  }
+
+  static fromInteger(v: number | bigint | string): Fixed {
+    return new Fixed(BigInt(v), 0n);
+  }
+
+  static fromString(v: string): Fixed {
+    const match = /^\s*(?<sign>[+-])?(?<int>\d+)(?:\.(?<frac>\d+))?\s*$/.exec(
+      v,
+    );
+    if (!match) {
+      throw new SyntaxError(`Cannnot convert ${v} to a Fixed-Point number`);
+    }
+
+    const groups = match.groups as {
+      sign?: string;
+      int: string;
+      frac?: string;
+    };
+
+    const frac = groups.frac ?? "";
+    const digits = `${groups.sign ?? ""}${groups.int}${frac}`;
+    return new Fixed(BigInt(digits), BigInt(frac.length));
+  }
+
+  static from(v: FixedSource): Fixed {
+    if (typeof v === "bigint") {
+      return new Fixed(v, 0n);
+    }
+    if (typeof v === "string") {
+      return this.fromString(v);
+    }
+
+    return v;
+  }
+
+  static fromDigits(digits: bigint | number | string, scale: bigint | number) {
+    const scaleAsBigInt = BigInt(scale);
+    if (scaleAsBigInt === 0n) {
+      return this.fromInteger(digits);
+    }
+    return new Fixed(BigInt(digits), scaleAsBigInt);
   }
 
   plus(other: Fixed): Fixed {
@@ -140,20 +186,20 @@ export class Fixed {
    * Returns a copy of this value with the given decimal scale.
    * Scales the stored value up or down as needed (truncating when reducing scale).
    */
-  withScale(scale: bigint): Fixed {
-    if (scale === this.scale) {
+  withDecimals(decimals: bigint): Fixed {
+    if (decimals === this.scale) {
       return this;
     }
 
-    if (scale < this.scale) {
-      const scaleDown = this.scale - scale;
+    if (decimals < this.scale) {
+      const scaleDown = this.scale - decimals;
       const scaledValue = this.value / 10n ** scaleDown;
-      return new Fixed(scaledValue, scale);
+      return new Fixed(scaledValue, decimals);
     }
 
-    const scaleUp = scale - this.scale;
+    const scaleUp = decimals - this.scale;
     const scaledValue = this.value * 10n ** scaleUp;
-    return new Fixed(scaledValue, scale);
+    return new Fixed(scaledValue, decimals);
   }
 
   toFixed(digits?: number | bigint): string {
@@ -172,7 +218,8 @@ export class Fixed {
 
     // Note: using `withScale` allocates a new `Fixed`. If `toFixed` becomes a hot
     // path, consider inlining the scaling to avoid allocations.
-    const displayFixed = displayScale === this.scale ? this : this.withScale(displayScale);
+    const displayFixed =
+      displayScale === this.scale ? this : this.withDecimals(displayScale);
     const negative = displayFixed.value < 0n;
     const absValue = negative ? -displayFixed.value : displayFixed.value;
 

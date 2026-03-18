@@ -104,7 +104,15 @@ describe("BigNumber", function () {
 });
 
 describe("Fixed", function () {
-  describe("constructor", function () {
+  describe("constants", function () {
+    it("E18 is 10^18 base units", function () {
+      assert.equal(Fixed.E18.value, 10n ** 18n);
+      assert.equal(Fixed.E18.scale, 0n);
+      assert.equal(Fixed.E18.toFixed(), "1000000000000000000");
+    });
+  });
+
+  describe("fromDigits()", function () {
     const register = prepare(this);
 
     const validCases: [bigint, bigint, string][] = [
@@ -126,7 +134,7 @@ describe("Fixed", function () {
 
     for (const [value, scale, expected] of validCases) {
       register(`value ${value}, scale ${scale} => "${expected}"`, () => {
-        const f = new Fixed(value, scale);
+        const f = Fixed.fromDigits(value, scale);
         assert.equal(f.value, value);
         assert.equal(f.scale, scale);
         assert.equal(f.toFixed(), expected);
@@ -145,7 +153,7 @@ describe("Fixed", function () {
       for (const [scale, desc] of invalidScales) {
         registerErr(desc, () => {
           assert.throws(
-            () => new Fixed(0n, scale),
+            () => Fixed.fromDigits(0n, scale),
             RangeError,
             /Scale must be in the range/,
           );
@@ -168,8 +176,8 @@ describe("Fixed", function () {
       register(
         `${v1}/${10 ** Number(p1)} + ${v2}/${10 ** Number(p2)} => ${expected}`,
         () => {
-          const a = new Fixed(v1, p1);
-          const b = new Fixed(v2, p2);
+          const a = Fixed.fromDigits(v1, p1);
+          const b = Fixed.fromDigits(v2, p2);
           const sum = a.plus(b);
           assert.equal(sum.toFixed(), expected);
           assert.equal(sum.scale, p1);
@@ -178,8 +186,8 @@ describe("Fixed", function () {
     }
 
     it("throws InconsistentUnitsError when scales differ", function () {
-      const a = new Fixed(1n, 1n);
-      const b = new Fixed(1n, 2n);
+      const a = Fixed.fromDigits(1n, 1n);
+      const b = Fixed.fromDigits(1n, 2n);
       assert.throws(() => a.plus(b), InconsistentUnitsError);
       assert.throws(() => b.plus(a), InconsistentUnitsError);
     });
@@ -199,8 +207,8 @@ describe("Fixed", function () {
       register(
         `${v1}/${10 ** Number(p1)} - ${v2}/${10 ** Number(p2)} => ${expected}`,
         () => {
-          const a = new Fixed(v1, p1);
-          const b = new Fixed(v2, p2);
+          const a = Fixed.fromDigits(v1, p1);
+          const b = Fixed.fromDigits(v2, p2);
           const diff = a.minus(b);
           assert.equal(diff.toFixed(), expected);
           assert.equal(diff.scale, p1);
@@ -209,8 +217,8 @@ describe("Fixed", function () {
     }
 
     it("throws InconsistentUnitsError when scales differ", function () {
-      const a = new Fixed(1n, 1n);
-      const b = new Fixed(1n, 2n);
+      const a = Fixed.fromDigits(1n, 1n);
+      const b = Fixed.fromDigits(1n, 2n);
       assert.throws(() => a.minus(b), InconsistentUnitsError);
       assert.throws(() => b.minus(a), InconsistentUnitsError);
     });
@@ -241,8 +249,8 @@ describe("Fixed", function () {
       register(
         `(${v1},${p1}) * (${v2},${p2}) ${precStr} => ${expected}`,
         () => {
-          const a = new Fixed(v1, p1);
-          const b = new Fixed(v2, p2);
+          const a = Fixed.fromDigits(v1, p1);
+          const b = Fixed.fromDigits(v2, p2);
           const product = optPrec === undefined ? a.mul(b) : a.mul(b, optPrec);
           assert.equal(product.toFixed(), expected);
         },
@@ -250,8 +258,8 @@ describe("Fixed", function () {
     }
 
     it("throws ValueError when requested scale exceeds result scale", function () {
-      const a = new Fixed(1n, 1n);
-      const b = new Fixed(1n, 1n);
+      const a = Fixed.fromDigits(1n, 1n);
+      const b = Fixed.fromDigits(1n, 1n);
       assert.throws(
         () => a.mul(b, 3n),
         ValueError,
@@ -273,8 +281,8 @@ describe("Fixed", function () {
 
     for (const [v1, p1, v2, p2, expected] of cases) {
       register(`(${v1},${p1}) / (${v2},${p2}) => ${expected}`, () => {
-        const a = new Fixed(v1, p1);
-        const b = new Fixed(v2, p2);
+        const a = Fixed.fromDigits(v1, p1);
+        const b = Fixed.fromDigits(v2, p2);
         const q = a.div(b);
         assert.equal(q.toFixed(), expected);
         assert.equal(q.scale, p1);
@@ -282,8 +290,8 @@ describe("Fixed", function () {
     }
 
     it("throws RangeError when divisor is zero", function () {
-      const a = new Fixed(1n, 1n);
-      const zero = new Fixed(0n, 1n);
+      const a = Fixed.fromDigits(1n, 1n);
+      const zero = Fixed.fromDigits(0n, 1n);
       assert.throws(() => a.div(zero), RangeError, /Division by zero/);
     });
   });
@@ -299,7 +307,7 @@ describe("Fixed", function () {
 
     for (const [value, scale, expectedNegated] of cases) {
       register(`negated(${value}, ${scale}) => ${expectedNegated}`, () => {
-        const f = new Fixed(value, scale);
+        const f = Fixed.fromDigits(value, scale);
         const n = f.negated();
         assert.equal(n.toFixed(), expectedNegated);
         assert.equal(n.scale, scale);
@@ -322,7 +330,7 @@ describe("Fixed", function () {
 
     for (const [value, scale, expected] of cases) {
       register(`(${value}, ${scale}) => "${expected}"`, () => {
-        const f = new Fixed(value, scale);
+        const f = Fixed.fromDigits(value, scale);
         assert.equal(f.toFixed(), expected);
         assert.equal(f.toString(), expected);
       });
@@ -344,14 +352,14 @@ describe("Fixed", function () {
       register(
         `(${value}, ${scale}).toFixed(${digits}) => "${expected}"`,
         () => {
-          const f = new Fixed(value, scale);
+          const f = Fixed.fromDigits(value, scale);
           assert.equal(f.toFixed(digits), expected);
         },
       );
     }
   });
 
-  describe("withScale()", function () {
+  describe("withDecimals()", function () {
     const register = prepare(this);
 
     const cases: [bigint, bigint, bigint, string][] = [
@@ -365,10 +373,10 @@ describe("Fixed", function () {
 
     for (const [value, prec, newPrec, expected] of cases) {
       register(
-        `(${value}, ${prec}).withScale(${newPrec}) => ${expected}`,
+        `(${value}, ${prec}).withDecimals(${newPrec}) => ${expected}`,
         () => {
-          const f = new Fixed(value, prec);
-          const g = f.withScale(newPrec);
+          const f = Fixed.fromDigits(value, prec);
+          const g = f.withDecimals(newPrec);
           assert.equal(g.toFixed(), expected);
           assert.equal(g.scale, newPrec);
         },
@@ -388,16 +396,101 @@ describe("Fixed", function () {
       register(
         `(${value}, ${scale}).withScale(${newScale}) truncates => ${expected}`,
         () => {
-          const f = new Fixed(value, scale);
-          assert.equal(f.withScale(newScale).toFixed(), expected);
+          const f = Fixed.fromDigits(value, scale);
+          assert.equal(f.withDecimals(newScale).toFixed(), expected);
         },
       );
     }
 
     it("throws RangeError when requested scale is out of range", function () {
-      const f = new Fixed(1n, 1n);
-      assert.throws(() => f.withScale(MAX_FIXED_SCALE + 1n), RangeError);
-      assert.throws(() => f.withScale(-1n), RangeError);
+      const f = Fixed.fromDigits(1n, 1n);
+      assert.throws(() => f.withDecimals(MAX_FIXED_SCALE + 1n), RangeError);
+      assert.throws(() => f.withDecimals(-1n), RangeError);
+    });
+  });
+
+  describe("fromInteger()", function () {
+    const register = prepare(this);
+
+    const cases: [number | string | bigint, string][] = [
+      [0, "0"],
+      [1, "1"],
+      [-1, "-1"],
+      ["12345", "12345"],
+      [12345n, "12345"],
+      [-12345n, "-12345"],
+    ];
+
+    for (const [v, expected] of cases) {
+      register(`${String(v)} => ${expected}`, () => {
+        const f = Fixed.fromInteger(v);
+        assert.equal(f.scale, 0n);
+        assert.equal(f.toFixed(), expected);
+      });
+    }
+  });
+
+  describe("fromString()", function () {
+    const register = prepare(this);
+
+    const cases: [string, string][] = [
+      ["0", "0"],
+      ["000", "0"],
+      ["1", "1"],
+      ["-1", "-1"],
+      ["12.34", "12.34"],
+      ["0.01", "0.01"],
+      ["-0.50", "-0.50"],
+      ["  7.0  ", "7.0"],
+    ];
+
+    for (const [input, expected] of cases) {
+      register(`${JSON.stringify(input)} => ${expected}`, () => {
+        const f = Fixed.fromString(input);
+        assert.equal(f.toFixed(), expected);
+      });
+    }
+
+    describe("rejects invalid strings", function () {
+      const registerErr = prepare(this);
+
+      const invalid: [string, string][] = [
+        ["", "empty"],
+        [" ", "spaces"],
+        [".", "dot only"],
+        ["1.", "trailing dot"],
+        [".1", "leading dot"],
+        ["1.2.3", "multiple dots"],
+        ["1e3", "exponent"],
+        ["- 1", "space in sign"],
+        ["abc", "letters"],
+      ];
+
+      for (const [input, desc] of invalid) {
+        registerErr(desc, () =>
+          assert.throws(() => Fixed.fromString(input), SyntaxError),
+        );
+      }
+    });
+  });
+
+  describe("from()", function () {
+    it("accepts bigint as integer", function () {
+      const f = Fixed.from(123n);
+      assert.equal(f.toFixed(), "123");
+      assert.equal(f.scale, 0n);
+    });
+
+    it("accepts string", function () {
+      const f = Fixed.from("1.23");
+      assert.equal(f.toFixed(), "1.23");
+      assert.equal(f.scale, 2n);
+    });
+
+    it("returns Fixed instance as-is", function () {
+      const original = Fixed.fromDigits(123n, 2n);
+      const f = Fixed.from(original);
+      assert.strictEqual(f, original);
     });
   });
 });
