@@ -402,6 +402,44 @@ describe("Fixed", function () {
     }
   });
 
+  describe("sum()", function () {
+    const register = prepare(this);
+
+    const testCases: [string, string[], string, bigint][] = [
+      // label, inputs, expected toFixed, expected scale
+      ["multiple values with same scale", ["1.0", "2.5", "-0.5"], "3.0", 1n],
+      [
+        "zero is identity element (single and surrounded)",
+        ["1.23"],
+        "1.23",
+        2n,
+      ],
+      [
+        "zero is identity element (with explicit zeros)",
+        ["0.00", "1.23", "0.00"],
+        "1.23",
+        2n,
+      ],
+      ["handles negative totals", ["-1.00", "0.25"], "-0.75", 2n],
+    ];
+
+    for (const [label, inputs, expectedString, expectedScale] of testCases) {
+      register(label, () => {
+        const [first, ...rest] = inputs.map((s) => Fixed.fromString(s));
+        const s = Fixed.sum(first, ...rest);
+        assert.equal(s.toFixed(), expectedString);
+        assert.equal(s.scale, expectedScale);
+      });
+    }
+
+    register("throws InconsistentUnitsError on mixed scales", () => {
+      const a = Fixed.fromDigits(1n, 1n);
+      const b = Fixed.fromDigits(1n, 2n);
+
+      assert.throws(() => Fixed.sum(a, b), InconsistentUnitsError);
+    });
+  });
+
   describe("toFixed() and toString()", function () {
     const register = prepare(this);
 

@@ -187,6 +187,10 @@ export class Fixed {
     return this.compare(other) === 0;
   }
 
+  isZero(): boolean {
+    return this.value === 0n;
+  }
+
   //--------------------------------------------------------------------
   //  Arithmetic
   //--------------------------------------------------------------------
@@ -240,7 +244,19 @@ export class Fixed {
   }
 
   negated(): Fixed {
-    return new Fixed(-this.value, this.scale);
+    return this.value === 0n ? this : new Fixed(-this.value, this.scale);
+  }
+
+  static sum(first: FixedLike, ...rest: FixedLike[]): Fixed {
+    // eslint-disable-next-line prefer-const
+    let { value, scale } = first;
+    for (const other of rest) {
+      if (scale !== other.scale) {
+        throw new InconsistentUnitsError(scale, other.scale);
+      }
+      value += other.value;
+    }
+    return new Fixed(value, scale);
   }
 
   //--------------------------------------------------------------------
