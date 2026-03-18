@@ -23,6 +23,11 @@ export function toInteger(src: number | string) {
   return asInt;
 }
 
+//======================================================================
+//  BigNumber (fixed-precision arithmetic based on Decimal.js)
+//  DEPRECATED: use Fixed instead
+//======================================================================
+
 export type BigNumberSource =
   | number
   | string
@@ -69,15 +74,33 @@ export class BigNumber extends DecimalImplementation.clone({
   static ZERO = new BigNumber(0);
 }
 
+//======================================================================
+//  Fixed (fixed-point arithmetic)
+//======================================================================
+
 export const MAX_FIXED_SCALE = 80n;
 
 export type FixedSource = bigint | string | Fixed;
+export type CompareResult = -1 | 0 | 1;
+
+export type FixedLike = {
+  value: bigint;
+  scale: bigint;
+};
 
 export class Fixed {
   readonly value: bigint; // Integer value
   readonly scale: bigint; // Decimal scale
 
+  //--------------------------------------------------------------------
+  //  Constants
+  //--------------------------------------------------------------------
+
   static E18 = new Fixed(10n ** 18n, 0n);
+
+  //--------------------------------------------------------------------
+  //  Constructor and factory methods
+  //--------------------------------------------------------------------
 
   private constructor(value: bigint, scale: bigint) {
     if (scale < 0n || scale > MAX_FIXED_SCALE) {
@@ -130,7 +153,45 @@ export class Fixed {
     return new Fixed(BigInt(digits), scaleAsBigInt);
   }
 
-  plus(other: Fixed): Fixed {
+  //--------------------------------------------------------------------
+  //  Comparison
+  //--------------------------------------------------------------------
+
+  /**
+   * Total ordering of Fixed values.
+   *
+   * @param other - The other Fixed to compare against.
+   * @returns A negative number if this < other, 0 if this == other, and a positive number if this > other.
+   */
+  compare(other: FixedLike): CompareResult {
+    if (this.value === 0n && other.value === 0n) {
+      return 0;
+    }
+
+    if (this.scale === other.scale) {
+      return this.value < other.value ? -1 : this.value > other.value ? 1 : 0;
+    }
+
+    if (this.scale > other.scale) {
+      const factor = 10n ** BigInt(this.scale - other.scale);
+      const bn = other.value * factor;
+      return this.value < bn ? -1 : this.value > bn ? 1 : 0;
+    } else {
+      const factor = 10n ** BigInt(other.scale - this.scale);
+      const an = this.value * factor;
+      return an < other.value ? -1 : an > other.value ? 1 : 0;
+    }
+  }
+
+  equals(other: FixedLike): boolean {
+    return this.compare(other) === 0;
+  }
+
+  //--------------------------------------------------------------------
+  //  Arithmetic
+  //--------------------------------------------------------------------
+
+  plus(other: FixedLike): Fixed {
     if (this.scale !== other.scale) {
       throw new InconsistentUnitsError(this.scale, other.scale);
     }
@@ -138,7 +199,7 @@ export class Fixed {
     return new Fixed(this.value + other.value, this.scale);
   }
 
-  minus(other: Fixed): Fixed {
+  minus(other: FixedLike): Fixed {
     if (this.scale !== other.scale) {
       throw new InconsistentUnitsError(this.scale, other.scale);
     }
@@ -146,7 +207,7 @@ export class Fixed {
     return new Fixed(this.value - other.value, this.scale);
   }
 
-  mul(other: Fixed, scale?: bigint): Fixed {
+  mul(other: FixedLike, scale?: bigint): Fixed {
     const resultScale = this.scale + other.scale;
     const resultValue = this.value * other.value;
 
@@ -165,7 +226,7 @@ export class Fixed {
     return new Fixed(scaledValue, scale);
   }
 
-  div(other: Fixed): Fixed {
+  div(other: FixedLike): Fixed {
     if (other.value === 0n) {
       throw new RangeError("Division by zero");
     }
@@ -181,6 +242,10 @@ export class Fixed {
   negated(): Fixed {
     return new Fixed(-this.value, this.scale);
   }
+
+  //--------------------------------------------------------------------
+  //  Rescale
+  //--------------------------------------------------------------------
 
   /**
    * Returns a copy of this value with the given decimal scale.
@@ -201,6 +266,10 @@ export class Fixed {
     const scaledValue = this.value * 10n ** scaleUp;
     return new Fixed(scaledValue, decimals);
   }
+
+  //--------------------------------------------------------------------
+  //  String conversion
+  //--------------------------------------------------------------------
 
   toFixed(digits?: number | bigint): string {
     const displayScale =

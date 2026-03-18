@@ -162,6 +162,93 @@ describe("Fixed", function () {
     });
   });
 
+  describe("compare()", function () {
+    const register = prepare(this);
+
+    const pairCases: [string, string, -1 | 0 | 1][] = [
+      // same scale
+      ["1.23", "1.23", 0],
+      ["1.23", "1.24", -1],
+      ["1.24", "1.23", 1],
+      ["-1.23", "-1.24", 1],
+      // different scales but equal numeric value
+      ["1", "1.0", 0],
+      ["0.1", "0.10", 0],
+      ["-0.50", "-0.5", 0],
+      // different scales, different numeric value
+      ["0.09", "0.1", -1],
+      ["12.3", "12.30", 0],
+      ["12.30", "12.301", -1],
+    ];
+
+    for (const [a, b, expected] of pairCases) {
+      register(
+        `${JSON.stringify(a)} cmp ${JSON.stringify(b)} => ${expected}`,
+        () => {
+          const fa = Fixed.fromString(a);
+          const fb = Fixed.fromString(b);
+          assert.equal(fa.compare(fb), expected);
+        },
+      );
+    }
+
+    it("treats all zeros as equal regardless of scale", function () {
+      const a = Fixed.fromDigits(0n, 0n);
+      const b = Fixed.fromDigits(0n, 5n);
+      assert.equal(a.compare(b), 0);
+      assert.equal(b.compare(a), 0);
+    });
+
+    it('treats "+0", "-0", "0" as equal across scales', function () {
+      const variants = ["0", "+0", "-0", "0.0", "+0.00", "-0.000"] as const;
+      const fixed = variants.map((v) => Fixed.fromString(v));
+
+      for (const a of fixed) {
+        for (const b of fixed) {
+          assert.equal(a.compare(b), 0);
+          assert.isTrue(a.equals(b));
+        }
+      }
+    });
+
+    it("defines a total order across mixed scales (sorting)", function () {
+      const inputs = [
+        "0",
+        "0.0",
+        "-0.00",
+        "-1",
+        "-0.1",
+        "0.09",
+        "0.1",
+        "1",
+        "1.0",
+        "1.01",
+        "10",
+        "9.99",
+      ];
+      const fixed = inputs.map((s) => Fixed.fromString(s));
+
+      fixed.sort((x, y) => x.compare(y));
+
+      const actual = fixed.map((f) => f.toFixed());
+      const expected = [
+        "-1",
+        "-0.1",
+        "0",
+        "0.0",
+        "0.00",
+        "0.09",
+        "0.1",
+        "1",
+        "1.0",
+        "1.01",
+        "9.99",
+        "10",
+      ];
+      assert.deepEqual(actual, expected);
+    });
+  });
+
   describe("plus()", function () {
     const register = prepare(this);
 
