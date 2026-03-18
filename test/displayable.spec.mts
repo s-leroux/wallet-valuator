@@ -13,7 +13,7 @@ import {
   FORMAT_RE,
 } from "../src/displayable.mjs";
 import { NotImplementedError, ValueError } from "../src/error.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
+import { BigNumber, Fixed } from "../src/bignumber.mjs";
 
 describe("toDisplayString", function () {
   it("should call toDisplayString() on Displayable objects", function () {
@@ -60,6 +60,13 @@ describe("toDisplayString", function () {
 
   it("should return '[]' for empty arrays", function () {
     assert.strictEqual(toDisplayString([]), "[]");
+  });
+
+  it("should format Fixed values preserving internal scale", function () {
+    assert.strictEqual(toDisplayString(Fixed.fromString("1.0000")), "1.0000");
+    assert.strictEqual(toDisplayString(Fixed.fromString("0.10")), "0.10");
+    assert.strictEqual(toDisplayString(Fixed.fromString("123.456")), "123.456");
+    assert.strictEqual(toDisplayString(Fixed.fromString("-2")), "-2");
   });
 
   it("should indent content of arrays", function () {

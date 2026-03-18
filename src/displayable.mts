@@ -1,5 +1,4 @@
-import { BigNumber } from "./bignumber.mjs";
-import { type Amount } from "./cryptoasset.mjs";
+import { BigNumber, Fixed } from "./bignumber.mjs";
 import { formatDate as dateUtilsFormatDate } from "./date.mjs";
 import { logger } from "./debug.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
@@ -42,7 +41,22 @@ export const defaultDisplayOptions: Required<DisplayOptions> = {
   },
 };
 
-function noDisplayString(obj: object & {}, options: DisplayOptions): string {
+/**
+ * Format an object for display.
+ *
+ * This function is called by {@link toDisplayString} to format objects that are not instances of {@link Displayable}.
+ *
+ * @param obj - The object to format as a display string.
+ * @param options - The display options to use for formatting.
+ * @returns The display string for the object.
+ */
+function noDisplayString(
+  obj: object & {
+    values?: () => Iterable<unknown>;
+    toString?: () => string;
+  },
+  options: DisplayOptions,
+): string {
   if (Array.isArray(obj)) {
     const body = obj.map((item) => toDisplayString(item, options)).join("\n");
     if (body) {
@@ -56,8 +70,13 @@ function noDisplayString(obj: object & {}, options: DisplayOptions): string {
     return TextUtils.formatDate(obj, options);
   }
 
+  // Fixed format
+  if (obj instanceof Fixed) {
+    return obj.toFixed();
+  }
+
   // Other standard container?
-  const values = (obj as any).values?.();
+  const values = (obj as { values?: () => Iterable<unknown> }).values?.();
   const classname = obj.constructor?.name ?? "[null prototype]";
 
   if (values) {
@@ -85,7 +104,7 @@ export function toDisplayString(
     return String(obj);
   }
 
-  // Here, obj is necessarily a (defined and) non-null object
+  // At this point, obj is necessarily a (defined and) non-null object
   return (
     (obj as Displayable).toDisplayString?.(options) ??
     noDisplayString(obj, options)
@@ -274,7 +293,7 @@ export function format(format: string) {
     throw new ValueError(`Invalid format ${format}`);
   }
 
-  const [_, sign, width, dot, decimal] = match;
+  const [, sign, width, dot, decimal] = match;
 
   if (dot) {
     return alignChar(parseInt(width), dot, parseInt(decimal) || 0);
