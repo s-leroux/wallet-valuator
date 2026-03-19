@@ -46,7 +46,7 @@ todos:
     status: completed
   - id: migrate-quantity-step1-tests-green
     content: "Migrate `Quantity` contract (`src/quantity.mts`) step 1: ensure current Mocha coverage for suites importing `Quantity` is passing; record baseline SHA + exact `npx mocha` invocation."
-    status: pending
+    status: completed
   - id: migrate-quantity-step2-rationalize
     content: "Migrate `Quantity` step 2: rationalize the `Quantity` interface to reflect fixed-point intent (types + return values) and document the meaning of `scaledBy()` and `relativeTo()` under fixed-point arithmetic."
     status: pending
@@ -195,7 +195,7 @@ Note on “full” migration test runs:
   - `ETHERSCAN_API_KEY` is required by `Etherscan` and `GnosisScan` explorer tests.
   - `COINGECKO_API_KEY` is required by `CoinGecko` oracle tests.
   - If these env vars are not set, those suites fail in the “all tests” command
-    even when the fixed-point migration changes are correct.
+  even when the fixed-point migration changes are correct.
 
 ### 3) Commands to run during step 1/4 (what we’ll execute in Agent mode after you accept this plan)
 
@@ -261,6 +261,8 @@ graph TD
   Q[Quantity interface] --> A
   Q[Quantity interface] --> V
 ```
+
+
 
 ### Processing order (proposed)
 
@@ -473,3 +475,4 @@ Below, “tests” means Mocha specs that touch the class directly.
 **Step 4:**
 
 - Enrich `tsconfig.migration.json` to full inputs, run `npx tsc -p tsconfig.migration.json`, then run the full migration suite `npx mocha "build-migration/**/*.spec.mjs"`.
+

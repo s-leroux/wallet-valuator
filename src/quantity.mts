@@ -27,8 +27,8 @@ export interface Quantity<T, Self extends Quantity<T, Self>> {
    * to yield this value?"
    *
    * The result is expressed as a dimensionless quantity whose scale is
-   * implemenation-dependent but should be greater than or equal to the
-   * scale of the receiver and the base.
+   * implementation-dependent, but should typically be chosen with enough
+   * decimal digits to preserve (quantized) invertibility via {@link scaledBy}.
    *
    * @param base - The reference quantity to compare against.
    * @returns The scalar ratio (this / base).
