@@ -77,6 +77,11 @@ export class Value implements Quantity<FiatCurrency, Value> {
     return new Value(this.fiatCurrency, this.value.minus(other.value));
   }
 
+  /**
+   * Returns a new value representing this value scaled by a given factor.
+   *
+   * Result is rescaled to the receiver's scale.
+   */
   scaledBy(factor: BigNumberSource): Value {
     return new Value(this.fiatCurrency, this.value.mul(factor));
   }

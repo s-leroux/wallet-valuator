@@ -195,7 +195,7 @@ Note on “full” migration test runs:
   - `ETHERSCAN_API_KEY` is required by `Etherscan` and `GnosisScan` explorer tests.
   - `COINGECKO_API_KEY` is required by `CoinGecko` oracle tests.
   - If these env vars are not set, those suites fail in the “all tests” command
-    even when the fixed-point migration changes are correct.
+  even when the fixed-point migration changes are correct.
 
 ### 3) Commands to run during step 1/4 (what we’ll execute in Agent mode after you accept this plan)
 
@@ -262,6 +262,8 @@ graph TD
   Q[Quantity interface] --> V
 ```
 
+
+
 ### Processing order (proposed)
 
 We’ll migrate in this order to minimize representation mismatch churn:
@@ -318,7 +320,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 2:**
 
-- Rationalize `plus/minus/scaledBy/relativeTo/negated` semantics and how they map to `Fixed` behavior (scale consistency, truncation rules).
+- Identify impacted methods
+- Rationalize the arithmetic method semantics and how scale is chosen.
+- Check test coverage for the impacted methods.
 
 **Step 3:**
 
@@ -339,9 +343,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 2:**
 
-- Rationalize:
-  - `valueAt(price)` is the main method impacted because it bridges crypto amounts to fiat `Value`.
-  - `relativeTo()` and `scaledBy()` mapping to `Fixed`.
+- Identify impacted methods
+- Rationalize the arithmetic method semantics and how scale is chosen.
+- Check test coverage for the impacted methods.
 
 **Step 3:**
 
@@ -366,9 +370,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 2:**
 
-- Rationalize the interface so it reflects fixed-point arithmetic intent.
-- Identify impacted methods:
-  - `scaledBy(factor)` and `relativeTo(base)` return types.
+- Identify impacted methods
+- Rationalize the arithmetic method semantics and how scale is chosen.
+- Check test coverage for the impacted methods.
 
 **Step 3:**
 
@@ -391,9 +395,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 2:**
 
-- Rationalize the places where ratios are computed:
-  - specifically the `share = cachOut.relativeTo(start.totalCryptoValue)` then `cashIn.scaledBy(share)`.
-- Document fixed-point truncation/scale consistency expectations here because this is where rounding differences will surface first.
+- Identify impacted methods
+- Rationalize the arithmetic method semantics and how scale is chosen.
+- Check test coverage for the impacted methods.
 
 **Step 3:**
 
@@ -415,8 +419,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 2:**
 
-- Rationalize the numeric boundary:
-  - Oracles currently compute rates using `BigNumber` (e.g. `BigNumber.sum(...).div(3)` and `BigNumber.from(value)`).
+- Identify impacted methods
+- Rationalize the arithmetic method semantics and how scale is chosen.
+- Check test coverage for the impacted methods.
 - Decide: do oracles keep using `BigNumber` internally and convert into `Price` at the boundary, or do they switch to fixed arithmetic entirely.
 - Least resistance is usually: keep oracle computations as-is, convert into `Price` constructor (so oracles still depend on `BigNumber` only as an input type).
 
@@ -438,9 +443,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 2:**
 
-- Rationalize `fees` numeric semantics:
-  - currently: `fees = BigNumber.fromInteger(gasPrice).mul(gasUsed).div(BigNumber.E18)`.
-- Document the fixed-point scaling equivalent.
+- Identify impacted methods
+- Rationalize the arithmetic method semantics and how scale is chosen.
+- Check test coverage for the impacted methods.
 
 **Step 3:**
 
@@ -459,7 +464,9 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 2:**
 
-- Rationalize: decide whether to remove the `BigNumber` branch from formatting now that value classes should be on `Fixed`.
+- Identify impacted methods
+- Rationalize the arithmetic method semantics and how scale is chosen.
+- Check test coverage for the impacted methods.
 
 **Step 3:**
 
@@ -468,3 +475,4 @@ Below, “tests” means Mocha specs that touch the class directly.
 **Step 4:**
 
 - Enrich `tsconfig.migration.json` to full inputs, run `npx tsc -p tsconfig.migration.json`, then run the full migration suite `npx mocha "build-migration/**/*.spec.mjs"`.
+
