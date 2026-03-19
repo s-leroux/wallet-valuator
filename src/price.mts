@@ -27,12 +27,13 @@ export const GlobalPriceMetadata = new PriceMetadata(GlobalMetadataStore);
 export class Price {
   readonly crypto: CryptoAsset;
   readonly fiatCurrency: FiatCurrency;
+  // `rate` means: fiat per 1 crypto display unit.
   readonly rate: BigNumber;
 
   constructor(
     crypto: CryptoAsset,
     fiatCurrency: FiatCurrency,
-    rate: BigNumberSource
+    rate: BigNumberSource,
   ) {
     this.crypto = crypto;
     this.fiatCurrency = fiatCurrency;
@@ -40,18 +41,38 @@ export class Price {
   }
 
   /**
-   *  Convert a price to another fiat currency given the exchange rate.
+   * Convert an exchange rate to a different fiat currency.
+   *
+   * @param destinationCurrency - The destination fiat currency.
+   * @param exchangeRate - The fiat exchange rate to apply to the current
+   *   `rate`, expressed as: `destinationCurrency per this.fiatCurrency`.
+   *
+   * Fixed-point migration intent:
+   * - When `rate` becomes `Fixed`, the multiplication must be followed by
+   *   an explicit rescale back to the receiver's scale.
    */
-  to(destinationCurrency: FiatCurrency, exchangeRate: BigNumberSource) {
+  to(
+    destinationCurrency: FiatCurrency,
+    exchangeRate: BigNumberSource, // destination per source fiat
+  ) {
     return new Price(
       this.crypto,
       destinationCurrency,
-      this.rate.mul(exchangeRate)
+      this.rate.mul(exchangeRate),
     );
   }
 
-  mul(v: BigNumberSource): Price {
-    return new Price(this.crypto, this.fiatCurrency, this.rate.mul(v));
+  /**
+   * Multiply the price rate by a scalar factor.
+   *
+   * @param factor - Scalar multiplier applied to the rate.
+   *
+   * Fixed-point migration intent:
+   * - When `rate` becomes `Fixed`, the multiplication must be followed by an
+   *   explicit rescale back to the canonical `Price.rate` scale.
+   */
+  mul(factor: BigNumberSource): Price {
+    return new Price(this.crypto, this.fiatCurrency, this.rate.mul(factor));
   }
 
   toString() {

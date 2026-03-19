@@ -33,6 +33,26 @@ describe("Price", () => {
     });
   });
 
+  describe("mul()", () => {
+    it("should return a new price with its rate multiplied by a scalar", () => {
+      const price1 = new Price(ethereum, eur, 4000);
+      const price2 = price1.mul(1.1);
+
+      assert.notStrictEqual(price1, price2);
+      assert.strictEqual(price2.crypto, ethereum);
+      assert.strictEqual(price2.fiatCurrency, eur);
+      assert.strictEqual(+price2.rate, 4000 * 1.1);
+    });
+
+    it("should accept a string scalar multiplier", () => {
+      const price1 = new Price(ethereum, eur, 4000);
+      const price2 = price1.mul("2");
+
+      assert.notStrictEqual(price1, price2);
+      assert.strictEqual(+price2.rate, 8000);
+    });
+  });
+
   describe("toString()", () => {
     it("should return a string representation of the price", () => {
       const price = new Price(ethereum, eur, 3000);

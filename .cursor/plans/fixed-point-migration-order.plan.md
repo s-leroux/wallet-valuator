@@ -13,7 +13,7 @@ todos:
     status: completed
   - id: migrate-price-step2-rationalize
     content: "Migrate `Price` step 2: rationalize `Price` implementation (what `Fixed` represents, how scale is chosen) and document impacted methods (`constructor`, `to()`, `mul()`), including any rename/intent cleanup."
-    status: pending
+    status: completed
   - id: migrate-price-step3-big-number-to-fixed
     content: "Migrate `Price` step 3: change `Price.rate` storage from `BigNumber` to `Fixed` and update boundaries/conversions needed by the current compilation slice."
     status: pending
@@ -130,6 +130,20 @@ isProject: false
   - observed: running `rg` directly in `functions.Shell` failed with `rg: command not found`
   - workaround: use the Cursor code search tool (`functions.rg`) instead of shelling out to `rg`.
 
+### Migration hard rule (compile + test from `build-migration/`)
+
+During the migration phase you MUST:
+
+- compile using `npx tsc -p tsconfig.migration.json` (this emits JS into `build-migration/`).
+- pin the build to the expected git SHA using the `EXPECTED_GIT_SHA` environment variable.
+- run Mocha against the emitted output: `npx mocha "build-migration/**/*.spec.mjs"`.
+
+You MUST NOT:
+
+- run `npx tsc` without `-p tsconfig.migration.json` (it emits to `build/`).
+- run `npm test` (it targets `build/test/**`).
+- run Mocha against `build/` output.
+
 ### 0) Establish the migration “graph” from actual code
 
 - I previously scanned the codebase to find every type-level consumer of `BigNumber` (and confirmed `Fixed` lives in `src/bignumber.mts`).
@@ -164,7 +178,7 @@ We will avoid adapter proliferation and instead rely on constrained compilation 
 
 Based on your choices:
 
-- Test runner approach: “mocha-direct” (Mocha directly; repo’s default test command is `mocha 'build-migration/test/**/*.mjs'`).
+- Test runner approach: “mocha-direct” (Mocha directly; always run against emitted JS under `build-migration/`).
 - Pinning strategy: “git-sha”, with additional micro-commits during work-in-progress to keep test runs quickly attributable.
 
 So each class migration step will be:
@@ -174,6 +188,14 @@ So each class migration step will be:
 - Run a focused Mocha subset (grep/filter) and record:
   - `git rev-parse HEAD`
   - list of test files executed and the command line.
+
+Note on “full” migration test runs:
+
+- Some suites hit real upstream APIs and require environment variables:
+  - `ETHERSCAN_API_KEY` is required by `Etherscan` and `GnosisScan` explorer tests.
+  - `COINGECKO_API_KEY` is required by `CoinGecko` oracle tests.
+  - If these env vars are not set, those suites fail in the “all tests” command
+    even when the fixed-point migration changes are correct.
 
 ### 3) Commands to run during step 1/4 (what we’ll execute in Agent mode after you accept this plan)
 
@@ -185,8 +207,8 @@ Compilation (baseline):
 
 Targeted tests (Mocha with explicit file globs):
 
-- Repo default test run:
-  - `npm test`
+- Full migration test suite (only when needed):
+  - `npx mocha "build-migration/**/*.spec.mjs"`
 - Focused “by file” run (example patterns):
   - `npx mocha "build-migration/test/**/price.spec.mjs"`
   - `npx mocha "build-migration/test/**/cryptoasset.spec.mjs"`
@@ -261,7 +283,7 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 1: Check test coverage + verify passing (current baseline)**
 
-- Run: `npm test` (full) OR the focused subset:
+- Run: the full migration suite `npx mocha "build-migration/**/*.spec.mjs"` (when needed) OR the focused subset:
   - `npx mocha "build-migration/test/**/price.spec.mjs"`
 - Record git SHA: `git rev-parse HEAD`.
 
@@ -445,4 +467,4 @@ Below, “tests” means Mocha specs that touch the class directly.
 
 **Step 4:**
 
-- Enrich `tsconfig.migration.json` to full inputs, run `npx tsc -p tsconfig.migration.json`, then run full `npm test`.
+- Enrich `tsconfig.migration.json` to full inputs, run `npx tsc -p tsconfig.migration.json`, then run the full migration suite `npx mocha "build-migration/**/*.spec.mjs"`.
