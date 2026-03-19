@@ -158,7 +158,13 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
     if (this.crypto !== price.crypto) {
       throw new InconsistentUnitsError(this.crypto, price.crypto);
     }
-    return new Value(price.fiatCurrency, this.value.mul(price.rate));
+    // `Price.rate` is now `Fixed`. Convert to a decimal string so we can keep
+    // the existing (BigNumber-based) `Value` arithmetic intact until the
+    // `Amount` migration step.
+    return new Value(
+      price.fiatCurrency,
+      this.value.mul(price.rate.toFixed()),
+    );
   }
 
   scaledBy(factor: BigNumberSource): Amount {

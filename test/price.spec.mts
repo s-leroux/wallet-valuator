@@ -17,7 +17,7 @@ describe("Price", () => {
 
       assert.strictEqual(price.crypto, ethereum);
       assert.strictEqual(price.fiatCurrency, eur);
-      assert.strictEqual(+price.rate, 3000);
+      assert.strictEqual(price.rate.toFixed(), "3000");
     });
   });
 
@@ -29,7 +29,7 @@ describe("Price", () => {
       assert.notStrictEqual(price1, price2);
       assert.strictEqual(price2.crypto, ethereum);
       assert.strictEqual(price2.fiatCurrency, usd);
-      assert.strictEqual(+price2.rate, 4000 * 1.1);
+      assert.strictEqual(price2.rate.toFixed(), String(4000 * 1.1));
     });
   });
 
@@ -41,7 +41,7 @@ describe("Price", () => {
       assert.notStrictEqual(price1, price2);
       assert.strictEqual(price2.crypto, ethereum);
       assert.strictEqual(price2.fiatCurrency, eur);
-      assert.strictEqual(+price2.rate, 4000 * 1.1);
+      assert.strictEqual(price2.rate.toFixed(), String(4000 * 1.1));
     });
 
     it("should accept a string scalar multiplier", () => {
@@ -49,7 +49,7 @@ describe("Price", () => {
       const price2 = price1.mul("2");
 
       assert.notStrictEqual(price1, price2);
-      assert.strictEqual(+price2.rate, 8000);
+      assert.strictEqual(price2.rate.toFixed(), "8000");
     });
   });
 

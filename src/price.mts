@@ -1,7 +1,12 @@
 import { CryptoAsset } from "./cryptoasset.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 
-import { BigNumber, BigNumberSource } from "./bignumber.mjs";
+import {
+  BigNumber,
+  BigNumberSource,
+  Fixed,
+  FixedSource,
+} from "./bignumber.mjs";
 import { GlobalMetadataStore, MetadataFacade } from "./metadata.mjs";
 
 type PriceMetadataType = {
@@ -28,16 +33,30 @@ export class Price {
   readonly crypto: CryptoAsset;
   readonly fiatCurrency: FiatCurrency;
   // `rate` means: fiat per 1 crypto display unit.
-  readonly rate: BigNumber;
+  readonly rate: Fixed;
+
+  private static rateFromSource(rate: BigNumberSource | FixedSource): Fixed {
+    if (rate instanceof Fixed) {
+      return rate;
+    }
+
+    if (typeof rate === "bigint") {
+      return Fixed.fromDigits(rate, 0n);
+    }
+
+    // BigNumber -> Fixed: preserve the exact decimal representation as a
+    // (value, scale) pair, so Fixed arithmetic can proceed without losing scale.
+    return Fixed.fromString(BigNumber.from(rate).toString());
+  }
 
   constructor(
     crypto: CryptoAsset,
     fiatCurrency: FiatCurrency,
-    rate: BigNumberSource,
+    rate: BigNumberSource | Fixed,
   ) {
     this.crypto = crypto;
     this.fiatCurrency = fiatCurrency;
-    this.rate = BigNumber.from(rate);
+    this.rate = Price.rateFromSource(rate);
   }
 
   /**
@@ -53,12 +72,15 @@ export class Price {
    */
   to(
     destinationCurrency: FiatCurrency,
-    exchangeRate: BigNumberSource, // destination per source fiat
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    exchangeRate: BigNumberSource | FixedSource, // destination per source fiat
   ) {
     return new Price(
       this.crypto,
       destinationCurrency,
-      this.rate.mul(exchangeRate),
+      // Multiply in fixed-point domain and rescale back to the receiver's
+      // canonical `Price.rate` scale.
+      this.rate.mul(Price.rateFromSource(exchangeRate), this.rate.scale),
     );
   }
 
@@ -71,8 +93,14 @@ export class Price {
    * - When `rate` becomes `Fixed`, the multiplication must be followed by an
    *   explicit rescale back to the canonical `Price.rate` scale.
    */
-  mul(factor: BigNumberSource): Price {
-    return new Price(this.crypto, this.fiatCurrency, this.rate.mul(factor));
+  mul(factor: BigNumberSource | FixedSource): Price {
+    return new Price(
+      this.crypto,
+      this.fiatCurrency,
+      // Multiply in fixed-point domain and rescale back to the receiver's
+      // canonical `Price.rate` scale.
+      this.rate.mul(Price.rateFromSource(factor), this.rate.scale),
+    );
   }
 
   toString() {

@@ -16,7 +16,7 @@ todos:
     status: completed
   - id: migrate-price-step3-big-number-to-fixed
     content: "Migrate `Price` step 3: change `Price.rate` storage from `BigNumber` to `Fixed` and update boundaries/conversions needed by the current compilation slice."
-    status: pending
+    status: completed
   - id: migrate-price-step4-tests-after
     content: "Migrate `Price` step 4: rerun the same focused Mocha suite(s) and adjacent suites that exercise `Amount.valueAt(price)`; update tests to assert against `Fixed` where needed."
     status: pending
