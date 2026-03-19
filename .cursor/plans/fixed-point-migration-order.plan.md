@@ -58,10 +58,10 @@ todos:
     status: completed
   - id: migrate-valuation-pipeline-step1-tests-green
     content: "Migrate the `Valuation pipeline` (`src/valuation.mts`: `PointInTimeValuation`, `SnapshotValuation`, `PortfolioValuation`) step 1: ensure `valuation.spec` is passing; record baseline SHA + exact `npx mocha` invocation."
-    status: pending
+    status: completed
   - id: migrate-valuation-pipeline-step2-rationalize
     content: "Migrate the `Valuation pipeline` step 2: rationalize ratio computation sections (notably `share = cachOut.relativeTo(...)` and `cashIn.scaledBy(share)`) and document fixed-point scale/truncation expectations."
-    status: pending
+    status: completed
   - id: migrate-valuation-pipeline-step3-big-number-to-fixed
     content: "Migrate the `Valuation pipeline` step 3: ensure all internal valuation math uses `Fixed` operations consistently (after `Value`/`Amount` are migrated); update any leftover `BigNumber` usage."
     status: pending

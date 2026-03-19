@@ -108,6 +108,12 @@ export class Value {
    * Returns a new value representing this value scaled by a given factor.
    *
    * Result is rescaled to the receiver's scale.
+   *
+   * Quantization policy:
+   * - multiplication is computed in fixed-point arithmetic,
+   * - then truncated to the receiver scale (via `Fixed.mul(..., this.value.scale)`),
+   * - so this operation is stable in value domains where amounts are represented
+   *   with a fixed number of decimals (e.g. fiat cents).
    */
   scaledBy(factor: ValueSource): Value {
     const factorFixed = fixedFromSource(factor);
@@ -121,6 +127,13 @@ export class Value {
    * Returns the scalar ratio between this value and a base value (this / other).
    *
    * The returned scalar is expressed at the receiver's scale.
+   *
+   * Quantization policy:
+   * - division uses `Fixed.div(..., this.value.scale)`,
+   * - the quotient is therefore truncated toward zero at the receiver scale.
+   *
+   * This intentionally aligns with `scaledBy()` for pipeline formulas such as
+   * `share = cashOut.relativeTo(total)` followed by `cashIn.scaledBy(share)`.
    */
   relativeTo(other: Value): Fixed {
     if (this.fiatCurrency != other.fiatCurrency) {
@@ -370,14 +383,20 @@ export class SnapshotValuation {
       deposits = deposits.plus(delta);
       cashIn = cashIn.plus(delta);
     } else if (tags.get("CASH-OUT")) {
-      const cachOut = start.totalCryptoValue.minus(end.totalCryptoValue); // This is supposed to be positive too !!!
-      deposits = deposits.minus(cachOut);
+      const cashOut = start.totalCryptoValue.minus(end.totalCryptoValue); // This is supposed to be positive too !!!
+      deposits = deposits.minus(cashOut);
 
       // Specific French accounting formula (2025)
       // see https://www.waltio.com/fr/comment-calculer-impots-crypto/
-      const share = cachOut.relativeTo(start.totalCryptoValue); // positive
+      //
+      // Fixed-point expectation:
+      // - `share` is quantized at `cashOut` scale and truncated toward zero.
+      // - `cashInMulShare` is then quantized at `cashIn` scale.
+      // This keeps the fiscal pipeline deterministic across runs and avoids
+      // accidental precision growth from intermediate operations.
+      const share = cashOut.relativeTo(start.totalCryptoValue); // positive
       cashInMulShare = cashIn.scaledBy(share);
-      gainOrLoss = cachOut.minus(cashInMulShare);
+      gainOrLoss = cashOut.minus(cashInMulShare);
       cashIn = cashIn.minus(cashInMulShare); // same as cashIn * (1 - share)
     }
 

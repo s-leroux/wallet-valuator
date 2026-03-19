@@ -5,7 +5,7 @@ import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { Amount, CryptoAsset, CryptoAssetID } from "../src/cryptoasset.mjs";
 import { BigNumber, Fixed } from "../src/bignumber.mjs";
 
-import { ValueError } from "../src/error.mjs";
+import { InconsistentUnitsError, ValueError } from "../src/error.mjs";
 import { testQuantityInterface } from "./support/quantity.helper.mjs";
 import { InstanceCache } from "../src/instancecache.mjs";
 
@@ -118,6 +118,95 @@ describe("Amount", () => {
       const amount = new Amount(ethereum, value);
 
       assert.strictEqual(amount.toString(), "1000 ETH");
+    });
+  });
+
+  describe("negated() method", () => {
+    it("should return a new Amount with the opposite sign", () => {
+      const amount = new Amount(ethereum, Fixed.fromString("12.34"));
+      const negated = amount.negated();
+
+      assert.strictEqual(negated.crypto, ethereum);
+      assert.strictEqual(negated.value.toString(), "-12.34");
+      assert.strictEqual(amount.value.toString(), "12.34");
+    });
+
+    it("should keep zero unsigned when negated", () => {
+      const zero = new Amount(ethereum, Fixed.fromString("0"));
+      assert.isTrue(zero.isZero());
+
+      const negatedZero = zero.negated();
+
+      assert.isTrue(negatedZero.isZero());
+      assert.strictEqual(negatedZero.value.toString(), "0");
+      assert.strictEqual(negatedZero.toString(), "0 ETH");
+    });
+  });
+
+  describe("isZero() method", () => {
+    it("should return true for zero values", () => {
+      const amount = new Amount(ethereum, Fixed.fromString("0"));
+      assert.isTrue(amount.isZero());
+    });
+
+    it("should return false for non-zero values", () => {
+      const amount = new Amount(ethereum, Fixed.fromString("0.0001"));
+      assert.isFalse(amount.isZero());
+    });
+  });
+
+  describe("relativeTo() method", () => {
+    it("should round-trip with scaledBy for scale-compatible values", () => {
+      const base = new Amount(ethereum, Fixed.fromString("16.00"));
+      const target = new Amount(ethereum, Fixed.fromString("8.0"));
+
+      const share = target.relativeTo(base);
+      const rebuilt = base.scaledBy(share);
+
+      assert.strictEqual(rebuilt.crypto, target.crypto);
+      assert.isTrue(rebuilt.value.equals(target.value));
+      assert.strictEqual(rebuilt.value.toFixed(), "8.00");
+    });
+
+    it("should return a ratio with deterministic scale (lhs.scale + rhs.scale)", () => {
+      const lhs = new Amount(ethereum, Fixed.fromString("8.00"));
+      const rhs = new Amount(ethereum, Fixed.fromString("16.0"));
+
+      const ratio = lhs.relativeTo(rhs);
+
+      assert.strictEqual(ratio.scale, 3n);
+      assert.strictEqual(ratio.toFixed(), "0.500");
+    });
+
+    it("should throw when units are inconsistent", () => {
+      const a = new Amount(ethereum, Fixed.fromString("1"));
+      const b = new Amount(bitcoin, Fixed.fromString("1"));
+      assert.throws(() => a.relativeTo(b), InconsistentUnitsError);
+    });
+
+    it("should throw on division by zero", () => {
+      const a = new Amount(ethereum, Fixed.fromString("1"));
+      const b = new Amount(ethereum, Fixed.fromString("0"));
+      assert.throws(() => a.relativeTo(b), RangeError);
+    });
+  });
+
+  describe("valueAt() method", () => {
+    it("should use the default fixed-point multiplication scale when omitted", () => {
+      const amount = ethereum.amountFromString("2.50");
+      const price = ethereum.price(FakeFiatCurrency.EUR, "3.200");
+
+      const value = amount.valueAt(price);
+
+      assert.strictEqual(value.value.toFixed(), "8.00000");
+    });
+  });
+
+  describe("toDisplayString() method", () => {
+    it("should return formatted value with symbol", () => {
+      const amount = ethereum.amountFromString("1.2300");
+
+      assert.strictEqual(amount.toDisplayString({}), "1.2300 ETH");
     });
   });
 
