@@ -22,7 +22,7 @@ todos:
     status: completed
   - id: migrate-value-step1-tests-green
     content: "Migrate `Value` (`src/valuation.mts`, class `Value`) step 1: ensure current focused Mocha coverage runs and is passing for `valuation.spec`; record baseline SHA + exact `npx mocha` invocation."
-    status: pending
+    status: completed
   - id: migrate-value-step2-rationalize
     content: "Migrate `Value` step 2: rationalize `Value` arithmetic semantics (`plus`, `minus`, `scaledBy`, `relativeTo`, `negated`) and document scale/truncation expectations under fixed-point."
     status: pending
