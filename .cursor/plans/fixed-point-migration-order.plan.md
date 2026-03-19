@@ -34,16 +34,16 @@ todos:
     status: completed
   - id: migrate-amount-step1-tests-green
     content: "Migrate `Amount` (`src/cryptoasset.mts`, class `Amount`) step 1: ensure current focused Mocha coverage runs and is passing for `cryptoasset.spec`; record baseline SHA + exact `npx mocha` invocation."
-    status: pending
+    status: completed
   - id: migrate-amount-step2-rationalize
     content: "Migrate `Amount` step 2: rationalize `Amount` implementation, especially `valueAt(price)`, and document the numeric domain/scaling relationship between `Amount.value` and `Price.rate`."
-    status: pending
+    status: completed
   - id: migrate-amount-step3-big-number-to-fixed
     content: "Migrate `Amount` step 3: change `Amount.value` from `BigNumber` to `Fixed` and update `valueAt(price)` to multiply in the fixed-point domain required by the compilation slice."
     status: completed
   - id: migrate-amount-step4-tests-after
     content: "Migrate `Amount` step 4: rerun `cryptoasset.spec` and `valuation.spec` (at minimum, where `amount.valueAt(price)` is exercised); update tests to assert on `Fixed`."
-    status: pending
+    status: completed
   - id: migrate-quantity-step1-tests-green
     content: "Migrate `Quantity` contract (`src/quantity.mts`) step 1: ensure current Mocha coverage for suites importing `Quantity` is passing; record baseline SHA + exact `npx mocha` invocation."
     status: pending
