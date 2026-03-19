@@ -116,6 +116,7 @@ export class Fixed {
   //--------------------------------------------------------------------
 
   static E18 = new Fixed(10n ** 18n, 0n);
+  static ZERO = new Fixed(0n, 0n);
 
   //--------------------------------------------------------------------
   //  Constructor and factory methods
@@ -214,6 +215,11 @@ export class Fixed {
   //  Arithmetic
   //--------------------------------------------------------------------
 
+  /**
+   * Fixed-point addition.
+   *
+   * This and other must be expressed at the same scale.
+   */
   plus(other: FixedLike): Fixed {
     if (this.scale !== other.scale) {
       throw new InconsistentUnitsError(this.scale, other.scale);
@@ -222,6 +228,11 @@ export class Fixed {
     return new Fixed(this.value + other.value, this.scale);
   }
 
+  /**
+   * Fixed-point subtraction.
+   *
+   * This and other must be expressed at the same scale.
+   */
   minus(other: FixedLike): Fixed {
     if (this.scale !== other.scale) {
       throw new InconsistentUnitsError(this.scale, other.scale);
@@ -230,38 +241,91 @@ export class Fixed {
     return new Fixed(this.value - other.value, this.scale);
   }
 
-  mul(other: FixedLike, scale?: bigint): Fixed {
+  /**
+   * Fixed-point multiplication.
+   *
+   * The result scale is the sum of the receiver's and the other's scales.
+   * You can override the result scale by using the {@link requestedScale} parameter.
+   *
+   * In the code, {@link mul} is mathematically correct by default.
+   * If you need domain-specific rounding, either:
+   * - use {@link mul} with the {@link requestedScale} parameter,
+   * - use {@link mul} followed by {@link Fixed.withDecimals},
+   * - or use the domain's {@link scaledBy} method if provided.
+   *
+   * @param {FixedLike} other The value to multiply by.
+   * @param {bigint} [requestedScale] The desired scale for the result. If omitted or equal to the calculated result scale, no rescaling occurs.
+   * @returns {Fixed} A new Fixed representing the result of the multiplication.
+   */
+  mul(other: FixedLike, requestedScale?: bigint): Fixed {
     const resultScale = this.scale + other.scale;
     const resultValue = this.value * other.value;
 
-    if (scale === undefined || scale === resultScale) {
+    if (requestedScale === undefined || requestedScale === resultScale) {
       return new Fixed(resultValue, resultScale);
     }
 
-    if (scale > resultScale) {
+    if (requestedScale > resultScale) {
       throw new ValueError(
-        `Requested scale ${scale} exceeds result scale ${resultScale}`,
+        `Requested scale ${requestedScale} exceeds result scale ${resultScale}`,
       );
     }
 
-    const scaleDown = resultScale - scale;
+    const scaleDown = resultScale - requestedScale;
     const scaledValue = resultValue / 10n ** scaleDown;
-    return new Fixed(scaledValue, scale);
+    return new Fixed(scaledValue, requestedScale);
   }
 
-  div(other: FixedLike): Fixed {
+  /**
+   * Fixed-point division quantized to an explicit result scale.
+   *
+   * Division has no mathematically privileged default result scale:
+   * the exact quotient may require more decimal places than either operand,
+   * or may even be non-terminating in base 10.
+   *
+   * The caller must therefore provide the target scale explicitly.
+   * The quotient is then quantized to that scale using integer division,
+   * which truncates toward zero in JavaScript / TypeScript `bigint` arithmetic.
+   *
+   * For domain-specific policies (price scale, ratio scale, token quantity scale, etc.),
+   * prefer the domain-level {@link scaledBy} operation that provides sensible defaults.
+   *
+   * @param other - The divisor.
+   * @param targetScale - The scale of the returned quotient.
+   * @returns A new Fixed representing `this / other`, quantized to `requestedScale`.
+   * @throws {RangeError} If `other` is zero.
+   */
+  div(other: FixedLike, targetScale: bigint): Fixed {
     if (other.value === 0n) {
       throw new RangeError("Division by zero");
     }
 
-    const resultScale = this.scale;
-    const scaleFactor = 10n ** other.scale;
-    const numerator = this.value * scaleFactor;
-    const resultValue = numerator / other.value;
+    if (targetScale < 0n) {
+      throw new RangeError("Negative scale");
+    }
 
-    return new Fixed(resultValue, resultScale);
+    // We want:
+    //   resultValue * 10^-targetScale ≈
+    //   (this.value * 10^-this.scale) / (other.value * 10^-other.scale)
+    //
+    // Therefore:
+    //   resultValue ≈ this.value * 10^(targetScale + other.scale - this.scale) / other.value
+    //
+    // We compute this with integer arithmetic and truncation toward zero.
+    const exponent = targetScale + other.scale - this.scale;
+
+    let resultValue: bigint;
+
+    if (exponent >= 0n) {
+      const numerator = this.value * 10n ** exponent;
+      resultValue = numerator / other.value;
+    } else {
+      const denominator = other.value * 10n ** -exponent;
+      resultValue = this.value / denominator;
+    }
+
+    return new Fixed(resultValue, targetScale);
   }
-
   negated(): Fixed {
     return this.value === 0n ? this : new Fixed(-this.value, this.scale);
   }
@@ -349,4 +413,20 @@ export class Fixed {
   toString(): string {
     return this.toFixed();
   }
+}
+
+/**
+ * Compatibility layer for migrating from BigNumber to Fixed.
+ */
+export function fixedFromSource(src: BigNumberSource | FixedSource): Fixed {
+  if (src instanceof Fixed) {
+    return src;
+  }
+
+  if (typeof src === "bigint") {
+    return Fixed.fromDigits(src, 0n);
+  }
+
+  const bn = BigNumber.from(src);
+  return Fixed.fromString(bn.toString());
 }

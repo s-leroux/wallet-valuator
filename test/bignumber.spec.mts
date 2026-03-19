@@ -330,15 +330,18 @@ describe("Fixed", function () {
       [999n, 2n, 1n, 0n, 2n, "9.99"],
     ];
 
-    for (const [v1, p1, v2, p2, optPrec, expected] of cases) {
+    for (const [v1, p1, v2, p2, requestedScale, expected] of cases) {
       const precStr =
-        optPrec === undefined ? "default scale" : `scale ${optPrec}`;
+        requestedScale === undefined
+          ? "default scale"
+          : `scale ${requestedScale}`;
       register(
         `(${v1},${p1}) * (${v2},${p2}) ${precStr} => ${expected}`,
         () => {
           const a = Fixed.fromDigits(v1, p1);
           const b = Fixed.fromDigits(v2, p2);
-          const product = optPrec === undefined ? a.mul(b) : a.mul(b, optPrec);
+          const product =
+            requestedScale === undefined ? a.mul(b) : a.mul(b, requestedScale);
           assert.equal(product.toFixed(), expected);
         },
       );
@@ -358,28 +361,31 @@ describe("Fixed", function () {
   describe("div()", function () {
     const register = prepare(this);
 
-    const cases: [bigint, bigint, bigint, bigint, string][] = [
-      [10n, 1n, 2n, 1n, "5.0"],
-      [1n, 0n, 2n, 0n, "0"],
-      [100n, 2n, 10n, 1n, "1.00"],
-      [1n, 2n, 1n, 2n, "1.00"],
-      [22n, 1n, 7n, 1n, "3.1"],
+    const cases: [bigint, bigint, bigint, bigint, bigint, string][] = [
+      [10n, 1n, 2n, 1n, 1n, "5.0"],
+      [1n, 0n, 2n, 0n, 0n, "0"],
+      [100n, 2n, 10n, 1n, 2n, "1.00"],
+      [1n, 2n, 1n, 2n, 2n, "1.00"],
+      [22n, 1n, 7n, 1n, 1n, "3.1"],
     ];
 
-    for (const [v1, p1, v2, p2, expected] of cases) {
-      register(`(${v1},${p1}) / (${v2},${p2}) => ${expected}`, () => {
+    for (const [v1, p1, v2, p2, targetScale, expected] of cases) {
+      register(
+        `(${v1},${p1}) / (${v2},${p2}) @ ${targetScale} => ${expected}`,
+        () => {
         const a = Fixed.fromDigits(v1, p1);
         const b = Fixed.fromDigits(v2, p2);
-        const q = a.div(b);
-        assert.equal(q.toFixed(), expected);
-        assert.equal(q.scale, p1);
-      });
+          const q = a.div(b, targetScale);
+          assert.equal(q.toFixed(), expected);
+          assert.equal(q.scale, targetScale);
+        },
+      );
     }
 
     it("throws RangeError when divisor is zero", function () {
       const a = Fixed.fromDigits(1n, 1n);
       const zero = Fixed.fromDigits(0n, 1n);
-      assert.throws(() => a.div(zero), RangeError, /Division by zero/);
+      assert.throws(() => a.div(zero, 1n), RangeError, /Division by zero/);
     });
   });
 
@@ -760,7 +766,7 @@ describe("BigNumber vs Fixed", function () {
           // Fixed
           const a = Fixed.fromDigits(aDigits, aScale);
           const b = Fixed.fromDigits(bDigits, bScale);
-          const fixedString = a.div(b).toFixed();
+          const fixedString = a.div(b, aScale).toFixed();
 
           // BigNumber
           const bnA = BigNumber.fromDigits(aDigits.toString(), Number(aScale));

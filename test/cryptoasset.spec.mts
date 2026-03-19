@@ -24,7 +24,7 @@ describe("CryptoAsset", () => {
       ethereum.id,
       ethereum.name,
       ethereum.symbol,
-      ethereum.decimal
+      ethereum.decimal,
     );
 
     assert.strictEqual(crypto.id, ethereum.id);
@@ -39,7 +39,7 @@ describe("CryptoAsset", () => {
       ethereum.id,
       ethereum.name,
       ethereum.symbol,
-      ethereum.decimal
+      ethereum.decimal,
     );
     const baseUnitValue = "12345678900000000000";
     //                     09876543210987654321
@@ -49,7 +49,7 @@ describe("CryptoAsset", () => {
     assert.strictEqual(
       amount.value.toString(),
       "12.3456789",
-      "Amount value should equal 12.3456789"
+      "Amount value should equal 12.3456789",
     );
   });
 
@@ -62,7 +62,7 @@ describe("CryptoAsset", () => {
 
   it("should create a Price instance from fiat and rate", () => {
     const crypto = FakeCryptoAsset.bitcoin;
-    const amount = crypto.amountFromString("100.5"); // ISSUE #133 Why that statement? Did we forget to test something?
+    // const amount = crypto.amountFromString("100.5"); // ISSUE #133 Why that statement? Did we forget to test something?
     const fiat = FakeFiatCurrency.EUR;
     const price = crypto.price(fiat, 100000);
 
@@ -102,7 +102,7 @@ describe("Amount", () => {
     const amount = new Amount(ethereum, new BigNumber("1e50"));
     assert.strictEqual(
       amount.value.toString(),
-      "100000000000000000000000000000000000000000000000000"
+      "100000000000000000000000000000000000000000000000000",
     );
   });
 
@@ -134,6 +134,6 @@ describe("Amount", () => {
       },
     },
     ethereum,
-    bitcoin
+    bitcoin,
   );
 });

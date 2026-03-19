@@ -4,7 +4,12 @@ import {
   MissingPriceError,
   ProtocolError,
 } from "./error.mjs";
-import { BigNumber, BigNumberSource } from "./bignumber.mjs";
+import {
+  BigNumberSource,
+  Fixed,
+  fixedFromSource,
+  FixedSource,
+} from "./bignumber.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
@@ -20,13 +25,14 @@ import {
 import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
-import { Quantity } from "./quantity.mjs";
 import { PriceResolver } from "./priceresolver.mjs";
 const log = logger("valuation");
 
 //======================================================================
 //  Value
 //======================================================================
+
+type ValueSource = BigNumberSource | FixedSource;
 
 /**
  * Represents a monetary value in a specific fiat currency.
@@ -43,11 +49,14 @@ const log = logger("valuation");
  * FIXED Unify that class with `Amount` usign generics.
  * FIXED This was fixed when `Quantity` was implemented.
  */
-export class Value implements Quantity<FiatCurrency, Value> {
-  constructor(
-    readonly fiatCurrency: FiatCurrency,
-    readonly value: BigNumber = BigNumber.ZERO,
-  ) {}
+export class Value {
+  readonly fiatCurrency: FiatCurrency;
+  readonly value: Fixed;
+
+  constructor(fiatCurrency: FiatCurrency, value: ValueSource = Fixed.ZERO) {
+    this.fiatCurrency = fiatCurrency;
+    this.value = fixedFromSource(value);
+  }
 
   /**
    * Creates a Value instance from a fiat currency identifier and numeric value.
@@ -57,8 +66,8 @@ export class Value implements Quantity<FiatCurrency, Value> {
    * @param value - The numeric value to create the Value instance with
    * @returns A new Value instance
    */
-  static from(fiat: string | FiatCurrency, value: BigNumberSource) {
-    return new Value(FiatCurrency(fiat), BigNumber.from(value));
+  static from(fiat: string | FiatCurrency, value: ValueSource) {
+    return new Value(FiatCurrency(fiat), value);
   }
 
   plus(other: Value) {
@@ -82,15 +91,24 @@ export class Value implements Quantity<FiatCurrency, Value> {
    *
    * Result is rescaled to the receiver's scale.
    */
-  scaledBy(factor: BigNumberSource): Value {
-    return new Value(this.fiatCurrency, this.value.mul(factor));
+  scaledBy(factor: ValueSource): Value {
+    const factorFixed = fixedFromSource(factor);
+    return new Value(
+      this.fiatCurrency,
+      this.value.mul(factorFixed, this.value.scale),
+    );
   }
 
-  relativeTo(other: Value): BigNumber {
+  /**
+   * Returns the scalar ratio between this value and a base value (this / other).
+   *
+   * The returned scalar is expressed at the receiver's scale.
+   */
+  relativeTo(other: Value): Fixed {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
     }
-    return this.value.div(other.value);
+    return this.value.div(other.value, this.value.scale);
   }
 
   isZero() {
@@ -232,7 +250,7 @@ export class SnapshotValuation {
     readonly date: Date,
     readonly cryptoValueBefore: PointInTimeValuation,
     readonly cryptoValueAfter: PointInTimeValuation,
-    readonly tags: Map<string, any>,
+    readonly tags: Map<string, unknown>,
     readonly comments: string[],
     readonly fiatDeposits: Value,
     readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
@@ -313,7 +331,9 @@ export class SnapshotValuation {
     );
 
     // Copy auxiliary data
-    const tags = new Map<string, any>(snapshot.tags);
+    const tags = new Map<string, unknown>(
+      snapshot.tags as Map<string, unknown>,
+    );
     const comments = snapshot.comments;
 
     // Track cash movements
