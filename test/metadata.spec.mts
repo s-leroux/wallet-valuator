@@ -19,7 +19,7 @@ describe("MetadataStore", () => {
 
   beforeEach(() => {
     registry = new MetadataStore();
-    price = FakeCryptoAsset.bitcoin.price(FakeFiatCurrency.EUR, 1000);
+    price = FakeCryptoAsset.bitcoin.price(FakeFiatCurrency.EUR, "1000");
   });
 
   describe("getMetadata", () => {
@@ -74,7 +74,7 @@ describe("MetadataFacade", () => {
   let price: Price;
 
   beforeEach(() => {
-    price = FakeCryptoAsset.bitcoin.price(FakeFiatCurrency.EUR, 1000);
+    price = FakeCryptoAsset.bitcoin.price(FakeFiatCurrency.EUR, "1000");
   });
 
   class TestFacade extends MetadataFacade<Price, TestMetadata> {}

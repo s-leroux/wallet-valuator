@@ -60,7 +60,7 @@ describe("CryptoAsset", () => {
     const crypto = FakeCryptoAsset.bitcoin;
     // const amount = crypto.amountFromString("100.5"); // ISSUE #133 Why that statement? Did we forget to test something?
     const fiat = FakeFiatCurrency.EUR;
-    const price = crypto.price(fiat, 100000);
+    const price = crypto.price(fiat, "100000");
 
     assert.strictEqual(price.rate.toFixed(), "100000");
     assert.strictEqual(price.crypto, crypto);

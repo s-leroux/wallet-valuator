@@ -135,7 +135,7 @@ describe("SnapshotValuation", () => {
     const bitcoin = FakeCryptoAsset.bitcoin;
     const amount = bitcoin.amountFromString("100.5");
     const { EUR } = FakeFiatCurrency;
-    const price = bitcoin.price(EUR, 100000);
+    const price = bitcoin.price(EUR, 100000n);
 
     it("should create a Value instance from amount and rate", () => {
       const value = amount.valueAt(price, 0n);
@@ -144,7 +144,7 @@ describe("SnapshotValuation", () => {
 
     it("should check if the amount and rate are consistent", () => {
       assert.throws(() => {
-        const price = FakeCryptoAsset.ethereum.price(EUR, 5000);
+        const price = FakeCryptoAsset.ethereum.price(EUR, "5000");
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const value = amount.valueAt(price, 0n);
       });

@@ -20,7 +20,7 @@ import { PriceMap } from "../../../src/services/oracle.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
-import { BigNumber } from "../../../src/bignumber.mjs";
+import { BigNumber, Fixed, fixedFromSource } from "../../../src/bignumber.mjs";
 import { RealTokenMetadata } from "../../../src/services/realtoken/realtokenresolver.mjs";
 
 describe("RealTokenUUID", () => {
@@ -61,7 +61,7 @@ describe("RealTokenUUID", () => {
             `case RealTokenUUID("${a}") === "${addr.toLowerCase()}"`,
             () => {
               assert.strictEqual(RealTokenUUID(a), addr.toLowerCase());
-            }
+            },
           );
         }
       });
@@ -134,10 +134,10 @@ describe("RealTokenOracle", function () {
 
         assert.deepEqual(
           priceTable.toArray(),
-          expected.map(([d, n]) => [d, BigNumber.from(n)]) as [
+          expected.map(([d, n]) => [d, fixedFromSource(n)]) as [
             string,
-            BigNumber
-          ][]
+            Fixed,
+          ][],
         );
       });
     });
@@ -163,7 +163,7 @@ describe("RealTokenOracle", function () {
             uuid,
             "REALTOKEN-X",
             "REALTOKEN-X",
-            18
+            18,
           );
           cryptoMetadata.setMetadata<RealTokenMetadata>(crypto, {
             "realtoken.uuid": uuid,
@@ -176,14 +176,17 @@ describe("RealTokenOracle", function () {
             crypto,
             parseDate("YYYYMMDD", date),
             new Set([fiat]),
-            priceMap
+            priceMap,
           );
 
           if (value === null) {
             assert.equal(priceMap.size, 0);
           } else {
             assert.isTrue(priceMap.has(fiat));
-            assert.deepEqual(priceMap.get(fiat), crypto.price(fiat, value));
+            assert.deepEqual(
+              priceMap.get(fiat),
+              crypto.price(fiat, fixedFromSource(value)),
+            );
           }
         });
       }

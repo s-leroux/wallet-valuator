@@ -52,7 +52,7 @@ export class Price {
   constructor(
     crypto: CryptoAsset,
     fiatCurrency: FiatCurrency,
-    rate: BigNumberSource | Fixed,
+    rate: FixedSource,
   ) {
     this.crypto = crypto;
     this.fiatCurrency = fiatCurrency;

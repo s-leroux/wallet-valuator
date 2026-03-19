@@ -10,7 +10,7 @@ import { Table } from "../../bsearch.mjs";
 
 import { ProtocolError } from "../../error.mjs";
 import { formatDate } from "../../date.mjs";
-import { BigNumber } from "../../bignumber.mjs";
+import { BigNumber, Fixed, fixedFromSource } from "../../bignumber.mjs";
 import { Oracle } from "../oracle.mjs";
 import { RealTokenAPI, RealTokenEvent } from "./realtokenapi.mjs";
 import type { PriceMap } from "../oracle.mjs";
@@ -25,11 +25,11 @@ export function RealTokenUUID(uuid: string) {
   }
 
   throw new ValueError(
-    `RealToken UUID should be Ethereum addresses: ${uuid} is invalid`
+    `RealToken UUID should be Ethereum addresses: ${uuid} is invalid`,
   );
 }
 
-type RealTokenPriceTable = Table<string, readonly [string, BigNumber]>;
+type RealTokenPriceTable = Table<string, readonly [string, Fixed]>;
 
 export class RealTokenOracle extends Oracle {
   readonly history: Map<RealTokenUUID, RealTokenEvent[]>;
@@ -77,7 +77,7 @@ export class RealTokenOracle extends Oracle {
       for (const event of events) {
         const { tokenPrice } = event.values;
         if (tokenPrice !== undefined) {
-          yield [event.date, BigNumber.from(tokenPrice)] as const;
+          yield [event.date, fixedFromSource(tokenPrice)] as const;
         }
       }
     };
@@ -93,7 +93,7 @@ export class RealTokenOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     const metadata = cryptoMetadata.getMetadata<RealTokenMetadata>(crypto);
 
@@ -111,9 +111,7 @@ export class RealTokenOracle extends Oracle {
         const priceTable = this.getPriceTable(uuid);
         const entry = priceTable.get(formatDate("YYYYMMDD", date));
         if (entry) {
-          // Keep fetched/history numeric values in BigNumber form; use
-          // `crypto.price(...)` as the BigNumber -> Fixed boundary.
-          result.set(fiat, crypto.price(fiat, entry[1]));
+          result.set(fiat, crypto.price(fiat, fixedFromSource(entry[1])));
         }
         // If the price is unavailable for the requested date, default to `{}`
         // in accordance with the discussion in:

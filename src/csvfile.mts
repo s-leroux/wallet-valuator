@@ -47,7 +47,7 @@ const enum State {
  */
 export function* parseCSV(
   text: string,
-  options: CSVParserOption = {}
+  options: CSVParserOption = {},
 ): IterableIterator<string[]> {
   const separator = options.separator ?? ",";
 
@@ -91,7 +91,7 @@ export function* parseCSV(
         switch (token) {
           case "\0":
             error = new ProtocolError(
-              "Unexpected end of file: quoted field not properly terminated"
+              "Unexpected end of file: quoted field not properly terminated",
             );
             state = State.Error;
             break;
@@ -147,7 +147,7 @@ export function* parseCSV(
           state = State.LF;
         } else {
           error = new ProtocolError(
-            "Invalid line ending: expected CRLF sequence, found standalone CR"
+            "Invalid line ending: expected CRLF sequence, found standalone CR",
           );
           state = State.Error;
         }
@@ -208,7 +208,7 @@ export function* lineIterator(input: string): IterableIterator<string> {
 
 export function itemIterator(
   input: string,
-  separator: string
+  separator: string,
 ): IterableIterator<string> {
   let start = 0;
   const inputLength = input.length;
@@ -289,12 +289,12 @@ export class CSVFileOptionBag {
  *  - all lines are filled with data of type T // ISSUE #120 Change that!
  */
 export class CSVFile<K, T> implements DataSource<K, T> {
-  readonly headings: Record<string, number | undefined> = Object.create(null);
+  readonly headings = Object.create(null) as Record<string, number | undefined>;
 
   constructor(
     headings: string[],
     readonly rows: [K, ...T[]][],
-    readonly sorted: boolean
+    readonly sorted: boolean,
   ) {
     for (let i = 0; i < headings.length; i++) {
       this.headings[headings[i]] = i;
@@ -333,10 +333,10 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     path: string,
     toKey: (arg0: string) => K,
     toData: (arg0: string) => T,
-    options: CSVFileOptionBag = {}
+    options: CSVFileOptionBag = {},
   ): Promise<CSVFile<K, T>> {
     return readFile(path, { encoding: "utf8" }).then((text) =>
-      CSVFile.createFromText(text, toKey, toData, options)
+      CSVFile.createFromText(text, toKey, toData, options),
     );
   }
 
@@ -344,7 +344,7 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     text: string,
     toKey: (arg0: string) => K,
     toData: (arg0: string) => T,
-    options: CSVFileOptionBag = {}
+    options: CSVFileOptionBag = {},
   ): CSVFile<K, T> {
     const reorder = options.reorder;
 
@@ -371,7 +371,7 @@ export class CSVFile<K, T> implements DataSource<K, T> {
         }
         const [date, ...rest] = row;
         if (prev !== sentinel) {
-          if (sorted && date < (prev)) {
+          if (sorted && date < prev) {
             sorted = false;
             log.trace("C1005", "The data are not sorted by column 0");
           }

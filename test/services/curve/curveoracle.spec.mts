@@ -18,6 +18,7 @@ import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs"
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { ChainAddress } from "../../../src/chainaddress.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { fixedFromSource } from "../../../src/bignumber.mjs";
 
 const { EUR, USD } = FakeFiatCurrency;
 
@@ -80,7 +81,10 @@ describe("CurveOracle", function () {
             assert.isEmpty(priceMap);
           } else {
             assert.hasAnyKeys(priceMap, USD);
-            assert.deepEqual(priceMap.get(USD), cryptoAsset.price(USD, value));
+            assert.deepEqual(
+              priceMap.get(USD),
+              cryptoAsset.price(USD, fixedFromSource(value)),
+            );
           }
         });
       }

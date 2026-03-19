@@ -309,7 +309,7 @@ export class SnapshotValuation {
       const metadata = cryptoMetadata.getMetadata(crypto);
       if (metadata?.fiscalCategory === "SECURITY") {
         // SECURITY tokens have no fiscal price
-        return crypto.price(fiatCurrency, 0); // ISSUE #131 Is this correct
+        return crypto.price(fiatCurrency, Fixed.ZERO); // ISSUE #131 Is this correct
       }
       // This is a regular crypto-asset. Use the oracle to get the price.
       const prices = await priceResolver.getPrice(

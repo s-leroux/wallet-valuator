@@ -10,6 +10,7 @@ import {
 } from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import type { Fixed } from "../../../src/bignumber.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -18,7 +19,7 @@ describe("DataSourceOracle", function () {
   const bitcoin = FakeCryptoAsset.bitcoin;
   const eur = FakeFiatCurrency.EUR;
   const usd = FakeFiatCurrency.USD;
-  let oracle: DataSourceOracle<number>;
+  let oracle: DataSourceOracle<Fixed>;
   let cryptoRegistry: CryptoRegistryNG;
   let cryptoMetadata: CryptoMetadata;
 
@@ -43,13 +44,13 @@ describe("DataSourceOracle", function () {
         bitcoin,
         new Date("2024-12-04"),
         new Set([eur]),
-        priceMap
+        priceMap,
       );
       const price = priceMap.get(eur);
       if (!price) {
         assert.fail(`price is ${price}`);
       } else {
-        assert.equal(+price.rate, 93_966.82);
+        assert.equal(Number(price.rate.toFixed()), 93_966.82);
         assert.equal(price.fiatCurrency, eur);
         assert.equal(price.crypto, bitcoin);
       }

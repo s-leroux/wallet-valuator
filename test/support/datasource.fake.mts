@@ -1,8 +1,9 @@
 import type { DataSource } from "../../src/csvfile.mjs";
 import { bsearch } from "../../src/bsearch.mjs";
+import { Fixed, fixedFromSource } from "../../src/bignumber.mjs";
 
-export class FakeDataSource<T> implements DataSource<T, number> {
-  prices: [T, number, number][];
+export class FakeDataSource<T> implements DataSource<T, Fixed> {
+  prices: [T, Fixed, Fixed][];
 
   constructor(factory: (v: string) => T) {
     // pretier-ignore
@@ -20,10 +21,13 @@ export class FakeDataSource<T> implements DataSource<T, number> {
       ["2024-12-10", 91_316.18, 91_343.64],
     ] as const;
 
-    this.prices = prices.map(([d, ...n]) => [factory(d), ...n]);
+    this.prices = prices.map(
+      ([d, ...n]) =>
+        [factory(d), ...n.map(fixedFromSource)] as [T, Fixed, Fixed],
+    );
   }
 
-  get(date: T, col: string): [T, number] | undefined {
+  get(date: T, col: string): [T, Fixed] | undefined {
     const row = bsearch(this.prices, date);
     if (!row) return undefined;
 
@@ -37,11 +41,11 @@ export class FakeDataSource<T> implements DataSource<T, number> {
     }
   }
 
-  getMany(date: T, cols: string[]): [T, ...number[]] | undefined {
+  getMany(date: T, cols: string[]): [T, ...Fixed[]] | undefined {
     const row = bsearch(this.prices, date);
     if (!row) return undefined;
 
-    const result: [T, ...number[]] = [row[0]];
+    const result: [T, ...Fixed[]] = [row[0]];
     for (const col of cols) {
       switch (col) {
         case "USD":
@@ -57,7 +61,7 @@ export class FakeDataSource<T> implements DataSource<T, number> {
     return result;
   }
 
-  [Symbol.iterator](): Iterator<[T, ...number[]]> {
+  [Symbol.iterator](): Iterator<[T, ...Fixed[]]> {
     return this.prices[Symbol.iterator]();
   }
 }

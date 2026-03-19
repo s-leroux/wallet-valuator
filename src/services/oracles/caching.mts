@@ -12,6 +12,7 @@ const log = logger("caching-oracle");
 import Database from "better-sqlite3";
 import { AssertionError, ProtocolError } from "../../error.mjs";
 import { GlobalPriceMetadata } from "../../price.mjs";
+import { fixedFromSource } from "../../bignumber.mjs";
 
 const DB_INIT_SEQUENCE = `
 PRAGMA foreign_keys = ON;
@@ -218,7 +219,7 @@ export class Caching /*extends Oracle*/ {
     for (const currency of currencies) {
       const row = stmt.get(crypto.id, dateYyyyMmDd, currency.code);
       if (row) {
-        result.set(currency, crypto.price(currency, row.price));
+        result.set(currency, crypto.price(currency, fixedFromSource(row.price)));
       } else {
         log.trace(
           "C1007",

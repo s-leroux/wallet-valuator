@@ -8,7 +8,7 @@ import {
 } from "../../../src/cryptoregistry.mjs";
 import { OHLCOracle } from "../../../src/services/oracles/ohlcoracle.mjs";
 import { CSVFile } from "../../../src/csvfile.mjs";
-import { BigNumber } from "../../../src/bignumber.mjs";
+import { Fixed } from "../../../src/bignumber.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
@@ -31,7 +31,7 @@ May 18, 2025;103186.95;106597.17;103142.60;106446.01;106446.01;49887082058
 
 describe("OHLCOracle", function () {
   const { USD } = FakeFiatCurrency;
-  let oracle: OHLCOracle<BigNumber>;
+  let oracle: OHLCOracle<Fixed>;
   const cryptoRegistry = CryptoRegistryNG.create();
   const cryptoMetadata = CryptoMetadata.create();
   const bitcoin = cryptoRegistry.createCryptoAsset("bitcoin");
@@ -41,10 +41,10 @@ describe("OHLCOracle", function () {
       CSV_DATA,
       String,
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      BigNumber.from,
+      Fixed.fromString,
       {
         separator: ";",
-      }
+      },
     );
     oracle = new OHLCOracle(bitcoin, USD, datasource, {
       dateFormat: "MMM D, YYYY",
@@ -71,7 +71,7 @@ describe("OHLCOracle", function () {
             bitcoin,
             new Date(date),
             new Set([USD]),
-            priceMap
+            priceMap,
           );
           const price = priceMap.get(USD);
           if (!price) {

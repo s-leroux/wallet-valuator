@@ -71,7 +71,8 @@ export class ImplicitFiatConverter implements FiatConverter {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
       `Synthetize ${price.crypto}/${to} from ${this.crypto} at ${date}`
     );
-    const exchangeRage = toPrice.rate.div(fromPrice.rate);
+    const ratioScale = toPrice.rate.scale + fromPrice.rate.scale;
+    const exchangeRage = toPrice.rate.div(fromPrice.rate, ratioScale);
 
     return GlobalMetadataStore.setMetadata(price.to(to, exchangeRage), {
       origin: "CONVERTER",

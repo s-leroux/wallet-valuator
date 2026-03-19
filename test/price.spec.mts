@@ -13,7 +13,7 @@ describe("Price", () => {
 
   describe("constructor", () => {
     it("should correctly initialize a price instance", () => {
-      const price = new Price(ethereum, eur, 3000);
+      const price = new Price(ethereum, eur, "3000");
 
       assert.strictEqual(price.crypto, ethereum);
       assert.strictEqual(price.fiatCurrency, eur);
@@ -23,7 +23,7 @@ describe("Price", () => {
 
   describe("to()", () => {
     it("should return a new price expressed in the conversion fiat currency", () => {
-      const price1 = new Price(ethereum, eur, 4000);
+      const price1 = new Price(ethereum, eur, "4000");
       const price2 = price1.to(usd, 1.1);
 
       assert.notStrictEqual(price1, price2);
@@ -35,7 +35,7 @@ describe("Price", () => {
 
   describe("mul()", () => {
     it("should return a new price with its rate multiplied by a scalar", () => {
-      const price1 = new Price(ethereum, eur, 4000);
+      const price1 = new Price(ethereum, eur, "4000");
       const price2 = price1.mul(1.1);
 
       assert.notStrictEqual(price1, price2);
@@ -45,7 +45,7 @@ describe("Price", () => {
     });
 
     it("should accept a string scalar multiplier", () => {
-      const price1 = new Price(ethereum, eur, 4000);
+      const price1 = new Price(ethereum, eur, "4000");
       const price2 = price1.mul("2");
 
       assert.notStrictEqual(price1, price2);
@@ -55,7 +55,7 @@ describe("Price", () => {
 
   describe("toString()", () => {
     it("should return a string representation of the price", () => {
-      const price = new Price(ethereum, eur, 3000);
+      const price = new Price(ethereum, eur, "3000");
       assert.strictEqual(price.toString(), `${ethereum}/EUR 3000`);
     });
   });

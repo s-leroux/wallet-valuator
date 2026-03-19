@@ -28,7 +28,22 @@
     "test/valuation.spec.mts",
     "test/services/oracles/datasourceoracle.spec.mts",
     "test/services/oracles/ohlcoracle.spec.mts",
-    "test/services/realtoken/realtokenoracle.spec.mts"
+    "test/services/realtoken/realtokenoracle.spec.mts",
+    "src/provider.mts",
+    "src/services/curve/curveapi.mts",
+    "src/services/curve/curvecommon.mts",
+    "src/services/curve/curveoracle.mts",
+    "src/services/defillama/defillamaapi.mts",
+    "src/services/defillama/defillamaoracle.mts",
+    "src/services/oracles/coingecko.mts",
+    "src/services/fiatconverter.mts",
+    "src/services/fiatconverters/implicitfiatconverter.mts",
+    "src/services/reporters/valuationreporter.mts",
+    "test/metadata.spec.mts",
+    "test/datasource.spec.mts",
+    "test/services/curve/curveoracle.spec.mts",
+    "test/services/fiatconverters/implicitfiatconverter.spec.mts",
+    "test/services/oracles/coingecko.spec.mts"
   ],
   "watchOptions": {
     "watchFile": "dynamicprioritypolling",

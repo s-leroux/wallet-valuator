@@ -90,7 +90,7 @@ describe("CoinGecko", function () {
             const price = priceMap.get(fiatCurrency);
             assert.exists(price, `Price for ${currency} should exist`);
             if (price) {
-              assert.equal(price.rate.toNumber(), value);
+              assert.equal(Number(price.rate.toFixed()), value);
             }
           }
         });

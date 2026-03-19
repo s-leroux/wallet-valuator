@@ -9,6 +9,7 @@ import { GlobalMetadataStore } from "../../metadata.mjs";
 import type { PriceMap } from "../oracle.mjs";
 import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 import { logger } from "../../debug.mjs";
+import { fixedFromSource } from "../../bignumber.mjs";
 
 const log = logger("curveoracle");
 
@@ -105,7 +106,7 @@ export class CurveOracle extends Oracle {
     }
 
     const price = GlobalMetadataStore.setMetadata(
-      cryptoAsset.price(USD, priceAsNumber),
+      cryptoAsset.price(USD, fixedFromSource(priceAsNumber)),
       { origin: "CURVE" },
     );
     result.set(USD, price);

@@ -328,7 +328,7 @@ export class CryptoAsset {
     return new Amount(this, Fixed.fromString(v));
   }
 
-  price(fiat: FiatCurrency, rate: BigNumberSource) {
+  price(fiat: FiatCurrency, rate: FixedSource) {
     return new Price(this, fiat, rate);
   }
 

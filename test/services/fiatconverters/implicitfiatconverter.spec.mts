@@ -55,11 +55,9 @@ describe("ImplicitFiatConverter", function () {
 
       assert.strictEqual(result.fiatCurrency, usd);
       assert.strictEqual(result.crypto, ethereum);
-      assert.approximately(
-        +result.rate.mul(100).div(priceMap.get(usd)!.rate),
-        100,
-        error
-      );
+      const r = Number(result.rate.toFixed());
+      const u = Number(priceMap.get(usd)!.rate.toFixed());
+      assert.approximately((r * 100) / u, 100, error);
     });
   });
 });
