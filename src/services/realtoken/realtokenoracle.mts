@@ -10,7 +10,7 @@ import { Table } from "../../bsearch.mjs";
 
 import { ProtocolError } from "../../error.mjs";
 import { formatDate } from "../../date.mjs";
-import { BigNumber, Fixed, fixedFromSource } from "../../bignumber.mjs";
+import { Fixed, fixedFromSource } from "../../bignumber.mjs";
 import { Oracle } from "../oracle.mjs";
 import { RealTokenAPI, RealTokenEvent } from "./realtokenapi.mjs";
 import type { PriceMap } from "../oracle.mjs";

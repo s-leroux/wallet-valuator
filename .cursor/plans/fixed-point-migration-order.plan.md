@@ -76,10 +76,10 @@ todos:
     status: completed
   - id: migrate-oracles-step3-big-number-to-fixed
     content: "Migrate `Oracles` step 3: update oracle generics and any conversions so they produce `Price` values with `Fixed` rates in the current compilation slice."
-    status: pending
+    status: completed
   - id: migrate-oracles-step4-tests-after
     content: "Migrate `Oracles` step 4: rerun oracle test suites and `valuation.spec`; update assertions that depend on `rate.toFixed(...)` formatting."
-    status: pending
+    status: completed
   - id: migrate-transaction-fees-step1-tests-green
     content: "Migrate `OnChainTransaction.fees` (`src/transaction.mts`) step 1: run `transaction.spec` and ensure passing; record baseline SHA + exact `npx mocha` command."
     status: pending

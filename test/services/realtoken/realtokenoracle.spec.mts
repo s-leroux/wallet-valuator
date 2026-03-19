@@ -20,7 +20,7 @@ import { PriceMap } from "../../../src/services/oracle.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
-import { BigNumber, Fixed, fixedFromSource } from "../../../src/bignumber.mjs";
+import { Fixed, fixedFromSource } from "../../../src/bignumber.mjs";
 import { RealTokenMetadata } from "../../../src/services/realtoken/realtokenresolver.mjs";
 
 describe("RealTokenUUID", () => {

@@ -12,6 +12,7 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { fixedFromSource } from "../../../src/bignumber.mjs";
 
 describe("FakeOracle", function () {
   let fakeoracle: FakeOracle | undefined;
@@ -38,7 +39,7 @@ describe("FakeOracle", function () {
         ],
       ];
 
-      for (const [id, date, expected] of test_cases) {
+      for (const [, date, expected] of test_cases) {
         const priceMap = new Map() as PriceMap;
         await fakeoracle!.getPrice(
           cryptoRegistry,
@@ -53,7 +54,10 @@ describe("FakeOracle", function () {
         for (const [currency, expectedRate] of Object.entries(expected)) {
           const price = priceMap.get(FiatCurrency(currency));
           assert.exists(price, `Price for ${currency} should exist`);
-          assert.equal(+price.rate, expectedRate);
+          assert.isTrue(
+            price.rate.equals(fixedFromSource(expectedRate)),
+            `rate for ${currency}`,
+          );
           assert.equal(price.fiatCurrency, FiatCurrency(currency));
           assert.equal(price.crypto, bitcoin);
         }
