@@ -21,9 +21,6 @@ import {
   InternalTransaction,
   NormalTransaction,
 } from "../src/transaction.mjs";
-import { asBlockchain } from "../src/blockchain.mjs";
-
-const CHAIN_NAME = "MyChain";
 
 describe("Swarm and Transaction integration", () => {
   let swarm: Swarm;
@@ -34,11 +31,11 @@ describe("Swarm and Transaction integration", () => {
   let chain: Blockchain;
 
   beforeEach(() => {
-    chain = asBlockchain(CHAIN_NAME);
     cryptoRegistry = CryptoRegistryNG.create();
     cryptoMetadata = CryptoMetadata.create();
     cryptoResolver = LazyCryptoResolver.create();
-    explorer = new TestScan(cryptoRegistry, chain);
+    explorer = new TestScan(cryptoRegistry);
+    chain = explorer.chain;
     swarm = Swarm.create(
       [explorer],
       cryptoRegistry,

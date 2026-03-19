@@ -82,10 +82,10 @@ todos:
     status: completed
   - id: migrate-transaction-fees-step1-tests-green
     content: "Migrate `OnChainTransaction.fees` (`src/transaction.mts`) step 1: run `transaction.spec` and ensure passing; record baseline SHA + exact `npx mocha` command."
-    status: pending
+    status: completed
   - id: migrate-transaction-fees-step2-rationalize
     content: "Migrate `OnChainTransaction.fees` step 2: rationalize fee scaling math (`gasPrice`, `gasUsed`, `E18`) and document the fixed-point equivalent/units."
-    status: pending
+    status: completed
   - id: migrate-transaction-fees-step3-big-number-to-fixed
     content: "Migrate `OnChainTransaction.fees` step 3: change `fees` storage from `BigNumber` to the chosen fixed-point representation and update any conversions needed for display/CSV/export."
     status: pending

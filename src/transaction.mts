@@ -73,14 +73,30 @@ export abstract class OnChainTransaction implements Transaction {
 
   readonly comments: string[];
 
-  // All data below are set to NULL and initialized only when the effective transaction is retrieved
+  // All data below are undefined and initialized only when the effective transaction is retrieved
   blockNumber: number;
   timeStamp: number;
   from: Address;
   to: Address;
   contract: Address;
   amount: Amount; // Transfered amount. In ERC20 toen unit or blockchain native currency
-  fees: BigNumber; // fees are always expressed in the blockchain native currency
+  /**
+   * Transaction fee in **native token units** (not wei), for typical EVM 18-decimal chains.
+   *
+   * Populated in {@link OnChainTransaction.assign} as
+   * `(gasPrice_wei_per_gas * gasUsed) / 10^18`, matching Etherscan-style fields:
+   * `gasPrice` is wei per gas, `gasUsed` is gas consumed, product is total wei, then divided by
+   * `1e18` to get the fee as a decimal amount of the chain native currency (same “coin units”
+   * notion as ETH rather than wei).
+   *
+   * **Fixed-point migration (equivalent semantics):** parse `gasPrice` and `gasUsed` as integers
+   * (scale 0). Let `feeWei = gasPrice * gasUsed` (exact bigint product). Map to native units with
+   * `Fixed.fromInteger(feeWei).div(Fixed.E18, tokenScale)` where `tokenScale` should match the
+   * scale used elsewhere for that chain’s native {@link Amount} (often 18n for EVM); choose
+   * `tokenScale` explicitly because {@link Fixed.div} requires a target scale and truncates like
+   * the current {@link BigNumber} path (ROUND_DOWN for positive values).
+   */
+  fees: BigNumber;
   feesAsString: string;
 
   constructor(swarm: Swarm, chain: Blockchain, type: OnChainTransactionType) {
@@ -118,34 +134,35 @@ export abstract class OnChainTransaction implements Transaction {
 
   async assign(
     swarm: Swarm,
-    data: Record<string, any>,
+    data: Record<string, string | number | undefined>,
   ): Promise<OnChainTransaction> {
     Object.assign(this.data, data);
     if (!data.blockNumber) {
       console.dir(data);
     }
-    this.blockNumber = toInteger(data.blockNumber);
-    this.timeStamp = toInteger(data.timeStamp);
+    this.blockNumber = toInteger(data.blockNumber as string | number);
+    this.timeStamp = toInteger(data.timeStamp as string | number);
 
-    this.from = await swarm.address(this.explorer.chain, data.from);
+    this.from = await swarm.address(this.explorer.chain, data.from as string);
     if (data.to) {
       // The `to` field is empty for a contract creation
-      this.to = await swarm.address(this.explorer.chain, data.to);
+      this.to = await swarm.address(this.explorer.chain, data.to as string);
     }
 
     if (data.contractAddress) {
       this.contract = await swarm.address(
         this.explorer.chain,
-        data.contractAddress,
+        data.contractAddress as string,
       );
     }
 
+    // Fee math: gasPrice (wei per gas) * gasUsed (gas) = fee in wei; / 1e18 => native token units.
     const gasPrice = data.gasPrice;
     if (gasPrice === undefined) {
       this.fees = BigNumber.ZERO;
     } else {
       this.fees = BigNumber.fromInteger(gasPrice)
-        .mul(data.gasUsed)
+        .mul(data.gasUsed as string | number)
         .div(BigNumber.E18);
     }
     this.feesAsString = this.fees.toString();
@@ -169,7 +186,7 @@ export class NormalTransaction extends OnChainTransaction {
   }
 
   async load(swarm: Swarm): Promise<NormalTransaction> {
-    if (this.timeStamp === undefined) {
+    if ((this.timeStamp as number | undefined) === undefined) {
       // The transaction data are not already loaded
       return this.explorer.getNormalTransactionByHash(swarm, this.hash);
     }
@@ -183,7 +200,7 @@ export class NormalTransaction extends OnChainTransaction {
 
   async assign(
     swarm: Swarm,
-    data: Record<string, any>,
+    data: Record<string, string | number | undefined>,
   ): Promise<NormalTransaction> {
     await super.assign(swarm, data);
 
@@ -216,7 +233,10 @@ export class InternalTransaction extends OnChainTransaction {
     return this.isError === false;
   }
 
-  async assign(swarm: Swarm, data: Record<string, any>): Promise<this> {
+  async assign(
+    swarm: Swarm,
+    data: Record<string, string | number | undefined>,
+  ): Promise<this> {
     await super.assign(swarm, data);
 
     this.isError = !!this.data.isError && this.data.isError !== "0";
@@ -251,10 +271,15 @@ export class ERC20TokenTransfer extends OnChainTransaction {
     // It was confirmed by the GnosisScan support that
     // only valid transafers are reported. No need to check
     // for the parent's transaction status
-    return this.amount !== undefined && this.ignore === false;
+    return (
+      (this.amount as Amount | undefined) !== undefined && this.ignore === false
+    );
   }
 
-  async assign(swarm: Swarm, data: Record<string, any>): Promise<this> {
+  async assign(
+    swarm: Swarm,
+    data: Record<string, string | number | undefined>,
+  ): Promise<this> {
     await super.assign(swarm, data);
 
     if (this.transaction === undefined && this.data.hash) {
