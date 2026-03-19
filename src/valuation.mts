@@ -37,13 +37,13 @@ type ValueSource = BigNumberSource | FixedSource;
 /**
  * Represents a monetary value in a specific fiat currency.
  *
- * The Value class encapsulates an amount of fiat currency (e.g. USD, EUR) backed by BigNumber
+ * The Value class encapsulates an amount of fiat currency (e.g. USD, EUR) backed by `Fixed`
  * for precise decimal arithmetic. It provides methods for basic arithmetic operations
  * while ensuring currency consistency.
  *
  * @example
- * const usdValue = new Value(FiatCurrency("USD"), BigNumber.from(100));
- * const eurValue = new Value(FiatCurrency("EUR"), BigNumber.from(85));
+ * const usdValue = new Value(FiatCurrency("USD"), Fixed.from(100n));
+ * const eurValue = new Value(FiatCurrency("EUR"), Fixed.from(85n));
  * // usdValue.plus(eurValue) // Throws InconsistentUnitsError
  *
  * FIXED Unify that class with `Amount` usign generics.

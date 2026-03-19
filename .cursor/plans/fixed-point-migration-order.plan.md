@@ -64,10 +64,10 @@ todos:
     status: completed
   - id: migrate-valuation-pipeline-step3-big-number-to-fixed
     content: "Migrate the `Valuation pipeline` step 3: ensure all internal valuation math uses `Fixed` operations consistently (after `Value`/`Amount` are migrated); update any leftover `BigNumber` usage."
-    status: pending
+    status: completed
   - id: migrate-valuation-pipeline-step4-tests-after
     content: "Migrate the `Valuation pipeline` step 4: rerun `valuation.spec` plus any snapshot-related suite(s) that fail; adjust tests expected strings/rounding if they change."
-    status: pending
+    status: completed
   - id: migrate-oracles-step1-tests-green
     content: "Migrate `Oracles` (`src/services/oracles/*.mts`, incl. `ohlcoracle`, `datasourceoracle`, `realtokenoracle`) step 1: run focused oracle tests that will be affected; record baseline SHA + exact `npx mocha` invocation(s)."
     status: pending
