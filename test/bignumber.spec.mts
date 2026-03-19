@@ -2,7 +2,7 @@ import { assert } from "chai";
 
 import { prepare } from "./support/register.helper.mjs";
 
-import { InconsistentUnitsError, ValueError } from "../src/error.mjs";
+import { ValueError } from "../src/error.mjs";
 import { BigNumber, Fixed, MAX_FIXED_SCALE } from "../src/bignumber.mjs";
 
 describe("BigNumber", function () {
@@ -252,14 +252,16 @@ describe("Fixed", function () {
   describe("plus()", function () {
     const register = prepare(this);
 
-    const sameScaleCases: [bigint, bigint, bigint, bigint, string][] = [
-      [1n, 2n, 3n, 2n, "0.04"],
-      [0n, 1n, 0n, 1n, "0.0"],
-      [10n, 1n, -3n, 1n, "0.7"],
-      [100n, 2n, 50n, 2n, "1.50"],
+    const cases: [bigint, bigint, bigint, bigint, string, bigint][] = [
+      [1n, 2n, 3n, 2n, "0.04", 2n],
+      [0n, 1n, 0n, 1n, "0.0", 1n],
+      [10n, 1n, -3n, 1n, "0.7", 1n],
+      [100n, 2n, 50n, 2n, "1.50", 2n],
+      [1n, 1n, 1n, 2n, "0.11", 2n],
+      [123n, 3n, 77n, 1n, "7.823", 3n],
     ];
 
-    for (const [v1, p1, v2, p2, expected] of sameScaleCases) {
+    for (const [v1, p1, v2, p2, expected, expectedScale] of cases) {
       register(
         `${v1}/${10 ** Number(p1)} + ${v2}/${10 ** Number(p2)} => ${expected}`,
         () => {
@@ -267,30 +269,36 @@ describe("Fixed", function () {
           const b = Fixed.fromDigits(v2, p2);
           const sum = a.plus(b);
           assert.equal(sum.toFixed(), expected);
-          assert.equal(sum.scale, p1);
+          assert.equal(sum.scale, expectedScale);
         },
       );
     }
 
-    it("throws InconsistentUnitsError when scales differ", function () {
+    it("is commutative with mixed scales and keeps max scale", function () {
       const a = Fixed.fromDigits(1n, 1n);
       const b = Fixed.fromDigits(1n, 2n);
-      assert.throws(() => a.plus(b), InconsistentUnitsError);
-      assert.throws(() => b.plus(a), InconsistentUnitsError);
+      const ab = a.plus(b);
+      const ba = b.plus(a);
+      assert.equal(ab.toFixed(), "0.11");
+      assert.equal(ba.toFixed(), "0.11");
+      assert.equal(ab.scale, 2n);
+      assert.equal(ba.scale, 2n);
     });
   });
 
   describe("minus()", function () {
     const register = prepare(this);
 
-    const sameScaleCases: [bigint, bigint, bigint, bigint, string][] = [
-      [5n, 1n, 2n, 1n, "0.3"],
-      [0n, 2n, 0n, 2n, "0.00"],
-      [10n, 1n, 15n, 1n, "-0.5"],
-      [100n, 2n, 33n, 2n, "0.67"],
+    const cases: [bigint, bigint, bigint, bigint, string, bigint][] = [
+      [5n, 1n, 2n, 1n, "0.3", 1n],
+      [0n, 2n, 0n, 2n, "0.00", 2n],
+      [10n, 1n, 15n, 1n, "-0.5", 1n],
+      [100n, 2n, 33n, 2n, "0.67", 2n],
+      [10n, 1n, 1n, 2n, "0.99", 2n],
+      [100n, 3n, 5n, 1n, "-0.400", 3n],
     ];
 
-    for (const [v1, p1, v2, p2, expected] of sameScaleCases) {
+    for (const [v1, p1, v2, p2, expected, expectedScale] of cases) {
       register(
         `${v1}/${10 ** Number(p1)} - ${v2}/${10 ** Number(p2)} => ${expected}`,
         () => {
@@ -298,16 +306,18 @@ describe("Fixed", function () {
           const b = Fixed.fromDigits(v2, p2);
           const diff = a.minus(b);
           assert.equal(diff.toFixed(), expected);
-          assert.equal(diff.scale, p1);
+          assert.equal(diff.scale, expectedScale);
         },
       );
     }
 
-    it("throws InconsistentUnitsError when scales differ", function () {
+    it("handles mixed scales in both operand orders", function () {
       const a = Fixed.fromDigits(1n, 1n);
       const b = Fixed.fromDigits(1n, 2n);
-      assert.throws(() => a.minus(b), InconsistentUnitsError);
-      assert.throws(() => b.minus(a), InconsistentUnitsError);
+      assert.equal(a.minus(b).toFixed(), "0.09");
+      assert.equal(b.minus(a).toFixed(), "-0.09");
+      assert.equal(a.minus(b).scale, 2n);
+      assert.equal(b.minus(a).scale, 2n);
     });
   });
 
@@ -427,6 +437,12 @@ describe("Fixed", function () {
         2n,
       ],
       ["handles negative totals", ["-1.00", "0.25"], "-0.75", 2n],
+      [
+        "mixed scales are normalized to most precise operand",
+        ["1.2", "0.03", "-0.001"],
+        "1.229",
+        3n,
+      ],
     ];
 
     for (const [label, inputs, expectedString, expectedScale] of testCases) {
@@ -438,11 +454,11 @@ describe("Fixed", function () {
       });
     }
 
-    register("throws InconsistentUnitsError on mixed scales", () => {
-      const a = Fixed.fromDigits(1n, 1n);
-      const b = Fixed.fromDigits(1n, 2n);
-
-      assert.throws(() => Fixed.sum(a, b), InconsistentUnitsError);
+    register("single argument returns identity value and scale", () => {
+      const a = Fixed.fromString("1.2300");
+      const s = Fixed.sum(a);
+      assert.equal(s.toFixed(), "1.2300");
+      assert.equal(s.scale, 4n);
     });
   });
 

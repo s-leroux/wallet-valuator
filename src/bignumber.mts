@@ -116,6 +116,8 @@ export class Fixed {
   //--------------------------------------------------------------------
 
   static E18 = new Fixed(10n ** 18n, 0n);
+
+  // The `ZERO` constant is ambiguous as any {@link FixedLike} whose value is 0n is a valid zero.
   static ZERO = new Fixed(0n, 0n);
 
   //--------------------------------------------------------------------
@@ -185,6 +187,7 @@ export class Fixed {
    */
   compare(other: FixedLike): CompareResult {
     if (this.value === 0n && other.value === 0n) {
+      // Fast path for zero values
       return 0;
     }
 
@@ -218,27 +221,27 @@ export class Fixed {
   /**
    * Fixed-point addition.
    *
-   * This and other must be expressed at the same scale.
+   * The result is expressed at the higher scale of the two operands.
    */
   plus(other: FixedLike): Fixed {
-    if (this.scale !== other.scale) {
-      throw new InconsistentUnitsError(this.scale, other.scale);
-    }
-
-    return new Fixed(this.value + other.value, this.scale);
+    const resultScale = this.scale >= other.scale ? this.scale : other.scale;
+    const resultValue =
+      this.value * 10n ** BigInt(resultScale - this.scale) +
+      other.value * 10n ** BigInt(resultScale - other.scale);
+    return new Fixed(resultValue, resultScale);
   }
 
   /**
    * Fixed-point subtraction.
    *
-   * This and other must be expressed at the same scale.
+   * The result is expressed at the higher scale of the two operands.
    */
   minus(other: FixedLike): Fixed {
-    if (this.scale !== other.scale) {
-      throw new InconsistentUnitsError(this.scale, other.scale);
-    }
-
-    return new Fixed(this.value - other.value, this.scale);
+    const resultScale = this.scale >= other.scale ? this.scale : other.scale;
+    const resultValue =
+      this.value * 10n ** BigInt(resultScale - this.scale) -
+      other.value * 10n ** BigInt(resultScale - other.scale);
+    return new Fixed(resultValue, resultScale);
   }
 
   /**
@@ -330,16 +333,22 @@ export class Fixed {
     return this.value === 0n ? this : new Fixed(-this.value, this.scale);
   }
 
-  static sum(first: FixedLike, ...rest: FixedLike[]): Fixed {
-    // eslint-disable-next-line prefer-const
-    let { value, scale } = first;
-    for (const other of rest) {
-      if (scale !== other.scale) {
-        throw new InconsistentUnitsError(scale, other.scale);
-      }
-      value += other.value;
+  /**
+   * Computes the sum of a list of Fixed values.
+   *
+   * The sum is expressed at the scale of the highest-scale operand.
+   * If the list is empty, the result is zero.
+   *
+   * @param first - The first Fixed value.
+   * @param list - The rest of the Fixed values.
+   * @returns A new Fixed representing the sum of the values.
+   */
+  static sum(...list: FixedLike[]): Fixed {
+    let acc = Fixed.ZERO;
+    for (const other of list) {
+      acc = acc.plus(other); // Invariant: after this, acc.scale >= other.scale
     }
-    return new Fixed(value, scale);
+    return acc; // Invariant: acc.scale is the highest scale in the list
   }
 
   //--------------------------------------------------------------------

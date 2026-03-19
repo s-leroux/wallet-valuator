@@ -70,6 +70,15 @@ export class Value {
     return new Value(FiatCurrency(fiat), value);
   }
 
+  /**
+   * Fiat currency addition.
+   *
+   * Both the receiver and the argument must be expressed in the same fiat currency.
+   * The result is expressed at the scale of the highest-scale operand.
+   *
+   * @param other - The other Value to add to the receiver.
+   * @returns A new Value representing the sum of the receiver and the argument.
+   */
   plus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
@@ -78,6 +87,15 @@ export class Value {
     return new Value(this.fiatCurrency, this.value.plus(other.value));
   }
 
+  /**
+   * Fiat currency subtraction.
+   *
+   * Both the receiver and the argument must be expressed in the same fiat currency.
+   * The result is expressed at the scale of the highest-scale operand.
+   *
+   * @param other - The other Value to subtract from the receiver.
+   * @returns A new Value representing the difference between the receiver and the argument.
+   */
   minus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);

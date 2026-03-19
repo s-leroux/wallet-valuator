@@ -31,7 +31,7 @@ todos:
     status: completed
   - id: migrate-value-step4-tests-after
     content: "Migrate `Value` step 4: rerun `valuation.spec` plus any dependent suites that use `Value.from()`/arithmetic; fix/adjust tests to use `Fixed`."
-    status: pending
+    status: completed
   - id: migrate-amount-step1-tests-green
     content: "Migrate `Amount` (`src/cryptoasset.mts`, class `Amount`) step 1: ensure current focused Mocha coverage runs and is passing for `cryptoasset.spec`; record baseline SHA + exact `npx mocha` invocation."
     status: pending
