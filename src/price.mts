@@ -72,7 +72,6 @@ export class Price {
    */
   to(
     destinationCurrency: FiatCurrency,
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     exchangeRate: BigNumberSource | FixedSource, // destination per source fiat
   ) {
     return new Price(

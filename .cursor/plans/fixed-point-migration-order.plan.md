@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: migrate-price-step4-tests-after
     content: "Migrate `Price` step 4: rerun the same focused Mocha suite(s) and adjacent suites that exercise `Amount.valueAt(price)`; update tests to assert against `Fixed` where needed."
-    status: pending
+    status: completed
   - id: migrate-value-step1-tests-green
     content: "Migrate `Value` (`src/valuation.mts`, class `Value`) step 1: ensure current focused Mocha coverage runs and is passing for `valuation.spec`; record baseline SHA + exact `npx mocha` invocation."
     status: pending
