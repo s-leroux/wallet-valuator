@@ -1,4 +1,9 @@
-import { BigNumber, Fixed } from "./bignumber.mjs";
+import {
+  Fixed,
+  fixedFromSource,
+  type BigNumberSource,
+  type FixedSource,
+} from "./bignumber.mjs";
 import { formatDate as dateUtilsFormatDate } from "./date.mjs";
 import { logger } from "./debug.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
@@ -164,6 +169,15 @@ interface FormatOptions {
 
 type Formatter = (arg: Record<string, unknown>) => string;
 
+/**
+ * `objectFormatter` mini-language: strings use {@link formatStringAtom}. All other
+ * formatted numeric fields use {@link Fixed} — {@link Fixed} values keep their
+ * stored scale when the format omits a precision; `number` and legacy
+ * {@link BigNumberSource} values are converted with {@link fixedFromSource} and
+ * default to six fraction digits when the format omits a precision (matching the
+ * old Decimal.js `toFixed(6)` behavior). The dedicated BigNumber `toFixed` branch
+ * is intentionally removed so rendering stays aligned with fixed-point value types.
+ */
 type AtomFormatter<T> = (
   value: T,
   width: number,
@@ -183,21 +197,6 @@ function formatStringAtom(
   }
   if (width) {
     valueAsString = valueAsString.padEnd(width, " ");
-  }
-
-  return valueAsString;
-}
-
-function formatNumberAtom(
-  value: number | BigNumber,
-  width: number,
-  precision: number | undefined,
-  zero: boolean,
-): string {
-  const asBigNumber = BigNumber.from(value);
-  let valueAsString = asBigNumber.toFixed(precision ?? 6);
-  if (width) {
-    valueAsString = valueAsString.padStart(width, zero ? "0" : " ");
   }
 
   return valueAsString;
@@ -258,16 +257,19 @@ export function objectFormatter(
       let atomFormatter: AtomFormatter<unknown>;
       if (typeof value === "string") {
         atomFormatter = formatStringAtom;
-      } else if (typeof value === "number") {
-        atomFormatter = formatNumberAtom;
-      } else if (value instanceof BigNumber) {
-        atomFormatter = formatNumberAtom;
       } else if (value instanceof Fixed) {
         atomFormatter = formatFixedAtom;
       } else {
-        throw new ValueError(
-          `Invalid value type ${typeof value}. Expected string or number.`,
+        const legacyFixed = fixedFromSource(
+          value as BigNumberSource | FixedSource,
         );
+        atomFormatter = (_v, width, precision, zero) =>
+          formatFixedAtom(
+            legacyFixed,
+            width,
+            precision === undefined ? 6 : precision,
+            zero,
+          );
       }
 
       let result = atomFormatter(

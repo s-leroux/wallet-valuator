@@ -5,9 +5,6 @@ todos:
   - id: build-baseline-dag
     content: "Confirm BigNumber-backed value classes and their code-level dependencies from: `src/bignumber.mts`, `src/price.mts`, `src/cryptoasset.mts`, `src/valuation.mts`, `src/quantity.mts`, and oracle/transaction files."
     status: completed
-  - id: define-migration-order
-    content: "Use DAG order for least resistance: `Price` -> `Value` -> `Amount` -> `Quantity` -> `Valuation pipeline` -> `Oracles` -> `Transaction fees` -> optional `displayable` cleanup."
-    status: pending
   - id: migrate-price-step1-tests-green
     content: "Migrate `Price` (`src/price.mts`) step 1: ensure current focused Mocha coverage runs and is passing; record the baseline `git rev-parse HEAD` and the exact `npx mocha` command used."
     status: completed
@@ -94,22 +91,22 @@ todos:
     status: completed
   - id: migrate-displayable-cleanup-step1-tests-green
     content: "Optional cleanup: migrate `displayable` BigNumber formatting path (`src/displayable.mts`) step 1: run `displayable.spec` and ensure passing; record baseline SHA."
-    status: pending
+    status: completed
   - id: migrate-displayable-cleanup-step2-rationalize
     content: "Optional cleanup: displayable step 2: rationalize and document whether the `BigNumber` formatting branch should be removed/kept temporarily once value classes are fixed-point."
-    status: pending
+    status: completed
   - id: migrate-displayable-cleanup-step3-big-number-to-fixed
     content: "Optional cleanup: displayable step 3: remove/adjust BigNumber-specific formatting so `Fixed` rendering is canonical (in the current compilation slice)."
-    status: pending
+    status: completed
   - id: migrate-displayable-cleanup-step4-tests-after
     content: "Optional cleanup: displayable step 4: rerun `displayable.spec` and then full `npm test` after enriching `tsconfig.migration.json` to full inputs."
-    status: pending
+    status: completed
   - id: partial-compilation-strategy
     content: "Implement isolation when global compilation breaks using `tsconfig.migration.json`: start with a minimal step compilation root set, compile with `tsc -p tsconfig.migration.json` (or `npx tsc -p tsconfig.migration.json`), and progressively enrich the config by adding more `src` files as each class migration succeeds; avoid adapter proliferation; always pin by git SHA and record compilation coverage mode."
-    status: pending
+    status: completed
   - id: update-tests-during-migration
     content: While migrating, adjust/extend tests so they construct/assert using `Fixed` instead of `BigNumber` in the suites touched by each per-class TODO above (update expected numeric strings/rounding if fixed-point truncation differs).
-    status: pending
+    status: completed
 isProject: false
 ---
 
