@@ -88,10 +88,10 @@ todos:
     status: completed
   - id: migrate-transaction-fees-step3-big-number-to-fixed
     content: "Migrate `OnChainTransaction.fees` step 3: change `fees` storage from `BigNumber` to the chosen fixed-point representation and update any conversions needed for display/CSV/export."
-    status: pending
+    status: completed
   - id: migrate-transaction-fees-step4-tests-after
     content: "Migrate `OnChainTransaction.fees` step 4: rerun `transaction.spec` and any CSV/export tests that touch transactions; update expected outputs if numeric formatting changes."
-    status: pending
+    status: completed
   - id: migrate-displayable-cleanup-step1-tests-green
     content: "Optional cleanup: migrate `displayable` BigNumber formatting path (`src/displayable.mts`) step 1: run `displayable.spec` and ensure passing; record baseline SHA."
     status: pending

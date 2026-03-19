@@ -1,4 +1,4 @@
-import { BigNumber, toInteger } from "./bignumber.mjs";
+import { Fixed, toInteger } from "./bignumber.mjs";
 import { Swarm } from "./swarm.mjs";
 import { Address } from "./address.mjs";
 import { Explorer } from "./services/explorer.mjs";
@@ -89,14 +89,11 @@ export abstract class OnChainTransaction implements Transaction {
    * `1e18` to get the fee as a decimal amount of the chain native currency (same “coin units”
    * notion as ETH rather than wei).
    *
-   * **Fixed-point migration (equivalent semantics):** parse `gasPrice` and `gasUsed` as integers
-   * (scale 0). Let `feeWei = gasPrice * gasUsed` (exact bigint product). Map to native units with
-   * `Fixed.fromInteger(feeWei).div(Fixed.E18, tokenScale)` where `tokenScale` should match the
-   * scale used elsewhere for that chain’s native {@link Amount} (often 18n for EVM); choose
-   * `tokenScale` explicitly because {@link Fixed.div} requires a target scale and truncates like
-   * the current {@link BigNumber} path (ROUND_DOWN for positive values).
+   * **Fixed-point:** `feeWei = gasPrice * gasUsed` (exact integer product), then
+   * `feeWei.div(Fixed.E18, tokenScale)` where `tokenScale` matches {@link CryptoAsset.decimal}
+   * for the chain native currency (same scale as native {@link Amount} values).
    */
-  fees: BigNumber;
+  fees: Fixed;
   feesAsString: string;
 
   constructor(swarm: Swarm, chain: Blockchain, type: OnChainTransactionType) {
@@ -158,12 +155,14 @@ export abstract class OnChainTransaction implements Transaction {
 
     // Fee math: gasPrice (wei per gas) * gasUsed (gas) = fee in wei; / 1e18 => native token units.
     const gasPrice = data.gasPrice;
+    const tokenScale = BigInt(this.explorer.nativeCurrency.decimal);
     if (gasPrice === undefined) {
-      this.fees = BigNumber.ZERO;
+      this.fees = Fixed.ZERO;
     } else {
-      this.fees = BigNumber.fromInteger(gasPrice)
-        .mul(data.gasUsed as string | number)
-        .div(BigNumber.E18);
+      const feeWei = Fixed.fromInteger(gasPrice).mul(
+        Fixed.fromInteger(data.gasUsed as string | number),
+      );
+      this.fees = feeWei.div(Fixed.E18, tokenScale);
     }
     this.feesAsString = this.fees.toString();
 

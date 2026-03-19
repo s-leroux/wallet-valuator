@@ -16,6 +16,7 @@ import ERC20TokenTransfersFixture from "../fixtures/ERC20TokenTransferEvents.jso
 import internalTransactionsFixture from "../fixtures/InternalTransactions.json" with { type: "json" };
 import normalTransactionsFixture from "../fixtures/GnosisScan/NormalTransactions.json" with { type: "json" };
 
+import { Fixed } from "../src/bignumber.mjs";
 import {
   ERC20TokenTransfer,
   InternalTransaction,
@@ -102,6 +103,18 @@ describe("Swarm and Transaction integration", () => {
       it("should have an amount", () => {
         for (const transaction of transactions)
           assert.notEqual(transaction.amount, undefined);
+      });
+
+      it("should store gas fees as Fixed in native units (wei·gas / 1e18)", () => {
+        const tr = transactions[0];
+        assert.equal(
+          tr.feesAsString,
+          tr.fees.toString(),
+          "feesAsString stays aligned with fees for CSV/export callers",
+        );
+        // First fixture row: gasPrice 1e9, gasUsed 21000 => 21e12 wei fee.
+        const expected = Fixed.fromDigits(21_000_000_000_000n, 18n);
+        assert.isTrue(tr.fees.equals(expected));
       });
     });
   });
