@@ -111,6 +111,8 @@ export class RealTokenOracle extends Oracle {
         const priceTable = this.getPriceTable(uuid);
         const entry = priceTable.get(formatDate("YYYYMMDD", date));
         if (entry) {
+          // Keep fetched/history numeric values in BigNumber form; use
+          // `crypto.price(...)` as the BigNumber -> Fixed boundary.
           result.set(fiat, crypto.price(fiat, entry[1]));
         }
         // If the price is unavailable for the requested date, default to `{}`

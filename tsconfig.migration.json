@@ -18,10 +18,17 @@
     "src/price.mts",
     "src/cryptoasset.mts",
     "src/valuation.mts",
+    "src/services/oracle.mts",
+    "src/services/oracles/datasourceoracle.mts",
+    "src/services/oracles/ohlcoracle.mts",
+    "src/services/realtoken/realtokenoracle.mts",
     "test/bignumber.spec.mts",
     "test/price.spec.mts",
     "test/cryptoasset.spec.mts",
-    "test/valuation.spec.mts"
+    "test/valuation.spec.mts",
+    "test/services/oracles/datasourceoracle.spec.mts",
+    "test/services/oracles/ohlcoracle.spec.mts",
+    "test/services/realtoken/realtokenoracle.spec.mts"
   ],
   "watchOptions": {
     "watchFile": "dynamicprioritypolling",

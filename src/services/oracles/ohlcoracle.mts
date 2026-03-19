@@ -68,6 +68,8 @@ export class OHLCOracle<T extends BigNumberSource> extends Oracle {
       this.data.getMany(formattedDate, ["High", "Low", "Close"]) ?? [];
 
     if (high && low && close) {
+      // Keep oracle math on BigNumber for now; `crypto.price(...)` is the
+      // migration boundary and normalizes into `Price.rate` (Fixed).
       const price = crypto.price(
         this.fiat,
         BigNumber.sum(high, low, close).div(3)

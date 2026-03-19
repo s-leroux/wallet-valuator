@@ -55,6 +55,8 @@ export class DataSourceOracle<T extends BigNumberSource> extends Oracle {
         const value = this.data.get(formattedDate, columnName)?.at(1);
 
         if (value !== undefined) {
+          // Keep source values in BigNumber domain; conversion to Fixed happens
+          // at `Price` construction inside `crypto.price(...)`.
           result.set(fiat, crypto.price(fiat, BigNumber.from(value)));
         }
       }

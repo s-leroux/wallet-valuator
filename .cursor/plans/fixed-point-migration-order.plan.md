@@ -70,10 +70,10 @@ todos:
     status: completed
   - id: migrate-oracles-step1-tests-green
     content: "Migrate `Oracles` (`src/services/oracles/*.mts`, incl. `ohlcoracle`, `datasourceoracle`, `realtokenoracle`) step 1: run focused oracle tests that will be affected; record baseline SHA + exact `npx mocha` invocation(s)."
-    status: pending
+    status: completed
   - id: migrate-oracles-step2-rationalize
     content: "Migrate `Oracles` step 2: rationalize the numeric boundary at `Price` construction (what remains `BigNumber` internally vs what becomes `Fixed` in `Price.rate`) and document the chosen direction."
-    status: pending
+    status: completed
   - id: migrate-oracles-step3-big-number-to-fixed
     content: "Migrate `Oracles` step 3: update oracle generics and any conversions so they produce `Price` values with `Fixed` rates in the current compilation slice."
     status: pending
