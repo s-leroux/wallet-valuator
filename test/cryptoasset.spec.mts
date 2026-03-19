@@ -3,7 +3,7 @@ import { assert } from "chai";
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { Amount, CryptoAsset, CryptoAssetID } from "../src/cryptoasset.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
+import { BigNumber, Fixed } from "../src/bignumber.mjs";
 
 import { ValueError } from "../src/error.mjs";
 import { testQuantityInterface } from "./support/quantity.helper.mjs";
@@ -46,11 +46,7 @@ describe("CryptoAsset", () => {
     const amount = crypto.amountFromBaseUnit(baseUnitValue);
 
     assert.strictEqual(amount.crypto, crypto);
-    assert.strictEqual(
-      amount.value.toString(),
-      "12.3456789",
-      "Amount value should equal 12.3456789",
-    );
+    assert.strictEqual(amount.value.toString(), "12.345678900000000000");
   });
 
   it("should create an Amount from a string", () => {
@@ -75,16 +71,16 @@ describe("CryptoAsset", () => {
 describe("Amount", () => {
   describe("constructor", () => {
     it("should correctly initialize an Amount instance", () => {
-      const value = BigNumber.from(1);
+      const value = Fixed.fromInteger("1");
       const amount = new Amount(ethereum, value);
 
       assert.strictEqual(amount.crypto, ethereum);
-      assert.strictEqual(amount.value, value);
+      assert.strictEqual(amount.value.toString(), value.toString());
     });
   });
 
   it("should allow zero", function () {
-    const amount = new Amount(ethereum, new BigNumber("0"));
+    const amount = new Amount(ethereum, Fixed.fromString("0"));
     assert.strictEqual(amount.value.toString(), "0");
   });
 
@@ -94,12 +90,13 @@ describe("Amount", () => {
   });
 
   it("should normalize -0 to +0", function () {
-    const amount = new Amount(ethereum, new BigNumber("-0"));
+    const amount = new Amount(ethereum, Fixed.fromString("-0"));
     assert.strictEqual(amount.value.toString(), "0"); // Ensures normalization
   });
 
   it("should handle very large positive values", function () {
-    const amount = new Amount(ethereum, new BigNumber("1e50"));
+    const E50 = 10n ** 50n;
+    const amount = new Amount(ethereum, Fixed.fromInteger(E50));
     assert.strictEqual(
       amount.value.toString(),
       "100000000000000000000000000000000000000000000000000",
@@ -127,7 +124,7 @@ describe("Amount", () => {
   testQuantityInterface<CryptoAsset, Amount>(
     {
       make(unit, value) {
-        return new Amount(unit, BigNumber.from(value));
+        return new Amount(unit, value);
       },
       unitEquals(a, b) {
         return a.crypto == b.crypto;

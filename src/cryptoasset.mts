@@ -1,4 +1,11 @@
-import { BigNumber, BigNumberSource } from "./bignumber.mjs";
+import {
+  BigNumberSource,
+  Fixed,
+  FixedLike,
+  IntegerSource,
+  fixedFromSource,
+  FixedSource,
+} from "./bignumber.mjs";
 import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError, ValueError } from "./error.mjs";
@@ -10,6 +17,8 @@ import { Value } from "./valuation.mjs";
 import { Quantity } from "./quantity.mjs";
 import { InstanceCache } from "./instancecache.mjs";
 const log = logger("crypto-asset");
+
+type AmountSource = BigNumberSource | FixedSource;
 
 //======================================================================
 //  CryptoAssetID
@@ -57,7 +66,7 @@ export function isCryptoAsset(obj: unknown): obj is CryptoAsset {
  */
 export class Amount implements Quantity<CryptoAsset, Amount> {
   crypto: CryptoAsset;
-  value: BigNumber;
+  value: Fixed;
 
   /**
    * Creates an instance of `Amount`.
@@ -65,12 +74,9 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    * @param crypto - The crypto associated with the amount.
    * @param value - The quantity expressed in the display unit.
    */
-  constructor(crypto: CryptoAsset, value: BigNumber = BigNumber.ZERO) {
-    if (value.isNaN()) {
-      throw new ValueError("Invalid amount: NaN values are not allowed");
-    }
+  constructor(crypto: CryptoAsset, value: AmountSource = Fixed.ZERO) {
     this.crypto = crypto;
-    this.value = value;
+    this.value = fixedFromSource(value);
   }
 
   /**
@@ -154,28 +160,46 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
     return this.value.isZero();
   }
 
-  valueAt(price: Price) {
+  valueAt(price: Price, scale?: bigint) {
     if (this.crypto !== price.crypto) {
       throw new InconsistentUnitsError(this.crypto, price.crypto);
     }
     // `Price.rate` is now `Fixed`. Convert to a decimal string so we can keep
     // the existing (BigNumber-based) `Value` arithmetic intact until the
     // `Amount` migration step.
-    return new Value(
-      price.fiatCurrency,
-      this.value.mul(price.rate.toFixed()),
-    );
+    return new Value(price.fiatCurrency, this.value.mul(price.rate, scale));
   }
 
-  scaledBy(factor: BigNumberSource): Amount {
-    return new Amount(this.crypto, this.value.mul(factor));
+  /**
+   * Returns a new Amount representing this value scaled by a factor.
+   *
+   * This operation preserves the Amount's unit.
+   * The returned Amount is expressed at the scale of the receiver.
+   *
+   * @param factor - The scalar multiplier as a FixedLike.
+   * @returns A new Amount with the same crypto and scale.
+   */
+  scaledBy(factor: FixedLike): Amount {
+    return new Amount(this.crypto, this.value.mul(factor, this.value.scale));
   }
 
-  relativeTo(other: Amount): BigNumber {
+  /**
+   * Returns the scalar ratio between this Amount and a base Amount.
+   *
+   * In other words, it answers: "By which factor must the base Amount be multiplied
+   * to yield this Amount?"
+   *
+   * The result is expressed as a dimensionless quantity whose scale is
+   * implementation-dependent but large enough to ensure it is invertible using {@link scaledBy}.
+   *
+   * @param other - The reference Amount to compare against.
+   * @returns The scalar ratio (this / other).
+   */
+  relativeTo(other: Amount): Fixed {
     if (this.crypto !== other.crypto) {
       throw new InconsistentUnitsError(this, other);
     }
-    return this.value.div(other.value);
+    return this.value.div(other.value, this.value.scale + other.value.scale); // XXX Is it really the right scale?
   }
 }
 
@@ -292,13 +316,13 @@ export class CryptoAsset {
    * const amount = eth.fromBaseUnit('1000000000000000000'); // 1 ETH
    * console.log(amount.toString()); // "1 ETH"
    */
-  amountFromBaseUnit(baseunit: string): Amount {
-    return new Amount(this, BigNumber.fromDigits(baseunit, this.decimal));
+  amountFromBaseUnit(baseunit: IntegerSource): Amount {
+    return new Amount(this, Fixed.fromDigits(baseunit, BigInt(this.decimal)));
   }
 
   amountFromString(v: string): Amount {
     // ISSUE #32 rename as `amount()`
-    return new Amount(this, BigNumber.fromString(v));
+    return new Amount(this, Fixed.fromString(v));
   }
 
   price(fiat: FiatCurrency, rate: BigNumberSource) {

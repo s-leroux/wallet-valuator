@@ -1,6 +1,6 @@
 import { Decimal as DecimalImplementation } from "decimal.js";
-import { InconsistentUnitsError, ValueError } from "./error.mjs";
 import type { DisplayOptions } from "./displayable.mjs";
+import { ValueError } from "./error.mjs";
 
 export function toInteger(src: number | string) {
   const asString = src.toString();
@@ -99,13 +99,14 @@ export class BigNumber extends DecimalImplementation.clone({
 
 export const MAX_FIXED_SCALE = 80n;
 
-export type FixedSource = bigint | string | Fixed;
 export type CompareResult = -1 | 0 | 1;
 
 export type FixedLike = {
   value: bigint;
   scale: bigint;
 };
+export type FixedSource = bigint | string | FixedLike;
+export type IntegerSource = bigint | string | number;
 
 export class Fixed {
   readonly value: bigint; // Integer value
@@ -133,10 +134,36 @@ export class Fixed {
     this.scale = scale;
   }
 
-  static fromInteger(v: number | bigint | string): Fixed {
+  /**
+   * Creates a new Fixed from an integer source.
+   *
+   * The fixed-point result is the exact representation of the input integer
+   * without any rounding and with the scale = 0.
+   *
+   *
+   * XXX Is this a synonym/shortcut for `Fixed.fromDigits(v, 0n)`?
+   *
+   * @param v - The integer source.
+   * @returns A new Fixed representing the integer.
+   */
+  static fromInteger(v: IntegerSource): Fixed {
     return new Fixed(BigInt(v), 0n);
   }
 
+  /**
+   * Creates a new Fixed from a string source.
+   *
+   * The string is parsed as a decimal number.
+   * The fixed-point result is the exact representation of the input string
+   *  (ignoring leading/trailing whitespace) without any rounding and with the
+   * scale = the length of the fractional part (or 0 if there is no fractional part).
+   *
+   * The method does not understand scientific notation.
+   * The number must be expressed as a 10-based finite number.
+   *
+   * @param v - The string source.
+   * @returns A new Fixed representing the string.
+   */
   static fromString(v: string): Fixed {
     const match = /^\s*(?<sign>[+-])?(?<int>\d+)(?:\.(?<frac>\d+))?\s*$/.exec(
       v,
@@ -164,10 +191,10 @@ export class Fixed {
       return this.fromString(v);
     }
 
-    return v;
+    return new Fixed(v.value, v.scale);
   }
 
-  static fromDigits(digits: bigint | number | string, scale: bigint | number) {
+  static fromDigits(digits: IntegerSource, scale: IntegerSource): Fixed {
     const scaleAsBigInt = BigInt(scale);
     if (scaleAsBigInt === 0n) {
       return this.fromInteger(digits);
@@ -434,6 +461,23 @@ export function fixedFromSource(src: BigNumberSource | FixedSource): Fixed {
 
   if (typeof src === "bigint") {
     return Fixed.fromDigits(src, 0n);
+  }
+
+  if (typeof src === "string") {
+    return Fixed.fromString(src);
+  }
+
+  if (typeof src === "object" && "value" in src && "scale" in src) {
+    return Fixed.from(src);
+  }
+
+  // During the transition from BigNumber to Fixed, we may throw on NaN and Infinity
+  // (for number and BigNumber)
+  if (typeof src === "number" && (Number.isNaN(src) || !Number.isFinite(src))) {
+    throw new ValueError(`Invalid number: ${src}. Must be a finite number.`);
+  }
+  if (src instanceof BigNumber && (src.isNaN() || !src.isFinite())) {
+    throw new ValueError(`Invalid BigNumber: ${src}. Must be a finite number.`);
   }
 
   const bn = BigNumber.from(src);

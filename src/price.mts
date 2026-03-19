@@ -2,9 +2,9 @@ import { CryptoAsset } from "./cryptoasset.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 
 import {
-  BigNumber,
   BigNumberSource,
   Fixed,
+  fixedFromSource,
   FixedSource,
 } from "./bignumber.mjs";
 import { GlobalMetadataStore, MetadataFacade } from "./metadata.mjs";
@@ -46,7 +46,7 @@ export class Price {
 
     // BigNumber -> Fixed: preserve the exact decimal representation as a
     // (value, scale) pair, so Fixed arithmetic can proceed without losing scale.
-    return Fixed.fromString(BigNumber.from(rate).toString());
+    return fixedFromSource(rate);
   }
 
   constructor(

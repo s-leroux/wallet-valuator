@@ -40,7 +40,7 @@ todos:
     status: pending
   - id: migrate-amount-step3-big-number-to-fixed
     content: "Migrate `Amount` step 3: change `Amount.value` from `BigNumber` to `Fixed` and update `valueAt(price)` to multiply in the fixed-point domain required by the compilation slice."
-    status: pending
+    status: completed
   - id: migrate-amount-step4-tests-after
     content: "Migrate `Amount` step 4: rerun `cryptoasset.spec` and `valuation.spec` (at minimum, where `amount.valueAt(price)` is exercised); update tests to assert on `Fixed`."
     status: pending

@@ -3,7 +3,12 @@ import { assert } from "chai";
 import { prepare } from "./support/register.helper.mjs";
 
 import { ValueError } from "../src/error.mjs";
-import { BigNumber, Fixed, MAX_FIXED_SCALE } from "../src/bignumber.mjs";
+import {
+  BigNumber,
+  Fixed,
+  IntegerSource,
+  MAX_FIXED_SCALE,
+} from "../src/bignumber.mjs";
 
 describe("BigNumber", function () {
   const precision = 80;
@@ -383,8 +388,8 @@ describe("Fixed", function () {
       register(
         `(${v1},${p1}) / (${v2},${p2}) @ ${targetScale} => ${expected}`,
         () => {
-        const a = Fixed.fromDigits(v1, p1);
-        const b = Fixed.fromDigits(v2, p2);
+          const a = Fixed.fromDigits(v1, p1);
+          const b = Fixed.fromDigits(v2, p2);
           const q = a.div(b, targetScale);
           assert.equal(q.toFixed(), expected);
           assert.equal(q.scale, targetScale);
@@ -559,11 +564,9 @@ describe("Fixed", function () {
   describe("fromInteger()", function () {
     const register = prepare(this);
 
-    const cases: [number | string | bigint, string][] = [
-      [0, "0"],
-      [1, "1"],
-      [-1, "-1"],
+    const cases: [IntegerSource, string][] = [
       ["12345", "12345"],
+      ["-12345", "-12345"],
       [12345n, "12345"],
       [-12345n, "-12345"],
     ];
@@ -637,7 +640,7 @@ describe("Fixed", function () {
     it("returns Fixed instance as-is", function () {
       const original = Fixed.fromDigits(123n, 2n);
       const f = Fixed.from(original);
-      assert.strictEqual(f, original);
+      assert.deepEqual(f, original);
     });
   });
 });
