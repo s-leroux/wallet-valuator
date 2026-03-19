@@ -1,7 +1,6 @@
 import {
   BigNumberSource,
   Fixed,
-  FixedLike,
   IntegerSource,
   fixedFromSource,
   FixedSource,
@@ -179,8 +178,12 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    * @param factor - The scalar multiplier as a FixedLike.
    * @returns A new Amount with the same crypto and scale.
    */
-  scaledBy(factor: FixedLike): Amount {
-    return new Amount(this.crypto, this.value.mul(factor, this.value.scale));
+  scaledBy(factor: FixedSource): Amount {
+    const factorFixed = fixedFromSource(factor);
+    return new Amount(
+      this.crypto,
+      this.value.mul(factorFixed, this.value.scale),
+    );
   }
 
   /**

@@ -1,4 +1,4 @@
-import type { Fixed, FixedLike } from "./bignumber.mjs";
+import type { Fixed, FixedSource } from "./bignumber.mjs";
 
 export interface Quantity<T, Self extends Quantity<T, Self>> {
   value: Fixed;
@@ -18,7 +18,7 @@ export interface Quantity<T, Self extends Quantity<T, Self>> {
    * @param factor - The scalar multiplier.
    * @returns A new quantity with the same unit and scale.
    */
-  scaledBy(factor: FixedLike): Self;
+  scaledBy(factor: FixedSource): Self;
 
   /**
    * Returns the scalar ratio between this quantity and a base quantity.

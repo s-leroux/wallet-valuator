@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { Fixed, FixedSource } from "../../src/bignumber.mjs";
+import { FixedSource } from "../../src/bignumber.mjs";
 import { Quantity } from "../../src/quantity.mjs";
 import { InconsistentUnitsError } from "../../src/error.mjs";
 import { prepare } from "./register.helper.mjs";
@@ -70,7 +70,7 @@ export function testQuantityInterface<Unit, Q extends Quantity<Unit, Q>>(
         const a = factory.make(sampleUnit, 8n);
         const b = factory.make(sampleUnit, 80n);
 
-        assertQuantityEquals(a.scaledBy(Fixed.fromInteger("10")), b);
+        assertQuantityEquals(a.scaledBy(10n), b);
       });
     });
 
