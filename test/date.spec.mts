@@ -91,6 +91,11 @@ describe("Date utilities", () => {
         [ "12--2022", /(?<month>\d\d)--(?<year>\d\d\d\d)/, ValueError],
         [ "24--12--202Z", /(?<day>..)--(?<month>..)--(?<year>....)/, ValueError ],
         [ "--12--202Z", /(?<day>.*)--(?<month>..)--(?<year>....)/, ValueError ],
+        [ "2022-13-01", "YYYY-MM-DD", ValueError ],
+        [ "2022-12-32", "YYYY-MM-DD", ValueError ],
+        [ "2022-02-30", "YYYY-MM-DD", ValueError ],
+        [ "2023-02-29", "YYYY-MM-DD", ValueError ],
+        [ "2024-02-30", "YYYY-MM-DD", ValueError ],
       ] as const;
 
       for (const [input, format, error] of testcases) {
