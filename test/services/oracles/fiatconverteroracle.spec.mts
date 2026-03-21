@@ -13,6 +13,7 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
+import { Fixed } from "../../../src/bignumber.mjs";
 import { FiatConverter } from "../../../src/services/fiatconverter.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
@@ -33,7 +34,7 @@ describe("FiatConverterOracle", function () {
     oracle = await DataSourceOracle.createFromPath(solana,"fixtures/sol-eur-max.csv", {[eur.code]: "price"}, opt);
     cryptoRegistry = CryptoRegistryNG.create();
     cryptoMetadata = CryptoMetadata.create();
-    fiatConverter = new FixedFiatConverter(eur, usd, 1.2);
+    fiatConverter = new FixedFiatConverter(eur, usd, Fixed.fromString("1.2"));
   });
 
   describe("getPrice()", () => {
@@ -46,7 +47,7 @@ describe("FiatConverterOracle", function () {
         solana,
         date,
         new Set([usd, eur]),
-        priceMap
+        priceMap,
       );
 
       // This is expected to fail given the new design of the fiat converters.
@@ -64,7 +65,7 @@ describe("FiatConverterOracle", function () {
         cryptoRegistry,
         date,
         eurPrice,
-        usd
+        usd,
       );
       priceMap.set(usd, usdPrice);
       // --END OF PATCH------------------------------------------------
@@ -75,7 +76,7 @@ describe("FiatConverterOracle", function () {
       assert.closeTo(
         +priceMap.get(usd)!.rate,
         217.91046376268642 * 1.2,
-        EPSILON
+        EPSILON,
       );
     });
   });

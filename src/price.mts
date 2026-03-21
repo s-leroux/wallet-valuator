@@ -1,12 +1,7 @@
 import { CryptoAsset } from "./cryptoasset.mjs";
 import type { FiatCurrency } from "./fiatcurrency.mjs";
 
-import {
-  BigNumberSource,
-  Fixed,
-  fixedFromSource,
-  FixedSource,
-} from "./bignumber.mjs";
+import { Fixed, fixedFromSource, FixedSource } from "./bignumber.mjs";
 import { GlobalMetadataStore, MetadataFacade } from "./metadata.mjs";
 
 type PriceMetadataType = {
@@ -24,8 +19,8 @@ export const GlobalPriceMetadata = new PriceMetadata(GlobalMetadataStore);
  * and rate multiplication while maintaining the relationship between the assets.
  *
  * @example
- * const ethPrice = new Price(ethereum, usd, 2000); // 1 ETH = 2000 USD
- * const eurPrice = ethPrice.to(eur, 0.85); // Convert to EUR using USD/EUR rate
+ * const ethPrice = new Price(ethereum, usd, "2000"); // 1 ETH = 2000 USD
+ * const eurPrice = ethPrice.to(eur, "0.85"); // Convert to EUR using USD/EUR rate
  *
  * ISSUE #126 Consider rewriting that as a (CryptoAsset, Value) tupple.
  */
@@ -35,17 +30,7 @@ export class Price {
   // `rate` means: fiat per 1 crypto display unit.
   readonly rate: Fixed;
 
-  private static rateFromSource(rate: BigNumberSource | FixedSource): Fixed {
-    if (rate instanceof Fixed) {
-      return rate;
-    }
-
-    if (typeof rate === "bigint") {
-      return Fixed.fromDigits(rate, 0n);
-    }
-
-    // BigNumber -> Fixed: preserve the exact decimal representation as a
-    // (value, scale) pair, so Fixed arithmetic can proceed without losing scale.
+  private static rateFromSource(rate: FixedSource): Fixed {
     return fixedFromSource(rate);
   }
 
@@ -72,7 +57,7 @@ export class Price {
    */
   to(
     destinationCurrency: FiatCurrency,
-    exchangeRate: BigNumberSource | FixedSource, // destination per source fiat
+    exchangeRate: FixedSource, // destination per source fiat
   ) {
     return new Price(
       this.crypto,
@@ -92,7 +77,7 @@ export class Price {
    * - When `rate` becomes `Fixed`, the multiplication must be followed by an
    *   explicit rescale back to the canonical `Price.rate` scale.
    */
-  mul(factor: BigNumberSource | FixedSource): Price {
+  mul(factor: FixedSource): Price {
     return new Price(
       this.crypto,
       this.fiatCurrency,

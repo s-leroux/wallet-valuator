@@ -24,7 +24,7 @@ describe("Price", () => {
   describe("to()", () => {
     it("should return a new price expressed in the conversion fiat currency", () => {
       const price1 = new Price(ethereum, eur, "4000");
-      const price2 = price1.to(usd, 1.1);
+      const price2 = price1.to(usd, "1.1");
 
       assert.notStrictEqual(price1, price2);
       assert.strictEqual(price2.crypto, ethereum);
@@ -36,7 +36,7 @@ describe("Price", () => {
   describe("mul()", () => {
     it("should return a new price with its rate multiplied by a scalar", () => {
       const price1 = new Price(ethereum, eur, "4000");
-      const price2 = price1.mul(1.1);
+      const price2 = price1.mul("1.1");
 
       assert.notStrictEqual(price1, price2);
       assert.strictEqual(price2.crypto, ethereum);

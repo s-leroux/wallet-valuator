@@ -4,12 +4,7 @@ import {
   MissingPriceError,
   ProtocolError,
 } from "./error.mjs";
-import {
-  BigNumberSource,
-  Fixed,
-  fixedFromSource,
-  FixedSource,
-} from "./bignumber.mjs";
+import { Fixed, fixedFromSource, FixedSource } from "./bignumber.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
@@ -32,8 +27,6 @@ const log = logger("valuation");
 //  Value
 //======================================================================
 
-type ValueSource = BigNumberSource | FixedSource;
-
 /**
  * Represents a monetary value in a specific fiat currency.
  *
@@ -53,7 +46,7 @@ export class Value {
   readonly fiatCurrency: FiatCurrency;
   readonly value: Fixed;
 
-  constructor(fiatCurrency: FiatCurrency, value: ValueSource = Fixed.ZERO) {
+  constructor(fiatCurrency: FiatCurrency, value: FixedSource = Fixed.ZERO) {
     this.fiatCurrency = fiatCurrency;
     this.value = fixedFromSource(value);
   }
@@ -66,7 +59,7 @@ export class Value {
    * @param value - The numeric value to create the Value instance with
    * @returns A new Value instance
    */
-  static from(fiat: string | FiatCurrency, value: ValueSource) {
+  static from(fiat: string | FiatCurrency, value: FixedSource) {
     return new Value(FiatCurrency(fiat), value);
   }
 
@@ -115,7 +108,7 @@ export class Value {
    * - so this operation is stable in value domains where amounts are represented
    *   with a fixed number of decimals (e.g. fiat cents).
    */
-  scaledBy(factor: ValueSource): Value {
+  scaledBy(factor: FixedSource): Value {
     const factorFixed = fixedFromSource(factor);
     return new Value(
       this.fiatCurrency,
