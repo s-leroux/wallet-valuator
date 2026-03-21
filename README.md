@@ -110,6 +110,20 @@ This runs Mocha against `build/test/**/*.mjs` (see [`package.json`](package.json
 
 On the **host**, without opening an interactive shell, you can use `make docker-test`, which runs `npm test` in a one-off container with the repo bind-mounted. Ensure `npm install` and `npm run compile` have been run at least once so `node_modules/` and `build/` exist on the mounted workspace.
 
+### Environment variables (tests)
+
+`npm test` loads [`.mocharc.cjs`](.mocharc.cjs), which sets **`NODE_ENV`** to `test` when it was unset. Some library code relies on that during tests.
+
+Several suites are **optional** or **live** (network + API keys). The helper **`when()`** in [`test/support/test.helper.mts`](test/support/test.helper.mts) treats a variable as *off* when it is **unset** or set to **`0`** or **`no`** (case-insensitive); any other value turns the gated block *on*. You still need a valid key when a live suite runs.
+
+| Variable | Role |
+| --- | --- |
+| **`ETHERSCAN_API_KEY`** | **Etherscan** live tests ([`test/services/explorers/etherscan.spec.mts`](test/services/explorers/etherscan.spec.mts)): **must be set** to a real key, or the suite’s `before` hook throws and **`npm test` fails**. The same variable is used for **GnosisScan** live tests ([`gnosisscan.spec.mts`](test/services/explorers/gnosisscan.spec.mts)), but that block is wrapped in `when("ETHERSCAN_API_KEY", …)`—so it is **skipped** when the variable is off. |
+| **`COINGECKO_API_KEY`** | **CoinGecko** live tests ([`coingecko.spec.mts`](test/services/oracles/coingecko.spec.mts)): skipped when off via `when("COINGECKO_API_KEY", …)`. |
+| **`EXPECTED_GIT_SHA`** | **Runtime pinned build** check ([`runtime-pinned-build.helper.mts`](test/support/runtime-pinned-build.helper.mts)): compares the build’s `GIT_SHA.txt` to this value; the test is **skipped** when unset (custom name supported via `registerRuntimePinnedBuildTest(name)`). |
+| **`EXAMPLES`** | **Example programs** ([`test/examples.spec.mts`](test/examples.spec.mts)): the whole describe is skipped when off via `when("EXAMPLES", …)`. |
+| **`APP_ROOT_PATH`** | Root directory for resolving **`build/examples`** in example tests; defaults to **`.`** if unset (same file). |
+
 # Stage 3: Run ESLint
 
 From inside the container:

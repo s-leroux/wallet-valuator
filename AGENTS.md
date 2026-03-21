@@ -31,6 +31,7 @@ This file contains instructions for Codex agents working in this repository. The
 - Install / refresh dependencies: **`npm install`**
 - Compile: `npm run compile` (`tsc`) or `npx tsc [OPTIONS...]` or `tsc [OPTIONS...]`
 - Tests: `npm test` (Mocha against `build/`; compile first). For fine-grained control, use `npx mocha [OPTIONS...]` or `mocha [OPTIONS...]` (example: `mocha --grep "Fixed"`)
+- **Test environment variables:** `NODE_ENV` defaults to `test` via `.mocharc.cjs` when unset. Optional or live suites use env vars documented under [Environment variables (tests)](README.md#environment-variables-tests) in `README.md`. Note: the **Etherscan** live suite **requires** `ETHERSCAN_API_KEY`; if it is missing, `npm test` fails in that suite’s `before` hook (unlike other live blocks that skip when the variable is off).
 - Lint (applies fixes): `npm run lint` (see `package.json` — the script uses ESLint with `--fix`).
   For fine-grained control, use `npx eslint [OPTIONS...]` or `eslint [OPTIONS...]` (example: `eslint --fix "src/**/*.ts"`)
 
