@@ -3,9 +3,9 @@ import { assert } from "chai";
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import { Amount, CryptoAsset, CryptoAssetID } from "../src/cryptoasset.mjs";
-import { BigNumber, Fixed } from "../src/bignumber.mjs";
+import { Fixed } from "../src/bignumber.mjs";
 
-import { InconsistentUnitsError, ValueError } from "../src/error.mjs";
+import { InconsistentUnitsError } from "../src/error.mjs";
 import { testQuantityInterface } from "./support/quantity.helper.mjs";
 import { InstanceCache } from "../src/instancecache.mjs";
 
@@ -104,17 +104,20 @@ describe("Amount", () => {
   });
 
   it("should allow negative values", function () {
-    const amount = new Amount(ethereum, new BigNumber("-1.50"));
-    assert.strictEqual(amount.value.toString(), "-1.5");
+    const amount = new Amount(ethereum, Fixed.fromString("-1.50"));
+    assert.strictEqual(amount.value.toString(), "-1.50");
   });
 
-  it("should reject NaN values", function () {
-    assert.throws(() => new Amount(ethereum, new BigNumber(NaN)), ValueError);
+  it("should reject invalid FixedSource strings", function () {
+    assert.throws(
+      () => new Amount(ethereum, "not-a-number"),
+      SyntaxError,
+    );
   });
 
   describe("toString() method", () => {
     it("should return the correct string representation for the object", () => {
-      const value = BigNumber.from(1000);
+      const value = Fixed.fromInteger("1000");
       const amount = new Amount(ethereum, value);
 
       assert.strictEqual(amount.toString(), "1000 ETH");

@@ -1,5 +1,4 @@
 import {
-  BigNumberSource,
   Fixed,
   IntegerSource,
   fixedFromSource,
@@ -17,7 +16,7 @@ import { Quantity } from "./quantity.mjs";
 import { InstanceCache } from "./instancecache.mjs";
 const log = logger("crypto-asset");
 
-type AmountSource = BigNumberSource | FixedSource;
+type AmountSource = FixedSource;
 
 //======================================================================
 //  CryptoAssetID
@@ -83,7 +82,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    *
    * @returns A string combining the value and the crypto symbol.
    * @example
-   * const amount = new Amount({ symbol: 'ETH', ... }, BigNumber.from(1));
+   * const amount = new Amount({ symbol: 'ETH', ... }, Fixed.fromString("1"));
    * console.log(amount.toString()); // "1 ETH"
    */
   toString(): string {
@@ -163,9 +162,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
     if (this.crypto !== price.crypto) {
       throw new InconsistentUnitsError(this.crypto, price.crypto);
     }
-    // `Price.rate` is now `Fixed`. Convert to a decimal string so we can keep
-    // the existing (BigNumber-based) `Value` arithmetic intact until the
-    // `Amount` migration step.
+    // `Price.rate` is `Fixed`; multiply the amount by the rate to obtain fiat `Value`.
     return new Value(price.fiatCurrency, this.value.mul(price.rate, scale));
   }
 
