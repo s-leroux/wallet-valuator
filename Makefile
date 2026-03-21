@@ -53,7 +53,7 @@ docker-lint: docker-image
 		-e TERM="$$TERM" \
 		--mount type=bind,src="$(WORKSPACE)",dst=/app \
 		--mount type=bind,src="$(WORKSPACE)/user",dst=/home \
-		"$(DOCKER_IMAGE_TAG)" /bin/sh -c "npm lint"
+		"$(DOCKER_IMAGE_TAG)" /bin/sh -c "npm run lint"
 
 DEV_CONTAINER ?=
 IDE ?= code

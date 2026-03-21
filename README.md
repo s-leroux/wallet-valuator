@@ -31,6 +31,10 @@ navigation layer still exists, but accounting is the main focus.
 
 🚧 **Under Active Development (03-2026)** 🚧
 
+## Numeric representation
+
+Decimal amounts and rates in the library use a fixed-point type **`Fixed`** (integer value + decimal scale), not raw JavaScript **`number`**, at domain boundaries. **Contributors** should read the **`Fixed`-point policy** in [`AGENTS.md`](AGENTS.md) (`FixedLike` vs `FixedSource`, string scale inference, `IntegerSource`, and arithmetic rules).
+
 ## Development environment (Dev Container)
 
 All development is intended to happen **inside the Development Container** built
@@ -39,8 +43,9 @@ container and to start your editor attached to it.
 
 - The dev container includes tools such as `vim`, `node`, `npm`, `npx`, `tsc`,
   `jq`, `gemini` and others; see `docker/Dockerfile` on the host for details.
-- Inside the container, use `npm` and `npx` (see `package.json`) for all
-  compilation, linting and test commands.
+- Inside the container, when possible, use `npm` and `npx` (see [`package.json`](package.json)) for
+  compilation, linting, and tests. Once dependencies are installed, you may also invoke tools from
+  `/app/node_modules/.bin` directly (`tsc`, `eslint`, `mocha`, etc.); that directory is on `PATH` in the image.
 - The `Makefile` and its targets are intended **only for use on the host** to
   manage the container lifecycle and run commands in the container.
 
@@ -85,31 +90,37 @@ Once inside the container, you will need to install Node.js dependencies:
 node@...:~$ npm install
 ```
 
-And then you can compile the TypeScript sources:
+Compile the TypeScript sources (writes to `build/`):
 
 ```
-node@...:~$ npx tsc
-# or using make from the host
-# make docker-compile
+node@...:~$ npm run compile
 ```
 
-# Stage 2: Run Mocha
+(`npx tsc` is equivalent.)
 
-To run the tests:
+# Stage 2: Run tests
+
+From inside the container, after a successful compile:
 
 ```sh
-make docker-test
+node@...:~$ npm test
 ```
+
+This runs Mocha against `build/test/**/*.mjs` (see [`package.json`](package.json)).
+
+On the **host**, without opening an interactive shell, you can use `make docker-test`, which runs `npm test` in a one-off container with the repo bind-mounted. Ensure `npm install` and `npm run compile` have been run at least once so `node_modules/` and `build/` exist on the mounted workspace.
 
 # Stage 3: Run ESLint
 
-To run the linter, you must first enter the container shell using `make docker-shell`, then execute the npm command:
+From inside the container:
 
 ```sh
-make docker-shell
-# Inside the container:
-node@...:~$ npm run lint-in-container
+node@...:~$ npm run lint
 ```
+
+The configured script runs ESLint with `--fix` and may modify files.
+
+On the **host**, `make docker-lint` runs the same npm lint script in a one-off container (see the `Makefile`).
 
 ## CLI Usage
 
@@ -124,7 +135,7 @@ The resulting text can be copied directly into your yearly French tax return.
 
 ## Important Notice
 
-This project is being actively developed to meet the 2025 French tax declaration deadline.
+This project is being actively developed to meet the 2026 French tax declaration deadline.
 The current focus is on core functionality and backend stability.
 Comprehensive documentation and user interface improvements will be added in subsequent updates.
 
