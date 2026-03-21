@@ -19,10 +19,13 @@ import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { ChainAddress } from "../../../src/chainaddress.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 import { fixedFromSource } from "../../../src/bignumber.mjs";
+import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 const { EUR, USD } = FakeFiatCurrency;
 
 describe("CurveOracle", function () {
+  registerRuntimePinnedBuildTest();
+
   let api: FakeCurveAPI;
   let oracle: CurveOracle;
 
@@ -56,7 +59,7 @@ describe("CurveOracle", function () {
             ID,
             "Curve-X",
             "Curve-X",
-            18
+            18,
           );
           const metadata: CurveMetadata = {
             resolver: "curve",
@@ -73,7 +76,7 @@ describe("CurveOracle", function () {
               cryptoAsset,
               parseDate("YYYYMMDD", date),
               new Set([USD, EUR]),
-              priceMap
+              priceMap,
             )
             .catch((err) => (console.log(err), undefined));
 

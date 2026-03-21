@@ -27,7 +27,7 @@ import { Fixed } from "../src/bignumber.mjs";
 
 describe("Value", () => {
   const { EUR, USD } = FakeFiatCurrency;
-  registerRuntimePinnedBuildTest(import.meta.url);
+  registerRuntimePinnedBuildTest();
 
   function make(unit: FiatCurrency, value: bigint | string) {
     return Value.from(unit, value);

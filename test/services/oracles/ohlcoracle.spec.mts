@@ -11,6 +11,7 @@ import { CSVFile } from "../../../src/csvfile.mjs";
 import { Fixed } from "../../../src/bignumber.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
@@ -30,6 +31,8 @@ May 18, 2025;103186.95;106597.17;103142.60;106446.01;106446.01;49887082058
 `;
 
 describe("OHLCOracle", function () {
+  registerRuntimePinnedBuildTest();
+
   const { USD } = FakeFiatCurrency;
   let oracle: OHLCOracle<Fixed>;
   const cryptoRegistry = CryptoRegistryNG.create();

@@ -6,10 +6,10 @@ import { registerRuntimePinnedBuildTest } from "./support/runtime-pinned-build.h
 import { Price } from "../src/price.mjs";
 
 describe("Price", () => {
+  registerRuntimePinnedBuildTest();
+
   const { ethereum } = FakeCryptoAsset;
   const { EUR: eur, USD: usd } = FakeFiatCurrency;
-
-  registerRuntimePinnedBuildTest(import.meta.url);
 
   describe("constructor", () => {
     it("should correctly initialize a price instance", () => {

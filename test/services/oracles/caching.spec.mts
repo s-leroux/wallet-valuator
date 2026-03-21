@@ -94,7 +94,7 @@ describe("Caching", function () {
         crypto,
         date,
         fiatCurrencies,
-        priceMap
+        priceMap,
       );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
@@ -105,7 +105,7 @@ describe("Caching", function () {
         crypto,
         date,
         fiatCurrencies,
-        priceMap
+        priceMap,
       );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);

@@ -13,8 +13,11 @@ import {
 } from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 import { fixedFromSource } from "../../../src/bignumber.mjs";
+import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 describe("FakeOracle", function () {
+  registerRuntimePinnedBuildTest();
+
   let fakeoracle: FakeOracle | undefined;
   let cryptoRegistry: CryptoRegistryNG;
   let cryptoMetadata: CryptoMetadata;
@@ -47,7 +50,7 @@ describe("FakeOracle", function () {
           bitcoin,
           new Date(date),
           new Set(Object.keys(expected).map(FiatCurrency)),
-          priceMap
+          priceMap,
         );
 
         assert.equal(priceMap.size, Object.keys(expected).length);

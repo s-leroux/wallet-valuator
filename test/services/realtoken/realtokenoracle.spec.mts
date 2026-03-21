@@ -25,7 +25,8 @@ import { RealTokenMetadata } from "../../../src/services/realtoken/realtokenreso
 
 describe("RealTokenUUID", () => {
   it("can be created from string", () => {
-    const uuid = RealTokenUUID("0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4");
+    const addr = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
+    assert.strictEqual(RealTokenUUID(addr), addr.toLowerCase());
   });
 
   describe("behavior", function () {
@@ -111,14 +112,20 @@ describe("RealTokenOracle", function () {
         await oracle.load();
 
         // jq '.[100] | {uuid, historyLength: (.history | length)}' < fixtures/RealT/tokenHistory.json
+        const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
         const expected = {
-          uuid: "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4",
+          uuid,
           historyLength: 7,
         };
-        const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
         const events = oracle.getEvents(RealTokenUUID(uuid));
 
-        assert.equal(events.length, 7);
+        assert.equal(events.length, expected.historyLength);
+        assert.strictEqual(events[0].date, "20210217");
+        assert.strictEqual(events[0].values.tokenPrice, 50.07);
+        const priced = events.filter((e) => e.values.tokenPrice !== undefined);
+        assert.strictEqual(priced.length, 2);
+        assert.strictEqual(priced[1].date, "20220611");
+        assert.strictEqual(priced[1].values.tokenPrice, 52.46);
       });
 
       it("should retrieve the price table for a RealToken", async () => {

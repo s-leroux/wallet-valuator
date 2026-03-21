@@ -13,8 +13,11 @@ import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 describe("ImplicitFiatConverter", function () {
+  registerRuntimePinnedBuildTest();
+
   const { bitcoin, ethereum } = FakeCryptoAsset;
   const { EUR: eur, USD: usd } = FakeFiatCurrency;
   const date = new Date("2024-12-30");
@@ -41,7 +44,7 @@ describe("ImplicitFiatConverter", function () {
         ethereum,
         date,
         new Set([FakeFiatCurrency.EUR, FakeFiatCurrency.USD]),
-        priceMap
+        priceMap,
       );
 
       assert.isTrue(priceMap.has(eur));
@@ -50,7 +53,7 @@ describe("ImplicitFiatConverter", function () {
         cryptoRegistry,
         date,
         priceMap.get(eur)!,
-        FakeFiatCurrency.USD
+        FakeFiatCurrency.USD,
       );
 
       assert.strictEqual(result.fiatCurrency, usd);

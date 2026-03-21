@@ -11,11 +11,14 @@ import {
 import { DataSourceOracle } from "../../../src/services/oracles/datasourceoracle.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 import type { Fixed } from "../../../src/bignumber.mjs";
+import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 describe("DataSourceOracle", function () {
+  registerRuntimePinnedBuildTest();
+
   const bitcoin = FakeCryptoAsset.bitcoin;
   const eur = FakeFiatCurrency.EUR;
   const usd = FakeFiatCurrency.USD;
