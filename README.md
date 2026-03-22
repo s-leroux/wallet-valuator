@@ -33,7 +33,7 @@ navigation layer still exists, but accounting is the main focus.
 
 ## Numeric representation
 
-Decimal amounts and rates in the library use a fixed-point type **`Fixed`** (integer value + decimal scale), not raw JavaScript **`number`**, at domain boundaries. **Contributors** should read the **`Fixed`-point policy** in [`AGENTS.md`](AGENTS.md) (`FixedLike` vs `FixedSource`, string scale inference, `IntegerSource`, and arithmetic rules).
+Decimal amounts and rates in the library use a fixed-point type **`Fixed`**: a signed **unscaled value** (`value`, `bigint`) plus a decimal **scale**, not raw JavaScript **`number`**, at domain boundaries. **Contributors** should read the **`Fixed`-point policy** in [`AGENTS.md`](AGENTS.md) (`FixedLike` vs `FixedSource`, string scale inference, `IntegerSource`, and arithmetic rules).
 
 ## Development environment (Dev Container)
 
@@ -114,15 +114,15 @@ On the **host**, without opening an interactive shell, you can use `make docker-
 
 `npm test` loads [`.mocharc.cjs`](.mocharc.cjs), which sets **`NODE_ENV`** to `test` when it was unset. Some library code relies on that during tests.
 
-Several suites are **optional** or **live** (network + API keys). The helper **`when()`** in [`test/support/test.helper.mts`](test/support/test.helper.mts) treats a variable as *off* when it is **unset** or set to **`0`** or **`no`** (case-insensitive); any other value turns the gated block *on*. You still need a valid key when a live suite runs.
+Several suites are **optional** or **live** (network + API keys). The helper **`when()`** in [`test/support/test.helper.mts`](test/support/test.helper.mts) treats a variable as _off_ when it is **unset** or set to **`0`** or **`no`** (case-insensitive); any other value turns the gated block _on_. You still need a valid key when a live suite runs.
 
-| Variable | Role |
-| --- | --- |
+| Variable                | Role                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`ETHERSCAN_API_KEY`** | **Etherscan** live tests ([`test/services/explorers/etherscan.spec.mts`](test/services/explorers/etherscan.spec.mts)): **must be set** to a real key, or the suite’s `before` hook throws and **`npm test` fails**. The same variable is used for **GnosisScan** live tests ([`gnosisscan.spec.mts`](test/services/explorers/gnosisscan.spec.mts)), but that block is wrapped in `when("ETHERSCAN_API_KEY", …)`—so it is **skipped** when the variable is off. |
-| **`COINGECKO_API_KEY`** | **CoinGecko** live tests ([`coingecko.spec.mts`](test/services/oracles/coingecko.spec.mts)): skipped when off via `when("COINGECKO_API_KEY", …)`. |
-| **`EXPECTED_GIT_SHA`** | **Runtime pinned build** check ([`runtime-pinned-build.helper.mts`](test/support/runtime-pinned-build.helper.mts)): compares the build’s `GIT_SHA.txt` to this value; the test is **skipped** when unset (custom name supported via `registerRuntimePinnedBuildTest(name)`). |
-| **`EXAMPLES`** | **Example programs** ([`test/examples.spec.mts`](test/examples.spec.mts)): the whole describe is skipped when off via `when("EXAMPLES", …)`. |
-| **`APP_ROOT_PATH`** | Root directory for resolving **`build/examples`** in example tests; defaults to **`.`** if unset (same file). |
+| **`COINGECKO_API_KEY`** | **CoinGecko** live tests ([`coingecko.spec.mts`](test/services/oracles/coingecko.spec.mts)): skipped when off via `when("COINGECKO_API_KEY", …)`.                                                                                                                                                                                                                                                                                                              |
+| **`EXPECTED_GIT_SHA`**  | **Runtime pinned build** check ([`runtime-pinned-build.helper.mts`](test/support/runtime-pinned-build.helper.mts)): compares the build’s `GIT_SHA.txt` to this value; the test is **skipped** when unset (custom name supported via `registerRuntimePinnedBuildTest(name)`).                                                                                                                                                                                   |
+| **`EXAMPLES`**          | **Example programs** ([`test/examples.spec.mts`](test/examples.spec.mts)): the whole describe is skipped when off via `when("EXAMPLES", …)`.                                                                                                                                                                                                                                                                                                                   |
+| **`APP_ROOT_PATH`**     | Root directory for resolving **`build/examples`** in example tests; defaults to **`.`** if unset (same file).                                                                                                                                                                                                                                                                                                                                                  |
 
 # Stage 3: Run ESLint
 

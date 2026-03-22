@@ -113,7 +113,7 @@ describe("Swarm and Transaction integration", () => {
           "feesAsString stays aligned with fees for CSV/export callers",
         );
         // First fixture row: gasPrice 1e9, gasUsed 21000 => 21e12 wei fee.
-        const expected = Fixed.fromDigits(21_000_000_000_000n, 18n);
+        const expected = Fixed.create(21_000_000_000_000n, 18n);
         assert.isTrue(tr.fees.equals(expected));
       });
     });

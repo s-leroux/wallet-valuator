@@ -6,6 +6,7 @@ import { registerRuntimePinnedBuildTest } from "./support/runtime-pinned-build.h
 import { ValueError } from "../src/error.mjs";
 import {
   BigNumber,
+  decomposeFiniteDouble,
   Fixed,
   IntegerSource,
   MAX_FIXED_SCALE,
@@ -112,11 +113,136 @@ describe("BigNumber", function () {
 describe("Fixed", function () {
   registerRuntimePinnedBuildTest();
 
+  describe("decomposeFiniteDouble()", function () {
+    const register = prepare(this);
+
+    const testCases: [
+      value: number,
+      sign: 1n | -1n,
+      mantissa: bigint,
+      exponent: bigint,
+    ][] = [
+      // zero (both signs normalize to +0 decomposition)
+      [0, 1n, 0n, 0n],
+      [-0, 1n, 0n, 0n],
+
+      // normal values with positive returned exponent
+      [2 ** 60, 1n, 1n << 52n, 8n],
+      [-(2 ** 60), -1n, 1n << 52n, 8n],
+
+      // normal values with negative returned exponent
+      [2 ** -10, 1n, 1n << 52n, -62n],
+      [-(2 ** -10), -1n, 1n << 52n, -62n],
+
+      // subnormal values (exponent is fixed to -1074)
+      [Number.MIN_VALUE, 1n, 1n, -1074n],
+      [-Number.MIN_VALUE, -1n, 1n, -1074n],
+      [Number.MIN_VALUE * 5, 1n, 5n, -1074n],
+      [-(Number.MIN_VALUE * 5), -1n, 5n, -1074n],
+
+      // Wikipedia examples (https://en.wikipedia.org/wiki/Double-precision_floating-point_format)
+      [1, 1n, 1n << 52n, -52n],
+      [1.0000000000000002, 1n, (1n << 52n) + 1n, -52n],
+      [2, 1n, 1n << 52n, -51n],
+      [-2, -1n, 1n << 52n, -51n],
+      [3, 1n, 3n << 51n, -51n],
+      [4, 1n, 1n << 52n, -50n],
+      [5, 1n, 5n << 50n, -50n],
+      [6, 1n, 3n << 51n, -50n],
+      [23, 1n, 23n << 48n, -48n],
+      [3 / 256, 1n, 3n << 51n, -59n],
+    ];
+
+    for (const [value, sign, mantissa, exponent] of testCases) {
+      register(`decomposes ${String(value)}`, () => {
+        const d = decomposeFiniteDouble(value);
+        assert.equal(d.sign, sign);
+        assert.equal(d.mantissa, mantissa);
+        assert.equal(d.e2, exponent);
+      });
+    }
+
+    it("throws on non-finite inputs", function () {
+      assert.throws(() => decomposeFiniteDouble(Number.NaN), ValueError);
+      assert.throws(
+        () => decomposeFiniteDouble(Number.POSITIVE_INFINITY),
+        ValueError,
+      );
+      assert.throws(
+        () => decomposeFiniteDouble(Number.NEGATIVE_INFINITY),
+        ValueError,
+      );
+    });
+  });
+
   describe("constants", function () {
     it("E18 is 10^18 base units", function () {
       assert.equal(Fixed.E18.value, 10n ** 18n);
       assert.equal(Fixed.E18.scale, 0n);
       assert.equal(Fixed.E18.toFixed(), "1000000000000000000");
+    });
+  });
+
+  describe("fromInteger()", function () {
+    const register = prepare(this);
+
+    const cases: [IntegerSource, string][] = [
+      ["12345", "12345"],
+      ["-12345", "-12345"],
+      [12345n, "12345"],
+      [-12345n, "-12345"],
+    ];
+
+    for (const [v, expected] of cases) {
+      register(`${String(v)} => ${expected}`, () => {
+        const f = Fixed.fromInteger(v);
+        assert.equal(f.scale, 0n);
+        assert.equal(f.toFixed(), expected);
+      });
+    }
+  });
+
+  describe("fromString()", function () {
+    const register = prepare(this);
+
+    const cases: [string, string][] = [
+      ["0", "0"],
+      ["000", "0"],
+      ["1", "1"],
+      ["-1", "-1"],
+      ["12.34", "12.34"],
+      ["0.01", "0.01"],
+      ["-0.50", "-0.50"],
+      ["  7.0  ", "7.0"],
+    ];
+
+    for (const [input, expected] of cases) {
+      register(`${JSON.stringify(input)} => ${expected}`, () => {
+        const f = Fixed.fromString(input);
+        assert.equal(f.toFixed(), expected);
+      });
+    }
+
+    describe("rejects invalid strings", function () {
+      const registerErr = prepare(this);
+
+      const invalid: [string, string][] = [
+        ["", "empty"],
+        [" ", "spaces"],
+        [".", "dot only"],
+        ["1.", "trailing dot"],
+        [".1", "leading dot"],
+        ["1.2.3", "multiple dots"],
+        ["1e3", "exponent"],
+        ["- 1", "space in sign"],
+        ["abc", "letters"],
+      ];
+
+      for (const [input, desc] of invalid) {
+        registerErr(desc, () =>
+          assert.throws(() => Fixed.fromString(input), SyntaxError),
+        );
+      }
     });
   });
 
@@ -142,7 +268,7 @@ describe("Fixed", function () {
 
     for (const [value, scale, expected] of validCases) {
       register(`value ${value}, scale ${scale} => "${expected}"`, () => {
-        const f = Fixed.fromDigits(value, scale);
+        const f = Fixed.create(value, scale);
         assert.equal(f.value, value);
         assert.equal(f.scale, scale);
         assert.equal(f.toFixed(), expected);
@@ -161,12 +287,225 @@ describe("Fixed", function () {
       for (const [scale, desc] of invalidScales) {
         registerErr(desc, () => {
           assert.throws(
-            () => Fixed.fromDigits(0n, scale),
+            () => Fixed.create(0n, scale),
             RangeError,
             /Scale must be in the range/,
           );
         });
       }
+    });
+  });
+
+  describe("fromNumber() and toNumber()", function () {
+    it("fromNumber rejects NaN and non-finite values", function () {
+      assert.throws(() => Fixed.fromNumber(Number.NaN, 0), ValueError);
+      assert.throws(
+        () => Fixed.fromNumber(Number.POSITIVE_INFINITY, 0),
+        ValueError,
+      );
+      assert.throws(
+        () => Fixed.fromNumber(Number.NEGATIVE_INFINITY, 0),
+        ValueError,
+      );
+    });
+
+    it("fromNumber rejects out-of-range scale", function () {
+      assert.throws(() => Fixed.fromNumber(1, -1n), RangeError);
+      assert.throws(
+        () => Fixed.fromNumber(1, MAX_FIXED_SCALE + 1n),
+        RangeError,
+      );
+    });
+
+    describe("fromNumber()", function () {
+      const register = prepare(this);
+
+      const cases: [n: number, unscaledValue: bigint, scale: bigint][] = [
+        [0, 0n, 0n],
+        [0, 0n, 2n],
+        [-0, 0n, 4n],
+        [1, 1n, 0n],
+        [-1.25, -125n, 2n],
+        [Math.PI, 31415n, 4n],
+        [0.1 + 0.2, 30n, 2n],
+        [123.456789, 12345678900n, 8n],
+        [123.456789, 1234567890n, 7n],
+        [123.456789, 123456789n, 6n],
+        [123.456789, 12345678n, 5n],
+        [123.456789, 1234567n, 4n],
+        [123.456789, 123456n, 3n],
+        [123.456789, 12345n, 2n],
+        [123.456789, 1234n, 1n],
+        [123.456789, 123n, 0n],
+        // `MAX_SAFE_INTEGER / 1000` is not exact as a double; trunc×10³ lands on 9007199254740990, not MAX_SAFE_INTEGER.
+        [Number.MAX_SAFE_INTEGER / 1000, 9007199254740990n, 3n],
+        [Number.MIN_SAFE_INTEGER / 1000, -9007199254740990n, 3n],
+        [1e22, 10000000000000000000000n, 0n],
+      ];
+
+      for (const [n, unscaledValue, scale] of cases) {
+        register(`n=${n}, scale=${scale}`, () => {
+          const f = Fixed.fromNumber(n, scale);
+          assert.equal(f.value, unscaledValue);
+          assert.equal(f.scale, scale);
+        });
+      }
+    });
+
+    describe("roundtrip number ⇒ Fixed ⇒ number at 10^-scale", function () {
+      const register = prepare(this);
+
+      const cases: [number, bigint][] = [
+        [0, 0n],
+        [0, 2n],
+        [-0, 4n],
+        [1, 0n],
+        [-1.25, 2n],
+        [Math.PI, 4n],
+        [0.1 + 0.2, 2n],
+        [123.456789, 8n],
+        [123.456789, 7n],
+        [123.456789, 6n],
+        [123.456789, 5n],
+        [123.456789, 4n],
+        [123.456789, 3n],
+        [123.456789, 2n],
+        [123.456789, 1n],
+        [123.456789, 0n],
+        [Number.MAX_SAFE_INTEGER / 1000, 3n],
+        [Number.MIN_SAFE_INTEGER / 1000, 3n],
+        [1e22, 0n],
+      ];
+
+      for (const [n, scale] of cases) {
+        register(`n=${n}, scale=${scale}`, () => {
+          const f = Fixed.fromNumber(n, scale);
+          const back = f.toNumber();
+          assert.closeTo(back, n, Math.pow(10, -Number(scale)));
+        });
+      }
+    });
+
+    describe("roundtrip Fixed ⇒ number ⇒ Fixed for exact decimals", function () {
+      const register = prepare(this);
+
+      const decimals: readonly string[] = [
+        "0",
+        "1",
+        "-1",
+        "12.345",
+        "0.000001",
+        "999999.99",
+        "-0.001",
+        "-10000012.34",
+        // ±(2^53 − 1): extrema of integers exactly representable as JS number
+        String(Number.MAX_SAFE_INTEGER),
+        String(Number.MIN_SAFE_INTEGER),
+        "10000000000000000000000", // 10^22
+      ];
+
+      for (const s of decimals) {
+        register(`fromString(${JSON.stringify(s)})`, () => {
+          const original = Fixed.fromString(s);
+          const scale = original.scale;
+          const n = original.toNumber();
+          const back = Fixed.fromNumber(n, scale);
+
+          // `Fixed -> number` goes through IEEE-754 binary64 and is generally lossy.
+          // Therefore `fromNumber(n, scale)` must match the quantization of `n`
+          // itself at `10^-scale` (truncation toward zero), not necessarily `original`.
+          const expected = (() => {
+            const { sign, mantissa, e2 } = decomposeFiniteDouble(n);
+            const s = scale;
+
+            const fivePowScale = 5n ** s;
+            const shift2 = e2 + s;
+
+            const signedNumerator = sign * mantissa * fivePowScale;
+            const unscaledValue =
+              shift2 >= 0n
+                ? signedNumerator << shift2
+                : signedNumerator / (1n << -shift2);
+
+            return Fixed.create(unscaledValue, s);
+          })();
+
+          assert.isTrue(
+            back.equals(expected),
+            `${original.toFixed()} -> ${n} -> ${back.toFixed()} (expected ${expected.toFixed()})`,
+          );
+        });
+      }
+    });
+  });
+
+  describe("from()", function () {
+    it("accepts bigint as integer", function () {
+      const f = Fixed.from(123n);
+      assert.equal(f.toFixed(), "123");
+      assert.equal(f.scale, 0n);
+    });
+
+    it("accepts string", function () {
+      const f = Fixed.from("1.23");
+      assert.equal(f.toFixed(), "1.23");
+      assert.equal(f.scale, 2n);
+    });
+
+    it("returns Fixed instance as-is", function () {
+      const original = Fixed.create(123n, 2n);
+      const f = Fixed.from(original);
+      assert.deepEqual(f, original);
+    });
+  });
+
+  describe("withDecimals()", function () {
+    const register = prepare(this);
+
+    const cases: [bigint, bigint, bigint, string][] = [
+      [100n, 2n, 2n, "1.00"],
+      [100n, 2n, 1n, "1.0"],
+      [100n, 2n, 0n, "1"],
+      [12345n, 4n, 2n, "1.23"],
+      [1n, 1n, 2n, "0.10"],
+      [5n, 0n, 2n, "5.00"],
+    ];
+
+    for (const [value, prec, newPrec, expected] of cases) {
+      register(
+        `(${value}, ${prec}).withDecimals(${newPrec}) => ${expected}`,
+        () => {
+          const f = Fixed.create(value, prec);
+          const g = f.withDecimals(newPrec);
+          assert.equal(g.toFixed(), expected);
+          assert.equal(g.scale, newPrec);
+        },
+      );
+    }
+
+    const truncationCases: [bigint, bigint, bigint, string][] = [
+      // ensure truncation (no rounding) when reducing scale
+      [12349n, 3n, 2n, "12.34"],
+      [12341n, 3n, 2n, "12.34"],
+      // BigInt division is truncation toward zero; pin current behaviour for negatives
+      [-12349n, 3n, 2n, "-12.34"],
+      [-12341n, 3n, 2n, "-12.34"],
+    ];
+
+    for (const [value, scale, newScale, expected] of truncationCases) {
+      register(
+        `(${value}, ${scale}).withScale(${newScale}) truncates => ${expected}`,
+        () => {
+          const f = Fixed.create(value, scale);
+          assert.equal(f.withDecimals(newScale).toFixed(), expected);
+        },
+      );
+    }
+
+    it("throws RangeError when requested scale is out of range", function () {
+      const f = Fixed.create(1n, 1n);
+      assert.throws(() => f.withDecimals(MAX_FIXED_SCALE + 1n), RangeError);
+      assert.throws(() => f.withDecimals(-1n), RangeError);
     });
   });
 
@@ -201,8 +540,8 @@ describe("Fixed", function () {
     }
 
     it("treats all zeros as equal regardless of scale", function () {
-      const a = Fixed.fromDigits(0n, 0n);
-      const b = Fixed.fromDigits(0n, 5n);
+      const a = Fixed.create(0n, 0n);
+      const b = Fixed.create(0n, 5n);
       assert.equal(a.compare(b), 0);
       assert.equal(b.compare(a), 0);
     });
@@ -273,8 +612,8 @@ describe("Fixed", function () {
       register(
         `${v1}/${10 ** Number(p1)} + ${v2}/${10 ** Number(p2)} => ${expected}`,
         () => {
-          const a = Fixed.fromDigits(v1, p1);
-          const b = Fixed.fromDigits(v2, p2);
+          const a = Fixed.create(v1, p1);
+          const b = Fixed.create(v2, p2);
           const sum = a.plus(b);
           assert.equal(sum.toFixed(), expected);
           assert.equal(sum.scale, expectedScale);
@@ -283,8 +622,8 @@ describe("Fixed", function () {
     }
 
     it("is commutative with mixed scales and keeps max scale", function () {
-      const a = Fixed.fromDigits(1n, 1n);
-      const b = Fixed.fromDigits(1n, 2n);
+      const a = Fixed.create(1n, 1n);
+      const b = Fixed.create(1n, 2n);
       const ab = a.plus(b);
       const ba = b.plus(a);
       assert.equal(ab.toFixed(), "0.11");
@@ -310,8 +649,8 @@ describe("Fixed", function () {
       register(
         `${v1}/${10 ** Number(p1)} - ${v2}/${10 ** Number(p2)} => ${expected}`,
         () => {
-          const a = Fixed.fromDigits(v1, p1);
-          const b = Fixed.fromDigits(v2, p2);
+          const a = Fixed.create(v1, p1);
+          const b = Fixed.create(v2, p2);
           const diff = a.minus(b);
           assert.equal(diff.toFixed(), expected);
           assert.equal(diff.scale, expectedScale);
@@ -320,8 +659,8 @@ describe("Fixed", function () {
     }
 
     it("handles mixed scales in both operand orders", function () {
-      const a = Fixed.fromDigits(1n, 1n);
-      const b = Fixed.fromDigits(1n, 2n);
+      const a = Fixed.create(1n, 1n);
+      const b = Fixed.create(1n, 2n);
       assert.equal(a.minus(b).toFixed(), "0.09");
       assert.equal(b.minus(a).toFixed(), "-0.09");
       assert.equal(a.minus(b).scale, 2n);
@@ -356,8 +695,8 @@ describe("Fixed", function () {
       register(
         `(${v1},${p1}) * (${v2},${p2}) ${precStr} => ${expected}`,
         () => {
-          const a = Fixed.fromDigits(v1, p1);
-          const b = Fixed.fromDigits(v2, p2);
+          const a = Fixed.create(v1, p1);
+          const b = Fixed.create(v2, p2);
           const product =
             requestedScale === undefined ? a.mul(b) : a.mul(b, requestedScale);
           assert.equal(product.toFixed(), expected);
@@ -366,8 +705,8 @@ describe("Fixed", function () {
     }
 
     it("throws ValueError when requested scale exceeds result scale", function () {
-      const a = Fixed.fromDigits(1n, 1n);
-      const b = Fixed.fromDigits(1n, 1n);
+      const a = Fixed.create(1n, 1n);
+      const b = Fixed.create(1n, 1n);
       assert.throws(
         () => a.mul(b, 3n),
         ValueError,
@@ -391,8 +730,8 @@ describe("Fixed", function () {
       register(
         `(${v1},${p1}) / (${v2},${p2}) @ ${targetScale} => ${expected}`,
         () => {
-          const a = Fixed.fromDigits(v1, p1);
-          const b = Fixed.fromDigits(v2, p2);
+          const a = Fixed.create(v1, p1);
+          const b = Fixed.create(v2, p2);
           const q = a.div(b, targetScale);
           assert.equal(q.toFixed(), expected);
           assert.equal(q.scale, targetScale);
@@ -401,8 +740,8 @@ describe("Fixed", function () {
     }
 
     it("throws RangeError when divisor is zero", function () {
-      const a = Fixed.fromDigits(1n, 1n);
-      const zero = Fixed.fromDigits(0n, 1n);
+      const a = Fixed.create(1n, 1n);
+      const zero = Fixed.create(0n, 1n);
       assert.throws(() => a.div(zero, 1n), RangeError, /Division by zero/);
     });
   });
@@ -418,7 +757,7 @@ describe("Fixed", function () {
 
     for (const [value, scale, expectedNegated] of cases) {
       register(`negated(${value}, ${scale}) => ${expectedNegated}`, () => {
-        const f = Fixed.fromDigits(value, scale);
+        const f = Fixed.create(value, scale);
         const n = f.negated();
         assert.equal(n.toFixed(), expectedNegated);
         assert.equal(n.scale, scale);
@@ -501,7 +840,7 @@ describe("Fixed", function () {
 
       for (const [value, scale, expected] of cases) {
         register(`(${value}, ${scale}) => "${expected}"`, () => {
-          const f = Fixed.fromDigits(value, scale);
+          const f = Fixed.create(value, scale);
           assert.equal(f.toFixed(), expected);
           assert.equal(f.toString(), expected);
         });
@@ -526,144 +865,11 @@ describe("Fixed", function () {
         register(
           `(${value}, ${scale}).toFixed(${digits}) => "${expected}"`,
           () => {
-            const f = Fixed.fromDigits(value, scale);
+            const f = Fixed.create(value, scale);
             assert.equal(f.toFixed(digits), expected);
           },
         );
       }
-    });
-  });
-
-  describe("withDecimals()", function () {
-    const register = prepare(this);
-
-    const cases: [bigint, bigint, bigint, string][] = [
-      [100n, 2n, 2n, "1.00"],
-      [100n, 2n, 1n, "1.0"],
-      [100n, 2n, 0n, "1"],
-      [12345n, 4n, 2n, "1.23"],
-      [1n, 1n, 2n, "0.10"],
-      [5n, 0n, 2n, "5.00"],
-    ];
-
-    for (const [value, prec, newPrec, expected] of cases) {
-      register(
-        `(${value}, ${prec}).withDecimals(${newPrec}) => ${expected}`,
-        () => {
-          const f = Fixed.fromDigits(value, prec);
-          const g = f.withDecimals(newPrec);
-          assert.equal(g.toFixed(), expected);
-          assert.equal(g.scale, newPrec);
-        },
-      );
-    }
-
-    const truncationCases: [bigint, bigint, bigint, string][] = [
-      // ensure truncation (no rounding) when reducing scale
-      [12349n, 3n, 2n, "12.34"],
-      [12341n, 3n, 2n, "12.34"],
-      // BigInt division is truncation toward zero; pin current behaviour for negatives
-      [-12349n, 3n, 2n, "-12.34"],
-      [-12341n, 3n, 2n, "-12.34"],
-    ];
-
-    for (const [value, scale, newScale, expected] of truncationCases) {
-      register(
-        `(${value}, ${scale}).withScale(${newScale}) truncates => ${expected}`,
-        () => {
-          const f = Fixed.fromDigits(value, scale);
-          assert.equal(f.withDecimals(newScale).toFixed(), expected);
-        },
-      );
-    }
-
-    it("throws RangeError when requested scale is out of range", function () {
-      const f = Fixed.fromDigits(1n, 1n);
-      assert.throws(() => f.withDecimals(MAX_FIXED_SCALE + 1n), RangeError);
-      assert.throws(() => f.withDecimals(-1n), RangeError);
-    });
-  });
-
-  describe("fromInteger()", function () {
-    const register = prepare(this);
-
-    const cases: [IntegerSource, string][] = [
-      ["12345", "12345"],
-      ["-12345", "-12345"],
-      [12345n, "12345"],
-      [-12345n, "-12345"],
-    ];
-
-    for (const [v, expected] of cases) {
-      register(`${String(v)} => ${expected}`, () => {
-        const f = Fixed.fromInteger(v);
-        assert.equal(f.scale, 0n);
-        assert.equal(f.toFixed(), expected);
-      });
-    }
-  });
-
-  describe("fromString()", function () {
-    const register = prepare(this);
-
-    const cases: [string, string][] = [
-      ["0", "0"],
-      ["000", "0"],
-      ["1", "1"],
-      ["-1", "-1"],
-      ["12.34", "12.34"],
-      ["0.01", "0.01"],
-      ["-0.50", "-0.50"],
-      ["  7.0  ", "7.0"],
-    ];
-
-    for (const [input, expected] of cases) {
-      register(`${JSON.stringify(input)} => ${expected}`, () => {
-        const f = Fixed.fromString(input);
-        assert.equal(f.toFixed(), expected);
-      });
-    }
-
-    describe("rejects invalid strings", function () {
-      const registerErr = prepare(this);
-
-      const invalid: [string, string][] = [
-        ["", "empty"],
-        [" ", "spaces"],
-        [".", "dot only"],
-        ["1.", "trailing dot"],
-        [".1", "leading dot"],
-        ["1.2.3", "multiple dots"],
-        ["1e3", "exponent"],
-        ["- 1", "space in sign"],
-        ["abc", "letters"],
-      ];
-
-      for (const [input, desc] of invalid) {
-        registerErr(desc, () =>
-          assert.throws(() => Fixed.fromString(input), SyntaxError),
-        );
-      }
-    });
-  });
-
-  describe("from()", function () {
-    it("accepts bigint as integer", function () {
-      const f = Fixed.from(123n);
-      assert.equal(f.toFixed(), "123");
-      assert.equal(f.scale, 0n);
-    });
-
-    it("accepts string", function () {
-      const f = Fixed.from("1.23");
-      assert.equal(f.toFixed(), "1.23");
-      assert.equal(f.scale, 2n);
-    });
-
-    it("returns Fixed instance as-is", function () {
-      const original = Fixed.fromDigits(123n, 2n);
-      const f = Fixed.from(original);
-      assert.deepEqual(f, original);
     });
   });
 });
@@ -731,8 +937,8 @@ describe("BigNumber vs Fixed", function () {
         `plus/minus keep scale (${aDigits},${aScale}) and (${bDigits},${bScale})`,
         () => {
           // Fixed
-          const a = Fixed.fromDigits(aDigits, aScale);
-          const b = Fixed.fromDigits(bDigits, bScale);
+          const a = Fixed.create(aDigits, aScale);
+          const b = Fixed.create(bDigits, bScale);
           const fixedPlus = a.plus(b).toFixed();
           const fixedMinus = a.minus(b).toFixed();
 
@@ -758,7 +964,7 @@ describe("BigNumber vs Fixed", function () {
     for (const [digits, scale] of negatedCases) {
       register(`negated keeps scale (${digits},${scale})`, () => {
         // Fixed
-        const fixed = Fixed.fromDigits(digits, scale).negated().toFixed();
+        const fixed = Fixed.create(digits, scale).negated().toFixed();
 
         // BigNumber
         const bn = BigNumber.fromDigits(digits.toString(), Number(scale))
@@ -780,8 +986,8 @@ describe("BigNumber vs Fixed", function () {
         `mul default scale (${aDigits},${aScale}) * (${bDigits},${bScale})`,
         () => {
           // Fixed
-          const a = Fixed.fromDigits(aDigits, aScale);
-          const b = Fixed.fromDigits(bDigits, bScale);
+          const a = Fixed.create(aDigits, aScale);
+          const b = Fixed.create(bDigits, bScale);
           const fixedProduct = a.mul(b);
           const fixedString = fixedProduct.toFixed();
 
@@ -806,8 +1012,8 @@ describe("BigNumber vs Fixed", function () {
         `div truncates toward zero (${aDigits},${aScale}) / (${bDigits},${bScale})`,
         () => {
           // Fixed
-          const a = Fixed.fromDigits(aDigits, aScale);
-          const b = Fixed.fromDigits(bDigits, bScale);
+          const a = Fixed.create(aDigits, aScale);
+          const b = Fixed.create(bDigits, bScale);
           const fixedString = a.div(b, aScale).toFixed();
 
           // BigNumber

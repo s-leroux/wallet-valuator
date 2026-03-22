@@ -101,6 +101,7 @@ export const MAX_FIXED_SCALE = 80n;
 
 export type CompareResult = -1 | 0 | 1;
 
+/** Fixed-point pair: `value` is the **unscaled value**; amount is `value × 10^−scale`. */
 export type FixedLike = {
   value: bigint;
   scale: bigint;
@@ -109,7 +110,8 @@ export type FixedSource = bigint | string | FixedLike;
 export type IntegerSource = bigint | string | number;
 
 export class Fixed {
-  readonly value: bigint; // Integer value
+  /** Unscaled value; the represented quantity is this integer times `10^-scale`. */
+  readonly value: bigint;
   readonly scale: bigint; // Decimal scale
 
   //--------------------------------------------------------------------
@@ -118,7 +120,7 @@ export class Fixed {
 
   static E18 = new Fixed(10n ** 18n, 0n);
 
-  // The `ZERO` constant is ambiguous as any {@link FixedLike} whose value is 0n is a valid zero.
+  // The `ZERO` constant is ambiguous as any {@link FixedLike} whose unscaled value is 0n is a valid zero.
   static ZERO = new Fixed(0n, 0n);
 
   //--------------------------------------------------------------------
@@ -139,9 +141,6 @@ export class Fixed {
    *
    * The fixed-point result is the exact representation of the input integer
    * without any rounding and with the scale = 0.
-   *
-   *
-   * XXX Is this a synonym/shortcut for `Fixed.fromDigits(v, 0n)`?
    *
    * @param v - The integer source.
    * @returns A new Fixed representing the integer.
@@ -194,12 +193,89 @@ export class Fixed {
     return new Fixed(v.value, v.scale);
   }
 
-  static fromDigits(digits: IntegerSource, scale: IntegerSource): Fixed {
-    const scaleAsBigInt = BigInt(scale);
-    if (scaleAsBigInt === 0n) {
-      return this.fromInteger(digits);
+  /**
+   * Quantize a JavaScript double to a {@link Fixed} with exactly `targetScale` fraction digits.
+   *
+   * The input `v` is interpreted as the exact IEEE-754 double value, and then scaled by `10^targetScale`
+   * to compute the integer **unscaled value** of `v × 10^targetScale`.
+   * The result is **truncated toward zero** (no “round to nearest” at `10^-targetScale`), matching the
+   * truncation semantics of {@link withDecimals} when reducing scale and of integer division in {@link div}.
+   *
+   * This path avoids {@link Number.prototype.toFixed}, which can return exponential notation for
+   * large magnitudes (not accepted by {@link fromString}) and which rounds rather than truncates.
+   *
+   * @param v - A finite number (`NaN` and `Infinity` are rejected).
+   * @param targetScale - Number of digits after the decimal point; must satisfy `0 <= targetScale <= MAX_FIXED_SCALE`.
+   */
+  static fromNumber(v: number, targetScale: IntegerSource): Fixed {
+    if (Number.isNaN(v) || !Number.isFinite(v)) {
+      throw new ValueError(`Invalid number: ${v}. Must be a finite number.`);
     }
-    return new Fixed(BigInt(digits), scaleAsBigInt);
+
+    const s = BigInt(targetScale);
+    if (s < 0n || s > MAX_FIXED_SCALE) {
+      throw new RangeError(`Scale must be in the range [0;${MAX_FIXED_SCALE}]`);
+    }
+
+    const { sign, mantissa, e2 } = decomposeFiniteDouble(v);
+
+    // Exact identity:
+    //   v = sign * mantissa * 2^e2
+    // so
+    //   v * 10^scale
+    // = sign * mantissa * 2^e2 * 2^scale * 5^scale
+    // = sign * mantissa * 5^scale * 2^(e2 + scale)
+    //
+    // If e2 + scale >= 0, the result is already integral.
+    // Otherwise divide by 2^(-(e2 + scale)); bigint division truncates toward zero.
+    const fivePowScale = 5n ** s;
+    const shift2 = e2 + s;
+
+    const signedNumerator = sign * mantissa * fivePowScale;
+
+    const unscaledValue =
+      shift2 >= 0n
+        ? signedNumerator << shift2
+        : signedNumerator / (1n << -shift2);
+
+    return new Fixed(unscaledValue, s);
+  }
+
+  /**
+   * This value as a JavaScript number: `value × 10^-scale`.
+   *
+   * Exact only while {@link value} is within `Number.MIN_SAFE_INTEGER`…`Number.MAX_SAFE_INTEGER`;
+   * larger unscaled values may lose precision when coerced to `number`.
+   */
+  toNumber(): number {
+    if (this.scale === 0n) {
+      return Number(this.value);
+    }
+
+    return Number(this.value) / Number(10n ** this.scale);
+  }
+
+  /**
+   * Initialize a new Fixed from an **unscaled value** and scale.
+   *
+   * This method performs no conversion.
+   * The arguments map directly to the instance's {@link value} and {@link scale}.
+   *
+   * Do not confuse with the various createXXX factory methods.
+   * If you need to create a Fixed from an integral number, you should
+   * use {@link fromInteger(v)} instead.
+   *
+   * @param digits The **unscaled value** (same meaning as {@link value}), as an integer source.
+   * @param scale The scale of the Fixed.
+   *   This is also the position of the decimal point
+   *   (counting from the right) in the unscaled decimal representation.
+   * @returns A new Fixed instance.
+   */
+  static create(digits: IntegerSource, scale: IntegerSource): Fixed {
+    const scaleAsBigInt = BigInt(scale); // Will throw if scale is not a valid bigint
+    const digitsAsBigInt = BigInt(digits); // Will throw if digits is not a valid bigint
+
+    return new Fixed(digitsAsBigInt, scaleAsBigInt);
   }
 
   //--------------------------------------------------------------------
@@ -384,7 +460,7 @@ export class Fixed {
 
   /**
    * Returns a copy of this value with the given decimal scale.
-   * Scales the stored value up or down as needed (truncating when reducing scale).
+   * Scales the unscaled value up or down as needed (truncating when reducing scale).
    */
   withDecimals(decimals: bigint): Fixed {
     if (decimals === this.scale) {
@@ -451,6 +527,67 @@ export class Fixed {
   }
 }
 
+//======================================================================
+//  Utilities
+//======================================================================
+
+const F64_FRAC_BITS = 52n;
+const F64_FRAC_MASK = (1n << F64_FRAC_BITS) - 1n;
+const F64_HIDDEN_BIT = 1n << F64_FRAC_BITS;
+
+/**
+ * Decompose a finite IEEE-754 double into sign, mantissa, and exponent such that:
+ *
+ *   v = sign * mantissa * 2^exponent
+ *
+ * where:
+ * - `sign` is ±1n
+ * - `mantissa` is a non-negative integer
+ * - `e2` is a signed power-of-two exponent
+ */
+export function decomposeFiniteDouble(v: number): {
+  sign: 1n | -1n;
+  mantissa: bigint;
+  e2: bigint;
+} {
+  if (!Number.isFinite(v)) {
+    throw new ValueError(`Invalid number: ${v}. Must be a finite number.`);
+  }
+
+  // Normalize +0 and -0 to the same exact representation.
+  if (v === 0) {
+    return { sign: 1n, mantissa: 0n, e2: 0n };
+  }
+
+  // Decompose the IEEE-754 double into sign, exponent, and fraction bits.
+  const buffer = new ArrayBuffer(8);
+  const view = new DataView(buffer);
+  view.setFloat64(0, v, false);
+  const bits = view.getBigUint64(0, false);
+
+  const sign = ((bits >> 63n) & 1n) === 0n ? 1n : -1n;
+  const exponentBits = (bits >> 52n) & 0x7ffn;
+  const fractionBits = bits & F64_FRAC_MASK;
+
+  if (exponentBits === 0n) {
+    // Subnormal:
+    //   v = sign * fractionBits * 2^-52 * 2^-1022
+    return {
+      sign,
+      mantissa: fractionBits,
+      e2: -1074n,
+    };
+  }
+
+  // Normal:
+  //   v = sign * (2^52 + fractionBits) * 2^-52 * 2^(exponentBits - 1023)
+  return {
+    sign,
+    mantissa: F64_HIDDEN_BIT | fractionBits,
+    e2: exponentBits - 1075n,
+  };
+}
+
 /**
  * Compatibility layer for migrating from BigNumber to Fixed.
  */
@@ -460,7 +597,7 @@ export function fixedFromSource(src: BigNumberSource | FixedSource): Fixed {
   }
 
   if (typeof src === "bigint") {
-    return Fixed.fromDigits(src, 0n);
+    return Fixed.create(src, 0n);
   }
 
   if (typeof src === "string") {

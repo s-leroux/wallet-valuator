@@ -49,12 +49,12 @@ See [`package.json`](package.json)for the up-to-date list of commands.
 
 ## Fixed-point decimals (`Fixed`)
 
-Wallet Valuator uses **`Fixed`** (`src/bignumber.mts`) as the **canonical internal representation** for decimal quantities: a signed integer **value** and a non-negative integer **scale** (number of decimal places), with `value` interpreted as `value × 10^−scale`.
+Wallet Valuator uses **`Fixed`** (`src/bignumber.mts`) as the **canonical internal representation** for decimal quantities: a signed integer **unscaled value** (the `value` field) and a non-negative integer **scale** (number of decimal places), with the quantity `value × 10^−scale`.
 The maximum scale is controlled by the `MAX_FIXED_SCALE` constant. The minimum scale is `0` (integer number with no decimal places).
 
 ### Layers: `FixedLike`, `Fixed`, `FixedSource`
 
-- **`FixedLike`** — `{ value: bigint; scale: bigint }`. Any API that operates on fixed-point values internally should take **`FixedLike`** as the argument type when possible so callers may pass plain objects or **`Fixed`** instances alike.
+- **`FixedLike`** — `{ value: bigint; scale: bigint }` where `value` is the **unscaled value**. Any API that operates on fixed-point values internally should take **`FixedLike`** as the argument type when possible so callers may pass plain objects or **`Fixed`** instances alike.
 - **`Fixed`** — the concrete class; use it when **`FixedLike` is not enough** (e.g. you need a specific return type, factories, or instance methods).
 - **`FixedSource`** — **`bigint | string | FixedLike`**. Use this at **boundaries** (constructors, parsers, `fixedFromSource`, public “amount/rate” parameters) where input may still be “external”:
   - **`bigint`** — interpreted as an **integer** (scale `0`).
@@ -65,19 +65,20 @@ The maximum scale is controlled by the `MAX_FIXED_SCALE` constant. The minimum s
 
 A raw **`number` must never be used as the sole, implicit source of a decimal `Fixed`** (floats are not a trustworthy decimal carrier).
 
-- To build a `Fixed` from numeric inputs with an **explicit scale**, use **`Fixed.fromDigits(digits, scale)`** (and related paths): both parameters are typed as **`IntegerSource`** (`bigint | string | number`). At **runtime**, **`scale` must be a non-negative integer** (as `bigint` after coercion). The project uses **`IntegerSource`** so call sites may pass small literals conveniently; **`bigint` is preferred** for scale when clarity matters.
+- To build a `Fixed` from numeric inputs with an **explicit scale**, use **`Fixed.create(unscaledValue, scale)`** (and related paths): both parameters are typed as **`IntegerSource`** (`bigint | string | number`). At **runtime**, **`scale` must be a non-negative integer** (as `bigint` after coercion). The project uses **`IntegerSource`** so call sites may pass small literals conveniently; **`bigint` is preferred** for scale when clarity matters.
 - **`Fixed.fromInteger(v)`** accepts **`IntegerSource`** for **whole integers** only (result scale `0`). It is not a general “decimal from float” API.
+- **`Fixed.fromNumber(v, scale)`** (finite doubles only) quantizes at **`10^−scale`** by **truncating toward zero** (same sense as reducing scale with **`withDecimals`** and as integer division in **`div`**), not by rounding like **`Number.prototype.toFixed`**. It avoids **`toFixed`** so output never relies on exponential notation that **`fromString`** rejects.
 
 ### Comparisons (`compare`, `equals`, …)
 
-Ordering and equality **align operands to the larger of the two scales** by conceptually padding the lower-scale operand with trailing **zeros** (implemented via scaling the integer value). Two zeros compare equal regardless of scale.
+Ordering and equality **align operands to the larger of the two scales** by conceptually padding the lower-scale operand with trailing **zeros** (implemented via scaling the lower operand’s **unscaled value**). Two zeros compare equal regardless of scale.
 
 ### Arithmetic (summary of `Fixed` in `src/bignumber.mts`)
 
 These rules match the comments on the methods; they are **not** the same as the comparison rule above (multiplication uses **sum of scales**, not “max scale”):
 
 - **`plus` / `minus`** — result at the **higher** scale of the two operands (same alignment idea as comparison, then add/subtract).
-- **`mul`** — by default, result scale is the **sum** of the operand scales (`value` is the product of the integer mantissas). An optional **`requestedScale`** may **reduce** the result scale via **truncation** toward zero (it cannot request a scale larger than that product scale).
+- **`mul`** — by default, result scale is the **sum** of the operand scales (the result’s **unscaled value** is the product of the operands’ **unscaled values**). An optional **`requestedScale`** may **reduce** the result scale via **truncation** toward zero (it cannot request a scale larger than that product scale).
 - **`div`** — the result scale is **always explicit** (`targetScale`); the quotient is **quantized** with **integer division** (truncation toward zero). There is no default “natural” output scale.
 - **`static sum`** — iterative **`plus`**; the result ends at the **highest** scale among the operands.
 

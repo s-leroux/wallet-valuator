@@ -317,7 +317,7 @@ export class CryptoAsset {
    * console.log(amount.toString()); // "1 ETH"
    */
   amountFromBaseUnit(baseunit: IntegerSource): Amount {
-    return new Amount(this, Fixed.fromDigits(baseunit, BigInt(this.decimal)));
+    return new Amount(this, Fixed.create(baseunit, BigInt(this.decimal)));
   }
 
   amountFromString(v: string): Amount {
