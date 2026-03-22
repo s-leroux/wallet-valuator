@@ -471,47 +471,67 @@ describe("Fixed", function () {
   });
 
   describe("toFixed() and toString()", function () {
-    const register = prepare(this);
+    describe("toFixed", function () {
+      const register = prepare(this);
 
-    const cases: [bigint, bigint, string][] = [
-      [0n, 0n, "0"],
-      [1n, 0n, "1"],
-      [0n, 2n, "0.00"],
-      [7n, 2n, "0.07"],
-      [12345n, 3n, "12.345"],
-      [-1n, 1n, "-0.1"],
-      [-100n, 2n, "-1.00"],
-    ];
+      // prettier-ignore
+      const cases: [bigint, bigint, string][] = [
+        [0n, 0n, "0"],
+        [1n, 0n, "1"],
+        [0n, 2n, "0.00"],
+        [7n, 2n, "0.07"],
+        [12345n, 3n, "12.345"],
+        [-1n, 1n, "-0.1"],
+        [-100n, 2n, "-1.00"],
+        // Integer magnitudes: 10, 20, 30, and 40 decimal digits (powers of ten)
+        [10n **  9n + 1234n, 0n, "1000001234"],
+        //                        00000000001111111111222222222233333333334444444444
+        //                        01234567890123456789012345678901234567890123456789
+        [10n ** 19n + 1234n, 0n, "10000000000000001234"],
+        [10n ** 29n + 1234n, 0n, "100000000000000000000000001234"],
+        [10n ** 39n + 1234n, 0n, "1000000000000000000000000000000000001234"],
+        // Scale 2, magnitudes: 10, 20, 30, and 40 decimal digits (powers of ten)
+        [10n ** 9n + 1234n, 2n,  "10000012.34"],
+        //                        00000000001111111111222222222233333333334444444444
+        //                        01234567890123456789012345678901234567890123456789
+        [10n ** 19n + 1234n, 2n, "100000000000000012.34"],
+        [10n ** 29n + 1234n, 2n, "1000000000000000000000000012.34"],
+        [10n ** 39n + 1234n, 2n, "10000000000000000000000000000000000012.34"],
+      ];
 
-    for (const [value, scale, expected] of cases) {
-      register(`(${value}, ${scale}) => "${expected}"`, () => {
-        const f = Fixed.fromDigits(value, scale);
-        assert.equal(f.toFixed(), expected);
-        assert.equal(f.toString(), expected);
-      });
-    }
-
-    const overrideCases: [bigint, bigint, number, string][] = [
-      [12345n, 3n, 3, "12.345"],
-      [12345n, 3n, 2, "12.34"],
-      [12345n, 3n, 1, "12.3"],
-      [12345n, 3n, 0, "12"],
-      [12345n, 3n, 4, "12.3450"],
-      [12345n, 3n, 6, "12.345000"],
-      [-12345n, 3n, 2, "-12.34"],
-      [7n, 2n, 1, "0.0"],
-      [7n, 2n, 0, "0"],
-    ];
-
-    for (const [value, scale, digits, expected] of overrideCases) {
-      register(
-        `(${value}, ${scale}).toFixed(${digits}) => "${expected}"`,
-        () => {
+      for (const [value, scale, expected] of cases) {
+        register(`(${value}, ${scale}) => "${expected}"`, () => {
           const f = Fixed.fromDigits(value, scale);
-          assert.equal(f.toFixed(digits), expected);
-        },
-      );
-    }
+          assert.equal(f.toFixed(), expected);
+          assert.equal(f.toString(), expected);
+        });
+      }
+    });
+
+    describe("toFixed(digits)", function () {
+      const register = prepare(this);
+      const overrideCases: [bigint, bigint, number, string][] = [
+        [12345n, 3n, 3, "12.345"],
+        [12345n, 3n, 2, "12.34"],
+        [12345n, 3n, 1, "12.3"],
+        [12345n, 3n, 0, "12"],
+        [12345n, 3n, 4, "12.3450"],
+        [12345n, 3n, 6, "12.345000"],
+        [-12345n, 3n, 2, "-12.34"],
+        [7n, 2n, 1, "0.0"],
+        [7n, 2n, 0, "0"],
+      ];
+
+      for (const [value, scale, digits, expected] of overrideCases) {
+        register(
+          `(${value}, ${scale}).toFixed(${digits}) => "${expected}"`,
+          () => {
+            const f = Fixed.fromDigits(value, scale);
+            assert.equal(f.toFixed(digits), expected);
+          },
+        );
+      }
+    });
   });
 
   describe("withDecimals()", function () {

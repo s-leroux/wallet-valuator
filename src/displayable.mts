@@ -1,9 +1,4 @@
-import {
-  Fixed,
-  fixedFromSource,
-  type BigNumberSource,
-  type FixedSource,
-} from "./bignumber.mjs";
+import { Fixed, fixedFromSource, type FixedSource } from "./bignumber.mjs";
 import { formatDate as dateUtilsFormatDate } from "./date.mjs";
 import { logger } from "./debug.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
@@ -202,6 +197,15 @@ function formatStringAtom(
   return valueAsString;
 }
 
+function formatNumberAtom(
+  value: number,
+  width: number,
+  precision: number | undefined,
+  zero: boolean,
+): string {
+  return value.toFixed(precision ?? 6).padStart(width, zero ? "0" : " ");
+}
+
 function formatFixedAtom(
   value: Fixed,
   width: number,
@@ -239,11 +243,11 @@ export function objectFormatter(
   format: string,
   options: FormatOptions = {},
 ): Formatter {
-  return (arg: Record<string, unknown>): string => {
+  return (arg: Record<string, string | FixedSource>): string => {
     return format.replace(FORMAT_RE, (_, ...args): string => {
       const groups = args.at(-1)! as FormatGroups;
       const field = groups.field;
-      const value = arg[field];
+      let value = arg[field];
       if (!value) {
         throw new ValueError(
           `Invalid format ${format}. Field ${field} not found.`,
@@ -259,17 +263,11 @@ export function objectFormatter(
         atomFormatter = formatStringAtom;
       } else if (value instanceof Fixed) {
         atomFormatter = formatFixedAtom;
+      } else if (typeof value === "number") {
+        atomFormatter = formatNumberAtom;
       } else {
-        const legacyFixed = fixedFromSource(
-          value as BigNumberSource | FixedSource,
-        );
-        atomFormatter = (_v, width, precision, zero) =>
-          formatFixedAtom(
-            legacyFixed,
-            width,
-            precision === undefined ? 6 : precision,
-            zero,
-          );
+        atomFormatter = formatFixedAtom;
+        value = fixedFromSource(value);
       }
 
       let result = atomFormatter(
@@ -279,6 +277,7 @@ export function objectFormatter(
         groups.zero !== undefined,
       );
 
+      // Constrain the total field width
       const width = +groups.width;
       if (width) {
         result =
