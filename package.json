@@ -11,7 +11,8 @@
     "start": "node -r source-map-support/register build/cli/report-cli.mjs -c account-config.json",
     "test": "mocha 'build/test/**/*.mjs'",
     "lint": "eslint --fix src test",
-    "compile": "tsc"
+    "compile": "tsc",
+    "watch-log": "tools/tsc-watch.sh"
   },
   "repository": {
     "type": "git",
