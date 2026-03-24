@@ -33,7 +33,7 @@ navigation layer still exists, but accounting is the main focus.
 
 ## Numeric representation
 
-Decimal amounts and rates in the library use a fixed-point type **`Fixed`**: a signed **unscaled value** (`value`, `bigint`) plus a decimal **scale**, not raw JavaScript **`number`**, at domain boundaries. **Contributors** should read the **`Fixed`-point policy** in [`AGENTS.md`](AGENTS.md) (`FixedLike` vs `FixedSource`, string scale inference, `IntegerSource`, and arithmetic rules).
+Decimal amounts and rates in the library use a fixed-point type **`Fixed`**: a signed **unscaled value** (`value`, `bigint`) plus a decimal **scale**, not raw JavaScript **`number`**, at domain boundaries. For decimal text, use **`Fixed.toDecimalString`** (truncation when narrowing scale), not `Number.prototype.toFixed` (rounding). **Contributors** should read the **`Fixed`-point policy** in [`AGENTS.md`](AGENTS.md) (`FixedLike` vs `FixedSource`, string scale inference, `IntegerSource`, arithmetic rules, and **`toDecimalString`** semantics).
 
 ## Development environment (Dev Container)
 

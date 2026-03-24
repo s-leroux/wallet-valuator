@@ -53,7 +53,7 @@ describe("DataSourceOracle", function () {
       if (!price) {
         assert.fail(`price is ${price}`);
       } else {
-        assert.equal(Number(price.rate.toFixed()), 93_966.82);
+        assert.equal(Number(price.rate.toDecimalString()), 93_966.82);
         assert.equal(price.fiatCurrency, eur);
         assert.equal(price.crypto, bitcoin);
       }

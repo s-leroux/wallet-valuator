@@ -62,7 +62,7 @@ describe("FakeOracle", function () {
           const price = priceMap.get(FiatCurrency(currency));
           assert.exists(price, `Price for ${currency} should exist`);
           assert.equal(
-            price.rate.toFixed(DEFAULT_PRICE_SCALE),
+            price.rate.toDecimalString(DEFAULT_PRICE_SCALE),
             expectedRate.toFixed(Number(DEFAULT_PRICE_SCALE)),
             `rate for ${currency}`,
           );

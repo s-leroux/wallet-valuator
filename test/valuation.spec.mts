@@ -80,7 +80,7 @@ describe("Value", () => {
       register(`${value} * ${factor} => ${expected}`, () => {
         const a = Value.from(EUR, Fixed.fromString(value));
         assert.strictEqual(
-          a.scaledBy(Fixed.fromString(factor)).value.toFixed(),
+          a.scaledBy(Fixed.fromString(factor)).value.toDecimalString(),
           expected,
           `${value}*${factor}`,
         );
@@ -104,7 +104,7 @@ describe("Value", () => {
         const a = Value.from(EUR, Fixed.fromString(numerator));
         const b = Value.from(EUR, Fixed.fromString(denominator));
         assert.strictEqual(
-          a.relativeTo(b).toFixed(),
+          a.relativeTo(b).toDecimalString(),
           expected,
           `${numerator}/${denominator}`,
         );

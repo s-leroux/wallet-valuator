@@ -419,10 +419,28 @@ export class Fixed {
    * larger unscaled values may lose precision when coerced to `number`.
    */
   toNumber(): number {
-    return Number(this.toFixed());
+    return Number(this.toDecimalString());
   }
 
-  toFixed(digits?: number | bigint): string {
+  /**
+   * Canonical base-10 decimal string for this fixed-point value.
+   *
+   * Without `fractionDigits`, the string uses this instance’s stored {@link scale}
+   * (same as {@link toString}).
+   *
+   * With `fractionDigits`, the value is first expressed at exactly that many
+   * digits after the decimal point: if **smaller** than the stored scale, the
+   * unscaled value is **truncated toward zero** via {@link withDecimals} (same
+   * quantization policy as {@link mul} with `requestedScale` and {@link div}).
+   * If **larger**, the value is padded with trailing fractional zeros.
+   *
+   * This is **not** {@link Number.prototype.toFixed}: JavaScript’s `toFixed`
+   * rounds to nearest; `toDecimalString` truncates when reducing precision.
+   *
+   * @param digits - Optional number of digits after the decimal point.
+   *   Must satisfy `0 <= fractionDigits <= MAX_FIXED_SCALE`.
+   */
+  toDecimalString(digits?: number | bigint): string {
     const displayScale =
       digits === undefined
         ? this.scale
@@ -432,11 +450,11 @@ export class Fixed {
 
     if (displayScale < 0n || displayScale > MAX_FIXED_SCALE) {
       throw new RangeError(
-        `digits must be in the range [0;${MAX_FIXED_SCALE}]`,
+        `fractionDigits must be in the range [0;${MAX_FIXED_SCALE}]`,
       );
     }
 
-    // Note: using `withScale` allocates a new `Fixed`. If `toFixed` becomes a hot
+    // Note: using `withDecimals` allocates a new `Fixed`. If `toFixed` becomes a hot
     // path, consider inlining the scaling to avoid allocations.
     const displayFixed =
       displayScale === this.scale ? this : this.withDecimals(displayScale);
@@ -463,7 +481,7 @@ export class Fixed {
   }
 
   toString(): string {
-    return this.toFixed();
+    return this.toDecimalString();
   }
 }
 

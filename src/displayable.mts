@@ -72,7 +72,7 @@ function noDisplayString(
 
   // Fixed format
   if (obj instanceof Fixed) {
-    return obj.toFixed();
+    return obj.toDecimalString();
   }
 
   // Other standard container?
@@ -170,8 +170,8 @@ type Formatter = (arg: Record<string, unknown>) => string;
  * stored scale when the format omits a precision; `number` and legacy
  * {@link BigNumberSource} values are converted with {@link fixedFromSource} and
  * default to six fraction digits when the format omits a precision (matching the
- * old Decimal.js `toFixed(6)` behavior). The dedicated BigNumber `toFixed` branch
- * is intentionally removed so rendering stays aligned with fixed-point value types.
+ * old Decimal.js `toFixed(6)` behavior). Formatting uses {@link Fixed.toDecimalString}
+ * for {@link Fixed} values (truncation when narrowing scale), not `Number.prototype.toFixed`.
  */
 type AtomFormatter<T> = (
   value: T,
@@ -217,7 +217,7 @@ function formatFixedAtom(
   precision: number | undefined,
   zero: boolean,
 ): string {
-  let valueAsString = value.toFixed(precision);
+  let valueAsString = value.toDecimalString(precision);
   if (width) {
     valueAsString = valueAsString.padStart(width, zero ? "0" : " ");
   }

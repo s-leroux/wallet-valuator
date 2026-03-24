@@ -62,7 +62,7 @@ describe("CryptoAsset", () => {
     const fiat = FakeFiatCurrency.EUR;
     const price = crypto.price(fiat, "100000");
 
-    assert.strictEqual(price.rate.toFixed(), "100000");
+    assert.strictEqual(price.rate.toDecimalString(), "100000");
     assert.strictEqual(price.crypto, crypto);
     assert.strictEqual(price.fiatCurrency, fiat);
   });
@@ -168,7 +168,7 @@ describe("Amount", () => {
 
       assert.strictEqual(rebuilt.crypto, target.crypto);
       assert.isTrue(rebuilt.value.equals(target.value));
-      assert.strictEqual(rebuilt.value.toFixed(), "8.00");
+      assert.strictEqual(rebuilt.value.toDecimalString(), "8.00");
     });
 
     it("should return a ratio with deterministic scale (lhs.scale + rhs.scale)", () => {
@@ -178,7 +178,7 @@ describe("Amount", () => {
       const ratio = lhs.relativeTo(rhs);
 
       assert.strictEqual(ratio.scale, 3n);
-      assert.strictEqual(ratio.toFixed(), "0.500");
+      assert.strictEqual(ratio.toDecimalString(), "0.500");
     });
 
     it("should throw when units are inconsistent", () => {
@@ -201,7 +201,7 @@ describe("Amount", () => {
 
       const value = amount.valueAt(price);
 
-      assert.strictEqual(value.value.toFixed(), "8.00000");
+      assert.strictEqual(value.value.toDecimalString(), "8.00000");
     });
   });
 

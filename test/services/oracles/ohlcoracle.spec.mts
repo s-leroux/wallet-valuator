@@ -80,7 +80,7 @@ describe("OHLCOracle", function () {
           if (!price) {
             assert.fail(`price not found`);
           } else {
-            assert.equal(price.rate.toFixed(4), expected);
+            assert.equal(price.rate.toDecimalString(4), expected);
             assert.equal(price.fiatCurrency, USD);
             assert.equal(price.crypto, bitcoin);
           }

@@ -68,6 +68,7 @@ A raw **`number` must never be used as the sole, implicit source of a decimal `F
 - To build a `Fixed` from numeric inputs with an **explicit scale**, use **`Fixed.create(unscaledValue, scale)`** (and related paths): both parameters are typed as **`IntegerSource`** (`bigint | string | number`). At **runtime**, **`scale` must be a non-negative integer** (as `bigint` after coercion). The project uses **`IntegerSource`** so call sites may pass small literals conveniently; **`bigint` is preferred** for scale when clarity matters.
 - **`Fixed.fromInteger(v)`** accepts **`IntegerSource`** for **whole integers** only (result scale `0`). It is not a general “decimal from float” API.
 - **`Fixed.fromNumber(v, scale)`** (finite doubles only) quantizes at **`10^−scale`** by **truncating toward zero** (same sense as reducing scale with **`withDecimals`** and as integer division in **`div`**), not by rounding like **`Number.prototype.toFixed`**. It adapts via `v.toString()` and `Fixed.fromString(..., scale)`, so scientific notation from `number` formatting is supported.
+- **`Fixed.toDecimalString(fractionDigits?)`** — canonical **base-10 decimal string** for a `Fixed`. Without `fractionDigits`, uses the instance’s stored scale (same as **`toString()`**). With `fractionDigits`, pads or **truncates toward zero** when reducing precision—this is **not** the same as **`Number.prototype.toFixed`**, which rounds.
 
 ### Comparisons (`compare`, `equals`, …)
 

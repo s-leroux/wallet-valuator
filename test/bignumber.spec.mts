@@ -13,7 +13,7 @@ describe("Fixed", function () {
     it("E18 is 10^18 base units", function () {
       assert.equal(Fixed.E18.value, 10n ** 18n);
       assert.equal(Fixed.E18.scale, 0n);
-      assert.equal(Fixed.E18.toFixed(), "1000000000000000000");
+      assert.equal(Fixed.E18.toDecimalString(), "1000000000000000000");
     });
   });
 
@@ -32,7 +32,7 @@ describe("Fixed", function () {
       register(`${String(v)} => ${expected}`, () => {
         const f = Fixed.fromInteger(v);
         assert.equal(f.scale, 0n);
-        assert.equal(f.toFixed(), expected);
+        assert.equal(f.toDecimalString(), expected);
       });
     }
   });
@@ -57,7 +57,7 @@ describe("Fixed", function () {
     for (const [input, expected] of cases) {
       register(`${JSON.stringify(input)} => ${expected}`, () => {
         const f = Fixed.fromString(input);
-        assert.equal(f.toFixed(), expected);
+        assert.equal(f.toDecimalString(), expected);
       });
     }
 
@@ -109,7 +109,7 @@ describe("Fixed", function () {
           `${JSON.stringify(input)} @${targetScale} => ${expected}`,
           () => {
             const f = Fixed.fromString(input, targetScale);
-            assert.equal(f.toFixed(), expected);
+            assert.equal(f.toDecimalString(), expected);
             assert.equal(f.scale, targetScale);
           },
         );
@@ -149,7 +149,7 @@ describe("Fixed", function () {
         const f = Fixed.create(value, scale);
         assert.equal(f.value, value);
         assert.equal(f.scale, scale);
-        assert.equal(f.toFixed(), expected);
+        assert.equal(f.toDecimalString(), expected);
       });
     }
 
@@ -299,7 +299,7 @@ describe("Fixed", function () {
           const expected = Fixed.fromString(n.toString(), scale);
           assert.isTrue(
             back.equals(expected),
-            `${original.toFixed()} -> ${n} -> ${back.toFixed()} (expected ${expected.toFixed()})`,
+            `${original.toDecimalString()} -> ${n} -> ${back.toDecimalString()} (expected ${expected.toDecimalString()})`,
           );
         });
       }
@@ -309,13 +309,13 @@ describe("Fixed", function () {
   describe("from()", function () {
     it("accepts bigint as integer", function () {
       const f = Fixed.from(123n);
-      assert.equal(f.toFixed(), "123");
+      assert.equal(f.toDecimalString(), "123");
       assert.equal(f.scale, 0n);
     });
 
     it("accepts string", function () {
       const f = Fixed.from("1.23");
-      assert.equal(f.toFixed(), "1.23");
+      assert.equal(f.toDecimalString(), "1.23");
       assert.equal(f.scale, 2n);
     });
 
@@ -344,7 +344,7 @@ describe("Fixed", function () {
         () => {
           const f = Fixed.create(value, prec);
           const g = f.withDecimals(newPrec);
-          assert.equal(g.toFixed(), expected);
+          assert.equal(g.toDecimalString(), expected);
           assert.equal(g.scale, newPrec);
         },
       );
@@ -364,7 +364,7 @@ describe("Fixed", function () {
         `(${value}, ${scale}).withScale(${newScale}) truncates => ${expected}`,
         () => {
           const f = Fixed.create(value, scale);
-          assert.equal(f.withDecimals(newScale).toFixed(), expected);
+          assert.equal(f.withDecimals(newScale).toDecimalString(), expected);
         },
       );
     }
@@ -445,7 +445,7 @@ describe("Fixed", function () {
 
       fixed.sort((x, y) => x.compare(y));
 
-      const actual = fixed.map((f) => f.toFixed());
+      const actual = fixed.map((f) => f.toDecimalString());
       const expected = [
         "-1",
         "-0.1",
@@ -484,7 +484,7 @@ describe("Fixed", function () {
           const a = Fixed.create(v1, p1);
           const b = Fixed.create(v2, p2);
           const sum = a.plus(b);
-          assert.equal(sum.toFixed(), expected);
+          assert.equal(sum.toDecimalString(), expected);
           assert.equal(sum.scale, expectedScale);
         },
       );
@@ -495,8 +495,8 @@ describe("Fixed", function () {
       const b = Fixed.create(1n, 2n);
       const ab = a.plus(b);
       const ba = b.plus(a);
-      assert.equal(ab.toFixed(), "0.11");
-      assert.equal(ba.toFixed(), "0.11");
+      assert.equal(ab.toDecimalString(), "0.11");
+      assert.equal(ba.toDecimalString(), "0.11");
       assert.equal(ab.scale, 2n);
       assert.equal(ba.scale, 2n);
     });
@@ -522,7 +522,7 @@ describe("Fixed", function () {
           const a = Fixed.create(v1, p1);
           const b = Fixed.create(v2, p2);
           const diff = a.minus(b);
-          assert.equal(diff.toFixed(), expected);
+          assert.equal(diff.toDecimalString(), expected);
           assert.equal(diff.scale, expectedScale);
         },
       );
@@ -531,8 +531,8 @@ describe("Fixed", function () {
     it("handles mixed scales in both operand orders", function () {
       const a = Fixed.create(1n, 1n);
       const b = Fixed.create(1n, 2n);
-      assert.equal(a.minus(b).toFixed(), "0.09");
-      assert.equal(b.minus(a).toFixed(), "-0.09");
+      assert.equal(a.minus(b).toDecimalString(), "0.09");
+      assert.equal(b.minus(a).toDecimalString(), "-0.09");
       assert.equal(a.minus(b).scale, 2n);
       assert.equal(b.minus(a).scale, 2n);
     });
@@ -569,7 +569,7 @@ describe("Fixed", function () {
           const b = Fixed.create(v2, p2);
           const product =
             requestedScale === undefined ? a.mul(b) : a.mul(b, requestedScale);
-          assert.equal(product.toFixed(), expected);
+          assert.equal(product.toDecimalString(), expected);
         },
       );
     }
@@ -603,7 +603,7 @@ describe("Fixed", function () {
           const a = Fixed.create(v1, p1);
           const b = Fixed.create(v2, p2);
           const q = a.div(b, targetScale);
-          assert.equal(q.toFixed(), expected);
+          assert.equal(q.toDecimalString(), expected);
           assert.equal(q.scale, targetScale);
         },
       );
@@ -630,7 +630,7 @@ describe("Fixed", function () {
       register(`negated(${value}, ${scale}) => ${expectedNegated}`, () => {
         const f = Fixed.create(value, scale);
         const n = f.negated();
-        assert.equal(n.toFixed(), expectedNegated);
+        assert.equal(n.toDecimalString(), expectedNegated);
         assert.equal(n.scale, scale);
       });
     }
@@ -667,7 +667,7 @@ describe("Fixed", function () {
       register(label, () => {
         const [first, ...rest] = inputs.map((s) => Fixed.fromString(s));
         const s = Fixed.sum(first, ...rest);
-        assert.equal(s.toFixed(), expectedString);
+        assert.equal(s.toDecimalString(), expectedString);
         assert.equal(s.scale, expectedScale);
       });
     }
@@ -675,13 +675,13 @@ describe("Fixed", function () {
     register("single argument returns identity value and scale", () => {
       const a = Fixed.fromString("1.2300");
       const s = Fixed.sum(a);
-      assert.equal(s.toFixed(), "1.2300");
+      assert.equal(s.toDecimalString(), "1.2300");
       assert.equal(s.scale, 4n);
     });
   });
 
-  describe("toFixed() and toString()", function () {
-    describe("toFixed", function () {
+  describe("toDecimalString() and toString()", function () {
+    describe("toDecimalString", function () {
       const register = prepare(this);
 
       // prettier-ignore
@@ -712,13 +712,13 @@ describe("Fixed", function () {
       for (const [value, scale, expected] of cases) {
         register(`(${value}, ${scale}) => "${expected}"`, () => {
           const f = Fixed.create(value, scale);
-          assert.equal(f.toFixed(), expected);
+          assert.equal(f.toDecimalString(), expected);
           assert.equal(f.toString(), expected);
         });
       }
     });
 
-    describe("toFixed(digits)", function () {
+    describe("toDecimalString(fractionDigits)", function () {
       const register = prepare(this);
       const overrideCases: [bigint, bigint, number, string][] = [
         [12345n, 3n, 3, "12.345"],
@@ -734,10 +734,10 @@ describe("Fixed", function () {
 
       for (const [value, scale, digits, expected] of overrideCases) {
         register(
-          `(${value}, ${scale}).toFixed(${digits}) => "${expected}"`,
+          `(${value}, ${scale}).toDecimalString(${digits}) => "${expected}"`,
           () => {
             const f = Fixed.create(value, scale);
-            assert.equal(f.toFixed(digits), expected);
+            assert.equal(f.toDecimalString(digits), expected);
           },
         );
       }

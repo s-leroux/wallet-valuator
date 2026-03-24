@@ -49,7 +49,7 @@ describe("DefiLlamaOracle", function () {
       );
 
       assert.isTrue(priceMap.has(USD));
-      assert.equal(priceMap.get(USD)!.rate.toFixed(8), "26966.11831093");
+      assert.equal(priceMap.get(USD)!.rate.toDecimalString(8), "26966.11831093");
     });
   });
 });

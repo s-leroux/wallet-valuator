@@ -196,7 +196,7 @@ export class Caching /*extends Oracle*/ {
         price.crypto.id,
         date,
         price.fiatCurrency.code,
-        price.rate.toFixed(),
+        price.rate.toDecimalString(),
         origin,
       );
     }

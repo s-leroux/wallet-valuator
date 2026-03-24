@@ -40,7 +40,7 @@ Throughout the project, I have tried to be consistent with the following definit
 
 - **crypto** (or better **crypto-asset**): a generic term for coins, cryptocurrencies, rwa, tokens, or similar, stored on-chain.
 - **fiat** (or better **fiat-currency**): a generic term for government-issued currency. Fiat currencies are identified by _ISO 4217 currency codes_, a 3-letter code usually made from the country and currency initial: USD, GBP, JPY. A notable exception is EUR for euros.
-- **`Fixed` / unscaled value**: decimal quantities are stored as **`Fixed`**: the **`value`** field is the **unscaled value** (signed `bigint`), and **`scale`** is the number of decimal places; the quantity is `value × 10^−scale`. Use this term in prose and comments instead of informal float jargon such as “mantissa”, “coefficient”, or “significand” for `value`.
+- **`Fixed` / unscaled value**: decimal quantities are stored as **`Fixed`**: the **`value`** field is the **unscaled value** (signed `bigint`), and **`scale`** is the number of decimal places; the quantity is `value × 10^−scale`. Use this term in prose and comments instead of informal float jargon such as “mantissa”, “coefficient”, or “significand” for `value`. For human-readable decimal text from a **`Fixed`**, use **`toDecimalString`** (truncation when narrowing scale), not `Number.prototype.toFixed` (rounding).
 
 ---
 

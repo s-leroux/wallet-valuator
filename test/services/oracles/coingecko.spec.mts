@@ -88,7 +88,7 @@ describe("CoinGecko", function () {
               const price = priceMap.get(fiatCurrency);
               assert.exists(price, `Price for ${currency} should exist`);
               if (price) {
-                assert.equal(price.rate.toFixed(6), value);
+                assert.equal(price.rate.toDecimalString(6), value);
               }
             }
           });
