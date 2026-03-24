@@ -15,7 +15,8 @@ import { Oracle } from "../oracle.mjs";
 import { RealTokenAPI, RealTokenEvent } from "./realtokenapi.mjs";
 import type { PriceMap } from "../oracle.mjs";
 import { RealTokenMetadata } from "./realtokenresolver.mjs";
-import { DEFAULT_PRICE_SCALE } from "../../price.mjs";
+
+const REALTOKEN_PRICE_SCALE = 2n;
 
 type RealTokenUUID = string & { readonly brand: unique symbol };
 export function RealTokenUUID(uuid: string) {
@@ -80,7 +81,7 @@ export class RealTokenOracle extends Oracle {
         if (tokenPrice !== undefined) {
           yield [
             event.date,
-            Fixed.fromNumber(tokenPrice as number, DEFAULT_PRICE_SCALE),
+            Fixed.fromNumber(tokenPrice as number, REALTOKEN_PRICE_SCALE),
           ] as const;
         }
       }
@@ -115,7 +116,8 @@ export class RealTokenOracle extends Oracle {
         const priceTable = this.getPriceTable(uuid);
         const entry = priceTable.get(formatDate("YYYYMMDD", date));
         if (entry) {
-          result.set(fiat, crypto.price(fiat, fixedFromSource(entry[1])));
+          const price = crypto.price(fiat, fixedFromSource(entry[1]));
+          result.set(fiat, price);
         }
         // If the price is unavailable for the requested date, default to `{}`
         // in accordance with the discussion in:

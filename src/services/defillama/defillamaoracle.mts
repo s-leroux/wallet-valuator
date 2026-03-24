@@ -57,7 +57,7 @@ export class DefiLlamaOracle extends Oracle {
     const { price } = coin; // XXX General question: what to do if an API returns a non-conforming answer?
 
     const priceAsUSD = GlobalMetadataStore.setMetadata(
-      crypto.priceFromNumber(USD, price),
+      crypto.price(USD, price.toString()),
       { origin: "DEFILLAMA" },
     );
     result.set(USD, priceAsUSD);

@@ -97,7 +97,7 @@ export function toDisplayString(
   const type = typeof obj;
 
   if (!obj || type !== "object") {
-    // ^ above: handle null gracefully
+    // ^ above: handle null gracefully: typeof null === "object", but null is falsy.
 
     // for non-object, use the default toString() implementation
     // XXX Shouldn't we allow number formatting specifiers?

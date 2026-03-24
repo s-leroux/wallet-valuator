@@ -218,7 +218,7 @@ export class Caching /*extends Oracle*/ {
     for (const currency of currencies) {
       const row = stmt.get(crypto.id, dateYyyyMmDd, currency.code);
       if (row) {
-        result.set(currency, crypto.priceFromNumber(currency, row.price));
+        result.set(currency, crypto.price(currency, row.price.toString()));
       } else {
         log.trace(
           "C1007",

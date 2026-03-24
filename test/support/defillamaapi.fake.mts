@@ -13,9 +13,10 @@ export class FakeDefiLlamaAPI implements DefiLlamaAPI {
     return new FakeDefiLlamaAPI();
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getHistoricalPrices(
     date: Date,
-    coins: string[]
+    coins: string[],
   ): Promise<DefiLlamaPriceData> {
     switch (formatDate("YYYY-MM-DD", date)) {
       case "2023-10-01":

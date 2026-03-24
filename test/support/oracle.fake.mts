@@ -23,6 +23,7 @@ type HistoricalDataRecord = [
 const DATA = HistoricalPrices as HistoricalDataRecord[];
 
 export class FakeOracle extends Oracle {
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getPrice(
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
@@ -43,10 +44,10 @@ export class FakeOracle extends Oracle {
     const prices = dataRecord[2];
 
     for (const fiat of fiats) {
-      result.set(
-        fiat,
-        crypto.priceFromNumber(fiat, prices[fiat.code.toLowerCase()]),
-      );
+      const rawPrice = prices[fiat.code.toLowerCase()];
+      // Keep all decimal digits from fixture values for valuation tests.
+      // Using `priceFromNumber` would quantize to DEFAULT_PRICE_SCALE (6).
+      result.set(fiat, crypto.price(fiat, rawPrice.toString()));
     }
   }
 

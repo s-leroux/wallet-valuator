@@ -154,11 +154,11 @@ describe("RealTokenOracle", function () {
 
       const testcases = [
         ["20210117", null], // this tests the case we have a konwn token but no price at the requested date
-        ["20210217", 50.07],
-        ["20210317", 50.07],
-        ["20220511", 50.07],
-        ["20220611", 52.46],
-        ["20220711", 52.46],
+        ["20210217", "50.07"],
+        ["20210317", "50.07"],
+        ["20220511", "50.07"],
+        ["20220611", "52.46"],
+        ["20220711", "52.46"],
       ] as const;
       const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4".toLowerCase();
       const fiat = FiatCurrency("USD");
@@ -190,10 +190,7 @@ describe("RealTokenOracle", function () {
             assert.equal(priceMap.size, 0);
           } else {
             assert.isTrue(priceMap.has(fiat));
-            assert.deepEqual(
-              priceMap.get(fiat),
-              crypto.priceFromNumber(fiat, value),
-            );
+            assert.deepEqual(priceMap.get(fiat), crypto.price(fiat, value));
           }
         });
       }

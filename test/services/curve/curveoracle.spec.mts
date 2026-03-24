@@ -41,12 +41,12 @@ describe("CurveOracle", function () {
       const register = prepare(this);
 
       const testcases = [
-        ["20250228", null], // this tests the case we have a konwn token but no price at the requested date
-        ["20250301", 1.039576024649618],
-        ["20250302", 1.0397308967364007],
-        ["20250303", 1.039882229160477],
-        ["20250304", 1.0397390287401556],
-        ["20250305", 1.0399812908886852],
+        ["20250228", null], // this tests the case we have a known token but no price at the requested date
+        ["20250301", "1.039576024649618"],
+        ["20250302", "1.0397308967364007"],
+        ["20250303", "1.039882229160477"],
+        ["20250304", "1.0397390287401556"],
+        ["20250305", "1.0399812908886852"],
       ] as const;
 
       const ID = ChainAddress(CHAIN, TOKEN);
@@ -83,10 +83,7 @@ describe("CurveOracle", function () {
             assert.isEmpty(priceMap);
           } else {
             assert.hasAnyKeys(priceMap, USD);
-            assert.deepEqual(
-              priceMap.get(USD),
-              cryptoAsset.priceFromNumber(USD, value),
-            );
+            assert.deepEqual(priceMap.get(USD), cryptoAsset.price(USD, value));
           }
         });
       }

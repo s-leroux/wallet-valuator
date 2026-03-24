@@ -221,7 +221,7 @@ export class CoinGeckoOracle extends Oracle {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         `Found price for ${crypto}/${currency} at ${date.toISOString()}`,
       );
-      const price = crypto.priceFromNumber(currency, value);
+      const price = crypto.price(currency, value.toString());
       result.set(currency, price);
       GlobalMetadataStore.setMetadata(
         price,

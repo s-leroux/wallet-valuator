@@ -19,7 +19,6 @@ import { PriceMap } from "../../../src/services/oracle.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { when } from "../../support/test.helper.mjs";
 import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
-import { DEFAULT_PRICE_SCALE } from "../../../src/price.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 
@@ -54,14 +53,14 @@ describe("CoinGecko", function () {
 
         const bitcoin = FakeCryptoAsset.bitcoin;
 
-        const test_cases: [string, string, Record<string, number>][] = [
+        const test_cases: [string, string, Record<string, string>][] = [
           [
             "bitcoin",
             "2025-12-30",
             {
-              BTC: 1,
-              USD: 87156.56266080117,
-              EUR: 74039.32566722526,
+              BTC: "1.000000", // 1,
+              USD: "87156.562660", // 87156.56266080117,
+              EUR: "74039.325667", // 74039.32566722526,
             },
           ],
         ];
@@ -89,10 +88,7 @@ describe("CoinGecko", function () {
               const price = priceMap.get(fiatCurrency);
               assert.exists(price, `Price for ${currency} should exist`);
               if (price) {
-                assert.equal(
-                  price.rate.toFixed(),
-                  value.toFixed(Number(DEFAULT_PRICE_SCALE)),
-                );
+                assert.equal(price.rate.toFixed(6), value);
               }
             }
           });
