@@ -20,8 +20,8 @@ import { PriceMap } from "../../../src/services/oracle.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
-import { Fixed, fixedFromSource } from "../../../src/bignumber.mjs";
 import { RealTokenMetadata } from "../../../src/services/realtoken/realtokenresolver.mjs";
+import { Fixed } from "../../../src/bignumber.mjs";
 
 describe("RealTokenUUID", () => {
   it("can be created from string", () => {
@@ -133,15 +133,15 @@ describe("RealTokenOracle", function () {
 
         // jq '.[100] | {uuid, historyLength: [ .history[] | [ .date, .values.tokenPrice ] | select(.[1]) ] }' < fixtures/RealT/tokenHistory.json
         const expected = [
-          ["20210217", 50.07],
-          ["20220611", 52.46],
+          ["20210217", "50.07"],
+          ["20220611", "52.46"],
         ] as const;
         const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
         const priceTable = oracle.getPriceTable(RealTokenUUID(uuid));
 
         assert.deepEqual(
           priceTable.toArray(),
-          expected.map(([d, n]) => [d, fixedFromSource(n)]) as [
+          expected.map(([d, n]) => [d, Fixed.fromString(n)]) as [
             string,
             Fixed,
           ][],
@@ -192,7 +192,7 @@ describe("RealTokenOracle", function () {
             assert.isTrue(priceMap.has(fiat));
             assert.deepEqual(
               priceMap.get(fiat),
-              crypto.price(fiat, fixedFromSource(value)),
+              crypto.priceFromNumber(fiat, value),
             );
           }
         });

@@ -12,6 +12,11 @@ export class PriceMetadata extends MetadataFacade<Price, PriceMetadataType> {}
 export const GlobalPriceMetadata = new PriceMetadata(GlobalMetadataStore);
 
 /**
+ * The default scale when converting prices from `number` to `Fixed`.
+ */
+export const DEFAULT_PRICE_SCALE = 6n;
+
+/**
  * Represents the exchange rate between a crypto-asset and a fiat currency.
  *
  * The Price class encapsulates the conversion rate between a specific crypto-asset

@@ -1,5 +1,3 @@
-import { Decimal as DecimalImplementation } from "decimal.js";
-import type { DisplayOptions } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
 
 export function toInteger(src: number | string) {
@@ -11,86 +9,6 @@ export function toInteger(src: number | string) {
   }
 
   return asInt;
-}
-
-//======================================================================
-//  BigNumber (fixed-precision arithmetic based on Decimal.js)
-//  DEPRECATED: use Fixed instead
-//======================================================================
-
-export type BigNumberSource =
-  | number
-  | string
-  | BigNumber
-  | DecimalImplementation;
-
-export class BigNumber extends DecimalImplementation.clone({
-  rounding: 1, // ROUND_DOWN to ensure truncation, mimicking integer arithmetic behavior
-  precision: 80, // 78 decimals are needed to handle full uint256 range without precision loss; 80 adds a safety margin
-}) {
-  toString(): string {
-    return super.toFixed();
-  }
-
-  toDisplayString(options: DisplayOptions): string {
-    return this.toString();
-  }
-
-  static fromInteger(v: number | string): BigNumber {
-    return new BigNumber(v);
-  }
-
-  static fromString(v: string): BigNumber {
-    return new BigNumber(v);
-  }
-
-  static from(v: BigNumberSource): BigNumber {
-    if (v instanceof BigNumber) {
-      return v;
-    }
-
-    return new BigNumber(v);
-  }
-
-  /**
-   * Ensure arithmetic returns the `BigNumber` subclass.
-   *
-   * `decimal.js` instances can return a base `Decimal` instance for arithmetic
-   * operations; we normalize them back to this class so `instanceof BigNumber`
-   * remains true for all arithmetic results.
-   *
-   * This is EXACTLY the reason why we are switching away from `decimal.js` to `Fixed` arithmetic.
-   */
-  plus(n: DecimalImplementation.Value): this {
-    return BigNumber.from(super.plus(n)) as this;
-  }
-
-  minus(n: DecimalImplementation.Value): this {
-    return BigNumber.from(super.minus(n)) as this;
-  }
-
-  mul(n: DecimalImplementation.Value): this {
-    return BigNumber.from(super.mul(n)) as this;
-  }
-
-  div(n: DecimalImplementation.Value): this {
-    return BigNumber.from(super.div(n)) as this;
-  }
-
-  negated(): this {
-    return BigNumber.from(super.negated()) as this;
-  }
-
-  static fromDigits(digits: number | string, precision: number | string) {
-    const precisionAsInteger = toInteger(precision);
-    if (precisionAsInteger === 0) {
-      return this.fromInteger(digits);
-    }
-    return new BigNumber(digits).div(10 ** precisionAsInteger);
-  }
-
-  static E18 = new BigNumber(1e18);
-  static ZERO = new BigNumber(0);
 }
 
 //======================================================================
@@ -150,23 +68,35 @@ export class Fixed {
   }
 
   /**
-   * Creates a new Fixed from a string source.
+   * Creates a new Fixed from a decimal string source.
    *
-   * The string is parsed as a decimal number.
-   * The fixed-point result is the exact representation of the input string
-   *  (ignoring leading/trailing whitespace) without any rounding and with the
-   * scale = the length of the fractional part (or 0 if there is no fractional part).
+   * The string is parsed as a base-10 finite number, optionally using scientific notation.
    *
-   * The method does not understand scientific notation.
-   * The number must be expressed as a 10-based finite number.
+   * Without `targetScale`, the result is the exact decimal value represented by the string,
+   * normalized to a non-negative Fixed scale:
+   * - `"123"`      -> `Fixed(123, 0)`
+   * - `"1.23"`     -> `Fixed(123, 2)`
+   * - `"1.23e2"`   -> `Fixed(123, 0)`
+   * - `"1.23e-2"`  -> `Fixed(123, 4)`
+   *
+   * With `targetScale`, the parsed decimal value is quantized to exactly that scale:
+   * - if the parsed value has more fractional digits, it is truncated toward zero;
+   * - if it has fewer fractional digits, it is scaled up as if padded with trailing zeros.
+   *
+   * Examples:
+   * - `fromString("123.456", 2)` -> `Fixed(12345, 2)`
+   * - `fromString("123.4",   3)` -> `Fixed(123400, 3)`
+   * - `fromString("1.23e-2", 4)` -> `Fixed(123, 4)`
    *
    * @param v - The string source.
-   * @returns A new Fixed representing the string.
+   * @param targetScale - Optional target number of digits after the decimal point.
+   * @returns A new Fixed representing the parsed decimal value.
    */
-  static fromString(v: string): Fixed {
-    const match = /^\s*(?<sign>[+-])?(?<int>\d+)(?:\.(?<frac>\d+))?\s*$/.exec(
-      v,
-    );
+  static fromString(v: string, targetScale?: IntegerSource): Fixed {
+    const match =
+      /^\s*(?<sign>[+-])?(?<int>\d+)(?:\.(?<frac>\d+))?(?:[eE](?<exp>[+-]?\d+))?\s*$/.exec(
+        v,
+      );
     if (!match) {
       throw new SyntaxError(`Cannnot convert ${v} to a Fixed-Point number`);
     }
@@ -175,11 +105,70 @@ export class Fixed {
       sign?: string;
       int: string;
       frac?: string;
+      exp?: string;
     };
 
     const frac = groups.frac ?? "";
-    const digits = `${groups.sign ?? ""}${groups.int}${frac}`;
-    return new Fixed(BigInt(digits), BigInt(frac.length));
+    const exponent10 = BigInt(groups.exp ?? "0");
+    const digitsText = `${groups.sign ?? ""}${groups.int}${frac}`;
+    const digits = BigInt(digitsText);
+
+    // Parsed decimal value:
+    //   digits × 10^-(frac.length) × 10^(exponent10)
+    // = digits × 10^-(frac.length - exponent10)
+    //
+    // So `parsedScale` is the exact decimal scale of `digits`.
+    // It may be negative for strings like "1e3".
+    const parsedScale = BigInt(frac.length) - exponent10;
+
+    if (targetScale === undefined) {
+      if (parsedScale <= 0n) {
+        return new Fixed(digits * 10n ** -parsedScale, 0n);
+      }
+
+      return new Fixed(digits, parsedScale);
+    }
+
+    const s = BigInt(targetScale);
+    if (s < 0n || s > MAX_FIXED_SCALE) {
+      throw new RangeError(`Scale must be in the range [0;${MAX_FIXED_SCALE}]`);
+    }
+
+    // Quantize to exactly `s` fraction digits.
+    //
+    // If s >= parsedScale, scale up (equivalent to decimal zero-padding).
+    // If s < parsedScale, scale down by truncating toward zero.
+    const shift = s - parsedScale;
+    const unscaledValue =
+      shift >= 0n ? digits * 10n ** shift : digits / 10n ** -shift;
+
+    return new Fixed(unscaledValue, s);
+  }
+
+  /**
+   * Quantize a JavaScript number to a {@link Fixed} with exactly `targetScale` fraction digits.
+   *
+   * The number is first converted to its standard decimal textual form using
+   * {@link Number.prototype.toString}. That decimal value is then quantized to
+   * `targetScale` using truncation toward zero.
+   *
+   * This is intentionally a decimal-text adaptation path for external JavaScript
+   * numbers (for example JSON numeric payloads), not a bit-exact IEEE-754 conversion.
+   *
+   * Scientific notation produced by {@link Number.prototype.toString} is accepted.
+   *
+   * @param v - A finite number (`NaN` and `Infinity` are rejected).
+   * @param targetScale - Number of digits after the decimal point; must satisfy
+   *   `0 <= targetScale <= MAX_FIXED_SCALE`.
+   * @returns A new Fixed representing the decimal value of `v.toString()`,
+   *   quantized to `targetScale`.
+   */
+  static fromNumber(v: number, targetScale: IntegerSource): Fixed {
+    if (!Number.isFinite(v)) {
+      throw new ValueError(`Invalid number: ${v}. Must be a finite number.`);
+    }
+
+    return this.fromString(v.toString(), targetScale);
   }
 
   static from(v: FixedSource): Fixed {
@@ -191,68 +180,6 @@ export class Fixed {
     }
 
     return new Fixed(v.value, v.scale);
-  }
-
-  /**
-   * Quantize a JavaScript double to a {@link Fixed} with exactly `targetScale` fraction digits.
-   *
-   * The input `v` is interpreted as the exact IEEE-754 double value, and then scaled by `10^targetScale`
-   * to compute the integer **unscaled value** of `v × 10^targetScale`.
-   * The result is **truncated toward zero** (no “round to nearest” at `10^-targetScale`), matching the
-   * truncation semantics of {@link withDecimals} when reducing scale and of integer division in {@link div}.
-   *
-   * This path avoids {@link Number.prototype.toFixed}, which can return exponential notation for
-   * large magnitudes (not accepted by {@link fromString}) and which rounds rather than truncates.
-   *
-   * @param v - A finite number (`NaN` and `Infinity` are rejected).
-   * @param targetScale - Number of digits after the decimal point; must satisfy `0 <= targetScale <= MAX_FIXED_SCALE`.
-   */
-  static fromNumber(v: number, targetScale: IntegerSource): Fixed {
-    if (Number.isNaN(v) || !Number.isFinite(v)) {
-      throw new ValueError(`Invalid number: ${v}. Must be a finite number.`);
-    }
-
-    const s = BigInt(targetScale);
-    if (s < 0n || s > MAX_FIXED_SCALE) {
-      throw new RangeError(`Scale must be in the range [0;${MAX_FIXED_SCALE}]`);
-    }
-
-    const { sign, mantissa, e2 } = decomposeFiniteDouble(v);
-
-    // Exact identity:
-    //   v = sign * mantissa * 2^e2
-    // so
-    //   v * 10^scale
-    // = sign * mantissa * 2^e2 * 2^scale * 5^scale
-    // = sign * mantissa * 5^scale * 2^(e2 + scale)
-    //
-    // If e2 + scale >= 0, the result is already integral.
-    // Otherwise divide by 2^(-(e2 + scale)); bigint division truncates toward zero.
-    const fivePowScale = 5n ** s;
-    const shift2 = e2 + s;
-
-    const signedNumerator = sign * mantissa * fivePowScale;
-
-    const unscaledValue =
-      shift2 >= 0n
-        ? signedNumerator << shift2
-        : signedNumerator / (1n << -shift2);
-
-    return new Fixed(unscaledValue, s);
-  }
-
-  /**
-   * This value as a JavaScript number: `value × 10^-scale`.
-   *
-   * Exact only while {@link value} is within `Number.MIN_SAFE_INTEGER`…`Number.MAX_SAFE_INTEGER`;
-   * larger unscaled values may lose precision when coerced to `number`.
-   */
-  toNumber(): number {
-    if (this.scale === 0n) {
-      return Number(this.value);
-    }
-
-    return Number(this.value) / Number(10n ** this.scale);
   }
 
   /**
@@ -479,8 +406,21 @@ export class Fixed {
   }
 
   //--------------------------------------------------------------------
-  //  String conversion
+  //  Conversions
   //--------------------------------------------------------------------
+
+  /**
+   * This value as a JavaScript number: `value × 10^-scale`.
+   *
+   * This conversion may lose precision because JavaScript numbers are IEEE-754
+   * doubles. Prefer {@link toString} when you need a canonical decimal representation.
+   *
+   * Exact only while {@link value} is within `Number.MIN_SAFE_INTEGER`…`Number.MAX_SAFE_INTEGER`;
+   * larger unscaled values may lose precision when coerced to `number`.
+   */
+  toNumber(): number {
+    return Number(this.toFixed());
+  }
 
   toFixed(digits?: number | bigint): string {
     const displayScale =
@@ -531,67 +471,10 @@ export class Fixed {
 //  Utilities
 //======================================================================
 
-const F64_FRAC_BITS = 52n;
-const F64_FRAC_MASK = (1n << F64_FRAC_BITS) - 1n;
-const F64_HIDDEN_BIT = 1n << F64_FRAC_BITS;
-
-/**
- * Decompose a finite IEEE-754 double into sign, mantissa, and exponent such that:
- *
- *   v = sign * mantissa * 2^exponent
- *
- * where:
- * - `sign` is ±1n
- * - `mantissa` is a non-negative integer
- * - `e2` is a signed power-of-two exponent
- */
-export function decomposeFiniteDouble(v: number): {
-  sign: 1n | -1n;
-  mantissa: bigint;
-  e2: bigint;
-} {
-  if (!Number.isFinite(v)) {
-    throw new ValueError(`Invalid number: ${v}. Must be a finite number.`);
-  }
-
-  // Normalize +0 and -0 to the same exact representation.
-  if (v === 0) {
-    return { sign: 1n, mantissa: 0n, e2: 0n };
-  }
-
-  // Decompose the IEEE-754 double into sign, exponent, and fraction bits.
-  const buffer = new ArrayBuffer(8);
-  const view = new DataView(buffer);
-  view.setFloat64(0, v, false);
-  const bits = view.getBigUint64(0, false);
-
-  const sign = ((bits >> 63n) & 1n) === 0n ? 1n : -1n;
-  const exponentBits = (bits >> 52n) & 0x7ffn;
-  const fractionBits = bits & F64_FRAC_MASK;
-
-  if (exponentBits === 0n) {
-    // Subnormal:
-    //   v = sign * fractionBits * 2^-52 * 2^-1022
-    return {
-      sign,
-      mantissa: fractionBits,
-      e2: -1074n,
-    };
-  }
-
-  // Normal:
-  //   v = sign * (2^52 + fractionBits) * 2^-52 * 2^(exponentBits - 1023)
-  return {
-    sign,
-    mantissa: F64_HIDDEN_BIT | fractionBits,
-    e2: exponentBits - 1075n,
-  };
-}
-
 /**
  * Compatibility layer for migrating from BigNumber to Fixed.
  */
-export function fixedFromSource(src: BigNumberSource | FixedSource): Fixed {
+export function fixedFromSource(src: FixedSource): Fixed {
   if (src instanceof Fixed) {
     return src;
   }
@@ -608,15 +491,5 @@ export function fixedFromSource(src: BigNumberSource | FixedSource): Fixed {
     return Fixed.from(src);
   }
 
-  // During the transition from BigNumber to Fixed, we may throw on NaN and Infinity
-  // (for number and BigNumber)
-  if (typeof src === "number" && (Number.isNaN(src) || !Number.isFinite(src))) {
-    throw new ValueError(`Invalid number: ${src}. Must be a finite number.`);
-  }
-  if (src instanceof BigNumber && (src.isNaN() || !src.isFinite())) {
-    throw new ValueError(`Invalid BigNumber: ${src}. Must be a finite number.`);
-  }
-
-  const bn = BigNumber.from(src);
-  return Fixed.fromString(bn.toString());
+  throw new TypeError(`Invalid Fixed source: ${src}`);
 }

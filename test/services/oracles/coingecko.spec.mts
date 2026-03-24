@@ -19,6 +19,7 @@ import { PriceMap } from "../../../src/services/oracle.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { when } from "../../support/test.helper.mjs";
 import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
+import { DEFAULT_PRICE_SCALE } from "../../../src/price.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 
@@ -88,7 +89,10 @@ describe("CoinGecko", function () {
               const price = priceMap.get(fiatCurrency);
               assert.exists(price, `Price for ${currency} should exist`);
               if (price) {
-                assert.equal(Number(price.rate.toFixed()), value);
+                assert.equal(
+                  price.rate.toFixed(),
+                  value.toFixed(Number(DEFAULT_PRICE_SCALE)),
+                );
               }
             }
           });

@@ -12,7 +12,6 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
-import { fixedFromSource } from "../../../src/bignumber.mjs";
 import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 describe("FakeOracle", function () {
@@ -34,11 +33,11 @@ describe("FakeOracle", function () {
     it("should return historical prices", async function () {
       const bitcoin = FakeCryptoAsset.bitcoin;
 
-      const test_cases: [string, string, Record<string, number>][] = [
+      const test_cases: [string, string, Record<string, string>][] = [
         [
           "bitcoin",
           "2024-12-30",
-          { btc: 1, usd: 93663.44751964067, eur: 89809.00932731242 },
+          { btc: "1", usd: "93663.44751964067", eur: "89809.00932731242" },
         ],
       ];
 
@@ -57,8 +56,9 @@ describe("FakeOracle", function () {
         for (const [currency, expectedRate] of Object.entries(expected)) {
           const price = priceMap.get(FiatCurrency(currency));
           assert.exists(price, `Price for ${currency} should exist`);
-          assert.isTrue(
-            price.rate.equals(fixedFromSource(expectedRate)),
+          assert.equal(
+            price.rate.toFixed(),
+            expectedRate,
             `rate for ${currency}`,
           );
           assert.equal(price.fiatCurrency, FiatCurrency(currency));

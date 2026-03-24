@@ -4,7 +4,7 @@ import {
   fixedFromSource,
   FixedSource,
 } from "./bignumber.mjs";
-import { Price } from "./price.mjs";
+import { DEFAULT_PRICE_SCALE, Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError, ValueError } from "./error.mjs";
 
@@ -327,6 +327,14 @@ export class CryptoAsset {
 
   price(fiat: FiatCurrency, rate: FixedSource) {
     return new Price(this, fiat, rate);
+  }
+
+  priceFromNumber(
+    fiat: FiatCurrency,
+    rate: number,
+    scale: IntegerSource = DEFAULT_PRICE_SCALE,
+  ) {
+    return new Price(this, fiat, Fixed.fromNumber(rate, scale));
   }
 
   toString(): string {

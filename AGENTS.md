@@ -58,7 +58,7 @@ The maximum scale is controlled by the `MAX_FIXED_SCALE` constant. The minimum s
 - **`Fixed`** — the concrete class; use it when **`FixedLike` is not enough** (e.g. you need a specific return type, factories, or instance methods).
 - **`FixedSource`** — **`bigint | string | FixedLike`**. Use this at **boundaries** (constructors, parsers, `fixedFromSource`, public “amount/rate” parameters) where input may still be “external”:
   - **`bigint`** — interpreted as an **integer** (scale `0`).
-  - **`string`** — a **base-10 decimal** literal (no scientific notation). The **scale is inferred from the text**: fractional digits count, including trailing zeros (e.g. `"1.00"` → scale `2`, `"1.00000"` → scale `5`). Leading/trailing whitespace is ignored.
+  - **`string`** — a **base-10 decimal** literal, optionally with scientific notation (`e`/`E`). The **scale is inferred from the text**: fractional digits count, including trailing zeros (e.g. `"1.00"` → scale `2`, `"1.00000"` → scale `5`). Leading/trailing whitespace is ignored.
   - **`FixedLike`** / **`Fixed`** — copied as-is (same value and scale).
 
 ### JavaScript `number` and `IntegerSource`
@@ -67,7 +67,7 @@ A raw **`number` must never be used as the sole, implicit source of a decimal `F
 
 - To build a `Fixed` from numeric inputs with an **explicit scale**, use **`Fixed.create(unscaledValue, scale)`** (and related paths): both parameters are typed as **`IntegerSource`** (`bigint | string | number`). At **runtime**, **`scale` must be a non-negative integer** (as `bigint` after coercion). The project uses **`IntegerSource`** so call sites may pass small literals conveniently; **`bigint` is preferred** for scale when clarity matters.
 - **`Fixed.fromInteger(v)`** accepts **`IntegerSource`** for **whole integers** only (result scale `0`). It is not a general “decimal from float” API.
-- **`Fixed.fromNumber(v, scale)`** (finite doubles only) quantizes at **`10^−scale`** by **truncating toward zero** (same sense as reducing scale with **`withDecimals`** and as integer division in **`div`**), not by rounding like **`Number.prototype.toFixed`**. It avoids **`toFixed`** so output never relies on exponential notation that **`fromString`** rejects.
+- **`Fixed.fromNumber(v, scale)`** (finite doubles only) quantizes at **`10^−scale`** by **truncating toward zero** (same sense as reducing scale with **`withDecimals`** and as integer division in **`div`**), not by rounding like **`Number.prototype.toFixed`**. It adapts via `v.toString()` and `Fixed.fromString(..., scale)`, so scientific notation from `number` formatting is supported.
 
 ### Comparisons (`compare`, `equals`, …)
 

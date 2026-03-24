@@ -10,7 +10,6 @@ import {
   InternalToCoinGeckoIdMapping,
 } from "../oracles/coingecko.mjs";
 import { logger } from "../../debug.mjs";
-import { fixedFromSource } from "../../bignumber.mjs";
 import type { PriceMap } from "../oracle.mjs";
 import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
@@ -58,7 +57,7 @@ export class DefiLlamaOracle extends Oracle {
     const { price } = coin; // XXX General question: what to do if an API returns a non-conforming answer?
 
     const priceAsUSD = GlobalMetadataStore.setMetadata(
-      crypto.price(USD, fixedFromSource(price)),
+      crypto.priceFromNumber(USD, price),
       { origin: "DEFILLAMA" },
     );
     result.set(USD, priceAsUSD);

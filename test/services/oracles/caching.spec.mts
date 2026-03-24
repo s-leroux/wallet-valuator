@@ -70,8 +70,8 @@ describe("Caching", function () {
         amount: price.rate,
       })),
       [
-        { currency: EUR, amount: fixedFromSource(89809.00932731242) },
-        { currency: USD, amount: fixedFromSource(93663.44751964067) },
+        { currency: EUR, amount: fixedFromSource("89809.00932731242") },
+        { currency: USD, amount: fixedFromSource("93663.44751964067") },
       ],
     );
   }

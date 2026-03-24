@@ -203,7 +203,12 @@ function formatNumberAtom(
   precision: number | undefined,
   zero: boolean,
 ): string {
-  return value.toFixed(precision ?? 6).padStart(width, zero ? "0" : " ");
+  return formatFixedAtom(
+    Fixed.fromNumber(value, precision ?? 6),
+    width,
+    precision,
+    zero,
+  );
 }
 
 function formatFixedAtom(

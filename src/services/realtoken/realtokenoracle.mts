@@ -15,6 +15,7 @@ import { Oracle } from "../oracle.mjs";
 import { RealTokenAPI, RealTokenEvent } from "./realtokenapi.mjs";
 import type { PriceMap } from "../oracle.mjs";
 import { RealTokenMetadata } from "./realtokenresolver.mjs";
+import { DEFAULT_PRICE_SCALE } from "../../price.mjs";
 
 type RealTokenUUID = string & { readonly brand: unique symbol };
 export function RealTokenUUID(uuid: string) {
@@ -77,7 +78,10 @@ export class RealTokenOracle extends Oracle {
       for (const event of events) {
         const { tokenPrice } = event.values;
         if (tokenPrice !== undefined) {
-          yield [event.date, fixedFromSource(tokenPrice)] as const;
+          yield [
+            event.date,
+            Fixed.fromNumber(tokenPrice as number, DEFAULT_PRICE_SCALE),
+          ] as const;
         }
       }
     };

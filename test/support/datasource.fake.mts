@@ -1,6 +1,6 @@
 import type { DataSource } from "../../src/csvfile.mjs";
 import { bsearch } from "../../src/bsearch.mjs";
-import { Fixed, fixedFromSource } from "../../src/bignumber.mjs";
+import { Fixed } from "../../src/bignumber.mjs";
 
 export class FakeDataSource<T> implements DataSource<T, Fixed> {
   prices: [T, Fixed, Fixed][];
@@ -23,7 +23,11 @@ export class FakeDataSource<T> implements DataSource<T, Fixed> {
 
     this.prices = prices.map(
       ([d, ...n]) =>
-        [factory(d), ...n.map(fixedFromSource)] as [T, Fixed, Fixed],
+        [factory(d), ...n.map((n) => Fixed.fromNumber(n, 2n))] as [
+          T,
+          Fixed,
+          Fixed,
+        ],
     );
   }
 

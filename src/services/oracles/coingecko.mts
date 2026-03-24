@@ -1,5 +1,4 @@
 import { formatDate } from "../../date.mjs";
-import { Price } from "../../price.mjs";
 import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { FiatCurrency } from "../../fiatcurrency.mjs";
@@ -11,7 +10,6 @@ import { GlobalMetadataStore } from "../../metadata.mjs";
 import { PriceMap } from "../oracle.mjs";
 import { Ensure } from "../../type.mjs";
 import { CryptoMetadata } from "../../cryptoregistry.mjs";
-import { fixedFromSource } from "../../bignumber.mjs";
 
 const log = logger("coingecko");
 
@@ -223,7 +221,7 @@ export class CoinGeckoOracle extends Oracle {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         `Found price for ${crypto}/${currency} at ${date.toISOString()}`,
       );
-      const price = new Price(crypto, currency, fixedFromSource(value));
+      const price = crypto.priceFromNumber(currency, value);
       result.set(currency, price);
       GlobalMetadataStore.setMetadata(
         price,

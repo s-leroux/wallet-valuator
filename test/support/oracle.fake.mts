@@ -3,10 +3,8 @@ import type { CryptoAsset } from "../../src/cryptoasset.mjs";
 import type { CryptoRegistryNG } from "../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
 import { formatDate } from "../../src/date.mjs";
-import type { FiatConverter } from "../../src/services/fiatconverter.mjs";
 import type { PriceMap } from "../../src/services/oracle.mjs";
 import type { CryptoMetadata } from "../../src/cryptoregistry.mjs";
-import { fixedFromSource } from "../../src/bignumber.mjs";
 
 // From coingecko v3/coins/currency/history
 // for d in $(seq 25 30); do
@@ -47,7 +45,7 @@ export class FakeOracle extends Oracle {
     for (const fiat of fiats) {
       result.set(
         fiat,
-        crypto.price(fiat, fixedFromSource(prices[fiat.code.toLowerCase()])),
+        crypto.priceFromNumber(fiat, prices[fiat.code.toLowerCase()]),
       );
     }
   }
