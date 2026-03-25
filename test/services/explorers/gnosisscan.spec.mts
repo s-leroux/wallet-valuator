@@ -90,7 +90,6 @@ describe("GnosisScan", function () {
     describe("GnosisScan", () => {
       // XXX Move this test suite out of the "Live" section
       const cryptoResolver = FakeCryptoResolver.create();
-      const gs = new GnosisScanAPI(provider); // XXX Here, we should use a FakeGnosisScanAPI mock
 
       let explorer: GnosisScan;
       let cryptoRegistry: CryptoRegistryNG;
@@ -98,6 +97,10 @@ describe("GnosisScan", function () {
       let sw: Swarm;
 
       beforeEach(() => {
+        // gs = new GnosisScanAPI(provider); // XXX Here, we should use a FakeGnosisScanAPI mock
+        if (!gs) {
+          throw new Error("GnosisScanAPI is not defined");
+        }
         cryptoRegistry = CryptoRegistryNG.create();
         cryptoMetadata = CryptoMetadata.create();
         explorer = new GnosisScan(cryptoRegistry, gs);

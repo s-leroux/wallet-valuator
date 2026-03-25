@@ -10,7 +10,6 @@ import {
 } from "./etherscan.mjs";
 import { Provider } from "../../provider.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
-import { Blockchain, ChainID } from "../../blockchain.mjs";
 
 const GNOSIS_CHAIN_NAME = "gnosis";
 const GNOSIS_CHAIN_EXPLORER_ID = "100";
@@ -39,6 +38,9 @@ export class GnosisScanAPI {
   private readonly api: EtherscanAPI;
 
   constructor(provider: Provider) {
+    if (!provider) {
+      throw new Error("GnosisScanAPI: Provider is required");
+    }
     this.provider = provider;
     this.api = new EtherscanAPI(provider);
   }
