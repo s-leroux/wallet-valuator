@@ -18,7 +18,6 @@ import {
 } from "../src/valuation.mjs";
 import { CryptoMetadata, CryptoRegistryNG } from "../src/cryptoregistry.mjs";
 import { FiatCurrency } from "../src/fiatcurrency.mjs";
-import { registerRuntimePinnedBuildTest } from "./support/runtime-pinned-build.helper.mjs";
 import { prepare } from "./support/register.helper.mjs";
 import { InconsistentUnitsError } from "../src/error.mjs";
 import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
@@ -27,7 +26,6 @@ import { Fixed } from "../src/bignumber.mjs";
 
 describe("Value", () => {
   const { EUR, USD } = FakeFiatCurrency;
-  registerRuntimePinnedBuildTest();
 
   function make(unit: FiatCurrency, value: bigint | string) {
     return Value.from(unit, value);

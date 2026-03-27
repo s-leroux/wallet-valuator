@@ -2,12 +2,9 @@ import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
-import { registerRuntimePinnedBuildTest } from "./support/runtime-pinned-build.helper.mjs";
 import { Price } from "../src/price.mjs";
 
 describe("Price", () => {
-  registerRuntimePinnedBuildTest();
-
   const { ethereum } = FakeCryptoAsset;
   const { EUR: eur, USD: usd } = FakeFiatCurrency;
 

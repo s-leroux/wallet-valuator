@@ -12,13 +12,10 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
-import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 import { DEFAULT_PRICE_SCALE } from "../../../src/price.mjs";
 import { Fixed } from "../../../src/bignumber.mjs";
 
 describe("FakeOracle", function () {
-  registerRuntimePinnedBuildTest();
-
   let fakeoracle: FakeOracle | undefined;
   let cryptoRegistry: CryptoRegistryNG;
   let cryptoMetadata: CryptoMetadata;

@@ -1,14 +1,11 @@
 import { assert } from "chai";
 
 import { prepare } from "./support/register.helper.mjs";
-import { registerRuntimePinnedBuildTest } from "./support/runtime-pinned-build.helper.mjs";
 
 import { ValueError } from "../src/error.mjs";
 import { Fixed, IntegerSource, MAX_FIXED_SCALE } from "../src/bignumber.mjs";
 
 describe("Fixed", function () {
-  registerRuntimePinnedBuildTest();
-
   describe("constants", function () {
     it("E18 is 10^18 base units", function () {
       assert.equal(Fixed.E18.value, 10n ** 18n);

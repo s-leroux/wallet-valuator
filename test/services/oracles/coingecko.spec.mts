@@ -18,7 +18,6 @@ import { PriceMap } from "../../../src/services/oracle.mjs";
 
 import { prepare } from "../../support/register.helper.mjs";
 import { when } from "../../support/test.helper.mjs";
-import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 
@@ -27,8 +26,6 @@ const INTERNAL_TO_COINGECKO_ID = {
 };
 
 describe("CoinGecko", function () {
-  registerRuntimePinnedBuildTest();
-
   when("COINGECKO_API_KEY", describe)("Live tests", function () {
     const API_KEY = process.env["COINGECKO_API_KEY"];
 

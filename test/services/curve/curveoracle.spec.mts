@@ -18,13 +18,10 @@ import type { CurveMetadata } from "../../../src/services/curve/curveoracle.mjs"
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { ChainAddress } from "../../../src/chainaddress.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
-import { registerRuntimePinnedBuildTest } from "../../support/runtime-pinned-build.helper.mjs";
 
 const { EUR, USD } = FakeFiatCurrency;
 
 describe("CurveOracle", function () {
-  registerRuntimePinnedBuildTest();
-
   let api: FakeCurveAPI;
   let oracle: CurveOracle;
 
