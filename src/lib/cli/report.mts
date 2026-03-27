@@ -8,7 +8,7 @@ import { readFile } from "node:fs/promises";
 
 import { Swarm } from "../../../src/swarm.mjs";
 import { Ledger } from "../../../src/ledger.mjs";
-import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
+import { ExplorerFactories } from "../../../src/services/explorers/etherscan.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
@@ -59,7 +59,9 @@ function createCryptoResolver(envvars: EnvVars) {
 }
 
 function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
-  return [GnosisScan.create(registry, envvars["ETHERSCAN_API_KEY"])];
+  return [
+    ExplorerFactories.gnosis.create(registry, envvars["ETHERSCAN_API_KEY"]),
+  ];
 }
 
 async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {

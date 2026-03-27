@@ -9,6 +9,7 @@ import {
   EtherscanProvider,
   EtherscanAPI,
   Etherscan,
+  DefaultEtherscanBoundAPI,
 } from "../../../src/services/explorers/etherscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
 import {
@@ -74,7 +75,7 @@ describe("Etherscan", function () {
 
   const cryptoResolver = FakeCryptoResolver.create();
   let provider: EtherscanProvider;
-  let gs: EtherscanAPI | undefined;
+  let gs: EtherscanAPI;
 
   beforeEach(function () {
     provider = new EtherscanProvider(API_KEY!);
@@ -168,7 +169,11 @@ describe("Etherscan", function () {
     beforeEach(() => {
       cryptoRegistry = CryptoRegistryNG.create();
       cryptoMetadata = CryptoMetadata.create();
-      explorer = new Etherscan(cryptoRegistry, gs!, TEST_CHAIN_NAME);
+      explorer = new Etherscan(
+        cryptoRegistry,
+        new DefaultEtherscanBoundAPI(TEST_CHAIN_EXPLORER_ID, gs),
+        TEST_CHAIN_NAME,
+      );
       sw = Swarm.create(
         [explorer],
         cryptoRegistry,

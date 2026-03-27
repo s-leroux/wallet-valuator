@@ -15,6 +15,31 @@ import {
 import { asBlockchain, Blockchain, ChainID } from "../../blockchain.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
+/**
+ * @module
+ * The word "Etherscan" is a bit overloaded here. Originally Etherscan was a specific
+ * blockchain explorer for Ethereum. The Etherscan team provided support for other chains
+ * through a similar API but at a different base URL.
+ *
+ * With Etherscan v2, the API is now a generic cross-chain API. All chains date are accessed
+ * through the same API endpoint, but with the extra parameter `chainid` to identify the chain.
+ *
+ * When this file was originally written, the Etherscan v2 API was not yet available. So the
+ * `EtherscanAPI` class was used to access the Ethereum-dedicated blockchain API. Independently
+ *  we also had the `GnosisScanAPI` class to access the Gnosis-dedicated blockchain API.
+ *
+ * Nowadays, the `EtherscanAPI` class is used to access the generic cross-chain API.
+ *
+ * The `EtherscanBoundAPI` class is used to bind the generic cross-chain API to a specific chain
+ * like Ethereum or Gnosis.
+ *
+ * @see https://docs.etherscan.io/api-endpoints/accounts
+ */
+
+//==========================================================================
+//  Constants
+//==========================================================================
+
 const ETHERSCAN_API_BASE_ADDRESS = "https://api.etherscan.io/v2/api";
 const ETHERSCAN_DEFAULT_RETRY = Infinity;
 const ETHERSCAN_DEFAULT_COOLDOWN = 1000;
@@ -23,24 +48,30 @@ const ETHERSCAN_DEFAULT_COOLDOWN = 1000;
 //  Provider interface
 //==========================================================================
 
-export class EtherscanOptionBag {}
+export type EtherscanOptionBag = {
+  cooldown?: number;
+  retry?: number;
+  baseAddress?: string;
+};
+
 /**
- * Handle the idiosyncrasies of the Etherscan API server
+ * Etherscan-specific `Provider` behavior for API key injection, retry logic,
+ * and response/error normalization.
  */
 export class EtherscanProvider extends Provider {
-  readonly origin: string;
   readonly api_key: string;
 
-  constructor(
-    api_key: string,
-    origin: string = ETHERSCAN_API_BASE_ADDRESS,
-    options: EtherscanOptionBag = {},
-  ) {
-    const defaults = {
-      retry: ETHERSCAN_DEFAULT_RETRY,
-      cooldown: ETHERSCAN_DEFAULT_COOLDOWN,
-    };
-    super(origin, Object.assign(defaults, options));
+  constructor(api_key: string, options: EtherscanOptionBag = {}) {
+    const opts = Object.assign(
+      {
+        retry: ETHERSCAN_DEFAULT_RETRY,
+        cooldown: ETHERSCAN_DEFAULT_COOLDOWN,
+        baseAddress: ETHERSCAN_API_BASE_ADDRESS,
+      },
+      options,
+    );
+
+    super(opts.baseAddress, opts);
     this.api_key = api_key;
   }
 
@@ -198,20 +229,28 @@ export type GethTransaction = {
 
 /**
  * Provides an interface to the Etherscan API functions we need.
+ *
+ * There is a 1:1 relationship between EtherscanAPI methods and the API endpoints provided by Etherscan
+ * (same parameters, same return types).
+ *
+ * In particular, we pass the chainid as a parameter to the methods, since it is required by the API.
+ * Being blockchain-agnostic, the same EtherscanAPI instance can be used for multiple chains.
+ *
+ * By itself, the EtherscanAPI class is stateless. But the attached provider may be stateful.
+ * We should clarify that before considering a singleton implementation.
  */
 export class EtherscanAPI {
-  readonly provider;
+  constructor(readonly provider: Provider) {}
 
-  constructor(provider: Provider) {
-    this.provider = provider;
-  }
-
-  static create(
-    api_key: string,
-    origin: string = ETHERSCAN_API_BASE_ADDRESS,
-    options: EtherscanOptionBag = {},
-  ) {
-    return new EtherscanAPI(new EtherscanProvider(api_key, origin, options));
+  /**
+   * Creates a new EtherscanAPI instance.
+   *
+   * @param api_key - The API key to use for the Etherscan API.
+   * @param options - The options for the Etherscan API.
+   * @returns A new EtherscanAPI instance.
+   */
+  static create(api_key: string, options: EtherscanOptionBag = {}) {
+    return new EtherscanAPI(new EtherscanProvider(api_key, options));
   }
 
   async blockNoByTime(
@@ -316,6 +355,70 @@ export class EtherscanAPI {
   }
 }
 
+/**
+ * As the Etherscan v2 API is now a generic cross-chain API, we will define a chain-specific
+ * bound API interface.
+ */
+export class DefaultEtherscanBoundAPI {
+  private readonly chainid: string;
+  private readonly delegate: EtherscanAPI;
+
+  constructor(chainid: string, delegate: EtherscanAPI) {
+    this.chainid = chainid;
+    this.delegate = delegate;
+  }
+
+  static forChain(
+    chainid: string,
+    api_key: string,
+    options: EtherscanOptionBag = {},
+  ) {
+    const api = EtherscanAPI.create(api_key, options);
+    return new DefaultEtherscanBoundAPI(chainid, api);
+  }
+
+  async blockNoByTime(
+    timestamp: number,
+    closest: "before" | "after" = "before",
+  ) {
+    return this.delegate.blockNoByTime(this.chainid, timestamp, closest);
+  }
+
+  async normalTransaction(txhash: string) {
+    return this.delegate.normalTransaction(this.chainid, txhash);
+  }
+
+  blockInternalTransactions(blockNumber: number) {
+    return this.delegate.blockInternalTransactions(this.chainid, blockNumber);
+  }
+
+  accountNormalTransactions(address: string, block?: number) {
+    return this.delegate.accountNormalTransactions(
+      this.chainid,
+      address,
+      block,
+    );
+  }
+
+  accountInternalTransactions(address: string) {
+    return this.delegate.accountInternalTransactions(this.chainid, address);
+  }
+
+  accountTokenTransfers(address: string) {
+    return this.delegate.accountTokenTransfers(this.chainid, address);
+  }
+}
+
+export type EtherscanBoundAPI = Pick<
+  DefaultEtherscanBoundAPI,
+  | "blockNoByTime"
+  | "normalTransaction"
+  | "blockInternalTransactions"
+  | "accountNormalTransactions"
+  | "accountInternalTransactions"
+  | "accountTokenTransfers"
+>;
+
 //==========================================================================
 //  Explorer
 //==========================================================================
@@ -329,39 +432,36 @@ export class EtherscanAPI {
  * Note: with version 2 (v2) Etherscan is now a generic cross-chain API.
  */
 export class Etherscan extends CommonExplorer {
+  readonly api: EtherscanBoundAPI;
   readonly chainExplorerId: string;
-  readonly api: EtherscanAPI;
 
   constructor(
     registry: CryptoRegistryNG,
-    api: EtherscanAPI,
+    api: EtherscanBoundAPI,
     chain: Blockchain | ChainID | string,
   ) {
-    const my_chain = asBlockchain(chain);
-    const my_nativeCurrency = registry.createCryptoAsset(
+    const myChain = asBlockchain(chain);
+    const myNativeCurrency = registry.createCryptoAsset(
+      // XXX This is chain-specific!
       "xdai",
       "xDai",
       "xDAI",
       18,
     );
 
-    super(my_chain, my_nativeCurrency);
+    super(myChain, myNativeCurrency);
     this.api = api;
-    this.chainExplorerId = my_chain.explorerId;
+    this.chainExplorerId = myChain.explorerId;
   }
 
   static create(
     registry: CryptoRegistryNG,
-    api_key: string,
     chainid: string,
-    origin: string = ETHERSCAN_API_BASE_ADDRESS,
-    options: EtherscanOptionBag = {},
+    api_key: string,
+    options = {} as EtherscanOptionBag,
   ) {
-    return new Etherscan(
-      registry,
-      EtherscanAPI.create(api_key, origin, options),
-      chainid,
-    );
+    const api = DefaultEtherscanBoundAPI.forChain(chainid, api_key, options);
+    return new Etherscan(registry, api, chainid);
   }
 
   /**
@@ -371,7 +471,8 @@ export class Etherscan extends CommonExplorer {
     // populate with well-known addresses
     super.register(swarm);
     /*
-    // The following lines are probably obsolete since native currencies have to be created from the crypto-registry.
+    // Legacy native-currency registration. Native assets are created from the crypto-registry now,
+    // so this is likely unused; kept for reference.
     swarm.registry.registerCryptoAsset(this.nativeCurrency, {
       STANDARD: {
         coingeckoId: "xdai",
@@ -387,20 +488,14 @@ export class Etherscan extends CommonExplorer {
     swarm: Swarm,
     txhash: string,
   ): Promise<NormalTransaction> {
-    const ethTransaction = (
-      await this.api.normalTransaction(this.chainExplorerId, txhash)
-    ).result;
+    const ethTransaction = (await this.api.normalTransaction(txhash)).result;
     const from = ethTransaction.from;
     // apparently the gnosis aPI does not accept hexadecimal numbers!
     const blockNumber = parseInt(ethTransaction.blockNumber);
     let result;
 
     const records = (
-      await this.api.accountNormalTransactions(
-        this.chainExplorerId,
-        from,
-        blockNumber,
-      )
+      await this.api.accountNormalTransactions(from, blockNumber)
     ).result;
 
     for (const record of records) {
@@ -419,28 +514,39 @@ export class Etherscan extends CommonExplorer {
   }
 
   async blockInternalTransactions(blockNumber: number) {
-    return (
-      await this.api.blockInternalTransactions(
-        this.chainExplorerId,
-        blockNumber,
-      )
-    ).result;
+    return (await this.api.blockInternalTransactions(blockNumber)).result;
   }
 
   async accountNormalTransactions(address: string) {
-    return (
-      await this.api.accountNormalTransactions(this.chainExplorerId, address)
-    ).result;
+    return (await this.api.accountNormalTransactions(address)).result;
   }
 
   async accountInternalTransactions(address: string) {
-    return (
-      await this.api.accountInternalTransactions(this.chainExplorerId, address)
-    ).result;
+    return (await this.api.accountInternalTransactions(address)).result;
   }
 
   async accountTokenTransfers(address: string) {
-    return (await this.api.accountTokenTransfers(this.chainExplorerId, address))
-      .result;
+    return (await this.api.accountTokenTransfers(address)).result;
   }
 }
+
+export const ExplorerFactories = {
+  ethereum: {
+    create(
+      registry: CryptoRegistryNG,
+      api_key: string,
+      options = {} as EtherscanOptionBag,
+    ) {
+      return Etherscan.create(registry, "1", api_key, options);
+    },
+  },
+  gnosis: {
+    create(
+      registry: CryptoRegistryNG,
+      api_key: string,
+      options = {} as EtherscanOptionBag,
+    ) {
+      return Etherscan.create(registry, "100", api_key, options);
+    },
+  },
+};
