@@ -213,7 +213,7 @@
 2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-11-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
-2021-11-27|                                            9.68552908026e-7 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                        0.000000968552908026 xDai|INGRESS, DELTA, CHAIN, FROM, TO
 2021-11-27|                                    -2531.563901322530663754 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-11-27|                                     2531.564770832530663754 xDai|INGRESS, DELTA, CHAIN, FROM, TO
 2021-11-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
@@ -621,7 +621,7 @@
 2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-04-08|                                    541.305260709370914889 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
 2021-04-08|                                     -206.08635428495574679 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
-2021-04-08|                                                       7e-18 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                        0.000000000000000007 xDai|INGRESS, DELTA, CHAIN, FROM, TO
 2021-04-08|                                                       -1456 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-04-08|                                     -22.274888507757437202 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
 2021-04-08|                                                         157 xDai|INGRESS, DELTA, CHAIN, FROM, TO
@@ -690,7 +690,7 @@
 2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-04-01|                                       0.00079733473227959 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
 2021-04-01|                                                 -804.153393 USDC| EGRESS, DELTA, CHAIN, FROM, TO
-2021-04-01|                                            3.04810561541e-7 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                        0.000000304810561541 xDai|INGRESS, DELTA, CHAIN, FROM, TO
 2021-04-01|                                                        -805 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-04-01|                                                   806.94658 USDC|INGRESS, DELTA, CHAIN, FROM, TO
@@ -726,7 +726,7 @@
 2021-03-15|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO
 2021-03-12|                                      0.000458720422795974 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
 2021-03-12|                                                 -492.245863 USDC| EGRESS, DELTA, CHAIN, FROM, TO
-2021-03-12|                                            5.82776465238e-7 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                        0.000000582776465238 xDai|INGRESS, DELTA, CHAIN, FROM, TO
 2021-03-12|                                                        -495 xDai| EGRESS, DELTA, CHAIN, FROM, TO
 2021-03-12|                                                 -476.692047 USDC| EGRESS, DELTA, CHAIN, FROM, TO
 2021-03-12|                                                         475 xDai|INGRESS, DELTA, CHAIN, FROM, TO

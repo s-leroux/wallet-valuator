@@ -94,7 +94,7 @@ export function testQuantityInterface<Unit, Q extends Quantity<Unit, Q>>(
         register(`${numerator} / ${denominator} => ${expected}`, () => {
           const a = factory.make(sampleUnit, numerator);
           const b = factory.make(sampleUnit, denominator);
-          assert.match(a.relativeTo(b).toString(), expected);
+          assert.match(a.relativeTo(b).toDecimalString(), expected);
         });
       }
     });

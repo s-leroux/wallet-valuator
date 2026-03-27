@@ -46,7 +46,7 @@ describe("CryptoAsset", () => {
     const amount = crypto.amountFromBaseUnit(baseUnitValue);
 
     assert.strictEqual(amount.crypto, crypto);
-    assert.strictEqual(amount.value.toString(), "12.345678900000000000");
+    assert.strictEqual(amount.value.toDecimalString(), "12.345678900000000000");
   });
 
   it("should create an Amount from a string", () => {
@@ -105,14 +105,11 @@ describe("Amount", () => {
 
   it("should allow negative values", function () {
     const amount = new Amount(ethereum, Fixed.fromString("-1.50"));
-    assert.strictEqual(amount.value.toString(), "-1.50");
+    assert.strictEqual(amount.value.toDecimalString(), "-1.50");
   });
 
   it("should reject invalid FixedSource strings", function () {
-    assert.throws(
-      () => new Amount(ethereum, "not-a-number"),
-      SyntaxError,
-    );
+    assert.throws(() => new Amount(ethereum, "not-a-number"), SyntaxError);
   });
 
   describe("toString() method", () => {
@@ -209,7 +206,7 @@ describe("Amount", () => {
     it("should return formatted value with symbol", () => {
       const amount = ethereum.amountFromString("1.2300");
 
-      assert.strictEqual(amount.toDisplayString({}), "1.2300 ETH");
+      assert.strictEqual(amount.toDisplayString({}), "1.23 ETH");
     });
   });
 

@@ -12,6 +12,69 @@ export function toInteger(src: number | string) {
 }
 
 //======================================================================
+//  Helper functions
+//======================================================================
+
+/**
+ * Canonical base-10 decimal string for a fixed-point value `value × 10^−scale`.
+ *
+ * @see {@link Fixed.toDecimalString}
+ */
+function fixedToDecimalString(
+  value: bigint,
+  scale: bigint,
+  decimalPlaces: bigint,
+): string {
+  const negative = value < 0n;
+  const absValue = negative ? -value : value;
+  const scaleFactor = 10n ** scale;
+  const integerPart = absValue / scaleFactor;
+
+  // If no decimal places are requested, return the (possibly negative) integer part as a string.
+  if (!decimalPlaces) {
+    return negative ? `-${integerPart}` : `${integerPart}`;
+  }
+
+  const extraDecimalPlaces = decimalPlaces - scale;
+  // If extraDecimalPlaces is positive, we need to add zeros to the fractional part.
+  // If extraDecimalPlaces is negative, we need to truncate the fractional part.
+
+  let fractionalPart = absValue % scaleFactor;
+  if (extraDecimalPlaces > 0n) {
+    fractionalPart = fractionalPart * 10n ** extraDecimalPlaces;
+  } else if (extraDecimalPlaces < 0n) {
+    fractionalPart = fractionalPart / 10n ** -extraDecimalPlaces;
+  }
+
+  let fractionalString = fractionalPart.toString();
+  fractionalString = fractionalString.padStart(Number(decimalPlaces), "0");
+
+  return `${negative ? "-" : ""}${integerPart.toString()}.${fractionalString}`;
+}
+
+function fixedToString(value: bigint, scale: bigint): string {
+  while (scale > 0n && value % 10n === 0n) {
+    value /= 10n;
+    --scale;
+  }
+
+  if (scale === 0n) {
+    return value.toString();
+  }
+
+  const negative = value < 0n;
+  const absValue = negative ? -value : value;
+  const scaleFactor = 10n ** scale;
+  const integerPart = absValue / scaleFactor;
+  const fractionalPart = absValue % scaleFactor;
+  const fractionalString = fractionalPart
+    .toString()
+    .padStart(Number(scale), "0");
+
+  return `${negative ? "-" : ""}${integerPart.toString()}.${fractionalString}`;
+}
+
+//======================================================================
 //  Fixed (fixed-point arithmetic)
 //======================================================================
 
@@ -423,7 +486,7 @@ export class Fixed {
   }
 
   /**
-   * Canonical base-10 decimal string for this fixed-point value.
+   * Canonical base-10 decimal string representation of this fixed-point value.
    *
    * Without `fractionDigits`, the string uses this instance’s stored {@link scale}
    * (same as {@link toString}).
@@ -454,34 +517,26 @@ export class Fixed {
       );
     }
 
-    // Note: using `withDecimals` allocates a new `Fixed`. If `toFixed` becomes a hot
-    // path, consider inlining the scaling to avoid allocations.
-    const displayFixed =
-      displayScale === this.scale ? this : this.withDecimals(displayScale);
-    const negative = displayFixed.value < 0n;
-    const absValue = negative ? -displayFixed.value : displayFixed.value;
-
-    if (displayScale === 0n) {
-      return (negative ? "-" : "") + absValue.toString();
-    }
-
-    const scaleFactor = 10n ** displayScale;
-    const integerPart = absValue / scaleFactor;
-    const fractionalPart = absValue % scaleFactor;
-
-    let fractionalString = fractionalPart.toString();
-    const expectedLength = Number(displayScale);
-    if (fractionalString.length < expectedLength) {
-      fractionalString =
-        "0".repeat(expectedLength - fractionalString.length) + fractionalString;
-    }
-
-    const result = `${integerPart.toString()}.${fractionalString}`;
-    return negative ? `-${result}` : result;
+    return fixedToDecimalString(this.value, this.scale, displayScale);
   }
 
+  /**
+   * Compact base-10 decimal representation of this fixed-point value.
+   *
+   * This method return the shortest exact representation of the value
+   * where the trailing zeros and the decimal separator are removed.
+   *
+   * Examples:
+   * - `Fixed(123456000, 6).toString()` -> `"123.456"`
+   * - `Fixed(123456000, 5).toString()` -> `"1234.56"`
+   * - `Fixed(123456000, 4).toString()` -> `"12345.6"`
+   * - `Fixed(123456000, 3).toString()` -> `"123456"`
+   * - `Fixed(123456000, 2).toString()` -> `"1234560"`
+   * - `Fixed(123456000, 1).toString()` -> `"12345600"`
+   * - `Fixed(123456000, 0).toString()` -> `"123456000"`
+   */
   toString(): string {
-    return this.toDecimalString();
+    return fixedToString(this.value, this.scale);
   }
 }
 
