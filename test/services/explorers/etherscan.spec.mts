@@ -28,6 +28,7 @@ import RateLimit from "../../../fixtures/GnosisScan/RateLimit.json" with { type:
 import TokenTransfer from "../../../fixtures/GnosisScan/TokenTransfer.json" with { type: "json" };
 
 import { Payload } from "../../../src/provider.mjs";
+import { when } from "../../support/test.helper.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["ETHERSCAN_API_KEY"];
@@ -61,15 +62,7 @@ describe("EtherscanProvider", function () {
   });
 });
 
-describe("Etherscan", function () {
-  before(function () {
-    if (!API_KEY) {
-      throw Error(
-        "You must define the ETHERSCAN_API_KEY environment variable to run this test suite",
-      );
-    }
-  });
-
+when("ETHERSCAN_API_KEY", describe)("Etherscan", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
