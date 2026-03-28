@@ -22,7 +22,7 @@ const cryptoMetadata = CryptoMetadata.create();
 const explorer = program.args.length
   ? ExplorerFactories.gnosis.create(
       cryptoRegistry,
-      process.env.GNOSISSCAN_API_KEY ?? "",
+      process.env.ETHERSCAN_API_KEY ?? "",
     )
   : new TestScan(cryptoRegistry);
 const cryptoResolver = LazyCryptoResolver.create();
