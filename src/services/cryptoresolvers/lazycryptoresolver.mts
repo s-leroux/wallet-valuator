@@ -63,7 +63,7 @@ export class LazyCryptoResolver extends CryptoResolver {
     symbol: string,
     decimal: number,
   ): Promise<ResolutionResult> {
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
+    const chainAddress = ChainAddress(chain.id, smartContractAddress);
 
     return {
       status: "resolved",

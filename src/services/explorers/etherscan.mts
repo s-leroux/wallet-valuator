@@ -12,7 +12,7 @@ import {
   InternalTransactionRecord,
   NormalTransactionRecord,
 } from "../explorer.mjs";
-import { asBlockchain, Blockchain, ChainID } from "../../blockchain.mjs";
+import { asBlockchain, BlockchainSource } from "../../blockchain.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 
 /**
@@ -360,7 +360,7 @@ export class EtherscanAPI {
  * bound API interface.
  */
 export class DefaultEtherscanBoundAPI {
-  private readonly chainid: string;
+  private readonly chainid: string; // The EIP-155 chain ID **not** our internal blockchain identifier
   private readonly delegate: EtherscanAPI;
 
   constructor(chainid: string, delegate: EtherscanAPI) {
@@ -433,14 +433,16 @@ export type EtherscanBoundAPI = Pick<
  */
 export class Etherscan extends CommonExplorer {
   readonly api: EtherscanBoundAPI;
-  readonly chainExplorerId: string;
+  readonly chainid: string; // The EIP-155 chain ID **not** our internal blockchain identifier
 
   constructor(
     registry: CryptoRegistryNG,
     api: EtherscanBoundAPI,
-    chain: Blockchain | ChainID | string,
+    chain: BlockchainSource,
   ) {
     const myChain = asBlockchain(chain);
+    const explorerOptions = myChain.getEVMExplorerOptions();
+
     const myNativeCurrency = registry.createCryptoAsset(
       // XXX This is chain-specific!
       "xdai",
@@ -451,7 +453,7 @@ export class Etherscan extends CommonExplorer {
 
     super(myChain, myNativeCurrency);
     this.api = api;
-    this.chainExplorerId = myChain.explorerId;
+    this.chainid = String(explorerOptions.chainid);
   }
 
   static create(

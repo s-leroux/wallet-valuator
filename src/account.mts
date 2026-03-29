@@ -12,7 +12,7 @@ import {
   Transaction,
 } from "./transaction.mjs";
 import { Value } from "./valuation.mjs";
-import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
+import { WellKnownCryptoAssets } from "./data/wellknowncryptoassets.mjs";
 
 export interface Account {
   readonly chain: Blockchain;

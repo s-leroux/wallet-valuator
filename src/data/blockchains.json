@@ -1,63 +1,80 @@
 {
     "binance-cex": {
         "comment": "pseudo entry for the Binance CEX",
-        "display-name": "Binance",
-        "explorer-id": null
+        "type": "binance",
+        "display-name": "Binance"
     },
     "arbitrum": {
-        "name": "arbitrum",
+        "type": "evm",
         "display-name": "Arbitrum",
-        "explorer-id": "42161"
+        "explorer-name": "Etherscan",
+        "explorer-options": {
+            "chainid": 42161
+        }
     },
     "base": {
-        "name": "base",
+        "type": "evm",
         "display-name": "Base",
-        "explorer-id": "8453"
+        "explorer-name": "Etherscan",
+        "explorer-options": {
+            "chainid": 8453
+        }
     },
     "bnb chain": {
-        "name": "bnb chain",
+        "type": "evm",
         "display-name": "BNB Chain",
-        "explorer-id": "56"
+        "explorer-name": "Etherscan",
+        "explorer-options": {
+            "chainid": 56
+        }
     },
     "bitcoin": {
-        "name": "bitcoin",
-        "display-name": "Bitcoin",
-        "explorer-id": "bitcoin"
+        "type": "bitcoin",
+        "display-name": "Bitcoin"
     },
     "ethereum": {
-        "name": "ethereum",
+        "type": "evm",
         "display-name": "Ethereum",
-        "explorer-id": "1"
+        "explorer-name": "Etherscan",
+        "explorer-options": {
+            "chainid": 1
+        }
     },
     "gnosis": {
-        "name": "gnosis",
+        "type": "evm",
         "display-name": "Gnosis",
-        "explorer-id": "100"
+        "explorer-name": "Etherscan",
+        "explorer-options": {
+            "chainid": 100
+        }
     },
     "optimism": {
-        "name": "optimism",
+        "type": "evm",
         "display-name": "Optimism",
-        "explorer-id": "10"
+        "explorer-name": "Etherscan",
+        "explorer-options": {
+            "chainid": 10
+        }
     },
     "polygon": {
-        "name": "polygon",
+        "type": "evm",
         "display-name": "Polygon",
-        "explorer-id": "137"
+        "explorer-name": "Etherscan",
+        "explorer-options": {
+            "chainid": 137
+        }
     },
     "solana": {
-        "name": "solana",
-        "display-name": "Solana",
-        "explorer-id": "solana"
+        "type": "solana",
+        "display-name": "Solana"
     },
     "xdai": {
         "comment": "xdai was the former name of the gnosis chain",
-        "name": "gnosis",
-        "display-name": "Gnosis",
-        "explorer-id": "100"
+        "type": "redirect",
+        "redirect": "gnosis"
     },
     "xrp-ledger": {
-        "name": "xrp-ledger",
-        "display-name": "XRP Ledger",
-        "explorer-id": "xrp-ledger"
+        "type": "xrp-ledger",
+        "display-name": "XRP Ledger"
     }
 }

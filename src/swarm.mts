@@ -103,7 +103,7 @@ export class Swarm {
     id: K,
     data?: OPT,
   ): Promise<U> {
-    const key = `${chain.name}:${id}`.toLowerCase();
+    const key = `${chain.id}:${id}`.toLowerCase();
     let obj: U = storage.get(key) as U;
     if (!obj) {
       obj = new ctor(this, chain, id);

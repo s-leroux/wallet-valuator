@@ -6,7 +6,7 @@ import {
   CryptoMetadata,
   CryptoRegistryNG,
 } from "../src/cryptoregistry.mjs";
-import { toCryptoAssetID } from "../src/cryptoasset.mjs";
+import { toCryptoAssetInternalID } from "../src/cryptoasset.mjs";
 
 describe("CryptoRegistry", () => {
   let cryptoRegistry: CryptoRegistryNG;
@@ -23,7 +23,7 @@ describe("CryptoRegistry", () => {
   it("should create well known crypto-assets", () => {
     const bitcoin = cryptoRegistry.createCryptoAsset("bitcoin");
     assert.include(bitcoin, {
-      id: toCryptoAssetID("bitcoin"),
+      id: toCryptoAssetInternalID("bitcoin"),
       name: "Bitcoin",
       decimal: 8,
     });

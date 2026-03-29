@@ -5,7 +5,7 @@ import { Explorer } from "../src/services/explorer.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
 import { OnChainTransaction } from "../src/transaction.mjs";
-import { FakeExplorer } from "./fake-explorer.mjs";
+import { FakeExplorer } from "./support/explorer.fake.mjs";
 import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
 import { asBlockchain, Blockchain } from "../src/blockchain.mjs";
 

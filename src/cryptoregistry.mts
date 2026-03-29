@@ -2,7 +2,7 @@ import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { CryptoAsset, CryptoAssetCache } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
-import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
+import { WellKnownCryptoAssets } from "./data/wellknowncryptoassets.mjs";
 import { ChainAddress, mangleChainAddress } from "./chainaddress.mjs";
 import { MetadataFacade } from "./metadata.mjs";
 

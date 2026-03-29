@@ -1,4 +1,4 @@
-import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
+import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
 //prettier-ignore

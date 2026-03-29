@@ -2,7 +2,11 @@ import { assert } from "chai";
 
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
-import { Amount, CryptoAsset, CryptoAssetID } from "../src/cryptoasset.mjs";
+import {
+  Amount,
+  CryptoAsset,
+  CryptoAssetInternalID,
+} from "../src/cryptoasset.mjs";
 import { Fixed } from "../src/bignumber.mjs";
 
 import { InconsistentUnitsError } from "../src/error.mjs";
@@ -12,7 +16,7 @@ import { InstanceCache } from "../src/instancecache.mjs";
 const { ethereum, bitcoin } = FakeCryptoAsset;
 
 describe("CryptoAsset", () => {
-  let cache: InstanceCache<CryptoAssetID, CryptoAsset>;
+  let cache: InstanceCache<CryptoAssetInternalID, CryptoAsset>;
 
   beforeEach(() => {
     cache = new InstanceCache();

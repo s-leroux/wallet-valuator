@@ -29,7 +29,7 @@ import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mj
 import { PortfolioValuationReporter } from "../../services/reporters/valuationreporter.mjs";
 import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
 import { MakeAccount } from "../../account.mjs";
-import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
+import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { OHLCOracle } from "../../services/oracles/ohlcoracle.mjs";
 import { CryptoMetadata } from "../../../src/cryptometadata.mjs";
 

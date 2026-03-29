@@ -57,7 +57,7 @@ export class CurveResolver extends CryptoResolver {
     chain: Blockchain,
     smartContractAddress: string,
   ): Promise<Entry | null> {
-    const chainName = chain.name.toLowerCase();
+    const chainName = chain.id.toLowerCase();
     const poolAddress = await this.api.getLiquidityPoolFromToken(
       chainName,
       smartContractAddress,
@@ -90,7 +90,7 @@ export class CurveResolver extends CryptoResolver {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
 
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
+    const chainAddress = ChainAddress(chain.id, smartContractAddress);
     const entry =
       tokens.get(chainAddress) ??
       (await this.findLiquidityPool(chain, smartContractAddress));
@@ -121,7 +121,7 @@ export class CurveResolver extends CryptoResolver {
       // Record domain specific metadata
       cryptoMetadata.setMetadata(crypto, {
         resolver: "curve",
-        chain: chain.name.toLowerCase(),
+        chain: chain.id.toLowerCase(),
         address: smartContractAddress.toLowerCase(),
         poolAddress: entry.poolAddress?.toLowerCase(),
       } as CurveMetadata);

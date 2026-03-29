@@ -11,6 +11,7 @@ import {
   CryptoRegistryNG,
   CryptoMetadata,
 } from "../../../src/cryptoregistry.mjs";
+import { FAKE_GNO_CHAIN_ID } from "../../support/blockchain.fake.mjs";
 
 describe("TestScan", function () {
   let cryptoRegistry: CryptoRegistryNG;
@@ -33,7 +34,7 @@ describe("TestScan", function () {
   });
 
   it("should default to the fake Gnosis chain", () => {
-    assert.equal(explorer.chain.name, "gnosis-fake");
+    assert.equal(explorer.chain.id, FAKE_GNO_CHAIN_ID);
   });
 
   describe("normalTransaction()", () => {

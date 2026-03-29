@@ -88,7 +88,7 @@ describe("CurveResolver", function () {
             result.asset,
           );
           assert.isDefined(metadata);
-          assert.equal(metadata.chain, chain.name.toLowerCase());
+          assert.equal(metadata.chain, chain.id.toLowerCase());
           assert.equal(metadata.address, contract.toLowerCase());
         });
       }

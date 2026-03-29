@@ -137,7 +137,7 @@ export class RealTokenResolver extends CryptoResolver {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
 
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
+    const chainAddress = ChainAddress(chain.id, smartContractAddress);
     const entry = tokens.get(chainAddress);
     if (!entry) {
       // Not our business
