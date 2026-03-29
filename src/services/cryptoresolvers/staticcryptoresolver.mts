@@ -11,7 +11,7 @@ import { CryptoMetadata } from "../../cryptometadata.mjs";
 type BasePhysicalCryptoAsset = readonly [
   key: string,
   chain: string,
-  contractAddress: string | null
+  contractAddress: string | null,
 ];
 
 export type PhysicalCryptoAsset =
@@ -23,7 +23,7 @@ export type LogicalCryptoAsset = readonly [
   name: string,
   symbol: string,
   decimal: number,
-  metadata: object
+  metadata: object,
 ];
 
 /**
@@ -39,7 +39,7 @@ export class StaticCryptoResolver extends CryptoResolver {
 
   protected constructor(
     physicalCryptoAssets: Iterable<Readonly<PhysicalCryptoAsset>>,
-    logicalCryptoAssets: Iterable<Readonly<LogicalCryptoAsset>>
+    logicalCryptoAssets: Iterable<Readonly<LogicalCryptoAsset>>,
   ) {
     super();
     this.cache = new Map();
@@ -65,7 +65,7 @@ export class StaticCryptoResolver extends CryptoResolver {
 
   static create(
     cryptoTable: Iterable<PhysicalCryptoAsset>,
-    keyDomainsMap: Iterable<LogicalCryptoAsset> = []
+    keyDomainsMap: Iterable<LogicalCryptoAsset> = [],
   ): StaticCryptoResolver {
     return new this(cryptoTable, keyDomainsMap);
   }
@@ -77,7 +77,7 @@ export class StaticCryptoResolver extends CryptoResolver {
   getCryptoAsset(
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
-    id: string
+    id: string,
   ) {
     const logicalCryptoAsset = this.logicalCryptoAssets.get(id);
     if (!logicalCryptoAsset) {
@@ -100,7 +100,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     smartContractAddress: string | null,
     _name: string,
     _symbol: string,
-    _decimal: number
+    _decimal: number,
   ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.name, smartContractAddress); // ISSUE #99 could this be done at higher level?
 
@@ -131,7 +131,7 @@ export class StaticCryptoResolver extends CryptoResolver {
     const logicalCryptoAsset = this.logicalCryptoAssets.get(id);
     if (!logicalCryptoAsset) {
       throw new InternalError(
-        `No matching logical crypto-asset for ${physicalCryptoAsset}`
+        `No matching logical crypto-asset for ${physicalCryptoAsset}`,
       );
     }
 
@@ -141,7 +141,7 @@ export class StaticCryptoResolver extends CryptoResolver {
       id,
       name,
       symbol,
-      decimals
+      decimals,
     );
     cryptoMetadata.setMetadata(crypto, metadata);
     this.cache.set(chainAddress, crypto);

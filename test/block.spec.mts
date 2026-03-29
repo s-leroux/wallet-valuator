@@ -27,7 +27,7 @@ describe("Block", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const block = new Block(swarm, chain, blockNumber);
@@ -48,7 +48,7 @@ describe("Block", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const block = new Block(swarm, chain, blockNumber);

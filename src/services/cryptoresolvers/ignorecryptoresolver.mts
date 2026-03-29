@@ -29,12 +29,12 @@ export class IgnoreCryptoResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     log.warn(
       "C2001",
       "%s",
-      `Ignoring token ${name} (${symbol}) ${chain}:${smartContractAddress} @ ${block}`
+      `Ignoring token ${name} (${symbol}) ${chain}:${smartContractAddress} @ ${block}`,
     );
     return { status: "ignore" };
   }

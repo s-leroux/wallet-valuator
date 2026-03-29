@@ -14,7 +14,7 @@ function check<T extends new (...args: Args) => any, Args extends any[]>(
  * Check if the elements of a tuple iterator are sorted by the first item of each tuple.
  */
 function isSorted<K extends unknown, T extends readonly [K, ...unknown[]]>(
-  it: Iterator<T>
+  it: Iterator<T>,
 ) {
   let iter = it.next();
   let prev: K | undefined;
@@ -45,7 +45,7 @@ export class Table<K extends unknown, T extends readonly [K, ...unknown[]]>
     check(
       table.length > 1,
       ValueError,
-      "The table must contain at least one element"
+      "The table must contain at least one element",
     );
     check(isSorted(table.values()), ValueError, "The table must be sorted");
 
@@ -67,7 +67,7 @@ export class Table<K extends unknown, T extends readonly [K, ...unknown[]]>
 
 export function bsearch<K, R extends readonly [K, ...unknown[]]>(
   haystack: R[],
-  needle: K
+  needle: K,
 ): R | undefined {
   let bestMatch: R | undefined = undefined;
   let start = 0;
@@ -95,7 +95,7 @@ export function bsearch<K, R extends readonly [K, ...unknown[]]>(
  */
 export function linsearch<K, R extends readonly [K, ...unknown[]]>(
   haystack: R[],
-  needle: K
+  needle: K,
 ): R | undefined {
   for (const row of haystack) {
     if (row[0] === needle) {

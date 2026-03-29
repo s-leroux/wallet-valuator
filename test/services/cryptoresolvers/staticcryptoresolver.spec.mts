@@ -111,7 +111,7 @@ describe("StaticCryptoResolver", function () {
             address,
             name,
             symbol,
-            decimal
+            decimal,
           );
           if (!result || result.status !== "resolved") {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -120,7 +120,7 @@ describe("StaticCryptoResolver", function () {
           const expectedId = chain === B ? "bitcoin" : "usdc";
           assert.strictEqual(
             result.asset,
-            swarm.cryptoRegistry.createCryptoAsset(expectedId)
+            swarm.cryptoRegistry.createCryptoAsset(expectedId),
           );
         });
       }
@@ -159,7 +159,7 @@ describe("StaticCryptoResolver", function () {
             address,
             name,
             symbol,
-            decimal
+            decimal,
           );
           assert.exists(result);
           assert.equal(result?.status, expected);
@@ -191,7 +191,7 @@ describe("StaticCryptoResolver", function () {
           address,
           name,
           symbol,
-          decimal
+          decimal,
         );
         if (!result || result.status !== "resolved") {
           // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -233,7 +233,7 @@ describe("StaticCryptoResolver", function () {
           address,
           name,
           symbol,
-          decimal
+          decimal,
         );
         if (!result || result.status !== "resolved") {
           // eslint-disable-next-line @typescript-eslint/no-base-to-string

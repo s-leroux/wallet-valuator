@@ -55,17 +55,17 @@ export class CurveResolver extends CryptoResolver {
 
   async findLiquidityPool(
     chain: Blockchain,
-    smartContractAddress: string
+    smartContractAddress: string,
   ): Promise<Entry | null> {
     const chainName = chain.name.toLowerCase();
     const poolAddress = await this.api.getLiquidityPoolFromToken(
       chainName,
-      smartContractAddress
+      smartContractAddress,
     );
     if (!poolAddress) {
       log.info(
         "C1016",
-        `${chainName} ${smartContractAddress} does not seem a Curve pool`
+        `${chainName} ${smartContractAddress} does not seem a Curve pool`,
       );
       return null;
     }
@@ -85,7 +85,7 @@ export class CurveResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
@@ -102,7 +102,7 @@ export class CurveResolver extends CryptoResolver {
     function cryptoAsset(
       cryptoRegistry: CryptoRegistryNG,
       cryptoMetadata: CryptoMetadata,
-      entry: Entry
+      entry: Entry,
     ): CryptoAsset {
       let crypto = entry.crypto;
       if (crypto) {
@@ -115,7 +115,7 @@ export class CurveResolver extends CryptoResolver {
         chainAddress,
         name,
         symbol,
-        decimal
+        decimal,
       );
 
       // Record domain specific metadata

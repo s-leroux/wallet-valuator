@@ -28,7 +28,7 @@ describe("TestScan", function () {
       [explorer],
       cryptoRegistry,
       cryptoMetadata,
-      cryptoResolver
+      cryptoResolver,
     );
   });
 
@@ -57,14 +57,14 @@ describe("TestScan", function () {
       const address = "0x89344efa2d9953accd3e907eab27b33542ed9e25";
       const transactions = await explorer.getInternalTransactionsByAddress(
         sw,
-        address
+        address,
       );
 
       assert.lengthOf(transactions, 145);
       for (const transaction of transactions) {
         assert.isTrue(
           transaction.to.address == address ||
-            transaction.from.address == address
+            transaction.from.address == address,
         );
         assert.include(transaction, {
           type: "INTERNAL",

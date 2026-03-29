@@ -58,7 +58,7 @@ describe("DefaultCryptoResolver", function () {
             chain,
             block,
             address,
-            ...MONERIUM
+            ...MONERIUM,
           );
           assert.exists(result);
           switch (expected) {
@@ -69,7 +69,7 @@ describe("DefaultCryptoResolver", function () {
               assert.include(result, { status: "resolved" });
               assert.equal(
                 (result as Resolved).asset.id,
-                toCryptoAssetID(expected)
+                toCryptoAssetID(expected),
               );
           }
         });

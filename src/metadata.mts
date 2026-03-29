@@ -35,10 +35,10 @@ export class MetadataFacade<T extends object, M extends object> {
   static create<
     T extends object,
     M extends object,
-    Self extends MetadataFacade<T, M>
+    Self extends MetadataFacade<T, M>,
   >(
     this: new (store: MetadataStore) => Self,
-    store: MetadataStore = GlobalMetadataStore
+    store: MetadataStore = GlobalMetadataStore,
   ): Self {
     return new this(store);
   }

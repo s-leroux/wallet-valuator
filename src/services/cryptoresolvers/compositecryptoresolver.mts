@@ -24,7 +24,7 @@ export class CompositeCryptoResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     for (const backend of this.backends) {
       const result = await backend.resolve(
@@ -35,7 +35,7 @@ export class CompositeCryptoResolver extends CryptoResolver {
         smartContractAddress,
         name,
         symbol,
-        decimal
+        decimal,
       );
       if (result) {
         return result;

@@ -53,7 +53,7 @@ describe("CurveResolver", function () {
             contract,
             name,
             name,
-            18
+            18,
           );
 
           if (!result || result.status !== "resolved") {
@@ -78,14 +78,14 @@ describe("CurveResolver", function () {
             contract,
             name,
             name,
-            18
+            18,
           );
 
           if (!result || result.status !== "resolved")
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
             assert.fail(`result was ${result}`);
           const metadata = cryptoMetadata.getMetadata<CurveMetadata>(
-            result.asset
+            result.asset,
           );
           assert.isDefined(metadata);
           assert.equal(metadata.chain, chain.name.toLowerCase());

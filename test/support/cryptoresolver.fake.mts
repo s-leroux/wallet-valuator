@@ -59,7 +59,7 @@ export class GnosisCryptoResolver extends StaticCryptoResolver {
   protected constructor() {
     super(
       physicalCryptoTable.filter((item) => item[1] == "gnosis"),
-      logicalCryptoTable
+      logicalCryptoTable,
     );
   }
 
@@ -72,7 +72,7 @@ export class EthereumCryptoResolver extends StaticCryptoResolver {
   protected constructor() {
     super(
       physicalCryptoTable.filter((item) => item[1] == "ethereum"),
-      logicalCryptoTable
+      logicalCryptoTable,
     );
   }
 
@@ -85,7 +85,7 @@ export class PolygonCryptoResolver extends StaticCryptoResolver {
   protected constructor() {
     super(
       physicalCryptoTable.filter((item) => item[1] == "polygon"),
-      logicalCryptoTable
+      logicalCryptoTable,
     );
   }
 

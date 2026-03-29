@@ -84,7 +84,7 @@ class BinanceAccount implements Account {
           input[1] = temp;
           return input;
         },
-      })
+      }),
     );
   }
 
@@ -120,7 +120,7 @@ class BinanceAccount implements Account {
           const received = this.amountFromCrypto(
             swarm,
             receivedCurrency,
-            receivedAmount
+            receivedAmount,
           );
           transactions.push(
             this.createTransaction(
@@ -129,8 +129,8 @@ class BinanceAccount implements Account {
               received,
               nowhere,
               this,
-              comments
-            )
+              comments,
+            ),
           );
           break;
         }
@@ -144,8 +144,8 @@ class BinanceAccount implements Account {
               sent,
               this,
               nowhere,
-              comments
-            )
+              comments,
+            ),
           );
           break;
         }
@@ -154,7 +154,7 @@ class BinanceAccount implements Account {
           const received = this.amountFromCrypto(
             swarm,
             receivedCurrency,
-            receivedAmount
+            receivedAmount,
           );
           transactions.push(
             this.createTransaction(
@@ -163,8 +163,8 @@ class BinanceAccount implements Account {
               received,
               nowhere,
               this,
-              comments
-            )
+              comments,
+            ),
           );
           break;
         }
@@ -178,8 +178,8 @@ class BinanceAccount implements Account {
               sent,
               this,
               nowhere,
-              comments
-            )
+              comments,
+            ),
           );
           break;
         }
@@ -189,12 +189,12 @@ class BinanceAccount implements Account {
           const received = this.amountFromCrypto(
             swarm,
             receivedCurrency,
-            receivedAmount
+            receivedAmount,
           );
           comments.splice(
             1,
             0,
-            `PART OF ${sent.crypto} FOR ${received.crypto} TRADE`
+            `PART OF ${sent.crypto} FOR ${received.crypto} TRADE`,
           );
           transactions.push(
             this.createTransaction(
@@ -203,7 +203,7 @@ class BinanceAccount implements Account {
               received,
               nowhere,
               this,
-              comments
+              comments,
             ),
             this.createTransaction(
               "TRADE",
@@ -211,8 +211,8 @@ class BinanceAccount implements Account {
               sent,
               this,
               nowhere,
-              comments
-            )
+              comments,
+            ),
           );
           break;
         }
@@ -228,7 +228,7 @@ class BinanceAccount implements Account {
           throw Logged(
             "C3010",
             ValueError,
-            `Unknown transaction type "${type}" for ${this.chain}`
+            `Unknown transaction type "${type}" for ${this.chain}`,
           );
       }
     }
@@ -242,7 +242,7 @@ class BinanceAccount implements Account {
     amount: Amount,
     from: ChainAddress,
     to: ChainAddress,
-    comments: string[] = []
+    comments: string[] = [],
   ): CEXTransaction {
     return new CEXTransaction(
       this.chain,
@@ -251,7 +251,7 @@ class BinanceAccount implements Account {
       amount,
       from,
       to,
-      comments
+      comments,
     );
   }
 
@@ -262,10 +262,10 @@ class BinanceAccount implements Account {
   amountFromCrypto(
     swarm: Swarm,
     binanceMnemonic: string,
-    amount: string
+    amount: string,
   ): Amount {
     return this.resolveCryptoAsset(swarm, binanceMnemonic).amountFromString(
-      amount
+      amount,
     );
   }
 
@@ -278,7 +278,7 @@ class BinanceAccount implements Account {
     throw Logged(
       "C3011",
       ValueError,
-      `Unknown crypto-asset "${binanceMnemonic}" for ${this.chain}`
+      `Unknown crypto-asset "${binanceMnemonic}" for ${this.chain}`,
     );
   }
 }
@@ -287,7 +287,7 @@ export function MakeAccount(
   swarm: Swarm,
   chain: string | Blockchain,
   id: string,
-  data?: object
+  data?: object,
 ): Promise<Account> {
   switch (chain) {
     case "binance-cex":

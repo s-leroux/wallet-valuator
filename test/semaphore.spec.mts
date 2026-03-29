@@ -11,12 +11,12 @@ describe("Semaphore", function () {
     assert.throws(
       () => new Semaphore(0),
       ValueError,
-      "Concurrency level should be >= 1"
+      "Concurrency level should be >= 1",
     );
     assert.throws(
       () => new Semaphore(-5),
       ValueError,
-      "Concurrency level should be >= 1"
+      "Concurrency level should be >= 1",
     );
   });
 
@@ -45,7 +45,7 @@ describe("Semaphore", function () {
     await Promise.timeout(10);
     assert.isFalse(
       resolved,
-      "Promise should not be resolved while semaphore is full"
+      "Promise should not be resolved while semaphore is full",
     );
 
     // Release the slot; queued promise should now resolve.
@@ -70,7 +70,7 @@ describe("Semaphore", function () {
     assert.throws(
       () => sem.release(),
       ProtocolError,
-      "release() called more times than get()"
+      "release() called more times than get()",
     );
   });
 
@@ -128,7 +128,7 @@ describe("Semaphore", function () {
         assert.strictEqual(
           err.message,
           "Test error",
-          "Expected error message to match"
+          "Expected error message to match",
         );
       }
       assert.isTrue(errorCaught, "Error should be caught");
@@ -138,7 +138,7 @@ describe("Semaphore", function () {
       assert.strictEqual(
         result,
         "recovered",
-        "Semaphore should be released after error"
+        "Semaphore should be released after error",
       );
     });
 
@@ -166,12 +166,12 @@ describe("Semaphore", function () {
       assert.strictEqual(
         maxRunning,
         1,
-        "No more than one task should run concurrently"
+        "No more than one task should run concurrently",
       );
       assert.deepEqual(
         results,
         [10, 10, 10],
-        "All tasks should complete with their delay values"
+        "All tasks should complete with their delay values",
       );
     });
   });

@@ -10,7 +10,7 @@ import { CryptoMetadata } from "../../cryptometadata.mjs";
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
   chain: string,
-  smartContractAddress: string | null
+  smartContractAddress: string | null,
 ): ChainAddress {
   return `${chain}:${smartContractAddress || ""}`.toLowerCase() as ChainAddress;
 }
@@ -21,7 +21,7 @@ export type LazyCryptoAsset = readonly [
   contractAddress: string | null,
   name: string,
   symbol: string,
-  decimal: number
+  decimal: number,
 ];
 
 type Entry = {
@@ -61,7 +61,7 @@ export class LazyCryptoResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.name, smartContractAddress);
 
@@ -72,8 +72,8 @@ export class LazyCryptoResolver extends CryptoResolver {
           chainAddress,
           name,
           symbol,
-          decimal
-        )
+          decimal,
+        ),
       ),
     };
   }
@@ -87,7 +87,7 @@ export class LazyCryptoResolver extends CryptoResolver {
   get(chain: string, contractAddress: string): CryptoAsset {
     if (process.env.NODE_ENV !== "test") {
       throw new Error(
-        "This method is for testing purposes only and cannot be called in production code"
+        "This method is for testing purposes only and cannot be called in production code",
       );
     }
     return this.cryptos.get(ChainAddress(chain, contractAddress));

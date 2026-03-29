@@ -2,13 +2,13 @@ import { ESLintUtils, TSESTree } from "@typescript-eslint/utils";
 import ts from "typescript";
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://your-rules/${name}`
+  (name) => `https://your-rules/${name}`,
 );
 
 function areTypesComparable(
   a: ts.Type,
   b: ts.Type,
-  checker: ts.TypeChecker
+  checker: ts.TypeChecker,
 ): boolean {
   // Get all members of each type (treating non-unions as single-member unions)
   const membersA = a.isUnion() ? a.types : [a];
@@ -18,8 +18,9 @@ function areTypesComparable(
   return membersA.some((t1) =>
     membersB.some(
       (t2) =>
-        checker.isTypeAssignableTo(t1, t2) || checker.isTypeAssignableTo(t2, t1)
-    )
+        checker.isTypeAssignableTo(t1, t2) ||
+        checker.isTypeAssignableTo(t2, t1),
+    ),
   );
 }
 
@@ -42,11 +43,11 @@ export const inconsistentComparison = createRule({
 
     return {
       "BinaryExpression[operator=/==|!=|===|!==/]": (
-        node: TSESTree.BinaryExpression
+        node: TSESTree.BinaryExpression,
       ) => {
         const leftTsNode = parserServices.esTreeNodeToTSNodeMap.get(node.left);
         const rightTsNode = parserServices.esTreeNodeToTSNodeMap.get(
-          node.right
+          node.right,
         );
         const leftType = checker.getTypeAtLocation(leftTsNode);
         const rightType = checker.getTypeAtLocation(rightTsNode);

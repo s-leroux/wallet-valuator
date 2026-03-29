@@ -49,6 +49,6 @@ export abstract class CryptoResolver {
     smartContractAddress: string, // ISSUE #97 Do we have a special value for native coins?
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult>; // ISSUE #43 Shouldn't we throw an exception instead of returning null?
 }

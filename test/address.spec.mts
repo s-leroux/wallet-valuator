@@ -27,7 +27,7 @@ describe("Address", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const addr = new Address(swarm, chain, address);
@@ -48,7 +48,7 @@ describe("Address", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const addr = new Address(swarm, chain, address);

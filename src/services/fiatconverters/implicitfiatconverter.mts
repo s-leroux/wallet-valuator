@@ -18,7 +18,7 @@ export class ImplicitFiatConverter implements FiatConverter {
 
   constructor(
     oracle: Oracle,
-    crypto: CryptoAsset | undefined // ISSUE #45 Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
+    crypto: CryptoAsset | undefined, // ISSUE #45 Check that once we have decided about CryptoResolver returning `null` vs throwing an exception
   ) {
     if (!crypto) {
       throw new ValueError(`The reference crypto-asset must be defined`);
@@ -36,7 +36,7 @@ export class ImplicitFiatConverter implements FiatConverter {
     registry: CryptoRegistryNG,
     date: Date,
     price: Price,
-    to: FiatCurrency
+    to: FiatCurrency,
   ): Promise<Price> {
     const from = price.fiatCurrency;
 
@@ -54,7 +54,7 @@ export class ImplicitFiatConverter implements FiatConverter {
       this.crypto,
       date,
       new Set([from, to]),
-      priceMap
+      priceMap,
     ); // ISSUE #64 What to do if this fails?
 
     const toPrice = priceMap.get(to);
@@ -62,14 +62,14 @@ export class ImplicitFiatConverter implements FiatConverter {
 
     if (toPrice === undefined || fromPrice === undefined) {
       throw new NotImplementedError(
-        "Unable to find the reference prices.\nSee ISSUE #94"
+        "Unable to find the reference prices.\nSee ISSUE #94",
       );
     }
 
     log.trace(
       "C1014",
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
-      `Synthetize ${price.crypto}/${to} from ${this.crypto} at ${date}`
+      `Synthetize ${price.crypto}/${to} from ${this.crypto} at ${date}`,
     );
     const ratioScale = toPrice.rate.scale + fromPrice.rate.scale;
     const exchangeRage = toPrice.rate.div(fromPrice.rate, ratioScale);

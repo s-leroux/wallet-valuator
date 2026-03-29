@@ -26,4 +26,3 @@ export class PortfolioValuationTabularAdapter implements TabularAdapter {
     yield* adapter.rows();
   }
 }
-
