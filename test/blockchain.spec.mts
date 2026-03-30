@@ -4,6 +4,8 @@ import { asBlockchainInternalID, Blockchain } from "../src/blockchain.mjs";
 import {
   FAKE_ETH_CHAIN_ID,
   FAKE_ETH_CHAIN_DATA,
+  FAKE_BTC_CHAIN_ID,
+  FAKE_BTC_CHAIN_DATA,
 } from "./support/blockchain.fake.mjs";
 
 describe("Blockchain", function () {
@@ -48,10 +50,7 @@ describe("Blockchain", function () {
 
   it("should return different instances for different blockchain names", function () {
     const eth = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
-    const btc = Blockchain.create(asBlockchainInternalID("test-bitcoin"), {
-      type: "bitcoin",
-      "display-name": "Test Bitcoin",
-    });
+    const btc = Blockchain.create(FAKE_BTC_CHAIN_ID, FAKE_BTC_CHAIN_DATA);
 
     assert.notStrictEqual(
       eth,
@@ -85,10 +84,7 @@ describe("Blockchain", function () {
       "Equality operator (==) should return true for the same blockchain",
     );
 
-    const btc = Blockchain.create(asBlockchainInternalID("test-bitcoin"), {
-      "display-name": "Test Bitcoin",
-      type: "bitcoin",
-    });
+    const btc = Blockchain.create(FAKE_BTC_CHAIN_ID, FAKE_BTC_CHAIN_DATA);
     assert.isFalse(
       eth1 === btc,
       "Equality operator (==) should return false for different blockchains",
@@ -103,10 +99,7 @@ describe("Blockchain", function () {
       "Identity operator (===) should return true for the same blockchain",
     );
 
-    const btc = Blockchain.create(asBlockchainInternalID("test-bitcoin"), {
-      type: "bitcoin",
-      "display-name": "Test Bitcoin",
-    });
+    const btc = Blockchain.create(FAKE_BTC_CHAIN_ID, FAKE_BTC_CHAIN_DATA);
     assert.isFalse(
       eth1 === btc,
       "Identity operator (===) should return false for different blockchains",

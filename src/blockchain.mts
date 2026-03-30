@@ -38,6 +38,7 @@ type EVMRecord = {
   comment?: string;
   type: "evm";
   "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
   "explorer-name": string;
   "explorer-options": {
     chainid: number; // The EIP-155 chain ID, practically capped at uint53
@@ -48,6 +49,7 @@ type BinanceRecord = {
   comment?: string;
   type: "binance";
   "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -55,6 +57,7 @@ type BitcoinRecord = {
   comment?: string;
   type: "bitcoin";
   "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -62,6 +65,7 @@ type SolanaRecord = {
   comment?: string;
   type: "solana";
   "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -69,6 +73,7 @@ type XRPLedgerRecord = {
   comment?: string;
   type: "xrp-ledger";
   "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -91,7 +96,7 @@ type BlockchainData = Readonly<
 //  Blockchain class and related types
 //======================================================================
 
-import rawBlockchainData from "./data/blockchains.json" with { type: "json" };
+import rawBlockchainData from "./data/wellknownblockchains.json" with { type: "json" };
 
 const blockchainData: BlockchainData =
   rawBlockchainData satisfies BlockchainData;

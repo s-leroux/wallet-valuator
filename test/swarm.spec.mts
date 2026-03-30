@@ -6,18 +6,13 @@ import { Explorer } from "../src/services/explorer.mjs";
 import { FakeExplorer } from "./support/explorer.fake.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
-import { asBlockchainInternalID, Blockchain } from "../src/blockchain.mjs";
+import { Blockchain } from "../src/blockchain.mjs";
+import {
+  FAKE_ETH_CHAIN_ID,
+  FAKE_ETH_CHAIN_DATA,
+} from "./support/blockchain.fake.mjs";
 
 const ADDRESS = "0xAddress";
-const TEST_CHAIN_ID = asBlockchainInternalID("MyChain");
-const TEST_CHAIN_DATA = {
-  type: "evm",
-  "display-name": "MyChainName",
-  "explorer-name": "MyExplorerName",
-  "explorer-options": {
-    chainid: 1,
-  },
-} as const;
 
 describe("Swarm", () => {
   let chain: Blockchain;
@@ -28,7 +23,7 @@ describe("Swarm", () => {
   let cryptoMetadata: CryptoMetadata;
 
   beforeEach(() => {
-    chain = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
+    chain = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
     cryptoRegistry = CryptoRegistryNG.create();
     cryptoMetadata = CryptoMetadata.create();
     cryptoResolver = FakeCryptoResolver.create();
@@ -69,7 +64,7 @@ describe("Swarm", () => {
 
   describe("getExplorer()", () => {
     it("should return the explorer by its chain name", () => {
-      const result = swarm.getExplorer(TEST_CHAIN_ID);
+      const result = swarm.getExplorer(FAKE_ETH_CHAIN_ID);
 
       assert.exists(result);
       assert.equal(result.chain, chain);
@@ -78,14 +73,14 @@ describe("Swarm", () => {
 
     it("should throw if the blockchain is unknown", () => {
       assert.throws(() => {
-        swarm.getExplorer(TEST_CHAIN_ID + "X");
+        swarm.getExplorer(FAKE_ETH_CHAIN_ID + "X");
       });
     });
   });
 
   describe("getNativeCurrency()", () => {
     it("should return the native currency for a blockchain", () => {
-      const result = swarm.getNativeCurrency(TEST_CHAIN_ID);
+      const result = swarm.getNativeCurrency(FAKE_ETH_CHAIN_ID);
 
       assert.exists(result);
       assert.equal(result, explorer.nativeCurrency);
@@ -94,7 +89,7 @@ describe("Swarm", () => {
 
     it("should throw if the blockchain is unknown", () => {
       assert.throws(() => {
-        swarm.getNativeCurrency(TEST_CHAIN_ID + "X");
+        swarm.getNativeCurrency(FAKE_ETH_CHAIN_ID + "X");
       });
     });
   });

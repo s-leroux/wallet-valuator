@@ -6,7 +6,7 @@ Type safety at the **data** boundary matters: consumers should rely on typed sha
 
 ## Roadmap: TypeScript first, SQLite later
 
-A practical sequence is to **normalize on TypeScript modules** as a near-term step when mixing JSON and `.mts` feels inconsistent. That gives one authoring style, strong checking in the editor, and a single compile path. Later, you can **replace static loading with SQLite** when you are ready; the TypeScript (or generated JSON) from this folder can serve as **seed data** for the first migration. That avoids a single huge change while still moving toward one storage story.
+A practical sequence is to **normalize the schema and source representation in TypeScript** as a near-term step when mixing JSON and `.mts` feels inconsistent. That gives one authoring style, strong checking in the editor, and a single compile path. Later, you can **replace static loading with SQLite** when you are ready; the TypeScript (or generated JSON) from this folder can serve as **seed data** for the first migration. That avoids a single huge change while still moving toward one storage story.
 
 - **Short-term:** consolidate static data into TypeScript where it helps consistency and typing.
 - **Longer-term:** SQLite (or similar) if you want a real database—one access pattern, migrations, and room to grow—while TypeScript-first work stays a valid bridge, not a dead end.
