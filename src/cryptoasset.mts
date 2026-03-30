@@ -19,19 +19,20 @@ const log = logger("crypto-asset");
 type AmountSource = FixedSource;
 
 //======================================================================
-//  CryptoAssetID
+//  CryptoAssetInternalId
 //======================================================================
-export type CryptoAssetInternalID = Lowercase<string> & {
+
+export type CryptoAssetInternalId = Lowercase<string> & {
   readonly __brand: unique symbol;
 };
 
-export function toCryptoAssetInternalID(id: string): CryptoAssetInternalID {
+export function toCryptoAssetInternalId(id: string): CryptoAssetInternalId {
   if (id !== id.toLowerCase()) {
     throw new ValueError(
       `The id for crypto-assets must be written in all lowercase (was ${id})`,
     );
   }
-  return id as CryptoAssetInternalID;
+  return id as CryptoAssetInternalId;
 }
 
 //======================================================================
@@ -208,7 +209,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
 //======================================================================
 
 export type CryptoAssetCache = InstanceCache<
-  CryptoAssetInternalID,
+  CryptoAssetInternalId,
   CryptoAsset
 >;
 export function CryptoAssetCache(): CryptoAssetCache {
@@ -253,7 +254,7 @@ export function CryptoAssetCache(): CryptoAssetCache {
  * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
-  readonly id: CryptoAssetInternalID;
+  readonly id: CryptoAssetInternalId;
   readonly name: string;
   readonly symbol: string;
   readonly decimal: number;
@@ -269,7 +270,7 @@ export class CryptoAsset {
    * @param decimal - The number of decimal places used for the crypto.
    */
   private constructor(
-    id: CryptoAssetInternalID,
+    id: CryptoAssetInternalId,
     name: string,
     symbol: string,
     decimal: number,
@@ -290,12 +291,12 @@ export class CryptoAsset {
    */
   static create(
     cache: CryptoAssetCache,
-    id: string | CryptoAssetInternalID,
+    id: string | CryptoAssetInternalId,
     name: string,
     symbol: string,
     decimal: number,
   ): CryptoAsset {
-    const normalizedId = toCryptoAssetInternalID(id);
+    const normalizedId = toCryptoAssetInternalId(id);
 
     return cache.getOrCreate(
       normalizedId,

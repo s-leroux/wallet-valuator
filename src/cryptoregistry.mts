@@ -12,10 +12,6 @@ const log = logger("crypto-registry");
 //  CryptoMetadata
 //======================================================================
 
-export type MetadataOld = {
-  [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
-};
-
 export interface CryptoAssetMetadata {
   fiscalCategory?: CryptoAssetFiscalCategory;
   coingeckoId?: string;
@@ -79,7 +75,7 @@ export class CryptoRegistryNG {
    * @returns The existing or newly created CryptoAsset.
    */
   // prettier-ignore
-  createCryptoAsset(id: string | ChainAddress): CryptoAsset;
+  createCryptoAsset(internalId: string | ChainAddress): CryptoAsset;
   // prettier-ignore
   createCryptoAsset(id: string | ChainAddress, name: string, symbol: string, decimal: number ): CryptoAsset;
   createCryptoAsset(

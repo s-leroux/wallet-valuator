@@ -13,11 +13,11 @@ import { Logged } from "./errorutils.mjs";
  *
  * This is the key used by {@link Blockchain.find} and {@link Blockchain.create}.
  */
-export type BlockchainInternalID = string & { readonly brand: unique symbol };
+export type BlockchainInternalId = string & { readonly brand: unique symbol };
 
-export function asBlockchainInternalID(
-  id: string | BlockchainInternalID,
-): BlockchainInternalID {
+export function asBlockchainInternalId(
+  id: string | BlockchainInternalId,
+): BlockchainInternalId {
   const idStr = id.trim().toLowerCase();
 
   // Validate that it's not empty
@@ -25,20 +25,20 @@ export function asBlockchainInternalID(
     throw Logged("C3103", ValueError, "Blockchain ID cannot be empty");
   }
 
-  return idStr as BlockchainInternalID;
+  return idStr as BlockchainInternalId;
 }
 
 type Redirect = {
   comment?: string;
   type: "redirect";
-  redirect: BlockchainInternalID;
+  redirect: BlockchainInternalId;
 };
 
 type EVMRecord = {
   comment?: string;
   type: "evm";
   "display-name": string;
-  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
   "explorer-name": string;
   "explorer-options": {
     chainid: number; // The EIP-155 chain ID, practically capped at uint53
@@ -49,7 +49,7 @@ type BinanceRecord = {
   comment?: string;
   type: "binance";
   "display-name": string;
-  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -57,7 +57,7 @@ type BitcoinRecord = {
   comment?: string;
   type: "bitcoin";
   "display-name": string;
-  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -65,7 +65,7 @@ type SolanaRecord = {
   comment?: string;
   type: "solana";
   "display-name": string;
-  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -73,7 +73,7 @@ type XRPLedgerRecord = {
   comment?: string;
   type: "xrp-ledger";
   "display-name": string;
-  "native-coin": string; // In practice, this is a CryptoAssetInternalID, but we don't want to depend on CryptoAsset here
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -87,7 +87,7 @@ export type BlockchainRecord =
 
 type BlockchainData = Readonly<
   Record<
-    BlockchainInternalID,
+    BlockchainInternalId,
     Readonly<BlockchainRecord> | Readonly<Redirect> | undefined
   >
 >;
@@ -104,14 +104,14 @@ const blockchainData: BlockchainData =
 /**
  * Anything that can be converted to a {@link Blockchain} instance.
  */
-export type BlockchainSource = Blockchain | BlockchainInternalID | string;
+export type BlockchainSource = Blockchain | BlockchainInternalId | string;
 
 /**
  * Converts a {@link BlockchainSource} to a {@link Blockchain} instance.
  */
 export function asBlockchain(chain: BlockchainSource): Blockchain {
   if (typeof chain === "string") {
-    return Blockchain.find(asBlockchainInternalID(chain));
+    return Blockchain.find(asBlockchainInternalId(chain));
   }
 
   return chain;
@@ -133,7 +133,7 @@ export function asBlockchain(chain: BlockchainSource): Blockchain {
  *
  */
 export class Blockchain {
-  private static registry = new MMap<BlockchainInternalID, Blockchain>();
+  private static registry = new MMap<BlockchainInternalId, Blockchain>();
 
   //--------------------------------------------------------------------
   //  Constructor and factory methods
@@ -142,12 +142,12 @@ export class Blockchain {
   private constructor(
     // Our internal blockchain identifier (e.g. "ethereum")
     // **not** the EIP-155 chain ID (e.g. "1"). We may operate non-EVM blockchains.
-    public readonly id: BlockchainInternalID,
+    public readonly id: BlockchainInternalId,
     public readonly chainRecord: BlockchainRecord,
   ) {}
 
   static create(
-    id: BlockchainInternalID,
+    id: BlockchainInternalId,
     chainRecord: BlockchainRecord,
   ): Blockchain {
     // FIXME: If found, we should check consistency between the "old" record and `chainRecord`
@@ -157,16 +157,16 @@ export class Blockchain {
     });
   }
 
-  static find(id: BlockchainInternalID | string): Blockchain {
-    const internalBlockchainID = asBlockchainInternalID(id);
-    const blockchain = this.registry.get(internalBlockchainID, () => {
-      const chainData = blockchainData[internalBlockchainID]; // Lookup in the well-known registry
+  static find(id: BlockchainInternalId | string): Blockchain {
+    const internalBlockchainId = asBlockchainInternalId(id);
+    const blockchain = this.registry.get(internalBlockchainId, () => {
+      const chainData = blockchainData[internalBlockchainId]; // Lookup in the well-known registry
 
       if (!chainData) {
         throw Logged(
           "C3100",
           ValueError,
-          `Chain not found: ${internalBlockchainID}`,
+          `Chain not found: ${internalBlockchainId}`,
         );
       }
 
@@ -174,7 +174,7 @@ export class Blockchain {
         return this.find(chainData.redirect);
       }
 
-      return Blockchain.create(internalBlockchainID, chainData);
+      return Blockchain.create(internalBlockchainId, chainData);
     });
 
     return blockchain;

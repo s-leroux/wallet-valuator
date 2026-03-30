@@ -5,7 +5,7 @@ import { FakeFiatCurrency } from "./support/fiatcurrency.fake.mjs";
 import {
   Amount,
   CryptoAsset,
-  CryptoAssetInternalID,
+  CryptoAssetInternalId,
 } from "../src/cryptoasset.mjs";
 import { Fixed } from "../src/bignumber.mjs";
 
@@ -16,7 +16,7 @@ import { InstanceCache } from "../src/instancecache.mjs";
 const { ethereum, bitcoin } = FakeCryptoAsset;
 
 describe("CryptoAsset", () => {
-  let cache: InstanceCache<CryptoAssetInternalID, CryptoAsset>;
+  let cache: InstanceCache<CryptoAssetInternalId, CryptoAsset>;
 
   beforeEach(() => {
     cache = new InstanceCache();

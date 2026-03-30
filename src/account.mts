@@ -21,10 +21,10 @@ export interface Account {
   loadTransactions(swarm: Swarm): Promise<Transaction[]>;
 }
 
-type WellKnownCryptoID = (typeof WellKnownCryptoAssets)[number][0];
+type WellKnownCryptoId = (typeof WellKnownCryptoAssets)[number][0];
 const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
   string,
-  WellKnownCryptoID | undefined
+  WellKnownCryptoId | undefined
 > = {
   // @ts-expect-error TypeScript does not handle null-prototype object literals properly
   __proto__: null,

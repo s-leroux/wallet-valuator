@@ -20,7 +20,7 @@
             "chainid": 8453
         }
     },
-    "bnb chain": {
+    "bnb-chain": {
         "type": "evm",
         "display-name": "BNB Chain",
         "explorer-name": "Etherscan",

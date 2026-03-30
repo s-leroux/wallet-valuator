@@ -1,15 +1,20 @@
 import { assert } from "chai";
 
-import { asBlockchainInternalID, Blockchain } from "../src/blockchain.mjs";
+import { asBlockchainInternalId, Blockchain } from "../src/blockchain.mjs";
 import {
   FAKE_ETH_CHAIN_ID,
   FAKE_ETH_CHAIN_DATA,
   FAKE_BTC_CHAIN_ID,
   FAKE_BTC_CHAIN_DATA,
 } from "./support/blockchain.fake.mjs";
+import { prepare } from "./support/register.helper.mjs";
 
 describe("Blockchain", function () {
   beforeEach(() => Blockchain.__testResetRegistry());
+
+  it("should throw an error if the blockchain is not found", function () {
+    assert.throws(() => Blockchain.find("unknown-blockchain"));
+  });
 
   it("should set the displayname", function () {
     const eth = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
@@ -61,11 +66,11 @@ describe("Blockchain", function () {
 
   it("should be case insensitive when creating blockchain instances", function () {
     const eth1 = Blockchain.create(
-      asBlockchainInternalID(FAKE_ETH_CHAIN_ID.toLowerCase()),
+      asBlockchainInternalId(FAKE_ETH_CHAIN_ID.toLowerCase()),
       FAKE_ETH_CHAIN_DATA,
     );
     const eth2 = Blockchain.create(
-      asBlockchainInternalID(FAKE_ETH_CHAIN_ID.toUpperCase()),
+      asBlockchainInternalId(FAKE_ETH_CHAIN_ID.toUpperCase()),
       FAKE_ETH_CHAIN_DATA,
     );
 
@@ -104,5 +109,27 @@ describe("Blockchain", function () {
       eth1 === btc,
       "Identity operator (===) should return false for different blockchains",
     );
+  });
+});
+
+describe("Well-known blockchains", function () {
+  describe("should be able to create a blockchain instance from a well-known internal ID", function () {
+    const register = prepare(this);
+
+    // prettier-ignore
+    const testCases = [
+      { id: "ethereum", displayName: "Ethereum" },
+      { id: "bitcoin", displayName: "Bitcoin" },
+      { id: "solana", displayName: "Solana" },
+      { id: "polygon", displayName: "Polygon" },
+      { id: "bnb-chain", displayName: "BNB Chain" },
+    ];
+
+    for (const testCase of testCases) {
+      register(`case of ${testCase.id}`, function () {
+        const blockchain = Blockchain.find(testCase.id);
+        assert.strictEqual(blockchain.displayName, testCase.displayName);
+      });
+    }
   });
 });

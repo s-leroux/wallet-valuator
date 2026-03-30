@@ -1,6 +1,6 @@
-import type { BlockchainInternalID } from "../../src/blockchain.mjs";
+import type { BlockchainInternalId } from "../../src/blockchain.mjs";
 
-export const FAKE_ETH_CHAIN_ID = "fake-ethereum" as BlockchainInternalID;
+export const FAKE_ETH_CHAIN_ID = "fake-ethereum" as BlockchainInternalId;
 export const FAKE_ETH_CHAIN_DATA = {
   type: "evm",
   "native-coin": "ethereum",
@@ -11,7 +11,7 @@ export const FAKE_ETH_CHAIN_DATA = {
   },
 } as const;
 
-export const FAKE_GNO_CHAIN_ID = "fake-gnosis" as BlockchainInternalID;
+export const FAKE_GNO_CHAIN_ID = "fake-gnosis" as BlockchainInternalId;
 export const FAKE_GNO_CHAIN_DATA = {
   type: "evm",
   "native-coin": "xdai",
@@ -22,7 +22,7 @@ export const FAKE_GNO_CHAIN_DATA = {
   },
 } as const;
 
-export const FAKE_BTC_CHAIN_ID = "fake-bitcoin" as BlockchainInternalID;
+export const FAKE_BTC_CHAIN_ID = "fake-bitcoin" as BlockchainInternalId;
 export const FAKE_BTC_CHAIN_DATA = {
   type: "bitcoin",
   "display-name": "Fake Bitcoin",
