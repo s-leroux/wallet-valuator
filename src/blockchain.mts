@@ -96,10 +96,10 @@ type BlockchainData = Readonly<
 //  Blockchain class and related types
 //======================================================================
 
-import rawBlockchainData from "./data/wellknownblockchains.json" with { type: "json" };
+import { WellKnownBlockchains } from "./data/wellknownblockchains.mjs";
 
 const blockchainData: BlockchainData =
-  rawBlockchainData satisfies BlockchainData;
+  WellKnownBlockchains satisfies BlockchainData;
 
 /**
  * Anything that can be converted to a {@link Blockchain} instance.

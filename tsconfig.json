@@ -178,6 +178,7 @@
     "src/transaction.mts",
     "src/type.mts",
     "src/valuation.mts",
+    "src/data/wellknownblockchains.mts",
     "src/data/wellknowncryptoassets.mts",
 
     "examples/balance.mts",
