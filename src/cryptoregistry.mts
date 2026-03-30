@@ -2,7 +2,10 @@ import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { CryptoAsset, CryptoAssetCache } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
-import { WellKnownCryptoAssets } from "./data/wellknowncryptoassets.mjs";
+import {
+  WellKnownCryptoAsset,
+  WellKnownCryptoAssets,
+} from "./data/wellknowncryptoassets.mjs";
 import { ChainAddress, mangleChainAddress } from "./chainaddress.mjs";
 import { MetadataFacade } from "./metadata.mjs";
 
@@ -24,18 +27,26 @@ export class CryptoMetadata extends MetadataFacade<
 > {}
 
 //======================================================================
-//  CryptoRegistry
+//  Preload the table of well-known crypto-assets
 //======================================================================
 
 type RegisteredCryptoAssets = {
-  [key: string]: [name: string, symbol: string, decimal: number] | undefined;
+  [key: string]: WellKnownCryptoAsset | undefined;
 };
 
+// create an index of the well-known crypto-assets
 const registeredCryptoAssets: RegisteredCryptoAssets =
-  WellKnownCryptoAssets.reduce((acc, [id, name, symbol, decimal]) => {
-    acc[id] = [name, symbol, decimal];
-    return acc;
-  }, {} as RegisteredCryptoAssets);
+  WellKnownCryptoAssets.reduce(
+    (acc, row) => {
+      acc[row[0]] = row;
+      return acc;
+    },
+    Object.create(null) as RegisteredCryptoAssets,
+  );
+
+//======================================================================
+//  CryptoRegistry
+//======================================================================
 
 type CryptoAssetFiscalCategory = undefined | "SECURITY" | "UTILITY TOKEN";
 
@@ -98,7 +109,7 @@ export class CryptoRegistryNG {
           `${id} is not a well-known crypto-asset`,
         );
       }
-      [name, symbol, decimal] = wellKnownAsset;
+      [, name, symbol, decimal] = wellKnownAsset;
     }
 
     // CryptoAsset.create will internally call our `registerCryptoAsset` method

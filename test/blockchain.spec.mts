@@ -132,4 +132,6 @@ describe("Well-known blockchains", function () {
       });
     }
   });
+
+  it("should have well-known native coin", function () {});
 });
