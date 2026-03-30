@@ -34,9 +34,15 @@ type Entry = {
 /**
  * `LazyCryptoResolver`
  *
- * This resolver acts as a catch-all `CryptoResolver`, creating and caching
- * new crypto assets on demand. Each asset is identified by a unique
- * (chain, smart contract address) pair.
+ * A catch-all {@link CryptoResolver} that creates and caches logical
+ * `CryptoAsset` instances on demand for tokens that no other resolver
+ * recognised.
+ *
+ * Because the token is unrecognised, there is no known cross-chain equivalence,
+ * so the resolver creates a **singleton** logical asset whose `id` is derived
+ * from the chain-address (e.g. `"ethereum:0xa0b8…"`). That asset is a logical
+ * equivalence class of size one — a single physical representative mapped to
+ * its own dedicated logical `CryptoAsset`.
  *
  * By design, crypto assets returned by this class **cannot** be cross-chain.
  */

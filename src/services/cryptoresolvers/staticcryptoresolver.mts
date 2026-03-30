@@ -27,7 +27,16 @@ export type LogicalCryptoAsset = readonly [
 ];
 
 /**
- * A KISS class to support a hard-coded crypto-asset database.
+ * A KISS resolver backed by two hard-coded tables.
+ *
+ * - The **physical** table maps `ChainAddress` → logical crypto-asset key.
+ *   It answers "given this on-chain token, which logical asset does it belong to?"
+ * - The **logical** table maps key → display/metadata for the logical
+ *   `CryptoAsset`. Multiple physical entries may share the same logical key
+ *   (e.g. USDC on several chains all point to `"usdc"`).
+ *
+ * The resolver's cache (`Map<ChainAddress, CryptoAsset>`) stores already-resolved
+ * logical assets keyed by their physical chain-address for fast repeat lookups.
  */
 export class StaticCryptoResolver extends CryptoResolver {
   // Database:
@@ -121,7 +130,7 @@ export class StaticCryptoResolver extends CryptoResolver {
       }
     }
 
-    // 3. Maybe have we already cached the corresponding physical crypto-asset
+    // 3. Maybe we already resolved this chain-address to a logical crypto-asset
     const cached = this.cache.get(chainAddress);
     if (cached) {
       return { status: "resolved", asset: cached };
@@ -135,7 +144,7 @@ export class StaticCryptoResolver extends CryptoResolver {
       );
     }
 
-    // 5. Eventually create, update metadata, then return the logical crypto-asset
+    // 5. Create the logical crypto-asset, attach metadata, cache by chain-address, and return
     const [, name, symbol, decimals, metadata] = logicalCryptoAsset;
     const crypto = swarm.cryptoRegistry.createCryptoAsset(
       id,
