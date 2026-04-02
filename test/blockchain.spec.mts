@@ -112,6 +112,9 @@ describe("Blockchain", function () {
   });
 });
 
+import { WellKnownBlockchains } from "../src/data/wellknownblockchains.mjs";
+import { CryptoRegistryNG } from "../src/cryptoregistry.mjs";
+
 describe("Well-known blockchains", function () {
   describe("should be able to create a blockchain instance from a well-known internal ID", function () {
     const register = prepare(this);
@@ -133,5 +136,18 @@ describe("Well-known blockchains", function () {
     }
   });
 
-  it("should have well-known native coin", function () {});
+  describe("should have well-known native coin", function () {
+    const register = prepare(this);
+
+    for (const [id, data] of Object.entries(WellKnownBlockchains)) {
+      if ("native-coin" in data) {
+        register(`case of ${id}`, function () {
+          const cryptoAsset = CryptoRegistryNG.create().createCryptoAsset(
+            data["native-coin"],
+          );
+          assert.exists(cryptoAsset);
+        });
+      }
+    }
+  });
 });

@@ -31,7 +31,7 @@ export function asBlockchainInternalId(
 type Redirect = {
   comment?: string;
   type: "redirect";
-  redirect: BlockchainInternalId;
+  redirect: string;
 };
 
 type EVMRecord = {
@@ -49,7 +49,6 @@ type BinanceRecord = {
   comment?: string;
   type: "binance";
   "display-name": string;
-  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
   "explorer-options"?: undefined;
 };
 
@@ -86,10 +85,7 @@ export type BlockchainRecord =
   | XRPLedgerRecord;
 
 type BlockchainData = Readonly<
-  Record<
-    BlockchainInternalId,
-    Readonly<BlockchainRecord> | Readonly<Redirect> | undefined
-  >
+  Record<string, Readonly<BlockchainRecord> | Readonly<Redirect> | undefined>
 >;
 
 //======================================================================
@@ -98,8 +94,7 @@ type BlockchainData = Readonly<
 
 import { WellKnownBlockchains } from "./data/wellknownblockchains.mjs";
 
-const blockchainData: BlockchainData =
-  WellKnownBlockchains satisfies BlockchainData;
+const blockchainData = WellKnownBlockchains as BlockchainData;
 
 /**
  * Anything that can be converted to a {@link Blockchain} instance.

@@ -7,6 +7,7 @@ export const WellKnownBlockchains = {
   arbitrum: {
     type: "evm",
     "display-name": "Arbitrum",
+    "native-coin": "ethereum",
     "explorer-name": "Etherscan",
     "explorer-options": {
       chainid: 42161,
@@ -15,6 +16,7 @@ export const WellKnownBlockchains = {
   base: {
     type: "evm",
     "display-name": "Base",
+    "native-coin": "ethereum",
     "explorer-name": "Etherscan",
     "explorer-options": {
       chainid: 8453,
@@ -23,6 +25,7 @@ export const WellKnownBlockchains = {
   "bnb-chain": {
     type: "evm",
     "display-name": "BNB Chain",
+    "native-coin": "binance-coin",
     "explorer-name": "Etherscan",
     "explorer-options": {
       chainid: 56,
@@ -31,10 +34,12 @@ export const WellKnownBlockchains = {
   bitcoin: {
     type: "bitcoin",
     "display-name": "Bitcoin",
+    "native-coin": "bitcoin",
   },
   ethereum: {
     type: "evm",
     "display-name": "Ethereum",
+    "native-coin": "ethereum",
     "explorer-name": "Etherscan",
     "explorer-options": {
       chainid: 1,
@@ -43,6 +48,7 @@ export const WellKnownBlockchains = {
   gnosis: {
     type: "evm",
     "display-name": "Gnosis",
+    "native-coin": "xdai",
     "explorer-name": "Etherscan",
     "explorer-options": {
       chainid: 100,
@@ -51,6 +57,7 @@ export const WellKnownBlockchains = {
   optimism: {
     type: "evm",
     "display-name": "Optimism",
+    "native-coin": "ethereum",
     "explorer-name": "Etherscan",
     "explorer-options": {
       chainid: 10,
@@ -59,6 +66,7 @@ export const WellKnownBlockchains = {
   polygon: {
     type: "evm",
     "display-name": "Polygon",
+    "native-coin": "matic",
     "explorer-name": "Etherscan",
     "explorer-options": {
       chainid: 137,
@@ -67,6 +75,7 @@ export const WellKnownBlockchains = {
   solana: {
     type: "solana",
     "display-name": "Solana",
+    "native-coin": "solana",
   },
   xdai: {
     comment: "xdai was the former name of the gnosis chain",
@@ -76,5 +85,6 @@ export const WellKnownBlockchains = {
   "xrp-ledger": {
     type: "xrp-ledger",
     "display-name": "XRP Ledger",
+    "native-coin": "ripple",
   },
 } as const;
