@@ -5,7 +5,7 @@ import { assert } from "chai";
 
 import { prepare } from "../../support/register.helper.mjs";
 import { DefaultDefiLlamaAPI } from "../../../src/services/defillama/defillamaapi.mjs";
-import { WellKnownCryptoAssets } from "../../../src/wellknowncryptoassets.mjs";
+import { WellKnownCryptoAssets } from "../../../src/data/wellknowncryptoassets.mjs";
 
 // ===========================================================================
 //  Constants

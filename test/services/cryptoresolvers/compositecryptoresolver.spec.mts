@@ -61,7 +61,7 @@ describe("CompositeCryptoResolver", function () {
           asBlockchain(chain),
           12345,
           sc,
-          ...USDC
+          ...USDC,
         );
 
         assert.exists(result);
@@ -72,7 +72,7 @@ describe("CompositeCryptoResolver", function () {
           asBlockchain(chain),
           12345,
           sc,
-          ...USDC
+          ...USDC,
         );
 
         assert.deepEqual(result, ref);

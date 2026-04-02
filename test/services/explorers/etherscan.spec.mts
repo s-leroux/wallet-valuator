@@ -176,7 +176,7 @@ when("ETHERSCAN_API_KEY", describe)("Etherscan", function () {
     });
 
     it("should use the chain given in constructor", () => {
-      assert.equal(explorer.chain.name, TEST_CHAIN_NAME);
+      assert.equal(explorer.chain.id, TEST_CHAIN_NAME);
     });
     describe("normalTransaction()", () => {
       it("should load a transaction by its hash", async () => {

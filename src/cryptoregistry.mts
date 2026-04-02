@@ -2,7 +2,10 @@ import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { CryptoAsset, CryptoAssetCache } from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
-import { WellKnownCryptoAssets } from "./wellknowncryptoassets.mjs";
+import {
+  WellKnownCryptoAsset,
+  WellKnownCryptoAssets,
+} from "./data/wellknowncryptoassets.mjs";
 import { ChainAddress, mangleChainAddress } from "./chainaddress.mjs";
 import { MetadataFacade } from "./metadata.mjs";
 
@@ -11,10 +14,6 @@ const log = logger("crypto-registry");
 //======================================================================
 //  CryptoMetadata
 //======================================================================
-
-export type MetadataOld = {
-  [k: string]: string | number | boolean | null; // restricted to JSON-compatible primitive types
-};
 
 export interface CryptoAssetMetadata {
   fiscalCategory?: CryptoAssetFiscalCategory;
@@ -28,18 +27,26 @@ export class CryptoMetadata extends MetadataFacade<
 > {}
 
 //======================================================================
-//  CryptoRegistry
+//  Preload the table of well-known crypto-assets
 //======================================================================
 
 type RegisteredCryptoAssets = {
-  [key: string]: [name: string, symbol: string, decimal: number] | undefined;
+  [key: string]: WellKnownCryptoAsset | undefined;
 };
 
+// create an index of the well-known crypto-assets
 const registeredCryptoAssets: RegisteredCryptoAssets =
-  WellKnownCryptoAssets.reduce((acc, [id, name, symbol, decimal]) => {
-    acc[id] = [name, symbol, decimal];
-    return acc;
-  }, {} as RegisteredCryptoAssets);
+  WellKnownCryptoAssets.reduce(
+    (acc, row) => {
+      acc[row[0]] = row;
+      return acc;
+    },
+    Object.create(null) as RegisteredCryptoAssets,
+  );
+
+//======================================================================
+//  CryptoRegistry
+//======================================================================
 
 type CryptoAssetFiscalCategory = undefined | "SECURITY" | "UTILITY TOKEN";
 
@@ -55,23 +62,31 @@ export class CryptoRegistryNG {
   }
 
   /**
-   * Find or create a `CryptoAsset` in the registry.
+   * Find or create a **logical** `CryptoAsset` in the registry.
    *
-   * Crypto-assets are uniquely identified by their `id`. The `id` is a free-form lowercase string
-   * that uniquely identifies a crypto-asset. The application code is responsible for
-   * attribution and ensuring uniqueness of the `id`.
+   * Crypto-assets are uniquely identified by their `id`. The `id` is a free-form
+   * lowercase string that uniquely identifies a logical crypto-asset. The
+   * application code is responsible for attribution and ensuring uniqueness of the
+   * `id`.
    *
-   * If you specify _only_ the `id`, the function will asssume you reference a
-   * well-known crypto-asset (eg: `bitcoin`, `ethereum`, ...)
+   * The `id` parameter also accepts a {@link ChainAddress}. In that case, the
+   * chain-address is mangled into a string id (e.g. `"ethereum:0xa0b8…"`). This
+   * is used by catch-all resolvers (such as `LazyCryptoResolver`) to create a
+   * singleton logical asset for an otherwise-unrecognised on-chain token. See
+   * {@link CryptoAsset} for the equivalence-class semantics.
    *
-   * @param id - The unique identifier for the crypto-asset
-   * @param name - The human-readable name of the crypto-asset
-   * @param symbol - The symbol used to represent the crypto-asset
-   * @param decimal - The number of decimal places used for the crypto-asset
-   * @returns The existing or newly created CryptoAsset
+   * If you specify _only_ the `id`, the function will assume you reference a
+   * well-known crypto-asset (e.g. `bitcoin`, `ethereum`, …).
+   *
+   * @param id - The internal identifier for the crypto-asset, or a `ChainAddress`
+   *   for orphan tokens.
+   * @param name - The human-readable name of the crypto-asset.
+   * @param symbol - The symbol used to represent the crypto-asset.
+   * @param decimal - The number of decimal places used for the crypto-asset.
+   * @returns The existing or newly created CryptoAsset.
    */
   // prettier-ignore
-  createCryptoAsset(id: string | ChainAddress): CryptoAsset;
+  createCryptoAsset(internalId: string | ChainAddress): CryptoAsset;
   // prettier-ignore
   createCryptoAsset(id: string | ChainAddress, name: string, symbol: string, decimal: number ): CryptoAsset;
   createCryptoAsset(
@@ -94,7 +109,7 @@ export class CryptoRegistryNG {
           `${id} is not a well-known crypto-asset`,
         );
       }
-      [name, symbol, decimal] = wellKnownAsset;
+      [, name, symbol, decimal] = wellKnownAsset;
     }
 
     // CryptoAsset.create will internally call our `registerCryptoAsset` method

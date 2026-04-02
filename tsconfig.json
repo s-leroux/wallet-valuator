@@ -17,8 +17,6 @@
     "linter/index.mts",
     "linter/rules/inconsistent-comparison.mts",
 
-    "test/fake-explorer.mts",
-
     "test/address.spec.mts",
     "test/bignumber.spec.mts",
     "test/block.spec.mts",
@@ -83,13 +81,17 @@
     "test/transaction.spec.mts",
     "test/type.spec.mts",
     "test/valuation.spec.mts",
+    "test/wellknowndata.spec.mts",
+
     "test/walk.d.ts",
 
+    "test/support/blockchain.fake.mts",
     "test/support/cryptoasset.fake.mts",
     "test/support/cryptoresolver.fake.mts",
     "test/support/curveapi.fake.mts",
     "test/support/datasource.fake.mts",
     "test/support/defillamaapi.fake.mts",
+    "test/support/explorer.fake.mts",
     "test/support/fiatconverter.fake.mts",
     "test/support/fiatcurrency.fake.mts",
     "test/support/realtokenapi.fake.mts",
@@ -178,7 +180,8 @@
     "src/transaction.mts",
     "src/type.mts",
     "src/valuation.mts",
-    "src/wellknowncryptoassets.mts",
+    "src/data/wellknownblockchains.mts",
+    "src/data/wellknowncryptoassets.mts",
 
     "examples/balance.mts",
     "examples/find-address.mts",

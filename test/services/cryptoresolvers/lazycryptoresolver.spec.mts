@@ -42,7 +42,7 @@ describe("LazyCryptoResolver", function () {
       cryptoMetadata,
       P,
       1234,
-      ...POLYGON_WBTC
+      ...POLYGON_WBTC,
     );
     if (!wbtc || wbtc.status !== "resolved") {
       // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -55,14 +55,14 @@ describe("LazyCryptoResolver", function () {
     });
     assert.strictEqual(
       cryptoResolver.get("polygon", POLYGON_WBTC[0]),
-      wbtc.asset
+      wbtc.asset,
     );
     const wbtc2 = await cryptoResolver.resolve(
       swarm,
       cryptoMetadata,
       P,
       1234,
-      ...POLYGON_WBTC
+      ...POLYGON_WBTC,
     );
     assert.deepEqual(wbtc2, wbtc);
   });
@@ -89,7 +89,7 @@ describe("LazyCryptoResolver", function () {
           address,
           name,
           symbol,
-          decimal
+          decimal,
         );
         if (!result || result.status !== "resolved") {
           // eslint-disable-next-line @typescript-eslint/no-base-to-string

@@ -20,7 +20,7 @@ export type CryptoLike = Pick<CryptoAsset, "symbol">;
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
   chain: string,
-  smartContractAddress: string
+  smartContractAddress: string,
 ): ChainAddress {
   return `${chain}:${smartContractAddress}`.toLowerCase() as ChainAddress;
 }
@@ -43,7 +43,7 @@ function cryptoAssetFromEntry(
   entry: Entry,
   name: string,
   symmbol: string,
-  decimal: number
+  decimal: number,
 ): CryptoAsset {
   let crypto = entry.crypto;
   if (crypto) {
@@ -57,7 +57,7 @@ function cryptoAssetFromEntry(
     uuid.toLowerCase(),
     fullName,
     symbol,
-    decimal
+    decimal,
   );
 
   // Record domain specific metadata
@@ -127,7 +127,7 @@ export class RealTokenResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     if (!symbol.startsWith("REALTOKEN")) {
       // Not our business
@@ -137,7 +137,7 @@ export class RealTokenResolver extends CryptoResolver {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
 
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
+    const chainAddress = ChainAddress(chain.id, smartContractAddress);
     const entry = tokens.get(chainAddress);
     if (!entry) {
       // Not our business
@@ -153,7 +153,7 @@ export class RealTokenResolver extends CryptoResolver {
         entry,
         name,
         symbol,
-        decimal
+        decimal,
       ),
     };
   }

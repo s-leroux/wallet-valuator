@@ -167,11 +167,11 @@ type Formatter = (arg: Record<string, unknown>) => string;
 /**
  * `objectFormatter` mini-language: strings use {@link formatStringAtom}. All other
  * formatted numeric fields use {@link Fixed} — {@link Fixed} values keep their
- * stored scale when the format omits a precision; `number` and legacy
- * {@link BigNumberSource} values are converted with {@link fixedFromSource} and
- * default to six fraction digits when the format omits a precision (matching the
- * old Decimal.js `toFixed(6)` behavior). Formatting uses {@link Fixed.toDecimalString}
- * for {@link Fixed} values (truncation when narrowing scale), not `Number.prototype.toFixed`.
+ * stored scale when the format omits a precision; `number` values are converted
+ * with {@link fixedFromSource} and default to six fraction digits when the format
+ * omits a precision (matching the old Decimal.js `toFixed(6)` behavior).
+ * Formatting uses {@link Fixed.toDecimalString} for {@link Fixed} values (truncation
+ * when narrowing scale), not `Number.prototype.toFixed`.
  */
 type AtomFormatter<T> = (
   value: T,

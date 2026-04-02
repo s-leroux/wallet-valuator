@@ -1,10 +1,16 @@
 import assert from "assert";
 
-import { snapshotsFromMovements, FakeMovement } from "../../support/snapshot.fake.mjs";
+import {
+  snapshotsFromMovements,
+  FakeMovement,
+} from "../../support/snapshot.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { CryptoMetadata, CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { PriceResolver } from "../../../src/priceresolver.mjs";
 import { SnapshotValuation } from "../../../src/valuation.mjs";
 import { SnapshotValuationTabularAdapter } from "../../../src/tabular/adapters/snapshotvaluationadapter.mjs";
@@ -17,7 +23,14 @@ describe("SnapshotValuationTabularAdapter", () => {
 
   const movements = [
     // First movement tagged as CASH-IN and DELTA so that tags aggregation is visible.
-    FakeMovement(...INGRESS, "2024-12-02", "200000", "usd-coin", ["CASH-IN", true], ["DELTA", true]),
+    FakeMovement(
+      ...INGRESS,
+      "2024-12-02",
+      "200000",
+      "usd-coin",
+      ["CASH-IN", true],
+      ["DELTA", true],
+    ),
     FakeMovement(...EGRESS, "2024-12-03", "95833.1362300365", "usd-coin"),
     FakeMovement(...INGRESS, "2024-12-03", "1", "bitcoin"),
   ];
@@ -51,7 +64,13 @@ describe("SnapshotValuationTabularAdapter", () => {
 
       const columns = adapter.headings();
 
-      assert.deepEqual(columns, ["date", "deposits", "cashIn", "value", "tags"]);
+      assert.deepEqual(columns, [
+        "date",
+        "deposits",
+        "cashIn",
+        "value",
+        "tags",
+      ]);
     });
   });
 
@@ -82,4 +101,3 @@ describe("SnapshotValuationTabularAdapter", () => {
     });
   });
 });
-

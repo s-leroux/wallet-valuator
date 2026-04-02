@@ -35,7 +35,7 @@ export class FiatConverterOracle extends Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     const missing = new Set(fiats);
     let found = 0;
@@ -48,7 +48,7 @@ export class FiatConverterOracle extends Oracle {
       crypto,
       date,
       missing,
-      intermediateResult
+      intermediateResult,
     );
 
     for (const [currency, price] of intermediateResult) {
@@ -68,7 +68,7 @@ export class FiatConverterOracle extends Oracle {
           cryptoRegistry,
           date,
           intermediateResult.get(this.referenceFiats[0])!, // ISSUE #62  We only consider the first reference fiat
-          dest
+          dest,
         );
         result.set(dest, convertedPrice);
       }

@@ -1,34 +1,49 @@
 import { assert } from "chai";
 
-import { asChainID, Blockchain } from "../src/blockchain.mjs";
+import { asBlockchainInternalId, Blockchain } from "../src/blockchain.mjs";
+import {
+  FAKE_ETH_CHAIN_ID,
+  FAKE_ETH_CHAIN_DATA,
+  FAKE_BTC_CHAIN_ID,
+  FAKE_BTC_CHAIN_DATA,
+} from "./support/blockchain.fake.mjs";
 
-const TEST_CHAIN_ID = asChainID("test-ethereum");
-const TEST_CHAIN_DATA = {
-  "display-name": "Test Ethereum",
-  "explorer-id": "test:1",
-};
+describe("Blockchain", function () {
+  beforeEach(() => Blockchain.__testResetRegistry());
 
-describe("Blockchain Singleton", function () {
-  beforeEach(() => (Blockchain as any).__testResetRegistry());
+  it("should throw an error if the blockchain is not found", function () {
+    assert.throws(() => Blockchain.find("unknown-blockchain"));
+  });
 
-  it("should set the name", function () {
-    const eth = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
+  it("should set the displayname", function () {
+    const eth = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
 
-    assert.strictEqual(eth.name, TEST_CHAIN_ID);
+    assert.strictEqual(eth.displayName, FAKE_ETH_CHAIN_DATA["display-name"]);
+  });
+
+  it("should follow redirects", function () {
+    const xdai = Blockchain.find("xdai");
+    const gnosis = Blockchain.find("gnosis");
+
+    assert.strictEqual(
+      xdai,
+      gnosis,
+      "XDAI and Gnosis should be the same blockchain",
+    );
   });
 
   it("should return the name of the blockchain when calling toString()", function () {
-    const eth = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
+    const eth = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
     assert.strictEqual(
       eth.toString(),
-      TEST_CHAIN_ID,
+      FAKE_ETH_CHAIN_ID,
       "toString() should return the blockchain name",
     );
   });
 
   it("should return the same instance for the same blockchain name", function () {
-    const eth1 = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
-    const eth2 = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
+    const eth1 = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
+    const eth2 = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
 
     assert.strictEqual(
       eth1,
@@ -38,11 +53,8 @@ describe("Blockchain Singleton", function () {
   });
 
   it("should return different instances for different blockchain names", function () {
-    const eth = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
-    const btc = Blockchain.create(asChainID("test-bitcoin"), {
-      "display-name": "Test Bitcoin",
-      "explorer-id": "test:100",
-    });
+    const eth = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
+    const btc = Blockchain.create(FAKE_BTC_CHAIN_ID, FAKE_BTC_CHAIN_DATA);
 
     assert.notStrictEqual(
       eth,
@@ -53,12 +65,12 @@ describe("Blockchain Singleton", function () {
 
   it("should be case insensitive when creating blockchain instances", function () {
     const eth1 = Blockchain.create(
-      asChainID(TEST_CHAIN_ID.toLowerCase()),
-      TEST_CHAIN_DATA,
+      asBlockchainInternalId(FAKE_ETH_CHAIN_ID.toLowerCase()),
+      FAKE_ETH_CHAIN_DATA,
     );
     const eth2 = Blockchain.create(
-      asChainID(TEST_CHAIN_ID.toUpperCase()),
-      TEST_CHAIN_DATA,
+      asBlockchainInternalId(FAKE_ETH_CHAIN_ID.toUpperCase()),
+      FAKE_ETH_CHAIN_DATA,
     );
 
     assert.strictEqual(
@@ -69,17 +81,14 @@ describe("Blockchain Singleton", function () {
   });
 
   it("should evaluate equality (==) correctly", function () {
-    const eth1 = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
-    const eth2 = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
+    const eth1 = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
+    const eth2 = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
     assert.isTrue(
       eth1 == eth2,
       "Equality operator (==) should return true for the same blockchain",
     );
 
-    const btc = Blockchain.create(asChainID("test-bitcoin"), {
-      "display-name": "Test Bitcoin",
-      "explorer-id": "test:100",
-    });
+    const btc = Blockchain.create(FAKE_BTC_CHAIN_ID, FAKE_BTC_CHAIN_DATA);
     assert.isFalse(
       eth1 === btc,
       "Equality operator (==) should return false for different blockchains",
@@ -87,17 +96,14 @@ describe("Blockchain Singleton", function () {
   });
 
   it("should evaluate identity (===) correctly", function () {
-    const eth1 = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
-    const eth2 = Blockchain.create(TEST_CHAIN_ID, TEST_CHAIN_DATA);
+    const eth1 = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
+    const eth2 = Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA);
     assert.isTrue(
       eth1 === eth2,
       "Identity operator (===) should return true for the same blockchain",
     );
 
-    const btc = Blockchain.create(asChainID("test-bitcoin"), {
-      "display-name": "Test Bitcoin",
-      "explorer-id": "test:100",
-    });
+    const btc = Blockchain.create(FAKE_BTC_CHAIN_ID, FAKE_BTC_CHAIN_DATA);
     assert.isFalse(
       eth1 === btc,
       "Identity operator (===) should return false for different blockchains",

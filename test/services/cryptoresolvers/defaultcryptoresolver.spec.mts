@@ -10,7 +10,7 @@ import {
 import { asBlockchain } from "../../../src/blockchain.mjs";
 import { ResolutionResult } from "../../../src/services/cryptoresolver.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
-import { toCryptoAssetID } from "../../../src/cryptoasset.mjs";
+import { toCryptoAssetInternalId } from "../../../src/cryptoasset.mjs";
 
 describe("DefaultCryptoResolver", function () {
   it("can be created (no parameters)", function () {
@@ -58,7 +58,7 @@ describe("DefaultCryptoResolver", function () {
             chain,
             block,
             address,
-            ...MONERIUM
+            ...MONERIUM,
           );
           assert.exists(result);
           switch (expected) {
@@ -69,7 +69,7 @@ describe("DefaultCryptoResolver", function () {
               assert.include(result, { status: "resolved" });
               assert.equal(
                 (result as Resolved).asset.id,
-                toCryptoAssetID(expected)
+                toCryptoAssetInternalId(expected),
               );
           }
         });

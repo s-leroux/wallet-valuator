@@ -30,7 +30,7 @@ describe("CurveDB utilities", () => {
         register(`case ${poolName} on ${chainName}`, () => {
           assert.equal(
             findLiquidityPool(chainName, lpTokenAddress),
-            poolAddress.toLowerCase()
+            poolAddress.toLowerCase(),
           );
         });
       }
@@ -46,7 +46,7 @@ describe("CurveDB utilities", () => {
           register(`case ${poolName} on ${chainName}`, () => {
             assert.equal(
               findLiquidityPool(chainName, gaugeAddress),
-              poolAddress.toLowerCase()
+              poolAddress.toLowerCase(),
             );
           });
         }
@@ -68,11 +68,11 @@ describe("CurveDB utilities", () => {
         // ─────────────────────────────────────────────────────────────────────────────
         const result = findLiquidityPool(
           "gnosis",
-          "0xB721Cc32160Ab0da2614CC6aB16eD822Aeebc101"
+          "0xB721Cc32160Ab0da2614CC6aB16eD822Aeebc101",
         );
         assert.isNull(
           result,
-          "Expected 'gnosis' to be unrecognized at this low-level"
+          "Expected 'gnosis' to be unrecognized at this low-level",
         );
       });
     });

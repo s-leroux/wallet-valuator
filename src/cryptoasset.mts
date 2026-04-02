@@ -19,19 +19,20 @@ const log = logger("crypto-asset");
 type AmountSource = FixedSource;
 
 //======================================================================
-//  CryptoAssetID
+//  CryptoAssetInternalId
 //======================================================================
-export type CryptoAssetID = Lowercase<string> & {
+
+export type CryptoAssetInternalId = Lowercase<string> & {
   readonly __brand: unique symbol;
 };
 
-export function toCryptoAssetID(id: string): CryptoAssetID {
+export function toCryptoAssetInternalId(id: string): CryptoAssetInternalId {
   if (id !== id.toLowerCase()) {
     throw new ValueError(
       `The id for crypto-assets must be written in all lowercase (was ${id})`,
     );
   }
-  return id as CryptoAssetID;
+  return id as CryptoAssetInternalId;
 }
 
 //======================================================================
@@ -207,19 +208,34 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
 //  CryptoAsset
 //======================================================================
 
-export type CryptoAssetCache = InstanceCache<CryptoAssetID, CryptoAsset>;
+export type CryptoAssetCache = InstanceCache<
+  CryptoAssetInternalId,
+  CryptoAsset
+>;
 export function CryptoAssetCache(): CryptoAssetCache {
   return new InstanceCache();
 }
 
 /**
- * Represents a crypto-asset, such as a native coin or an ERC-20 token.
+ * Represents a **logical** crypto-asset — an accounting equivalence class that
+ * groups one or more on-chain tokens considered fungible for valuation purposes.
  *
- * A `CryptoAsset` is a logical representation of a crypto-asset, independent of
- * the underlying blockchain. For example, it may represent "USDC" regardless
- * of the blockchain on which it exists, encompassing both the authentic
- * Circle-issued token and bridged versions. From an accounting perspective,
- * these are all considered a single crypto-asset.
+ * A `CryptoAsset` is always logical and blockchain-independent. For example,
+ * it may represent "USDC" regardless of the blockchain on which it exists,
+ * encompassing both the authentic Circle-issued token and bridged versions.
+ * From an accounting perspective, these are all considered a single crypto-asset.
+ *
+ * There is no separate "physical crypto-asset" class. A physical crypto-asset
+ * is the combination of a {@link ChainAddress} (chain + smart contract address)
+ * and the on-chain token data (name, symbol, decimals). A {@link CryptoResolver}
+ * maps that physical information to a logical `CryptoAsset`.
+ *
+ * When a resolver recognises the token (e.g. USDC on several chains), many
+ * physical tokens map to the **same** logical `CryptoAsset`. When no resolver
+ * recognises a token, it is treated as an *orphan*: a new logical `CryptoAsset`
+ * is created whose `id` is derived from the chain-address itself. That orphan
+ * is a singleton equivalence class — a logical asset with exactly one known
+ * physical representative.
  *
  * The `id` is a unique internal identifier for the logical crypto-asset.
  * A **crypto-asset resolver** is responsible for mapping blockchain-specific
@@ -238,7 +254,7 @@ export function CryptoAssetCache(): CryptoAssetCache {
  * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
-  readonly id: CryptoAssetID; // internal id for that asset cross-chain
+  readonly id: CryptoAssetInternalId;
   readonly name: string;
   readonly symbol: string;
   readonly decimal: number;
@@ -254,7 +270,7 @@ export class CryptoAsset {
    * @param decimal - The number of decimal places used for the crypto.
    */
   private constructor(
-    id: CryptoAssetID,
+    id: CryptoAssetInternalId,
     name: string,
     symbol: string,
     decimal: number,
@@ -275,12 +291,12 @@ export class CryptoAsset {
    */
   static create(
     cache: CryptoAssetCache,
-    id: string | CryptoAssetID,
+    id: string | CryptoAssetInternalId,
     name: string,
     symbol: string,
     decimal: number,
   ): CryptoAsset {
-    const normalizedId = toCryptoAssetID(id);
+    const normalizedId = toCryptoAssetInternalId(id);
 
     return cache.getOrCreate(
       normalizedId,

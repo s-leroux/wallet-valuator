@@ -4,49 +4,117 @@ import { MMap } from "./memoizer.mjs";
 
 import { Logged } from "./errorutils.mjs";
 
-type BlockchainDataRecord = {
-  "display-name": string;
-  "explorer-id": string;
-};
-
-type BlockchainData = Readonly<
-  Record<ChainID, Readonly<BlockchainDataRecord> | undefined>
->;
-import rawBlockchainData from "./data/blockchains.json" with { type: "json" };
-
-const blockchainData: BlockchainData = rawBlockchainData;
-
 /**
- * Branded type for blockchain chain IDs.
- * This ensures type safety when working with chain IDs.
- */
-export type ChainID = string & { readonly brand: unique symbol };
-
-/**
- * Validates and converts a value to a ChainID.
+ * An internal blockchain identifier.
  *
- * @param chainId - The chain ID to validate (string or number)
- * @returns A validated ChainID
- * @throws ValueError if the chain ID is invalid
- * @example
- * const ethereumChainId = asChainID("1");
- * const gnosisChainId = asChainID(100); // Accepts numbers
+ * It is an unique name to identify a blockchain internally in the library.
+ * We try to keep this identifier as close as possible to the identifier used by well-known
+ * data providers (e.g. CoinGecko), but there is no guarantee.
+ *
+ * This is the key used by {@link Blockchain.find} and {@link Blockchain.create}.
  */
-export function asChainID(chainId: string | ChainID): ChainID {
-  const chainIdStr = chainId.trim().toLowerCase();
+export type BlockchainInternalId = string & { readonly brand: unique symbol };
+
+export function asBlockchainInternalId(
+  id: string | BlockchainInternalId,
+): BlockchainInternalId {
+  const idStr = id.trim().toLowerCase();
 
   // Validate that it's not empty
-  if (!chainIdStr) {
-    throw new ValueError("Chain ID cannot be empty");
+  if (!idStr) {
+    throw Logged("C3103", ValueError, "Blockchain ID cannot be empty");
   }
 
-  return chainIdStr as ChainID;
+  return idStr as BlockchainInternalId;
 }
 
-export type BlockchainSource = Blockchain | ChainID | string;
+type Redirect = {
+  comment?: string;
+  type: "redirect";
+  redirect: string;
+};
+
+type EVMRecord = {
+  comment?: string;
+  type: "evm";
+  "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
+  "explorer-name": string;
+  "explorer-options": {
+    chainid: number; // The EIP-155 chain ID, practically capped at uint53
+  };
+};
+
+type BinanceRecord = {
+  comment?: string;
+  type: "binance";
+  "display-name": string;
+  "explorer-options"?: undefined;
+};
+
+type BitcoinRecord = {
+  comment?: string;
+  type: "bitcoin";
+  "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
+  "explorer-options"?: undefined;
+};
+
+type SolanaRecord = {
+  comment?: string;
+  type: "solana";
+  "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
+  "explorer-options"?: undefined;
+};
+
+type XRPLedgerRecord = {
+  comment?: string;
+  type: "xrp-ledger";
+  "display-name": string;
+  "native-coin": string; // In practice, this is a CryptoAssetInternalId, but we don't want to depend on CryptoAsset here
+  "explorer-options"?: undefined;
+};
+
+type BlockchainType = "evm" | "binance" | "bitcoin" | "solana" | "xrp-ledger";
+export type BlockchainRecord =
+  | BinanceRecord
+  | EVMRecord
+  | BitcoinRecord
+  | SolanaRecord
+  | XRPLedgerRecord;
+
+// We use a plain string as the key for the record bellow, whereas it should have been `BlockchainInternalId`.
+// However, `BlockchainInternalId` is a nominal branded string; using that as `Record` keys can make
+// TypeScript unexpectedly permissive.
+// In particular, if `Record<BrandedString, V>` is a mapped type over a non-literal key, then assignments
+// from concrete objects may not reliably validate every entry/value.
+//
+// See TypeScript issue `https://github.com/microsoft/typescript/issues/43852`
+// (“Nominal/branded key for `Record` disables checking/inferring of value type”) for more details.
+type BlockchainData = Readonly<
+  Record<string, Readonly<BlockchainRecord> | Readonly<Redirect> | undefined>
+>;
+
+//======================================================================
+//  Blockchain class and related types
+//======================================================================
+
+import { WellKnownBlockchains } from "./data/wellknownblockchains.mjs";
+
+const blockchainData = WellKnownBlockchains as BlockchainData;
+
+/**
+ * Anything that can be converted to a {@link Blockchain} instance.
+ */
+export type BlockchainSource = Blockchain | BlockchainInternalId | string;
+
+/**
+ * Converts a {@link BlockchainSource} to a {@link Blockchain} instance.
+ */
 export function asBlockchain(chain: BlockchainSource): Blockchain {
   if (typeof chain === "string") {
-    return Blockchain.find(chain);
+    return Blockchain.find(asBlockchainInternalId(chain));
   }
 
   return chain;
@@ -55,47 +123,36 @@ export function asBlockchain(chain: BlockchainSource): Blockchain {
 /**
  * Class Blockchain
  *
- * Represents a blockchain identifier, **not** a full conceptual model of a blockchain.
+ * Blockchain instances are cached in an internal registry and are value-comparable using `===`.
+ * Blockchain instances and their underlying data are considered immutable.
  *
- * This class is designed primarily as a **unique identifier** for different blockchains.
- * It is **not** intended to encapsulate blockchain-specific logic, transaction handling,
- * or native currency management. Instead, it serves as a lightweight, registry-backed
- * key that can be used for lookups, comparisons, and mappings.
+ * You can find a well-known blockchain by its internal identifier using the {@link Blockchain.find}
+ * method or, better, by using the {@link asBlockchain} function.
+ * You can create a new blockchain instance using the {@link Blockchain.create} method.
  *
- * ## Key Characteristics:
- * - **Immutable & Lightweight:** A `Blockchain` instance only holds a string name.
- * - **Singleton-like Behavior:** Instances are cached and retrieved via `Blockchain.create(name)`.
- * - **Ensures Consistency:** Prevents duplicate instances for the same blockchain name.
- * - **Optimized for Lookups:** Can be used as a key in `Map<Blockchain, ...>`.
+ * This class is mostly a wrapper around the blockchain data records.
+ * Contributors are encouraged to keep this class loosely coupled with higher-level classes.
+ * A good rule of thumb is "May I implement it if data comes from an RDBMS?"
  *
- * ## Important Notes:
- * - The native currency of a blockchain is **not** stored in this class. Instead, `Explorer`
- *   or other components should manage blockchain-specific details.
- * - `Blockchain` should be treated as a **reference** or **label**, similar to an enum value.
  */
 export class Blockchain {
-  private static registry = new MMap<ChainID, Blockchain>();
+  private static registry = new MMap<BlockchainInternalId, Blockchain>();
+
+  //--------------------------------------------------------------------
+  //  Constructor and factory methods
+  //--------------------------------------------------------------------
 
   private constructor(
-    public readonly id: ChainID,
-    public readonly chainRecord: BlockchainDataRecord,
+    // Our internal blockchain identifier (e.g. "ethereum")
+    // **not** the EIP-155 chain ID (e.g. "1"). We may operate non-EVM blockchains.
+    public readonly id: BlockchainInternalId,
+    public readonly chainRecord: BlockchainRecord,
   ) {}
 
-  /** Display name of the blockchain (e.g. "ethereum", "gnosis"). */
-  get name(): string {
-    return this.id;
-  }
-
-  get displayName(): string {
-    return this.chainRecord["display-name"];
-  }
-
-  /** Explorer ID of the blockchain (e.g. "1", "100" for Ethereum-like chains). */
-  get explorerId(): string {
-    return this.chainRecord["explorer-id"];
-  }
-
-  static create(id: ChainID, chainRecord: BlockchainDataRecord): Blockchain {
+  static create(
+    id: BlockchainInternalId,
+    chainRecord: BlockchainRecord,
+  ): Blockchain {
     // FIXME: If found, we should check consistency between the "old" record and `chainRecord`
     return this.registry.get(id, () => {
       // FIXME: We assume chainRecord is deeply immutable.
@@ -103,25 +160,134 @@ export class Blockchain {
     });
   }
 
-  static find(id: ChainID | string): Blockchain {
-    const chainId = asChainID(id);
-    return this.registry.get(chainId, () => {
-      const chainData = blockchainData[chainId]; // Lookup in the well-known registry
+  static find(id: BlockchainInternalId | string): Blockchain {
+    const internalBlockchainId = asBlockchainInternalId(id);
+    const blockchain = this.registry.get(internalBlockchainId, () => {
+      const chainData = blockchainData[internalBlockchainId]; // Lookup in the well-known registry
 
       if (!chainData) {
-        throw Logged("C3100", ValueError, `Chain not found: ${chainId}`);
+        throw Logged(
+          "C3100",
+          ValueError,
+          `Chain not found: ${internalBlockchainId}`,
+        );
       }
-      return Blockchain.create(chainId, chainData);
+
+      if (chainData.type === "redirect") {
+        return this.find(chainData.redirect);
+      }
+
+      return Blockchain.create(internalBlockchainId, chainData);
     });
+
+    return blockchain;
   }
 
-  toString() {
-    return this.name;
+  //--------------------------------------------------------------------
+  //  Properties
+  //--------------------------------------------------------------------
+
+  get displayName(): string {
+    return this.chainRecord["display-name"] ?? this.id;
+  }
+
+  get explorerName(): string | undefined {
+    const chainType = this.chainRecord.type;
+    switch (chainType) {
+      case "evm":
+        return this.chainRecord["explorer-name"];
+      case "binance":
+      case "bitcoin":
+      case "solana":
+      case "xrp-ledger":
+        return undefined;
+      default:
+        throw Logged(
+          "C3102",
+          ValueError,
+          `Unknown blockchain type: ${chainType}`,
+        );
+    }
+  }
+
+  get type(): BlockchainType {
+    return this.chainRecord.type;
+  }
+
+  //--------------------------------------------------------------------
+  // Polymorphic explorer options
+  //--------------------------------------------------------------------
+
+  getEVMExplorerOptions(): Readonly<EVMRecord["explorer-options"]> {
+    if (this.type === "evm")
+      return (this.chainRecord as EVMRecord)["explorer-options"];
+
+    throw Logged(
+      "C3104",
+      ValueError,
+      `Blockchain ${this.id} is not an EVM blockchain`,
+    );
+  }
+
+  getBinanceExplorerOptions(): Readonly<BinanceRecord["explorer-options"]> {
+    if (this.type === "binance")
+      return (this.chainRecord as BinanceRecord)["explorer-options"];
+
+    throw Logged(
+      "C3105",
+      ValueError,
+      `Blockchain ${this.id} is not a Binance CEX`,
+    );
+  }
+
+  getBitcoinExplorerOptions(): Readonly<BitcoinRecord["explorer-options"]> {
+    if (this.type === "bitcoin")
+      return (this.chainRecord as BitcoinRecord)["explorer-options"];
+
+    throw Logged(
+      "C3106",
+      ValueError,
+      `Blockchain ${this.id} is not a Bitcoin blockchain`,
+    );
+  }
+
+  getSolanaExplorerOptions(): Readonly<SolanaRecord["explorer-options"]> {
+    if (this.type === "solana")
+      return (this.chainRecord as SolanaRecord)["explorer-options"];
+
+    throw Logged(
+      "C3107",
+      ValueError,
+      `Blockchain ${this.id} is not a Solana blockchain`,
+    );
+  }
+
+  getXRPLedgerExplorerOptions(): Readonly<XRPLedgerRecord["explorer-options"]> {
+    if (this.type === "xrp-ledger")
+      return (this.chainRecord as XRPLedgerRecord)["explorer-options"];
+
+    throw Logged(
+      "C3108",
+      ValueError,
+      `Blockchain ${this.id} is not an XRPLedger blockchain`,
+    );
+  }
+
+  //--------------------------------------------------------------------
+  //  String conversion
+  //--------------------------------------------------------------------
+
+  toString(): string {
+    return this.id;
   }
 
   toDisplayString(options: DisplayOptions) {
     return this.displayName;
   }
+
+  //--------------------------------------------------------------------
+  //  For testing purposes only
+  //--------------------------------------------------------------------
 
   /**
    * Resets the singleton registry for unit testing purposes.
@@ -139,7 +305,7 @@ export class Blockchain {
    * });
    * ```
    */
-  private static __testResetRegistry(): void {
+  static __testResetRegistry(): void {
     if (process.env.NODE_ENV !== "test") {
       throw new Error(
         "__testResetRegistry should only be used in test environments!",

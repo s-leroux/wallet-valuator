@@ -55,17 +55,17 @@ export class CurveResolver extends CryptoResolver {
 
   async findLiquidityPool(
     chain: Blockchain,
-    smartContractAddress: string
+    smartContractAddress: string,
   ): Promise<Entry | null> {
-    const chainName = chain.name.toLowerCase();
+    const chainName = chain.id.toLowerCase();
     const poolAddress = await this.api.getLiquidityPoolFromToken(
       chainName,
-      smartContractAddress
+      smartContractAddress,
     );
     if (!poolAddress) {
       log.info(
         "C1016",
-        `${chainName} ${smartContractAddress} does not seem a Curve pool`
+        `${chainName} ${smartContractAddress} does not seem a Curve pool`,
       );
       return null;
     }
@@ -85,12 +85,12 @@ export class CurveResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
 
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
+    const chainAddress = ChainAddress(chain.id, smartContractAddress);
     const entry =
       tokens.get(chainAddress) ??
       (await this.findLiquidityPool(chain, smartContractAddress));
@@ -102,7 +102,7 @@ export class CurveResolver extends CryptoResolver {
     function cryptoAsset(
       cryptoRegistry: CryptoRegistryNG,
       cryptoMetadata: CryptoMetadata,
-      entry: Entry
+      entry: Entry,
     ): CryptoAsset {
       let crypto = entry.crypto;
       if (crypto) {
@@ -115,13 +115,13 @@ export class CurveResolver extends CryptoResolver {
         chainAddress,
         name,
         symbol,
-        decimal
+        decimal,
       );
 
       // Record domain specific metadata
       cryptoMetadata.setMetadata(crypto, {
         resolver: "curve",
-        chain: chain.name.toLowerCase(),
+        chain: chain.id.toLowerCase(),
         address: smartContractAddress.toLowerCase(),
         poolAddress: entry.poolAddress?.toLowerCase(),
       } as CurveMetadata);

@@ -42,7 +42,7 @@ describe("CompositeOracle", function () {
         bitcoin,
         new Date("2024-12-05"),
         new Set([usd, eur]),
-        priceMap
+        priceMap,
       );
 
       assert.sameMembers(Array.from(priceMap.keys()), [usd, eur]);
