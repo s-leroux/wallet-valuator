@@ -17,6 +17,7 @@ import {
 import type { FiatCurrency } from "../../../src/fiatcurrency.mjs";
 import { setLogLevel } from "../../../src/debug.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { fixedFromSource } from "../../../src/bignumber.mjs";
 
 describe("Database", function () {
   // Testing database core features
@@ -66,12 +67,12 @@ describe("Caching", function () {
     assert.deepEqual(
       Array.from(prices.values()).map((price: Price) => ({
         currency: price.fiatCurrency,
-        amount: +price.rate,
+        amount: price.rate,
       })),
       [
-        { currency: EUR, amount: 89809.00932731242 },
-        { currency: USD, amount: 93663.44751964067 },
-      ]
+        { currency: EUR, amount: fixedFromSource("89809.00932731242") },
+        { currency: USD, amount: fixedFromSource("93663.44751964067") },
+      ],
     );
   }
 
@@ -93,7 +94,7 @@ describe("Caching", function () {
         crypto,
         date,
         fiatCurrencies,
-        priceMap
+        priceMap,
       );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);
@@ -104,7 +105,7 @@ describe("Caching", function () {
         crypto,
         date,
         fiatCurrencies,
-        priceMap
+        priceMap,
       );
       assert.equal(priceMap.size, 2);
       assert.equal(cache.backend_calls, 1);

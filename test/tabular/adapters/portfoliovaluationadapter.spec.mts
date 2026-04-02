@@ -1,14 +1,20 @@
 import assert from "assert";
 
 import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
-import { FakeMovement, snapshotsFromMovements } from "../../support/snapshot.fake.mjs";
+import {
+  FakeMovement,
+  snapshotsFromMovements,
+} from "../../support/snapshot.fake.mjs";
 import { FakeFiatCurrency } from "../../support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "../../support/oracle.fake.mjs";
 import {
   PortfolioValuation,
   SnapshotValuation,
 } from "../../../src/valuation.mjs";
-import { CryptoMetadata, CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
+import {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../../src/cryptoregistry.mjs";
 import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
 import { PriceResolver } from "../../../src/priceresolver.mjs";
 import { SnapshotValuationTabularAdapter } from "../../../src/tabular/adapters/snapshotvaluationadapter.mjs";
@@ -88,4 +94,3 @@ describe("PortfolioValuationTabularAdapter", () => {
     });
   });
 });
-

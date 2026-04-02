@@ -72,7 +72,7 @@ export function FiatCurrency(currency: string | FiatCurrency): FiatCurrency {
     // Extra validation
     if (normalizedCode.length !== 3) {
       const error = new ValueError(
-        `Currency codes should contain exactly 3 upper-case letters: "${currency}" is invalid.`
+        `Currency codes should contain exactly 3 upper-case letters: "${currency}" is invalid.`,
       );
       log.error("C3015", error);
       throw error;

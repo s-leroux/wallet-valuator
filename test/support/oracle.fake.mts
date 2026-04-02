@@ -3,7 +3,6 @@ import type { CryptoAsset } from "../../src/cryptoasset.mjs";
 import type { CryptoRegistryNG } from "../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
 import { formatDate } from "../../src/date.mjs";
-import type { FiatConverter } from "../../src/services/fiatconverter.mjs";
 import type { PriceMap } from "../../src/services/oracle.mjs";
 import type { CryptoMetadata } from "../../src/cryptoregistry.mjs";
 
@@ -24,6 +23,7 @@ type HistoricalDataRecord = [
 const DATA = HistoricalPrices as HistoricalDataRecord[];
 
 export class FakeOracle extends Oracle {
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getPrice(
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
@@ -44,10 +44,10 @@ export class FakeOracle extends Oracle {
     const prices = dataRecord[2];
 
     for (const fiat of fiats) {
-      result.set(
-        fiat,
-        crypto.price(fiat, prices[fiat.toString().toLowerCase()]),
-      );
+      const rawPrice = prices[fiat.code.toLowerCase()];
+      // Keep all decimal digits from fixture values for valuation tests.
+      // Using `priceFromNumber` would quantize to DEFAULT_PRICE_SCALE (6).
+      result.set(fiat, crypto.price(fiat, rawPrice.toString()));
     }
   }
 

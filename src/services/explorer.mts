@@ -23,52 +23,52 @@ export class Explorer {
 
   register(swarm: Swarm): void {}
 
-  async getInternalTransactionsByBlockNumber(
+  getInternalTransactionsByBlockNumber(
     swarm: Swarm,
-    blockNumber: number
+    blockNumber: number,
   ): Promise<Array<InternalTransaction>> {
-    throw new NotImplementedError();
+    return Promise.reject(new NotImplementedError());
   }
 
-  async getNormalTransactionByHash(
+  getNormalTransactionByHash(
     swarm: Swarm,
-    txhash: string
+    txhash: string,
   ): Promise<NormalTransaction> {
     // OVERRIDE ME
-    throw new NotImplementedError();
+    return Promise.reject(new NotImplementedError());
   }
 
-  async getNormalTransactionsByAddress(
+  getNormalTransactionsByAddress(
     swarm: Swarm,
-    address: string
+    address: string,
   ): Promise<Array<NormalTransaction>> {
     // OVERRIDE ME
-    return [];
+    return Promise.resolve([]);
   }
 
-  async getInternalTransactionsByAddress(
+  getInternalTransactionsByAddress(
     swarm: Swarm,
-    address: string
+    address: string,
   ): Promise<Array<InternalTransaction>> {
     // OVERRIDE ME
-    return [];
+    return Promise.resolve([]);
   }
 
-  async getTokenTransfersByAddress(
+  getTokenTransfersByAddress(
     swarm: Swarm,
-    address: string
+    address: string,
   ): Promise<Array<ERC20TokenTransfer>> {
     // OVERRIDE ME
-    return [];
+    return Promise.resolve([]);
   }
 
   async getAllValidTransactionsByAddress(
     swarm: Swarm,
-    address: string
+    address: string,
   ): Promise<Array<OnChainTransaction>> {
     const allTransfers = await this.getAllTransactionsByAddress(swarm, address);
     const selection = await Promise.all(
-      allTransfers.map((tr) => tr.isValid(swarm))
+      allTransfers.map((tr) => tr.isValid(swarm)),
     );
 
     return allTransfers.filter((_, index) => selection[index]);
@@ -81,7 +81,7 @@ export class Explorer {
    */
   async getAllTransactionsByAddress(
     swarm: Swarm,
-    address: string
+    address: string,
   ): Promise<Array<OnChainTransaction>> {
     /*
      * Merge {normal, internal, token} transfers in one single list ordered by timestamp.
@@ -100,31 +100,31 @@ export class Explorer {
 }
 
 export class CommonExplorer extends Explorer {
-  async blockInternalTransactions(
-    blockNumber: number
+  blockInternalTransactions(
+    blockNumber: number,
   ): Promise<InternalTransactionRecord[]> {
     // OVERRIDE ME
-    return [];
+    return Promise.resolve([]);
   }
 
   async getInternalTransactionsByBlockNumber(
     swarm: Swarm,
-    blockNumber: number
+    blockNumber: number,
   ): Promise<Array<InternalTransaction>> {
     const res = await this.blockInternalTransactions(blockNumber);
 
     return await Promise.all(
       res.map((t) =>
-        swarm.internalTransaction(this.chain, t.hash, t.traceId, t)
-      )
+        swarm.internalTransaction(this.chain, t.hash, t.traceId, t),
+      ),
     );
   }
 
-  async accountNormalTransactions(
-    address: string
+  accountNormalTransactions(
+    address: string,
   ): Promise<NormalTransactionRecord[]> {
     // OVERRIDE ME
-    return [];
+    return Promise.resolve([]);
   }
 
   async getNormalTransactionsByAddress(swarm: Swarm, address: string) {
@@ -132,41 +132,41 @@ export class CommonExplorer extends Explorer {
 
     return (
       await Promise.all(
-        res.map((t) => swarm.normalTransaction(this.chain, t.hash, t))
+        res.map((t) => swarm.normalTransaction(this.chain, t.hash, t)),
       )
     ).filter((t) => t.data.isError === "0");
   }
 
-  async accountInternalTransactions(
-    address: string
+  accountInternalTransactions(
+    address: string,
   ): Promise<InternalTransactionRecord[]> {
     // OVERRIDE ME
-    return [];
+    return Promise.resolve([]);
   }
 
   async getInternalTransactionsByAddress(
     swarm: Swarm,
-    address: string
+    address: string,
   ): Promise<InternalTransaction[]> {
     const res = await this.accountInternalTransactions(address);
 
     return await Promise.all(
       res.map((t) =>
-        swarm.internalTransaction(this.chain, t.hash, t.traceId, t)
-      )
+        swarm.internalTransaction(this.chain, t.hash, t.traceId, t),
+      ),
     );
   }
 
-  async accountTokenTransfers(address: string): Promise<TokenTransferRecord[]> {
+  accountTokenTransfers(address: string): Promise<TokenTransferRecord[]> {
     // OVERRIDE ME
-    return [];
+    return Promise.resolve([]);
   }
 
   async getTokenTransfersByAddress(swarm: Swarm, address: string) {
     const res = await this.accountTokenTransfers(address);
 
     return await Promise.all(
-      res.map((t) => swarm.tokenTransfer(this.chain, t))
+      res.map((t) => swarm.tokenTransfer(this.chain, t)),
     );
   }
 }

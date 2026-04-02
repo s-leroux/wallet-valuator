@@ -1,11 +1,11 @@
-import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
+import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
 //prettier-ignore
 const defaultCryptoTable = [
   ["armm-v3-usdc", "gnosis", "0xeD56F76E9cBC6A64b821e9c016eAFbd3db5436D1"],
   ["armm-v3-wxdai", "gnosis", "0x0cA4f5554Dd9Da6217d62D8df2816c82bba4157b"],
-  ["binance-coin", "bnb chain", null],
+  ["binance-coin", "bnb-chain", null],
   ["bitcoin", "bitcoin", null],
   ["crv", "ethereum", "0xd533a949740bb3306d119cc777fa900ba034cd52"],
   ["crv", "gnosis", "0x712b3d230f3c1c19db860d80619288b1f0bdd0bd"],
@@ -35,7 +35,7 @@ const defaultCryptoTable = [
   ["savings-xdai", "gnosis","0xaf204776c7245bf4147c2612bf6e5972ee483701"],
   ["solana", "solana", null],
   ["usdc", "arbitrum", "0xaf88d065e77c8cc2239327c5edb3a432268e5831"],
-  ["usdc", "bnb chain", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"],
+  ["usdc", "bnb-chain", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"],
   ["usdc", "ethereum", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
   ["usdc", "gnosis", "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83"],
   ["usdc", "polygon", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
@@ -43,12 +43,12 @@ const defaultCryptoTable = [
   ["usdt", "ethereum", "0xdAC17F958D2ee523a2206206994597C13D831ec7"],
   ["usdt", "gnosis", "0x4ECaBa5870353805A9F068101A40E0f32ED605C6"],
   ["usdt", "polygon", "0xC2132D05D31c914a87C6611C10748aeb04B58E8F"],
-  ["wbeth", "bnb chain", "0xa2e3356610840701bdf5611a53974510ae27e2e1"],
+  ["wbeth", "bnb-chain", "0xa2e3356610840701bdf5611a53974510ae27e2e1"],
   ["wbeth", "ethereum", "0xa2e3356610840701bdf5611a53974510ae27e2e1"],
   ["wbtc" , "polygon" ,"0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"],
   ["wbtc" ,"gnosis", "0x8e5bBbb09Ed1ebd8674Cda39A0c169401db4252"],
   ["wbtc", "arbitrum", "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f"],
-  ["wbtc", "bnb chain", "0x0555e30da8f98308edb960aa94c0db47230d2b9c"],
+  ["wbtc", "bnb-chain", "0x0555e30da8f98308edb960aa94c0db47230d2b9c"],
   ["wbtc", "ethereum", "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"],
   ["wbtc", "gnosis", "0x8e5bbbb09ed1ebde8674cda39a0c169401db4252"],
   ["wbtc", "polygon", "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"],

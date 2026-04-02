@@ -13,7 +13,7 @@ import {
   FORMAT_RE,
 } from "../src/displayable.mjs";
 import { NotImplementedError, ValueError } from "../src/error.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
+import { Fixed } from "../src/bignumber.mjs";
 
 describe("toDisplayString", function () {
   it("should call toDisplayString() on Displayable objects", function () {
@@ -60,6 +60,13 @@ describe("toDisplayString", function () {
 
   it("should return '[]' for empty arrays", function () {
     assert.strictEqual(toDisplayString([]), "[]");
+  });
+
+  it("should format Fixed values preserving internal scale", function () {
+    assert.strictEqual(toDisplayString(Fixed.fromString("1.0000")), "1.0000");
+    assert.strictEqual(toDisplayString(Fixed.fromString("0.10")), "0.10");
+    assert.strictEqual(toDisplayString(Fixed.fromString("123.456")), "123.456");
+    assert.strictEqual(toDisplayString(Fixed.fromString("-2")), "-2");
   });
 
   it("should indent content of arrays", function () {
@@ -132,22 +139,44 @@ describe("objectFormatter", function () {
       __proto__: null,
       str: "hello",
       num: 123.456,
-      bignum: BigNumber.from(123.456),
+      fixed: Fixed.fromString("123.4560"),
     };
+
     // prettier-ignore
     const testcases = [
-      [src, "{str:10.2}", "he        "],
-      [src, "{str:10}", "hello     "],
-      [src, "{str:10.0}", "          "],
-      [src, "{str}", "hello"],
-      [src, "{num:10.2}", "    123.45"],
+      [src, "{fixed:10.0}", "       123"],
+      [src, "{fixed:10.1}", "     123.4"],
+      [src, "{fixed:10.2}", "    123.45"],
+      [src, "{fixed:10.3}", "   123.456"],
+      [src, "{fixed:10.4}", "  123.4560"],
+      [src, "{fixed:10.5}", " 123.45600"],
+      [src, "{fixed:10.6}", "123.456000"],
+      [src, "{fixed:10.7}", "…3.4560000"],
+      [src, "{fixed:10.8}", "….45600000"],
+      [src, "{fixed:10}", "  123.4560"],
+      [src, "{fixed}", "123.4560"],
       [src, "{num:10.0}", "       123"],
+      [src, "{num:10.1}", "     123.4"],
+      [src, "{num:10.2}", "    123.45"],
+      [src, "{num:10.3}", "   123.456"],
+      [src, "{num:10.4}", "  123.4560"],
+      [src, "{num:10.5}", " 123.45600"],
+      [src, "{num:10.6}", "123.456000"],
+      [src, "{num:10.7}", "…3.4560000"],
+      [src, "{num:10.8}", "….45600000"],
       [src, "{num:10}", "123.456000"],
       [src, "{num}", "123.456"],
-      [src, "{bignum:10.2}", "    123.45"],
-      [src, "{bignum:10.0}", "       123"],
-      [src, "{bignum:10}", "123.456000"],
-      [src, "{bignum}", "123.456"],
+      [src, "{str:10.0}", "          "],
+      [src, "{str:10.1}", "h         "],
+      [src, "{str:10.2}", "he        "],
+      [src, "{str:10.3}", "hel       "],
+      [src, "{str:10.4}", "hell      "],
+      [src, "{str:10.5}", "hello     "],
+      [src, "{str:10.6}", "hello     "],
+      [src, "{str:10.7}", "hello     "],
+      [src, "{str:10.8}", "hello     "],
+      [src, "{str:10}", "hello     "],
+      [src, "{str}", "hello"],
     ] as const;
     for (const [input, format, expected] of testcases) {
       register(format, () => {

@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "compile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "label": "npm: compile",
+      "detail": "tsc"
+    },
+
+    {
+      "label": "Watch Remote TSC",
+      "type": "shell",
+      "command": "tail -n +1 -F ${env:HOME}/tsc.log",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "never",
+        "revealProblems": "onProblem",
+        "panel": "dedicated",
+        "close": false
+      },
+      "problemMatcher": {
+        "base": "$tsc-watch",
+        "applyTo": "allDocuments",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "File change detected\\.\\s*Starting incremental compilation"
+          },
+          "endsPattern": {
+            "regexp": "(?:Compilation complete|Found \\d+ errors?)\\.\\s*Watching for file changes"
+          }
+        }
+      }
+    }
+  ]
+}

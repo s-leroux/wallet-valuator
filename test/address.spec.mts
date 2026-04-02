@@ -4,7 +4,7 @@ import { prepare } from "./support/register.helper.mjs";
 
 import { Address } from "../src/address.mjs";
 import { Swarm } from "../src/swarm.mjs";
-import { FakeExplorer } from "./fake-explorer.mjs";
+import { FakeExplorer } from "./support/explorer.fake.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
 import { asBlockchain } from "../src/blockchain.mjs";
@@ -27,7 +27,7 @@ describe("Address", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const addr = new Address(swarm, chain, address);
@@ -48,7 +48,7 @@ describe("Address", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const addr = new Address(swarm, chain, address);

@@ -19,7 +19,7 @@ export class Block {
   constructor(swarm: Swarm, chain: Blockchain, blockNumber: number) {
     if (blockNumber != parseInt(String(blockNumber)) || blockNumber < 0) {
       throw new Error(
-        `The block number must be a strictly positive integer (was ${blockNumber})`
+        `The block number must be a strictly positive integer (was ${blockNumber})`,
       );
     }
 
@@ -43,7 +43,7 @@ export class Block {
   internalTransactions(swarm: Swarm): Promise<Array<OnChainTransaction>> {
     return this.explorer.getInternalTransactionsByBlockNumber(
       swarm,
-      this.blockNumber
+      this.blockNumber,
     );
   }
 }

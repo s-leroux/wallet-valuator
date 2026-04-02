@@ -45,11 +45,14 @@ describe("DefiLlamaOracle", function () {
         bitcoin,
         new Date("2023-10-01"),
         new Set([USD, EUR]),
-        priceMap
+        priceMap,
       );
 
       assert.isTrue(priceMap.has(USD));
-      assert.equal(+priceMap.get(USD)!.rate, 26966.11831093055);
+      assert.equal(
+        priceMap.get(USD)!.rate.toDecimalString(8),
+        "26966.11831093",
+      );
     });
   });
 });

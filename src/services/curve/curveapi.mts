@@ -21,7 +21,7 @@ export class CurveProvider extends Provider {
     base: string = CURVE_API_BASEADDRESS,
     options: ProviderOptionBag = {
       retry: 10,
-    }
+    },
   ) {
     super(base, options);
   }
@@ -168,7 +168,7 @@ export class DefaultCurveAPI {
               return PricesChainsFallback;
             }
           },
-        }
+        },
       ) as Promise<CurveChainList>;
       return promise.then((result) => {
         result.data.forEach((item) => {
@@ -237,7 +237,7 @@ export class DefaultCurveAPI {
   getAllUSDPrices(chainName: string): Promise<CurvePriceList> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
     const url = ["/v1/usd_price", encodeURIComponent(internalChainName)].join(
-      "/"
+      "/",
     );
 
     return this.provider.fetch(url) as Promise<CurvePriceList>;
@@ -254,7 +254,7 @@ export class DefaultCurveAPI {
   getUSDPrice(
     chainName: string,
     tokenAddress: string,
-    date: Date
+    date: Date,
   ): Promise<CurvePriceHistory> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
     const start = toCurveDate(date);
@@ -286,7 +286,7 @@ export class DefaultCurveAPI {
   getLiquidityPoolOHLC(
     chainName: string,
     poolAddress: string,
-    date: Date
+    date: Date,
   ): Promise<CurveOHLC> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
     const start = toCurveDate(date);
@@ -309,7 +309,7 @@ export class DefaultCurveAPI {
 
   async getLiquidityPoolFromToken(
     chainName: string,
-    tokenAddress: string
+    tokenAddress: string,
   ): Promise<string | null> {
     const internalChainName = ToCurveChainName[chainName] ?? chainName;
 

@@ -13,13 +13,13 @@ export class RealTokenProvider extends Provider {
   constructor(
     apiKey: string | null,
     base: string = REALTOKEN_API_BASEADDRESS,
-    options: ProviderOptionBag = {}
+    options: ProviderOptionBag = {},
   ) {
     if (apiKey !== null && (typeof apiKey !== "string" || apiKey === "")) {
       throw Logged(
         "C3017",
         TypeError,
-        `Invalid API key: expected null or non-empty string, got "${apiKey}"`
+        `Invalid API key: expected null or non-empty string, got "${apiKey}"`,
       );
     }
     super(base, options);
@@ -159,7 +159,7 @@ type RealTokenExtended = {
 
 export type RealTokenEvent = {
   date: string; // YYYYMMDD
-  values: Record<string, any>;
+  values: Record<string, string | number | undefined>;
 };
 
 export type RealTokenHistory = {
@@ -175,10 +175,10 @@ export class DefaultRealTokenAPI implements RealTokenAPI {
   static create(
     apiKey: string | null,
     base: string = REALTOKEN_API_BASEADDRESS,
-    options: RealTokenOptionBag = {}
+    options: RealTokenOptionBag = {},
   ) {
     return new DefaultRealTokenAPI(
-      new RealTokenProvider(apiKey, base, options)
+      new RealTokenProvider(apiKey, base, options),
     );
   }
 

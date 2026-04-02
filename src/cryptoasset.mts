@@ -1,4 +1,9 @@
-import { BigNumber, BigNumberSource } from "./bignumber.mjs";
+import {
+  Fixed,
+  IntegerSource,
+  fixedFromSource,
+  FixedSource,
+} from "./bignumber.mjs";
 import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { InconsistentUnitsError, ValueError } from "./error.mjs";
@@ -11,20 +16,23 @@ import { Quantity } from "./quantity.mjs";
 import { InstanceCache } from "./instancecache.mjs";
 const log = logger("crypto-asset");
 
+type AmountSource = FixedSource;
+
 //======================================================================
-//  CryptoAssetID
+//  CryptoAssetInternalId
 //======================================================================
-export type CryptoAssetID = Lowercase<string> & {
+
+export type CryptoAssetInternalId = Lowercase<string> & {
   readonly __brand: unique symbol;
 };
 
-export function toCryptoAssetID(id: string): CryptoAssetID {
+export function toCryptoAssetInternalId(id: string): CryptoAssetInternalId {
   if (id !== id.toLowerCase()) {
     throw new ValueError(
       `The id for crypto-assets must be written in all lowercase (was ${id})`,
     );
   }
-  return id as CryptoAssetID;
+  return id as CryptoAssetInternalId;
 }
 
 //======================================================================
@@ -57,7 +65,7 @@ export function isCryptoAsset(obj: unknown): obj is CryptoAsset {
  */
 export class Amount implements Quantity<CryptoAsset, Amount> {
   crypto: CryptoAsset;
-  value: BigNumber;
+  value: Fixed;
 
   /**
    * Creates an instance of `Amount`.
@@ -65,12 +73,9 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    * @param crypto - The crypto associated with the amount.
    * @param value - The quantity expressed in the display unit.
    */
-  constructor(crypto: CryptoAsset, value: BigNumber = BigNumber.ZERO) {
-    if (value.isNaN()) {
-      throw new ValueError("Invalid amount: NaN values are not allowed");
-    }
+  constructor(crypto: CryptoAsset, value: AmountSource = Fixed.ZERO) {
     this.crypto = crypto;
-    this.value = value;
+    this.value = fixedFromSource(value);
   }
 
   /**
@@ -78,7 +83,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
    *
    * @returns A string combining the value and the crypto symbol.
    * @example
-   * const amount = new Amount({ symbol: 'ETH', ... }, BigNumber.from(1));
+   * const amount = new Amount({ symbol: 'ETH', ... }, Fixed.fromString("1"));
    * console.log(amount.toString()); // "1 ETH"
    */
   toString(): string {
@@ -154,22 +159,48 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
     return this.value.isZero();
   }
 
-  valueAt(price: Price) {
+  valueAt(price: Price, scale?: bigint) {
     if (this.crypto !== price.crypto) {
       throw new InconsistentUnitsError(this.crypto, price.crypto);
     }
-    return new Value(price.fiatCurrency, this.value.mul(price.rate));
+    // `Price.rate` is `Fixed`; multiply the amount by the rate to obtain fiat `Value`.
+    return new Value(price.fiatCurrency, this.value.mul(price.rate, scale));
   }
 
-  scaledBy(factor: BigNumberSource): Amount {
-    return new Amount(this.crypto, this.value.mul(factor));
+  /**
+   * Returns a new Amount representing this value scaled by a factor.
+   *
+   * This operation preserves the Amount's unit.
+   * The returned Amount is expressed at the scale of the receiver.
+   *
+   * @param factor - The scalar multiplier as a FixedLike.
+   * @returns A new Amount with the same crypto and scale.
+   */
+  scaledBy(factor: FixedSource): Amount {
+    const factorFixed = fixedFromSource(factor);
+    return new Amount(
+      this.crypto,
+      this.value.mul(factorFixed, this.value.scale),
+    );
   }
 
-  relativeTo(other: Amount): BigNumber {
+  /**
+   * Returns the scalar ratio between this Amount and a base Amount.
+   *
+   * In other words, it answers: "By which factor must the base Amount be multiplied
+   * to yield this Amount?"
+   *
+   * The result is expressed as a dimensionless quantity whose scale is
+   * implementation-dependent but large enough to ensure it is invertible using {@link scaledBy}.
+   *
+   * @param other - The reference Amount to compare against.
+   * @returns The scalar ratio (this / other).
+   */
+  relativeTo(other: Amount): Fixed {
     if (this.crypto !== other.crypto) {
       throw new InconsistentUnitsError(this, other);
     }
-    return this.value.div(other.value);
+    return this.value.div(other.value, this.value.scale + other.value.scale); // XXX Is it really the right scale?
   }
 }
 
@@ -177,19 +208,34 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
 //  CryptoAsset
 //======================================================================
 
-export type CryptoAssetCache = InstanceCache<CryptoAssetID, CryptoAsset>;
+export type CryptoAssetCache = InstanceCache<
+  CryptoAssetInternalId,
+  CryptoAsset
+>;
 export function CryptoAssetCache(): CryptoAssetCache {
   return new InstanceCache();
 }
 
 /**
- * Represents a crypto-asset, such as a native coin or an ERC-20 token.
+ * Represents a **logical** crypto-asset — an accounting equivalence class that
+ * groups one or more on-chain tokens considered fungible for valuation purposes.
  *
- * A `CryptoAsset` is a logical representation of a crypto-asset, independent of
- * the underlying blockchain. For example, it may represent "USDC" regardless
- * of the blockchain on which it exists, encompassing both the authentic
- * Circle-issued token and bridged versions. From an accounting perspective,
- * these are all considered a single crypto-asset.
+ * A `CryptoAsset` is always logical and blockchain-independent. For example,
+ * it may represent "USDC" regardless of the blockchain on which it exists,
+ * encompassing both the authentic Circle-issued token and bridged versions.
+ * From an accounting perspective, these are all considered a single crypto-asset.
+ *
+ * There is no separate "physical crypto-asset" class. A physical crypto-asset
+ * is the combination of a {@link ChainAddress} (chain + smart contract address)
+ * and the on-chain token data (name, symbol, decimals). A {@link CryptoResolver}
+ * maps that physical information to a logical `CryptoAsset`.
+ *
+ * When a resolver recognises the token (e.g. USDC on several chains), many
+ * physical tokens map to the **same** logical `CryptoAsset`. When no resolver
+ * recognises a token, it is treated as an *orphan*: a new logical `CryptoAsset`
+ * is created whose `id` is derived from the chain-address itself. That orphan
+ * is a singleton equivalence class — a logical asset with exactly one known
+ * physical representative.
  *
  * The `id` is a unique internal identifier for the logical crypto-asset.
  * A **crypto-asset resolver** is responsible for mapping blockchain-specific
@@ -208,7 +254,7 @@ export function CryptoAssetCache(): CryptoAssetCache {
  * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
-  readonly id: CryptoAssetID; // internal id for that asset cross-chain
+  readonly id: CryptoAssetInternalId;
   readonly name: string;
   readonly symbol: string;
   readonly decimal: number;
@@ -224,7 +270,7 @@ export class CryptoAsset {
    * @param decimal - The number of decimal places used for the crypto.
    */
   private constructor(
-    id: CryptoAssetID,
+    id: CryptoAssetInternalId,
     name: string,
     symbol: string,
     decimal: number,
@@ -245,12 +291,12 @@ export class CryptoAsset {
    */
   static create(
     cache: CryptoAssetCache,
-    id: string | CryptoAssetID,
+    id: string | CryptoAssetInternalId,
     name: string,
     symbol: string,
     decimal: number,
   ): CryptoAsset {
-    const normalizedId = toCryptoAssetID(id);
+    const normalizedId = toCryptoAssetInternalId(id);
 
     return cache.getOrCreate(
       normalizedId,
@@ -286,17 +332,21 @@ export class CryptoAsset {
    * const amount = eth.fromBaseUnit('1000000000000000000'); // 1 ETH
    * console.log(amount.toString()); // "1 ETH"
    */
-  amountFromBaseUnit(baseunit: string): Amount {
-    return new Amount(this, BigNumber.fromDigits(baseunit, this.decimal));
+  amountFromBaseUnit(baseunit: IntegerSource): Amount {
+    return new Amount(this, Fixed.create(baseunit, BigInt(this.decimal)));
   }
 
   amountFromString(v: string): Amount {
     // ISSUE #32 rename as `amount()`
-    return new Amount(this, BigNumber.fromString(v));
+    return new Amount(this, Fixed.fromString(v));
   }
 
-  price(fiat: FiatCurrency, rate: BigNumberSource) {
+  price(fiat: FiatCurrency, rate: FixedSource) {
     return new Price(this, fiat, rate);
+  }
+
+  priceFromNumber(fiat: FiatCurrency, rate: number, scale: IntegerSource) {
+    return new Price(this, fiat, Fixed.fromNumber(rate, scale));
   }
 
   toString(): string {

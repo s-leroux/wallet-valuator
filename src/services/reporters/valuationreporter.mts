@@ -1,4 +1,5 @@
 import { PortfolioValuation } from "../../valuation.mjs";
+import { Fixed } from "../../bignumber.mjs";
 import { DisplayOptions, toDisplayString } from "../../displayable.mjs";
 import { logger } from "../../debug.mjs";
 import { formatDate } from "../../date.mjs";
@@ -8,7 +9,7 @@ const log = logger("valuation-reporter");
 export class PortfolioValuationReporter {
   constructor(
     readonly portfolio: PortfolioValuation,
-    readonly displayOptions: DisplayOptions = {}
+    readonly displayOptions: DisplayOptions = {},
   ) {}
 
   report() {
@@ -16,14 +17,14 @@ export class PortfolioValuationReporter {
     for (const snapshot of this.portfolio) {
       const totalValueBeforeStr =
         snapshot.cryptoValueBefore.totalCryptoValue.toDisplayString(
-          this.displayOptions
+          this.displayOptions,
         );
       const totalValueAfterStr =
         snapshot.cryptoValueAfter.totalCryptoValue.toDisplayString(
-          this.displayOptions
+          this.displayOptions,
         );
       const difference = snapshot.cryptoValueBefore.totalCryptoValue.minus(
-        snapshot.cryptoValueAfter.totalCryptoValue
+        snapshot.cryptoValueAfter.totalCryptoValue,
       );
 
       lines.push(`D 211: ${formatDate("DD/MM/YYYY", snapshot.date)}`);
@@ -55,33 +56,36 @@ export class PortfolioValuationReporter {
         lines.push(
           `T 220: ${snapshot.fiscalCash
             .plus(snapshot.cashInMulShare)
-            .toDisplayString(this.displayOptions)}`
+            .toDisplayString(this.displayOptions)}`,
         );
 
         // For cash-out, share of the total price to buy in the cash-out
         lines.push(
           `S 221: ${snapshot.cashInMulShare.toDisplayString(
-            this.displayOptions
-          )}`
+            this.displayOptions,
+          )}`,
         );
       }
 
       // Total fiat deposits
       lines.push(
-        `    D: ${snapshot.fiatDeposits.toDisplayString(this.displayOptions)}`
+        `    D: ${snapshot.fiatDeposits.toDisplayString(this.displayOptions)}`,
       );
 
       // Gain or loss
       lines.push(
-        `  G/L: ${snapshot.gainOrLoss?.toDisplayString(this.displayOptions)}`
+        `  G/L: ${snapshot.gainOrLoss?.toDisplayString(this.displayOptions)}`,
       );
 
       // Now our holdings
       snapshot.cryptoValueAfter.positions.forEach(
         ({ value, amount }, cryptoAsset) => {
-          const isNegative = value.value.isNegative(); // ISSUE #115 Add isNegative to the Quantity interface
+          const qty = value.value;
+          const isNegative = qty.compare(Fixed.ZERO) < 0; // ISSUE #115 Add isNegative to the Quantity interface
+
           const significant =
-            isNegative || value.value.greaterThanOrEqualTo(0.0001); // ISSUE #116 Add greaterThanOrEqualTo to the Quantity interface
+            isNegative || qty.compare(Fixed.fromString("0.0001")) >= 0; // ISSUE #116 Add greaterThanOrEqualTo to the Quantity interface
+
           if (significant) {
             const flags = isNegative ? "!!! NEGATIVE" : "";
             lines.push(
@@ -90,10 +94,10 @@ export class PortfolioValuationReporter {
                 " " +
                 amount.toDisplayString(this.displayOptions) +
                 " " +
-                flags
+                flags,
             );
           }
-        }
+        },
       );
 
       lines.push("---");

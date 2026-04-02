@@ -1,5 +1,4 @@
-import { BigNumber } from "./bignumber.mjs";
-import { type Amount } from "./cryptoasset.mjs";
+import { Fixed, fixedFromSource, type FixedSource } from "./bignumber.mjs";
 import { formatDate as dateUtilsFormatDate } from "./date.mjs";
 import { logger } from "./debug.mjs";
 import { NotImplementedError, ValueError } from "./error.mjs";
@@ -42,7 +41,22 @@ export const defaultDisplayOptions: Required<DisplayOptions> = {
   },
 };
 
-function noDisplayString(obj: object & {}, options: DisplayOptions): string {
+/**
+ * Format an object for display.
+ *
+ * This function is called by {@link toDisplayString} to format objects that are not instances of {@link Displayable}.
+ *
+ * @param obj - The object to format as a display string.
+ * @param options - The display options to use for formatting.
+ * @returns The display string for the object.
+ */
+function noDisplayString(
+  obj: object & {
+    values?: () => Iterable<unknown>;
+    toString?: () => string;
+  },
+  options: DisplayOptions,
+): string {
   if (Array.isArray(obj)) {
     const body = obj.map((item) => toDisplayString(item, options)).join("\n");
     if (body) {
@@ -56,8 +70,13 @@ function noDisplayString(obj: object & {}, options: DisplayOptions): string {
     return TextUtils.formatDate(obj, options);
   }
 
+  // Fixed format
+  if (obj instanceof Fixed) {
+    return obj.toDecimalString();
+  }
+
   // Other standard container?
-  const values = (obj as any).values?.();
+  const values = (obj as { values?: () => Iterable<unknown> }).values?.();
   const classname = obj.constructor?.name ?? "[null prototype]";
 
   if (values) {
@@ -78,14 +97,14 @@ export function toDisplayString(
   const type = typeof obj;
 
   if (!obj || type !== "object") {
-    // ^ above: handle null gracefully
+    // ^ above: handle null gracefully: typeof null === "object", but null is falsy.
 
     // for non-object, use the default toString() implementation
     // XXX Shouldn't we allow number formatting specifiers?
     return String(obj);
   }
 
-  // Here, obj is necessarily a (defined and) non-null object
+  // At this point, obj is necessarily a (defined and) non-null object
   return (
     (obj as Displayable).toDisplayString?.(options) ??
     noDisplayString(obj, options)
@@ -145,6 +164,15 @@ interface FormatOptions {
 
 type Formatter = (arg: Record<string, unknown>) => string;
 
+/**
+ * `objectFormatter` mini-language: strings use {@link formatStringAtom}. All other
+ * formatted numeric fields use {@link Fixed} — {@link Fixed} values keep their
+ * stored scale when the format omits a precision; `number` values are converted
+ * with {@link fixedFromSource} and default to six fraction digits when the format
+ * omits a precision (matching the old Decimal.js `toFixed(6)` behavior).
+ * Formatting uses {@link Fixed.toDecimalString} for {@link Fixed} values (truncation
+ * when narrowing scale), not `Number.prototype.toFixed`.
+ */
 type AtomFormatter<T> = (
   value: T,
   width: number,
@@ -170,13 +198,26 @@ function formatStringAtom(
 }
 
 function formatNumberAtom(
-  value: number | BigNumber,
+  value: number,
   width: number,
   precision: number | undefined,
   zero: boolean,
 ): string {
-  const asBigNumber = BigNumber.from(value);
-  let valueAsString = asBigNumber.toFixed(precision ?? 6);
+  return formatFixedAtom(
+    Fixed.fromNumber(value, precision ?? 6),
+    width,
+    precision,
+    zero,
+  );
+}
+
+function formatFixedAtom(
+  value: Fixed,
+  width: number,
+  precision: number | undefined,
+  zero: boolean,
+): string {
+  let valueAsString = value.toDecimalString(precision);
   if (width) {
     valueAsString = valueAsString.padStart(width, zero ? "0" : " ");
   }
@@ -207,11 +248,11 @@ export function objectFormatter(
   format: string,
   options: FormatOptions = {},
 ): Formatter {
-  return (arg: Record<string, unknown>): string => {
+  return (arg: Record<string, string | FixedSource>): string => {
     return format.replace(FORMAT_RE, (_, ...args): string => {
       const groups = args.at(-1)! as FormatGroups;
       const field = groups.field;
-      const value = arg[field];
+      let value = arg[field];
       if (!value) {
         throw new ValueError(
           `Invalid format ${format}. Field ${field} not found.`,
@@ -225,14 +266,13 @@ export function objectFormatter(
       let atomFormatter: AtomFormatter<unknown>;
       if (typeof value === "string") {
         atomFormatter = formatStringAtom;
+      } else if (value instanceof Fixed) {
+        atomFormatter = formatFixedAtom;
       } else if (typeof value === "number") {
         atomFormatter = formatNumberAtom;
-      } else if (value instanceof BigNumber) {
-        atomFormatter = formatNumberAtom;
       } else {
-        throw new ValueError(
-          `Invalid value type ${typeof value}. Expected string or number.`,
-        );
+        atomFormatter = formatFixedAtom;
+        value = fixedFromSource(value);
       }
 
       let result = atomFormatter(
@@ -242,6 +282,7 @@ export function objectFormatter(
         groups.zero !== undefined,
       );
 
+      // Constrain the total field width
       const width = +groups.width;
       if (width) {
         result =
@@ -274,7 +315,7 @@ export function format(format: string) {
     throw new ValueError(`Invalid format ${format}`);
   }
 
-  const [_, sign, width, dot, decimal] = match;
+  const [, sign, width, dot, decimal] = match;
 
   if (dot) {
     return alignChar(parseInt(width), dot, parseInt(decimal) || 0);

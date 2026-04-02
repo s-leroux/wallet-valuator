@@ -8,8 +8,6 @@ import {
   snapshotFromMovements,
   snapshotsFromMovements,
 } from "./support/snapshot.fake.mjs";
-import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
 import { Portfolio, Snapshot } from "../src/portfolio.mjs";
 
 const INGRESS = [true, false] as const;

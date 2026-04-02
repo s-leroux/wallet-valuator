@@ -103,7 +103,7 @@ describe("Provider", function () {
     const provider = new TestProvider();
     return assert.isRejected(
       provider.fetch("status/418", {}),
-      "status code 418"
+      "status code 418",
     );
   });
 
@@ -130,7 +130,7 @@ describe("Provider", function () {
       assert.property(
         payload.headers,
         header,
-        `Default header '${header}' should be present`
+        `Default header '${header}' should be present`,
       );
     }
   });

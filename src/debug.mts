@@ -144,7 +144,7 @@ let LOG_LEVEL = logLevel();
 type Severity = readonly [
   name: string,
   level: 1 | 2 | 3 | 4 | 5 | 6,
-  color: ANSI3BitColorName
+  color: ANSI3BitColorName,
 ];
 
 const severity = {
@@ -215,7 +215,7 @@ function errorMessage(errorCode: ErrorCode, message: string | undefined) {
 class DebugFacade {
   constructor(
     public readonly console: DebugConsole,
-    public readonly module: string
+    public readonly module: string,
   ) {}
 
   public error(
@@ -228,7 +228,7 @@ class DebugFacade {
       this.module,
       errorCode,
       errorMessage(errorCode, message && String(message)),
-      ...rest
+      ...rest,
     );
   }
 
@@ -242,7 +242,7 @@ class DebugFacade {
       this.module,
       errorCode,
       errorMessage(errorCode, message && String(message)),
-      ...rest
+      ...rest,
     );
   }
 
@@ -256,7 +256,7 @@ class DebugFacade {
       this.module,
       errorCode,
       errorMessage(errorCode, message),
-      ...rest
+      ...rest,
     );
   }
 
@@ -266,7 +266,7 @@ class DebugFacade {
       this.module,
       errorCode,
       errorMessage(errorCode, message),
-      ...rest
+      ...rest,
     );
   }
 
@@ -281,7 +281,7 @@ class DebugFacade {
       this.module,
       "C9999",
       "DEBUGGING INFORMATION\n",
-      ...rest
+      ...rest,
     );
   }
 }

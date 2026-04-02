@@ -20,12 +20,13 @@ import { PriceMap } from "../../../src/services/oracle.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 
 import { FakeRealTokenAPI } from "../../support/realtokenapi.fake.mjs";
-import { BigNumber } from "../../../src/bignumber.mjs";
 import { RealTokenMetadata } from "../../../src/services/realtoken/realtokenresolver.mjs";
+import { Fixed } from "../../../src/bignumber.mjs";
 
 describe("RealTokenUUID", () => {
   it("can be created from string", () => {
-    const uuid = RealTokenUUID("0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4");
+    const addr = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
+    assert.strictEqual(RealTokenUUID(addr), addr.toLowerCase());
   });
 
   describe("behavior", function () {
@@ -61,7 +62,7 @@ describe("RealTokenUUID", () => {
             `case RealTokenUUID("${a}") === "${addr.toLowerCase()}"`,
             () => {
               assert.strictEqual(RealTokenUUID(a), addr.toLowerCase());
-            }
+            },
           );
         }
       });
@@ -111,14 +112,20 @@ describe("RealTokenOracle", function () {
         await oracle.load();
 
         // jq '.[100] | {uuid, historyLength: (.history | length)}' < fixtures/RealT/tokenHistory.json
+        const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
         const expected = {
-          uuid: "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4",
+          uuid,
           historyLength: 7,
         };
-        const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
         const events = oracle.getEvents(RealTokenUUID(uuid));
 
-        assert.equal(events.length, 7);
+        assert.equal(events.length, expected.historyLength);
+        assert.strictEqual(events[0].date, "20210217");
+        assert.strictEqual(events[0].values.tokenPrice, 50.07);
+        const priced = events.filter((e) => e.values.tokenPrice !== undefined);
+        assert.strictEqual(priced.length, 2);
+        assert.strictEqual(priced[1].date, "20220611");
+        assert.strictEqual(priced[1].values.tokenPrice, 52.46);
       });
 
       it("should retrieve the price table for a RealToken", async () => {
@@ -126,18 +133,18 @@ describe("RealTokenOracle", function () {
 
         // jq '.[100] | {uuid, historyLength: [ .history[] | [ .date, .values.tokenPrice ] | select(.[1]) ] }' < fixtures/RealT/tokenHistory.json
         const expected = [
-          ["20210217", 50.07],
-          ["20220611", 52.46],
+          ["20210217", "50.07"],
+          ["20220611", "52.46"],
         ] as const;
         const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4";
         const priceTable = oracle.getPriceTable(RealTokenUUID(uuid));
 
         assert.deepEqual(
           priceTable.toArray(),
-          expected.map(([d, n]) => [d, BigNumber.from(n)]) as [
+          expected.map(([d, n]) => [d, Fixed.fromString(n)]) as [
             string,
-            BigNumber
-          ][]
+            Fixed,
+          ][],
         );
       });
     });
@@ -147,11 +154,11 @@ describe("RealTokenOracle", function () {
 
       const testcases = [
         ["20210117", null], // this tests the case we have a konwn token but no price at the requested date
-        ["20210217", 50.07],
-        ["20210317", 50.07],
-        ["20220511", 50.07],
-        ["20220611", 52.46],
-        ["20220711", 52.46],
+        ["20210217", "50.07"],
+        ["20210317", "50.07"],
+        ["20220511", "50.07"],
+        ["20220611", "52.46"],
+        ["20220711", "52.46"],
       ] as const;
       const uuid = "0x9528a7402C0Fe85B817aa6E106EAFa03A02924c4".toLowerCase();
       const fiat = FiatCurrency("USD");
@@ -163,7 +170,7 @@ describe("RealTokenOracle", function () {
             uuid,
             "REALTOKEN-X",
             "REALTOKEN-X",
-            18
+            18,
           );
           cryptoMetadata.setMetadata<RealTokenMetadata>(crypto, {
             "realtoken.uuid": uuid,
@@ -176,7 +183,7 @@ describe("RealTokenOracle", function () {
             crypto,
             parseDate("YYYYMMDD", date),
             new Set([fiat]),
-            priceMap
+            priceMap,
           );
 
           if (value === null) {

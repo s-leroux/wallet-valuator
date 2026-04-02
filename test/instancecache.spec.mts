@@ -55,13 +55,13 @@ describe("InstanceCache", () => {
     const stringValue = stringCache.getOrCreate("1", () => new TestValue(42));
     const numberValue = numberCache.getOrCreate(
       1,
-      () => new NumberTestValue(42)
+      () => new NumberTestValue(42),
     );
 
     assert.notStrictEqual(
       stringValue as object,
       numberValue as object,
-      "Should be different instances"
+      "Should be different instances",
     );
   });
 
