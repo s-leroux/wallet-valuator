@@ -81,6 +81,8 @@
     "test/transaction.spec.mts",
     "test/type.spec.mts",
     "test/valuation.spec.mts",
+    "test/wellknowndata.spec.mts",
+
     "test/walk.d.ts",
 
     "test/support/blockchain.fake.mts",

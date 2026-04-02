@@ -7,7 +7,6 @@ import {
   FAKE_BTC_CHAIN_ID,
   FAKE_BTC_CHAIN_DATA,
 } from "./support/blockchain.fake.mjs";
-import { prepare } from "./support/register.helper.mjs";
 
 describe("Blockchain", function () {
   beforeEach(() => Blockchain.__testResetRegistry());
@@ -109,45 +108,5 @@ describe("Blockchain", function () {
       eth1 === btc,
       "Identity operator (===) should return false for different blockchains",
     );
-  });
-});
-
-import { WellKnownBlockchains } from "../src/data/wellknownblockchains.mjs";
-import { CryptoRegistryNG } from "../src/cryptoregistry.mjs";
-
-describe("Well-known blockchains", function () {
-  describe("should be able to create a blockchain instance from a well-known internal ID", function () {
-    const register = prepare(this);
-
-    // prettier-ignore
-    const testCases = [
-      { id: "ethereum", displayName: "Ethereum" },
-      { id: "bitcoin", displayName: "Bitcoin" },
-      { id: "solana", displayName: "Solana" },
-      { id: "polygon", displayName: "Polygon" },
-      { id: "bnb-chain", displayName: "BNB Chain" },
-    ];
-
-    for (const testCase of testCases) {
-      register(`case of ${testCase.id}`, function () {
-        const blockchain = Blockchain.find(testCase.id);
-        assert.strictEqual(blockchain.displayName, testCase.displayName);
-      });
-    }
-  });
-
-  describe("should have well-known native coin", function () {
-    const register = prepare(this);
-
-    for (const [id, data] of Object.entries(WellKnownBlockchains)) {
-      if ("native-coin" in data) {
-        register(`case of ${id}`, function () {
-          const cryptoAsset = CryptoRegistryNG.create().createCryptoAsset(
-            data["native-coin"],
-          );
-          assert.exists(cryptoAsset);
-        });
-      }
-    }
   });
 });
