@@ -84,6 +84,14 @@ export type BlockchainRecord =
   | SolanaRecord
   | XRPLedgerRecord;
 
+// We use a plain string as the key for the record bellow, whereas it should have been `BlockchainInternalId`.
+// However, `BlockchainInternalId` is a nominal branded string; using that as `Record` keys can make
+// TypeScript unexpectedly permissive.
+// In particular, if `Record<BrandedString, V>` is a mapped type over a non-literal key, then assignments
+// from concrete objects may not reliably validate every entry/value.
+//
+// See TypeScript issue `https://github.com/microsoft/typescript/issues/43852`
+// (“Nominal/branded key for `Record` disables checking/inferring of value type”) for more details.
 type BlockchainData = Readonly<
   Record<string, Readonly<BlockchainRecord> | Readonly<Redirect> | undefined>
 >;
