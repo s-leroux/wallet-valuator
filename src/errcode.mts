@@ -66,7 +66,8 @@ export const ERRORS = {
   "C3106": "Blockchain is not a Bitcoin blockchain",
   "C3107": "Blockchain is not a Solana blockchain",
   "C3108": "Blockchain is not an XRPLedger blockchain",
-
+  "C3109": "Unable to resolve the ERC20 token",
+  
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",
 } as const;

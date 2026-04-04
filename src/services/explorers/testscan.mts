@@ -5,7 +5,7 @@ import { NormalTransaction } from "../../transaction.mjs";
 import NormalTransactions from "../../../fixtures/GnosisScan/NormalTransactions.json" with { type: "json" };
 import InternalTransactions from "../../../fixtures/InternalTransactions.json" with { type: "json" };
 import ERC20TokenTransferEvents from "../../../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
-import { asBlockchain, Blockchain } from "../../blockchain.mjs";
+import { Blockchain } from "../../blockchain.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { NormalTransactionRecord } from "../explorer.mjs";
 
@@ -14,21 +14,33 @@ import {
   FAKE_GNO_CHAIN_DATA,
 } from "../../../test/support/blockchain.fake.mjs";
 
+/**
+ * Fixture-backed explorer for Gnosis-style EVM data: same role as a real block
+ * explorer, but reads normal txs, internal txs, and ERC-20 transfers from the
+ * checked-in JSON fixtures instead of HTTP APIs.
+ *
+ * Uses a synthetic chain id ({@link FAKE_GNO_CHAIN_ID}) so tests and examples
+ * do not collide with the real `gnosis` chain. Handy for deterministic,
+ * offline runs (no keys, no network).
+ */
 export class TestScan extends CommonExplorer {
   constructor(registry: CryptoRegistryNG, chain?: Blockchain) {
-    Blockchain.create(FAKE_GNO_CHAIN_ID, FAKE_GNO_CHAIN_DATA);
-    super(
-      chain ?? asBlockchain(FAKE_GNO_CHAIN_ID),
-      registry.createCryptoAsset("xdai", "xDai", "xDai", 18),
-    );
+    if (chain === undefined) {
+      chain = Blockchain.create(FAKE_GNO_CHAIN_ID, FAKE_GNO_CHAIN_DATA);
+    }
+    super(chain, registry.createCryptoAsset("xdai", "xDai", "xDai", 18));
   }
 
   register(swarm: Swarm): void {
     // populate with well-known addresses
     super.register(swarm);
-    swarm.address(this.chain, "0x0000000000000000000000000000000000000000", {
-      name: "Null",
-    });
+    void swarm.address(
+      this.chain,
+      "0x0000000000000000000000000000000000000000",
+      {
+        name: "Null",
+      },
+    );
   }
 
   async getNormalTransactionByHash(

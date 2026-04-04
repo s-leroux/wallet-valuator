@@ -1,6 +1,10 @@
 import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
+// XXX The following two tables are duplicated in the `test/support/cryptoresolver.fake.mts`
+// file, as well as in the `data/` directory.
+// This should be refactored to use the well-known data from the `data/` directory as the source of truth.
+
 //prettier-ignore
 const defaultCryptoTable = [
   ["armm-v3-usdc", "gnosis", "0xeD56F76E9cBC6A64b821e9c016eAFbd3db5436D1"],
@@ -78,7 +82,9 @@ const defaultKeyDomainsMap = WellKnownCryptoAssets.map(
 ][];
 
 /**
- * The default crypto-resolver, rewritten as a sub-class of StaticCryptoResolver.
+ * The default crypto-resolver using static data tables.
+ *
+ * XXX It is not obvious why this does NOT use the well-known data from the `data/` directory.
  */
 export class DefaultCryptoResolver extends StaticCryptoResolver {
   protected constructor() {

@@ -1,4 +1,9 @@
+import { asBlockchainInternalId, Blockchain } from "../../src/blockchain.mjs";
 import { StaticCryptoResolver } from "../../src/services/cryptoresolvers/staticcryptoresolver.mjs";
+
+// XXX The following two tables are duplicated in the `src/services/cryptoresolvers/defaultcryptoresolver.mts`
+// file, as well as in the `data/` directory.
+// This should be refactored to use the well-known data from the `data/` directory as the source of truth.
 
 //prettier-ignore
 const physicalCryptoTable = [
@@ -45,9 +50,44 @@ const logicalCryptoTable = [
   ["xdai", "xDai", "xDAI", 18 , { STANDARD: { coingeckoId: "xdai" } }],
 ] as const;
 
+type PhysicalCryptoAsset = readonly [string, string, string | null];
+
+function withFakeChainMirror(
+  table: readonly PhysicalCryptoAsset[],
+): PhysicalCryptoAsset[] {
+  const mirrored: PhysicalCryptoAsset[] = [];
+  const blockchains = new Set<string>();
+  for (const row of table) {
+    const clone = [...row];
+    clone[1] = "fake-" + clone[1];
+
+    // Ensure we have an entry for the fake chain in the blockchain registry.
+    if (!blockchains.has(clone[1])) {
+      blockchains.add(clone[1]);
+      Blockchain.create(
+        asBlockchainInternalId(clone[1]),
+        Blockchain.find(row[1]).chainRecord,
+      );
+    }
+
+    mirrored.push(clone as unknown as PhysicalCryptoAsset);
+  }
+
+  return [...table, ...mirrored];
+}
+
+/**
+ * A static crypto resolver using hard-coded data tables.
+ *
+ * It also recognizes the "fake-" prefix for chain ids and map them to the real chain id.
+ * This is useful for testing purposes, where we want to use the real asset id but the fake chain id.
+ *
+ * For testing purposes only.
+ *
+ */
 export class FakeCryptoResolver extends StaticCryptoResolver {
   protected constructor() {
-    super(physicalCryptoTable, logicalCryptoTable);
+    super(withFakeChainMirror(physicalCryptoTable), logicalCryptoTable);
   }
 
   static create(): FakeCryptoResolver {

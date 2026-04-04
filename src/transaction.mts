@@ -7,6 +7,7 @@ import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
 import { ChainAddress } from "./chainaddress.mjs";
+import { Logged } from "./errorutils.mjs";
 
 type OnChainTransactionType =
   | "NORMAL" // a normal transaction
@@ -304,8 +305,10 @@ export class ERC20TokenTransfer extends OnChainTransaction {
     );
 
     if (!resolution) {
-      throw new ValueError(
-        `Unable to resolve the ERC20 token ${this.data.tokenName} (${this.data.tokenSymbol})`,
+      throw Logged(
+        "C3109",
+        ValueError,
+        `Unable to resolve the ERC20 token ${this.data.tokenName} (${this.explorer.chain.id}:${this.data.tokenSymbol})`,
       );
     }
 

@@ -37,7 +37,7 @@ export class Swarm {
     explorers: Explorer[],
     readonly cryptoRegistry: CryptoRegistryNG,
     readonly cryptoMetadata: CryptoMetadata,
-    readonly cryptoResolver: CryptoResolver,
+    readonly cryptoResolvers: readonly CryptoResolver[],
   ) {
     this.blocks = new Map();
     this.addresses = new Map();
@@ -54,9 +54,17 @@ export class Swarm {
     explorers: Explorer[],
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
-    cryptoResolver: CryptoResolver,
+    cryptoResolvers: CryptoResolver | CryptoResolver[],
   ) {
-    return new Swarm(explorers, cryptoRegistry, cryptoMetadata, cryptoResolver);
+    if (!Array.isArray(cryptoResolvers)) {
+      cryptoResolvers = [cryptoResolvers];
+    }
+    return new Swarm(
+      explorers,
+      cryptoRegistry,
+      cryptoMetadata,
+      cryptoResolvers,
+    );
   }
 
   getExplorer(chain: string | Blockchain): Explorer {
@@ -84,16 +92,22 @@ export class Swarm {
       return { status: "resolved", asset: this.getNativeCurrency(chain) };
     }
 
-    return this.cryptoResolver.resolve(
-      this,
-      this.cryptoMetadata,
-      chain,
-      block,
-      smartContractAddress,
-      name,
-      symbol,
-      decimal,
-    );
+    for (const cryptoResolver of this.cryptoResolvers) {
+      const result = await cryptoResolver.resolve(
+        this,
+        this.cryptoMetadata,
+        chain,
+        block,
+        smartContractAddress,
+        name,
+        symbol,
+        decimal,
+      );
+      if (result) {
+        return result;
+      }
+    }
+    return null;
   }
 
   async store<T extends Storable, U extends T, OPT extends {}, K>(

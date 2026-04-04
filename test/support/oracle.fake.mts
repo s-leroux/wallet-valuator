@@ -22,6 +22,15 @@ type HistoricalDataRecord = [
 ];
 const DATA = HistoricalPrices as HistoricalDataRecord[];
 
+/**
+ * An Oracle that uses hard-coded data from the fixtures directory.
+ *
+ * It does not recognize the "fake-" prefix as {@link FakeCryptoResolver} but this later
+ * should have handled "fake" chain ids and mapped their currencies to the real ones.
+ *
+ * For testing purposes only.
+ *
+ */
 export class FakeOracle extends Oracle {
   // eslint-disable-next-line @typescript-eslint/require-await
   async getPrice(

@@ -16,14 +16,13 @@ const options = program.opts<{
   separator: string;
 }>();
 
-const [addressArg] = program.args as string[];
+const [addressArg] = program.args;
 
 import { Swarm } from "../src/swarm.mjs";
 import { Ledger } from "../src/ledger.mjs";
 import { Portfolio } from "../src/portfolio.mjs";
 import { CryptoRegistryNG } from "../src/cryptoregistry.mjs";
 import { CryptoMetadata } from "../src/cryptometadata.mjs";
-import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { SnapshotValuation, PortfolioValuation } from "../src/valuation.mjs";
 import { PrettyTabularView } from "../src/tabular/views/prettyview.mjs";
@@ -36,17 +35,22 @@ import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
 import { FakeFiatCurrency } from "../test/support/fiatcurrency.fake.mjs";
 import { FakeOracle } from "../test/support/oracle.fake.mjs";
 import { PriceResolver } from "../src/priceresolver.mjs";
+import { FakeCryptoResolver } from "../test/support/cryptoresolver.fake.mjs";
+import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 
 const cryptoRegistry = CryptoRegistryNG.create();
 const cryptoMetadata = CryptoMetadata.create();
 const explorer = new TestScan(cryptoRegistry);
-const cryptoResolver = LazyCryptoResolver.create();
+const cryptoResolvers = [
+  FakeCryptoResolver.create(),
+  LazyCryptoResolver.create(),
+];
 
 const swarm = Swarm.create(
   [explorer],
   cryptoRegistry,
   cryptoMetadata,
-  cryptoResolver,
+  cryptoResolvers,
 );
 
 // Same default address as other examples using TestScan / GnosisScan.
@@ -68,13 +72,14 @@ const portfolio = Portfolio.createFromLedger(ledger);
 const fiatConverter = new NullFiatConverter();
 const oracle = new FakeOracle();
 const fiatCurrency = FakeFiatCurrency.EUR;
-const priceResolver = new PriceResolver(oracle, fiatConverter); // XXX This is non-functional. We should capture fixture covering the transaction period.
+// FakeOracle only ships Dec 2024 spot rows; dates outside that window use the
+// nearest available fixture row per CoinGecko id (see FakeOracle).
+const priceResolver = new PriceResolver(oracle, fiatConverter);
 
 const snapshots = portfolio.snapshots;
 let parent: SnapshotValuation | null = null;
 const snapshotValuations: SnapshotValuation[] = [];
 for (const snapshot of snapshots) {
-  // eslint-disable-next-line no-await-in-loop
   parent = await SnapshotValuation.createFromSnapshot(
     cryptoRegistry,
     cryptoMetadata,
@@ -90,7 +95,6 @@ const portfolioValuation = new PortfolioValuation(snapshotValuations);
 const latestValuation = snapshotValuations.at(-1);
 
 if (!latestValuation) {
-  // eslint-disable-next-line no-console
   console.error("No snapshots available for valuation.");
   process.exit(1);
 }
@@ -111,13 +115,11 @@ if (viewName === "csv") {
   const separator = options.separator ?? ",";
   const view = new CSVTabularView(adapter, separator);
   for (const line of view.lines(columnSpecs)) {
-    // eslint-disable-next-line no-console
     console.log("%s", line);
   }
 } else {
   const view = new PrettyTabularView(adapter);
   for (const line of view.lines(columnSpecs)) {
-    // eslint-disable-next-line no-console
     console.log("%s", line);
   }
 }

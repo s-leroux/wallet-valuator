@@ -367,7 +367,7 @@ export class CSVFile<K, T> implements DataSource<K, T> {
         empty = false;
         let row = line;
         if (reorder) {
-          row = reorder(row, true);
+          row = reorder(row, false);
         }
         const [date, ...rest] = row;
         if (prev !== sentinel) {
