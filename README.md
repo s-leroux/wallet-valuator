@@ -35,6 +35,10 @@ navigation layer still exists, but accounting is the main focus.
 
 Decimal amounts and rates in the library use a fixed-point type **`Fixed`**: a signed **unscaled value** (`value`, `bigint`) plus a decimal **scale**, not raw JavaScript **`number`**, at domain boundaries. For decimal text, use **`Fixed.toDecimalString`** (truncation when narrowing scale), not `Number.prototype.toFixed` (rounding). **Contributors** should read the **`Fixed`-point policy** in [`AGENTS.md`](AGENTS.md) (`FixedLike` vs `FixedSource`, string scale inference, `IntegerSource`, arithmetic rules, and **`toDecimalString`** semantics).
 
+## Block explorer data (EVM)
+
+Explorers return **normal transactions**, **internal transactions** (traces), and **token transfers** as related views that often share one transaction **`hash`**. **Gas fees** should be counted from the **normal** row only—**not** summed again from internal traces (that would overstate fees). Contributors and agents: see [Block explorer views and fees (EVM)](CONTRIBUTING.md#block-explorer-views-and-fees-evm) in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Development environment (Dev Container)
 
 All development is intended to happen **inside the Development Container** built

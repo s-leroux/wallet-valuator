@@ -8,6 +8,7 @@ Thank you for considering contributing to this project! By following these guide
 
 - [Getting Started](#getting-started)
 - [Vocabulary](#vocabulary)
+- [Block explorer views and fees (EVM)](#block-explorer-views-and-fees-evm)
 - [Code of Conduct](#code-of-conduct)
 - [Submitting Changes](#submitting-changes)
 - [Coding Style](#coding-style)
@@ -41,6 +42,18 @@ Throughout the project, I have tried to be consistent with the following definit
 - **crypto** (or better **crypto-asset**): in the domain model, a **logical** accounting entity that groups one or more on-chain tokens considered fungible for valuation purposes (see `CryptoAsset` in `src/cryptoasset.mts`). A single logical crypto-asset such as USDC may have physical representatives (coins, ERC-20 tokens, bridged tokens, etc.) on several blockchains.
 - **fiat** (or better **fiat-currency**): a generic term for government-issued currency. Fiat currencies are identified by _ISO 4217 currency codes_, a 3-letter code usually made from the country and currency initial: USD, GBP, JPY. A notable exception is EUR for euros.
 - **`Fixed` / unscaled value**: decimal quantities are stored as **`Fixed`**: the **`value`** field is the **unscaled value** (signed `bigint`), and **`scale`** is the number of decimal places; the quantity is `value × 10^−scale`. Use this term in prose and comments instead of informal float jargon such as “mantissa”, “coefficient”, or “significand” for `value`. For human-readable decimal text from a **`Fixed`**, use **`toDecimalString`** (truncation when narrowing scale), not `Number.prototype.toFixed` (rounding).
+
+### Block explorer views and fees (EVM)
+
+When integrating Etherscan-style APIs (e.g. `txlist`, `txlistinternal`, `tokentx`), treat the three feeds as **different projections** of activity that often **share the same transaction `hash`** under one **signed** (top-level) transaction:
+
+- **Normal transactions** — One row per **signed** outer transaction. Its `value` is **native** coin attached to that top-level message. **Gas is paid once** by that transaction’s sender; explorer fee fields on this row reflect the **effectively paid** fee for the **whole** execution (including all internal calls).
+- **Internal transactions** — **Trace** rows for **sub-calls** within the same `hash` (e.g. contract-to-contract calls and native `value` moving along the call tree). They document **how** execution unfolded, not additional signed transactions.
+- **Token transfers** — One row per **ERC-20 `Transfer` event** (same `hash` as the transaction that emitted the log when applicable). Token amounts and contract identity belong here; they are **not** expressed as ERC-20 in normal/internal `value`.
+
+**Fee accounting:** Use the **normal** transaction row for **total paid gas** in native coin. **Do not** treat internal-trace gas figures as **extra** paid fees on top of that—summing them **overstates** fees. Internal gas attributes are for trace/documentation; this matches guidance from block-explorer support (e.g. GnosisScan) and standard EVM semantics (one gas charge per signed tx).
+
+**Confidence:** **High** for “one gas payment per signed transaction” and for not double-counting internal trace gas as fees. **Medium** for exact column names and EIP-1559 fee display details, which can vary slightly by API version or chain.
 
 ---
 

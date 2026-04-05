@@ -37,6 +37,10 @@ This file contains instructions for Codex agents working in this repository. The
 
 See [`package.json`](package.json)for the up-to-date list of commands.
 
+## Block explorer data (EVM)
+
+Etherscan-style APIs expose **normal txs**, **internal txs** (traces), and **token transfers** as **separate lists** that often **share the same `hash`**: one signed outer transaction can have many internal rows and many ERC-20 rows. **Fee rule:** attribute **paid gas** to the **normal** transaction only; **do not** add internal-trace gas as extra fees (that **overstates** fees). See [Block explorer views and fees (EVM)](CONTRIBUTING.md#block-explorer-views-and-fees-evm) in `CONTRIBUTING.md` for the full wording and confidence note.
+
 ## Coding Style
 
 - The project uses TypeScript in strict mode.
