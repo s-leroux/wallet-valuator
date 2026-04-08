@@ -28,7 +28,7 @@ describe("LazyCryptoResolver", function () {
     swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, cryptoResolver);
   });
 
-  it("Should cache tokens", async () => {
+  it("Should deduplicate tokens", async () => {
     const POLYGON_WBTC = [
       "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",
       "Wrapped Bitcoin",
@@ -36,7 +36,6 @@ describe("LazyCryptoResolver", function () {
       8,
     ] as const;
 
-    assert.throws(() => cryptoResolver.get("polygon", POLYGON_WBTC[0]));
     const wbtc = await cryptoResolver.resolve(
       swarm,
       cryptoMetadata,
@@ -53,10 +52,7 @@ describe("LazyCryptoResolver", function () {
       symbol: POLYGON_WBTC[2],
       decimal: POLYGON_WBTC[3],
     });
-    assert.strictEqual(
-      cryptoResolver.get("polygon", POLYGON_WBTC[0]),
-      wbtc.asset,
-    );
+
     const wbtc2 = await cryptoResolver.resolve(
       swarm,
       cryptoMetadata,

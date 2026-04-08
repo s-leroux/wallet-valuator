@@ -14,7 +14,6 @@ const log = logger("curve-resolver");
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
 type Entry = {
-  crypto?: CryptoAsset; // cached crypto-asset
   poolAddress?: string;
 };
 
@@ -104,14 +103,7 @@ export class CurveResolver extends CryptoResolver {
       cryptoMetadata: CryptoMetadata,
       entry: Entry,
     ): CryptoAsset {
-      let crypto = entry.crypto;
-      if (crypto) {
-        // ISSUE #65 assert the decimal are consistent with what we alreaady know. This is the only critical field
-        // Other "user-supplied" fields are replaced by API values.
-        return crypto;
-      }
-
-      crypto = entry.crypto = cryptoRegistry.createCryptoAsset(
+      const crypto = cryptoRegistry.createCryptoAsset(
         chainAddress,
         name,
         symbol,

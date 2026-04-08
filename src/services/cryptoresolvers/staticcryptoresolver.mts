@@ -1,4 +1,3 @@
-import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
@@ -34,24 +33,17 @@ export type LogicalCryptoAsset = readonly [
  * - The **logical** table maps key → display/metadata for the logical
  *   `CryptoAsset`. Multiple physical entries may share the same logical key
  *   (e.g. USDC on several chains all point to `"usdc"`).
- *
- * The resolver's cache (`Map<ChainAddress, CryptoAsset>`) stores already-resolved
- * logical assets keyed by their physical chain-address for fast repeat lookups.
  */
 export class StaticCryptoResolver extends CryptoResolver {
   // Database:
   private readonly logicalCryptoAssets: Map<string, LogicalCryptoAsset>;
   private readonly physicalCryptoAssets: Map<ChainAddress, PhysicalCryptoAsset>;
 
-  // Cache
-  private readonly cache: Map<ChainAddress, CryptoAsset>;
-
   protected constructor(
     physicalCryptoAssets: Iterable<Readonly<PhysicalCryptoAsset>>,
     logicalCryptoAssets: Iterable<Readonly<LogicalCryptoAsset>>,
   ) {
     super();
-    this.cache = new Map();
 
     // Populate the table of logical crypto-assets
     this.logicalCryptoAssets = new Map();
@@ -130,12 +122,6 @@ export class StaticCryptoResolver extends CryptoResolver {
       }
     }
 
-    // 3. Maybe we already resolved this chain-address to a logical crypto-asset
-    const cached = this.cache.get(chainAddress);
-    if (cached) {
-      return { status: "resolved", asset: cached };
-    }
-
     // 4. We should find the corresponding logical crypto-asset in our database
     const logicalCryptoAsset = this.logicalCryptoAssets.get(id);
     if (!logicalCryptoAsset) {
@@ -153,21 +139,10 @@ export class StaticCryptoResolver extends CryptoResolver {
       decimals,
     );
     cryptoMetadata.setMetadata(crypto, metadata);
-    this.cache.set(chainAddress, crypto);
 
     return {
       status: "resolved",
       asset: crypto,
     };
-  }
-
-  /**
-   * @internal
-   * Utility to retrieve a cached crypto-asset by its key.
-   *
-   * For testing purposes only
-   */
-  get(key: ChainAddress): CryptoAsset | null {
-    return this.cache.get(key) ?? null;
   }
 }
