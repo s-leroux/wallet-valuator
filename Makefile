@@ -9,6 +9,7 @@ WORKSPACE ?= $$(pwd)
 .PHONY: docker-image shell open-ide configure clean test build-all compile archive
 
 DOCKER_IMAGE_TAG ?= $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_VERSION)
+DOCKER_CONTAINER_NAME_ARG = $(if $(strip $(CONTAINER_NAME)),--name "$(CONTAINER_NAME)")
 
 docker-image: $(DOCKERFILE)
 	@echo "$(DOCKER_DOCKER_IMAGE_TAG)"
@@ -16,7 +17,11 @@ docker-image: $(DOCKERFILE)
 
 # Start a new container and drop into an interactive bash shell
 docker-shell: docker-image
+ifeq ($(strip $(CONTAINER_NAME)),)
+	@echo "Reminder: optionally set CONTAINER_NAME=<name> to name the container."
+endif
 	$(DOCKER) run -it --rm \
+		$(DOCKER_CONTAINER_NAME_ARG) \
 		--memory=3g \
 		--user "$$(id -u):$$(id -g)" \
 		-e TERM="$$TERM" \
