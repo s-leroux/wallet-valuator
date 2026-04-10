@@ -77,7 +77,7 @@ export class OHLCOracle<T extends FixedLike> extends Oracle {
           BigInt(crypto.decimal), // XXX crypto.decimal should be a bigint
         ),
       );
-      console.dir(price);
+      // console.dir(price);
       GlobalMetadataStore.setMetadata(price, { origin: this.origin });
       result.set(this.fiat, price);
       log.trace("C1012", `Found ${price} at ${formattedDate}`);

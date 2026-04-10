@@ -1,5 +1,8 @@
 import type { CryptoAsset } from "../../cryptoasset.mjs";
-import type { CryptoMetadata, CryptoRegistryNG } from "../../cryptoregistry.mjs";
+import type {
+  CryptoMetadata,
+  CryptoRegistryNG,
+} from "../../cryptoregistry.mjs";
 import type { FiatCurrency } from "../../fiatcurrency.mjs";
 
 import { Oracle, type PriceMap } from "../oracle.mjs";
@@ -21,5 +24,9 @@ export class ZeroOracle extends Oracle {
     for (const fiat of fiats) {
       result.set(fiat, crypto.price(fiat, "0"));
     }
+  }
+
+  static create() {
+    return new ZeroOracle();
   }
 }

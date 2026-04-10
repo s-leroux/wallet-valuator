@@ -33,10 +33,12 @@ import {
 import { SnapshotValuationTabularAdapter } from "../src/tabular/adapters/snapshotvaluationadapter.mjs";
 import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
 import { FakeFiatCurrency } from "../test/support/fiatcurrency.fake.mjs";
-import { FakeOracle } from "../test/support/oracle.fake.mjs";
 import { PriceResolver } from "../src/priceresolver.mjs";
 import { FakeCryptoResolver } from "../test/support/cryptoresolver.fake.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
+import { OHLCOracle } from "../src/services/oracles/ohlcoracle.mjs";
+import { CompositeOracle } from "../src/services/oracles/compositeoracle.mjs";
+import { ZeroOracle } from "../src/services/oracles/zerooracle.mjs";
 
 const cryptoRegistry = CryptoRegistryNG.create();
 const cryptoMetadata = CryptoMetadata.create();
@@ -70,11 +72,23 @@ const portfolio = Portfolio.createFromLedger(ledger);
 
 // Build snapshot valuations for the portfolio, then take the latest one.
 const fiatConverter = new NullFiatConverter();
-const oracle = new FakeOracle();
-const fiatCurrency = FakeFiatCurrency.EUR;
-// FakeOracle only ships Dec 2024 spot rows; dates outside that window use the
-// nearest available fixture row per CoinGecko id (see FakeOracle).
-const priceResolver = new PriceResolver(oracle, fiatConverter);
+const { USD } = FakeFiatCurrency;
+const oracles = await Promise.all(
+  ["usdc", "xdai"].map(async (asset) => {
+    return OHLCOracle.createFromPath(
+      cryptoRegistry.findCryptoAsset(asset),
+      USD,
+      `./fixtures/${asset}-usd-max.csv`,
+      {
+        dateFormat: "YYYY-MM-DD",
+      },
+    );
+  }),
+);
+const priceResolver = new PriceResolver(
+  CompositeOracle.create([...oracles, ZeroOracle.create()]),
+  fiatConverter,
+);
 
 const snapshots = portfolio.snapshots;
 let parent: SnapshotValuation | null = null;
@@ -84,7 +98,7 @@ for (const snapshot of snapshots) {
     cryptoRegistry,
     cryptoMetadata,
     priceResolver,
-    fiatCurrency,
+    USD,
     snapshot,
     parent,
   );

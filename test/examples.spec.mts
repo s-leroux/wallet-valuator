@@ -115,7 +115,7 @@ function addTest(title: string, fct: Mocha.AsyncFunc | Mocha.Func) {
   suite?.addTest(test);
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
+ 
 const suite = when("EXAMPLES", describe)("Example programs", function () {
   this.timeout(MOCHA_TIMEOUT);
   this.slow(MOCHA_TIMEOUT / 2);
