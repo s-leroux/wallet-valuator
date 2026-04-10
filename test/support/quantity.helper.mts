@@ -138,10 +138,13 @@ export function testQuantityInterface<Unit, Q extends Quantity<Unit, Q>>(
         const testCases: [
           bigint,
           PredicateResults,
+          comment?: string,
         ][] = [
           [8n, { isZero: false, isNonZero: true, isPositive: true, isNegative: false }],
           [-5n, { isZero: false, isNonZero: true, isPositive: false, isNegative: true }],
-          [0n, { isZero: true, isNonZero: false, isPositive: false, isNegative: false }],
+          [0n, { isZero: true, isNonZero: false, isPositive: false, isNegative: false },
+             "zero is neither positive nor negative"
+          ],
         ] as const;
 
         for (const predicate of predicates) {

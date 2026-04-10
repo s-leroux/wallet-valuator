@@ -7,7 +7,7 @@
 import { readFile } from "node:fs/promises";
 
 import { Swarm } from "../../../src/swarm.mjs";
-import { Ledger } from "../../../src/ledger.mjs";
+import { FilterSelector, Ledger } from "../../../src/ledger.mjs";
 import { ExplorerFactories } from "../../../src/services/explorers/etherscan.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
@@ -174,7 +174,9 @@ export async function processAddresses(configPath?: string): Promise<void> {
   // Apply user-defined filters to categorize transactions
   // This allows for custom tagging of transactions based on rules
   for (const [selector, tag, value] of config.filters ?? []) {
-    ledger.filter(cryptoRegistry, cryptoMetadata, selector).tag(tag, value);
+    ledger
+      .filter(cryptoRegistry, cryptoMetadata, selector as FilterSelector)
+      .tag(tag, value);
   }
 
   // Create a portfolio representation of all transactions

@@ -236,6 +236,8 @@ export function CryptoAssetCache(): CryptoAssetCache {
   return new InstanceCache();
 }
 
+let _cryptoAssetCount = 0;
+
 /**
  * Represents a **logical** crypto-asset — an accounting equivalence class that
  * groups one or more on-chain tokens considered fungible for valuation purposes.
@@ -274,6 +276,7 @@ export function CryptoAssetCache(): CryptoAssetCache {
  * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
+  readonly _uid: number = _cryptoAssetCount++;
   readonly id: CryptoAssetInternalId;
   readonly name: string;
   readonly symbol: string;

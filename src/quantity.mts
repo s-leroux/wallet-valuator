@@ -46,8 +46,27 @@ export interface Quantity<T, Self extends Quantity<T, Self>> {
 
   compare(other: Self): CompareResult;
 
+  /**
+   * Returns true if the quantity is zero.
+   */
   isZero(): boolean;
+
+  /**
+   * Returns true if the quantity is non-zero.
+   */
   isNonZero(): boolean;
+
+  /**
+   * Returns true if the quantity is strictly positive.
+   *
+   * Note that zero is not considered positive.
+   */
   isPositive(): boolean;
+
+  /**
+   * Returns true if the quantity is strictly negative.
+   *
+   * Note that zero is not considered negative.
+   */
   isNegative(): boolean;
 }

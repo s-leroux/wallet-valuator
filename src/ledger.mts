@@ -73,11 +73,14 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
 // =========================================================================
 // Ledger and entries
 // =========================================================================
+export type FilterSelectorParam = string | string[];
+export type FilterSelector = Record<string, FilterSelectorParam>;
+
 type Filter = (
   cryptoRegistry: CryptoRegistryNG,
   cryptoMetadata: CryptoMetadata,
   entries: Entry[],
-  value: unknown,
+  value: FilterSelectorParam,
 ) => Entry[];
 
 const FILTERS: Record<string, Filter | undefined> = {
@@ -88,7 +91,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    chainName: unknown,
+    chainName: FilterSelectorParam,
   ) {
     const blockchain = asBlockchain(Ensure.isString(chainName));
     return entries.filter((entry) => {
@@ -100,7 +103,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    chainName: unknown,
+    chainName: FilterSelectorParam,
   ) {
     // NOOP
     return entries;
@@ -110,7 +113,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    cryptoId: unknown,
+    cryptoId: FilterSelectorParam,
   ) {
     cryptoId = Ensure.isString(cryptoId);
     return entries.filter((entry) => {
@@ -118,11 +121,32 @@ const FILTERS: Record<string, Filter | undefined> = {
     });
   },
 
+  "crypto-asset-v2"(
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    entries: Entry[],
+    cryptoId: FilterSelectorParam,
+  ) {
+    const cryptoAssets = Ensure.isStringArray(cryptoId).map((id) =>
+      registry.findCryptoAsset(id),
+    );
+    return entries.filter((entry) => {
+      const amount = entry.transaction.amount;
+      // console.log(
+      //   amount.crypto.id,
+      //   amount,
+      //   cryptoAssets,
+      //   cryptoAssets.includes(amount.crypto),
+      // );
+      return amount.isNonZero() && cryptoAssets.includes(amount.crypto);
+    });
+  },
+
   "crypto-resolver"(
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    resolverName: unknown,
+    resolverName: FilterSelectorParam,
   ) {
     resolverName = Ensure.isString(resolverName);
     return entries.filter((entry) => {
@@ -137,7 +161,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    address: unknown,
+    address: FilterSelectorParam,
   ) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
@@ -154,7 +178,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    address: unknown,
+    address: FilterSelectorParam,
   ) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
@@ -171,7 +195,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    type: unknown,
+    type: FilterSelectorParam,
   ) {
     type = Ensure.isString(type);
 
@@ -302,7 +326,7 @@ export class Ledger implements Iterable<Entry> {
   filter(
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
-    selector: Record<string, any>,
+    selector: Record<string, FilterSelectorParam>,
   ): Ledger {
     let entries = this.entries;
     for (const key of Object.keys(selector)) {
@@ -316,6 +340,7 @@ export class Ledger implements Iterable<Entry> {
     }
     return new Ledger(entries);
   }
+
   /**
    * Return a new Ledger containing only events from the given address.
    */

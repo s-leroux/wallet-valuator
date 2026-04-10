@@ -38,6 +38,29 @@ describe("CryptoRegistry", () => {
     assert.notStrictEqual(bitcoin, bitcoin2);
     assert.deepEqual(bitcoin, bitcoin2); // Same data but different instances
   });
+
+  it("findCryptoAsset is an alias of createCryptoAsset (well-known id)", () => {
+    const viaCreate = cryptoRegistry.createCryptoAsset("bitcoin");
+    const viaFind = cryptoRegistry.findCryptoAsset("bitcoin");
+    assert.strictEqual(viaFind, viaCreate);
+  });
+
+  it("findCryptoAsset is an alias of createCryptoAsset (explicit metadata)", () => {
+    const viaCreate = cryptoRegistry.createCryptoAsset(
+      "custom-token",
+      "Custom Token",
+      "CST",
+      9,
+    );
+    const viaFind = cryptoRegistry.findCryptoAsset("custom-token");
+    assert.strictEqual(viaFind, viaCreate);
+  });
+
+  it("repeated createCryptoAsset returns the same cached instance", () => {
+    const first = cryptoRegistry.createCryptoAsset("ethereum");
+    const second = cryptoRegistry.createCryptoAsset("ethereum");
+    assert.strictEqual(second, first);
+  });
 });
 
 describe("CryptoMetadata", () => {

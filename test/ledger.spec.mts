@@ -16,6 +16,7 @@ import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json"
 import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
 import { FakeTransaction } from "./support/transaction.fake.mjs";
 import { ChainAddress } from "../src/chainaddress.mjs";
+import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 
 const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
 const DISPERSE_APP_ADDRESS = "0xd152f549545093347a162dce210e7293f1452150";
@@ -70,7 +71,10 @@ describe("Ledger", () => {
   let chain: Blockchain;
   let explorer: Explorer;
   let transactions: OnChainTransaction[];
-  const cryptoResolver = LazyCryptoResolver.create();
+  const cryptoResolvers = [
+    FakeCryptoResolver.create(),
+    LazyCryptoResolver.create(),
+  ];
   let cryptoRegistry: CryptoRegistryNG;
   let cryptoMetadata: CryptoMetadata;
 
@@ -84,9 +88,22 @@ describe("Ledger", () => {
       [explorer],
       cryptoRegistry,
       cryptoMetadata,
-      cryptoResolver,
+      cryptoResolvers,
     );
 
+    /* `jq` equivalent:
+
+    ```console
+          jq -s '{
+            status: .[0].status,
+            message: .[0].message,
+            result: map(.result) | add
+          }' \
+            fixtures/ERC20TokenTransferEvents.json \
+            fixtures/GnosisScan/NormalTransactions.json \
+            fixtures/InternalTransactions.json > allTransactions.json
+    ```
+    */
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
         return swarm.tokenTransfer(chain, tr);
@@ -111,7 +128,7 @@ describe("Ledger", () => {
       const ledger = Ledger.create(transactions);
 
       // According to:
-      // jq '.result | length' fixtures/*.json
+      // jq '.result | length' allTransactions.json
       assert.equal(ledger.entries.length, 745);
     });
   });
@@ -141,7 +158,7 @@ describe("Ledger", () => {
          jq '
               .result |
               map(select(.from == "0xd152f549545093347a162dce210e7293f1452150")) |
-              length' fixtures/*.json
+              length' fixtures/*trans*.json
       */
       const ledger = Ledger.create(transactions);
       const address = await swarm.address(chain, DISPERSE_APP_ADDRESS);
@@ -155,6 +172,44 @@ describe("Ledger", () => {
     });
   });
 
+  describe("filter by crypto-asset", () => {
+    it("should return a new Ledger containing only transactions with the given crypto asset", async () => {
+      /* Validation:
+          ```console
+          # ERC20 Token: USDC → 80 transfers
+          jq '
+              .result |
+              map(select(
+                (.tokenSymbol | ascii_downcase == "usdc") and (.value | tonumber > 0)
+              )) |
+              length' ./fixtures/ERC20TokenTransferEvents.json
+
+          # Native Coin: 42 transfers
+          jq '
+              .result |
+              map(select(
+                .value | tonumber > 0
+              )) |
+              length' ./fixtures/GnosisScan/NormalTransactions.json
+
+          # Internal Transaction: 145 transfers
+          jq '
+              .result |
+              map(select(
+                .value | tonumber > 0
+              )) |
+              length' ./fixtures/InternalTransactions.json
+
+          ```
+      */
+      const ledger = Ledger.create(transactions);
+      const subset = ledger.filter(cryptoRegistry, cryptoMetadata, {
+        "crypto-asset-v2": ["usdc", "xdai"],
+      });
+      assert.equal(subset.entries.length, 80 + 42 + 145); // Ignore zero value transfers
+    });
+  });
+
   describe("tag method", () => {
     it("should tag all entries in the ledger", () => {
       const ledger = Ledger.create(transactions).slice(0, 100);
@@ -162,13 +217,14 @@ describe("Ledger", () => {
       const sentinel = {};
       subset.tag("T", sentinel);
 
-      const n = 0;
+      let n = 0;
       for (const entry of ledger) {
         if (n < 2 || n >= 10) {
           assert.notInclude(entry.tags, "T");
         } else {
           assert.equal(entry.tags.get("T"), sentinel);
         }
+        ++n;
       }
     });
   });

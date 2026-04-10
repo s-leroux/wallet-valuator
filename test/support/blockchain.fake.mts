@@ -5,9 +5,9 @@ export const FAKE_ETH_CHAIN_DATA = {
   type: "evm",
   "native-coin": "ethereum",
   "display-name": "Fake Ethereum",
-  "explorer-name": "MyExplorerId",
+  "explorer-name": "FakeExplorer",
   "explorer-options": {
-    chainid: 123,
+    chainid: 1,
   },
 } as const;
 
@@ -16,9 +16,9 @@ export const FAKE_GNO_CHAIN_DATA = {
   type: "evm",
   "native-coin": "xdai",
   "display-name": "Fake Gnosis",
-  "explorer-name": "MyExplorerId",
+  "explorer-name": "FakeExplorer",
   "explorer-options": {
-    chainid: 999,
+    chainid: 100,
   },
 } as const;
 
