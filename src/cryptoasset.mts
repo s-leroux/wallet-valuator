@@ -3,6 +3,7 @@ import {
   IntegerSource,
   fixedFromSource,
   FixedSource,
+  CompareResult,
 } from "./bignumber.mjs";
 import { Price } from "./price.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
@@ -155,10 +156,6 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
     return new Amount(this.crypto, this.value.negated());
   }
 
-  isZero(): boolean {
-    return this.value.isZero();
-  }
-
   valueAt(price: Price, scale?: bigint) {
     if (this.crypto !== price.crypto) {
       throw new InconsistentUnitsError(this.crypto, price.crypto);
@@ -201,6 +198,29 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
       throw new InconsistentUnitsError(this, other);
     }
     return this.value.div(other.value, this.value.scale + other.value.scale); // XXX Is it really the right scale?
+  }
+
+  compare(other: Amount): CompareResult {
+    if (this.crypto !== other.crypto) {
+      throw new InconsistentUnitsError(this, other);
+    }
+    return this.value.compare(other.value);
+  }
+
+  isZero(): boolean {
+    return this.value.isZero();
+  }
+
+  isNonZero(): boolean {
+    return this.value.isNonZero();
+  }
+
+  isPositive(): boolean {
+    return this.value.isPositive();
+  }
+
+  isNegative(): boolean {
+    return this.value.isNegative();
   }
 }
 

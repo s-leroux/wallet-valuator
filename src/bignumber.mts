@@ -307,6 +307,18 @@ export class Fixed {
     return this.value === 0n;
   }
 
+  isNonZero(): boolean {
+    return this.value !== 0n;
+  }
+
+  isPositive(): boolean {
+    return this.value > 0n;
+  }
+
+  isNegative(): boolean {
+    return this.value < 0n;
+  }
+
   //--------------------------------------------------------------------
   //  Arithmetic
   //--------------------------------------------------------------------

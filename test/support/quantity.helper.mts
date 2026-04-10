@@ -12,6 +12,13 @@ type QuantityFactory<Unit, Q extends Quantity<Unit, Q>> = {
   unitEquals(a: Q, b: Q): boolean;
 };
 
+/**
+ * Test the quantity interface implementation.
+ *
+ * @param factory - The factory used to create quantities
+ * @param sampleUnit - The unit of the sample quantity
+ * @param otherUnit - The unit of the other quantity for binary operations
+ */
 export function testQuantityInterface<Unit, Q extends Quantity<Unit, Q>>(
   factory: QuantityFactory<Unit, Q>,
   sampleUnit: Unit,
@@ -97,6 +104,55 @@ export function testQuantityInterface<Unit, Q extends Quantity<Unit, Q>>(
           assert.match(a.relativeTo(b).toDecimalString(), expected);
         });
       }
+    });
+
+    describe("negated() method", () => {
+      describe("should return the negation of the quantity", function () {
+        const register = prepare(this);
+
+        const testCases: [bigint, bigint][] = [
+          [8n, -8n],
+          [-5n, 5n],
+          [0n, 0n],
+        ] as const;
+
+        for (const [value, expected] of testCases) {
+          register(`negated(${value}) => ${expected}`, () => {
+            const a = factory.make(sampleUnit, value);
+            const b = factory.make(sampleUnit, expected);
+            assertQuantityEquals(a.negated(), b);
+          });
+        }
+      });
+    });
+
+    describe("predicates", () => {
+      describe("should return true if the quantity is zero", function () {
+        const register = prepare(this);
+
+        // prettier-ignore
+        const predicates = ["isZero", "isNonZero", "isPositive", "isNegative"] as const;
+        type PredicateResults = { [K in (typeof predicates)[number]]: boolean };
+
+        // prettier-ignore
+        const testCases: [
+          bigint,
+          PredicateResults,
+        ][] = [
+          [8n, { isZero: false, isNonZero: true, isPositive: true, isNegative: false }],
+          [-5n, { isZero: false, isNonZero: true, isPositive: false, isNegative: true }],
+          [0n, { isZero: true, isNonZero: false, isPositive: false, isNegative: false }],
+        ] as const;
+
+        for (const predicate of predicates) {
+          for (const [value, expected] of testCases) {
+            register(`${predicate}(${value}) => ${expected[predicate]}`, () => {
+              const a = factory.make(sampleUnit, value);
+              assert.strictEqual(a[predicate](), expected[predicate]);
+            });
+          }
+        }
+      });
     });
 
     describe(`quantity invariants`, () => {

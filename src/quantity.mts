@@ -1,5 +1,13 @@
-import type { Fixed, FixedSource } from "./bignumber.mjs";
+import type { CompareResult, Fixed, FixedSource } from "./bignumber.mjs";
 
+/**
+ * A quantity is a value with a unit.
+ *
+ * This interface describe the common operation every quantity must implement.
+ *
+ * To check if an implementation repects the invariants, you can use the
+ * {@link testQuantityInterface} helper.
+ */
 export interface Quantity<T, Self extends Quantity<T, Self>> {
   value: Fixed;
 
@@ -36,5 +44,10 @@ export interface Quantity<T, Self extends Quantity<T, Self>> {
    */
   relativeTo(base: Self): Fixed;
 
+  compare(other: Self): CompareResult;
+
   isZero(): boolean;
+  isNonZero(): boolean;
+  isPositive(): boolean;
+  isNegative(): boolean;
 }

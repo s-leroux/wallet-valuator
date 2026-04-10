@@ -125,40 +125,6 @@ describe("Amount", () => {
     });
   });
 
-  describe("negated() method", () => {
-    it("should return a new Amount with the opposite sign", () => {
-      const amount = new Amount(ethereum, Fixed.fromString("12.34"));
-      const negated = amount.negated();
-
-      assert.strictEqual(negated.crypto, ethereum);
-      assert.strictEqual(negated.value.toString(), "-12.34");
-      assert.strictEqual(amount.value.toString(), "12.34");
-    });
-
-    it("should keep zero unsigned when negated", () => {
-      const zero = new Amount(ethereum, Fixed.fromString("0"));
-      assert.isTrue(zero.isZero());
-
-      const negatedZero = zero.negated();
-
-      assert.isTrue(negatedZero.isZero());
-      assert.strictEqual(negatedZero.value.toString(), "0");
-      assert.strictEqual(negatedZero.toString(), "0 ETH");
-    });
-  });
-
-  describe("isZero() method", () => {
-    it("should return true for zero values", () => {
-      const amount = new Amount(ethereum, Fixed.fromString("0"));
-      assert.isTrue(amount.isZero());
-    });
-
-    it("should return false for non-zero values", () => {
-      const amount = new Amount(ethereum, Fixed.fromString("0.0001"));
-      assert.isFalse(amount.isZero());
-    });
-  });
-
   describe("relativeTo() method", () => {
     it("should round-trip with scaledBy for scale-compatible values", () => {
       const base = new Amount(ethereum, Fixed.fromString("16.00"));
@@ -220,7 +186,7 @@ describe("Amount", () => {
         return new Amount(unit, value);
       },
       unitEquals(a, b) {
-        return a.crypto == b.crypto;
+        return a.crypto === b.crypto;
       },
     },
     ethereum,
