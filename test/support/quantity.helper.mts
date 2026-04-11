@@ -72,13 +72,26 @@ export function testQuantityInterface<Unit, Q extends Quantity<Unit, Q>>(
       });
     });
 
-    describe("scaledBy() method", () => {
-      it("should scale the quantity", () => {
-        const a = factory.make(sampleUnit, 8n);
-        const b = factory.make(sampleUnit, 80n);
+    describe("scaledBy() method", function () {
+      const register = prepare(this);
+      const testCases: [FixedSource, FixedSource, FixedSource][] = [
+        ["8", "10", "80"],
+        ["8.00", "10", "80.00"],
+        ["8.00", "10.0", "80.00"],
+        ["8.0", "10.00", "80.0"],
+        ["8.00", "2.000", "16.00"],
+        ["8.00", "2.00", "16.00"],
+        ["8.00", "2.0", "16.00"],
+        ["8.00", "2", "16.00"],
+      ];
 
-        assertQuantityEquals(a.scaledBy(10n), b);
-      });
+      for (const [value, factor, expected] of testCases) {
+        register(`${value} * ${factor} => ${expected}`, () => {
+          const a = factory.make(sampleUnit, value);
+          const b = factory.make(sampleUnit, expected);
+          assertQuantityEquals(a.scaledBy(factor), b);
+        });
+      }
     });
 
     describe("relativeTo() method", function () {

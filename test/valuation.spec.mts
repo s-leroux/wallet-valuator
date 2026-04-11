@@ -19,7 +19,6 @@ import {
 import { CryptoMetadata, CryptoRegistryNG } from "../src/cryptoregistry.mjs";
 import { FiatCurrency } from "../src/fiatcurrency.mjs";
 import { prepare } from "./support/register.helper.mjs";
-import { InconsistentUnitsError } from "../src/error.mjs";
 import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
 import { PriceResolver } from "../src/priceresolver.mjs";
 import { Fixed } from "../src/bignumber.mjs";
@@ -40,104 +39,6 @@ describe("Value", () => {
     EUR,
     USD,
   );
-
-  function make(unit: FiatCurrency, value: bigint | string) {
-    return Value.from(unit, value);
-  }
-
-  describe("plus() method", () => {
-    it("should return the sum of two quantities", () => {
-      const a = make(EUR, 8n);
-      const b = make(EUR, 2n);
-      const c = make(EUR, 10n);
-      assert.strictEqual(a.plus(b).value.equals(c.value), true);
-    });
-
-    it("should throw if units are inconsistent on plus", () => {
-      const x = make(EUR, 1n);
-      const y = make(USD, 1n);
-      assert.throws(() => x.plus(y), InconsistentUnitsError);
-    });
-  });
-
-  describe("minus() method", () => {
-    it("should return the difference between two quantities", () => {
-      const a = make(EUR, 8n);
-      const b = make(EUR, 2n);
-      const c = make(EUR, 6n);
-      assert.strictEqual(a.minus(b).value.equals(c.value), true);
-    });
-
-    it("should throw if units are inconsistent on minus", () => {
-      const x = make(EUR, 1n);
-      const y = make(USD, 1n);
-      assert.throws(() => x.minus(y), InconsistentUnitsError);
-    });
-  });
-
-  describe("scaledBy() method", function () {
-    const register = prepare(this);
-    const testCases: [string, string, string][] = [
-      ["8", "10", "80"],
-      ["8.00", "10", "80.00"],
-      ["8.00", "10.0", "80.00"],
-      ["8.0", "10.00", "80.0"],
-      ["8.00", "2.000", "16.00"],
-      ["8.00", "2.00", "16.00"],
-      ["8.00", "2.0", "16.00"],
-      ["8.00", "2", "16.00"],
-    ];
-
-    for (const [value, factor, expected] of testCases) {
-      register(`${value} * ${factor} => ${expected}`, () => {
-        const a = Value.from(EUR, Fixed.fromString(value));
-        assert.strictEqual(
-          a.scaledBy(Fixed.fromString(factor)).value.toDecimalString(),
-          expected,
-          `${value}*${factor}`,
-        );
-      });
-    }
-  });
-
-  describe("relativeTo() method", function () {
-    const register = prepare(this);
-    const testCases: [string, string, string][] = [
-      ["8", "16", "0"],
-      ["8.00", "16.000", "0.50"],
-      ["8.00", "16.00", "0.50"],
-      ["8.00", "16.0", "0.50"],
-      ["8.00", "16", "0.50"],
-      ["8.0", "16.00", "0.5"],
-    ];
-
-    for (const [numerator, denominator, expected] of testCases) {
-      register(`${numerator} / ${denominator} => ${expected}`, () => {
-        const a = Value.from(EUR, Fixed.fromString(numerator));
-        const b = Value.from(EUR, Fixed.fromString(denominator));
-        assert.strictEqual(
-          a.relativeTo(b).toDecimalString(),
-          expected,
-          `${numerator}/${denominator}`,
-        );
-      });
-    }
-  });
-
-  describe("quantity invariants", () => {
-    it("should respect plus/minus identity", () => {
-      const x = make(EUR, 8n);
-      const y = make(EUR, 2n);
-      const z = x.plus(y).minus(y);
-      assert.strictEqual(z.value.equals(x.value), true);
-    });
-
-    it("should respect negation", () => {
-      const x = make(EUR, 10n);
-      const zero = x.plus(x.negated());
-      assert.strictEqual(zero.isZero(), true, "x + (-x) should be zero");
-    });
-  });
 });
 
 describe("SnapshotValuation", () => {

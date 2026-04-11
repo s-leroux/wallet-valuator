@@ -194,10 +194,11 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
   /**
    * Returns the scalar ratio between this Amount and a base Amount.
    *
-   * In other words, it answers: "By which factor must the base Amount be multiplied
-   * to yield this Amount?"
+   * Quantization policy:
+   * - division uses `Fixed.div(..., this.value.scale)`,
+   * - the quotient is therefore truncated toward zero at the receiver scale.
    *
-   * The result is expressed as a dimensionless quantity whose scale is
+   * The result is expressed as a dimensionless {@link Fixed} quantity whose scale is
    * implementation-dependent but large enough to ensure it is invertible using {@link scaledBy}.
    *
    * @param other - The reference Amount to compare against.

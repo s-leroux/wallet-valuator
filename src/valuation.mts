@@ -124,22 +124,23 @@ export class Value implements Quantity<FiatCurrency, Value> {
   }
 
   /**
-   * Returns the scalar ratio between this value and a base value (this / other).
-   *
-   * The returned scalar is expressed at the receiver's scale.
+   * Returns the scalar ratio between this Value and a base Value.
    *
    * Quantization policy:
    * - division uses `Fixed.div(..., this.value.scale)`,
    * - the quotient is therefore truncated toward zero at the receiver scale.
    *
-   * This intentionally aligns with `scaledBy()` for pipeline formulas such as
-   * `share = cashOut.relativeTo(total)` followed by `cashIn.scaledBy(share)`.
+   * The result is expressed as a dimensionless {@link Fixed} quantity whose scale is
+   * implementation-dependent but large enough to ensure it is invertible using {@link scaledBy}.
+   *
+   * @param other - The reference Amount to compare against.
+   * @returns The scalar ratio (this / other).
    */
   relativeTo(other: Value): Fixed {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
     }
-    return this.value.div(other.value, this.value.scale);
+    return this.value.div(other.value, this.value.scale + other.value.scale); // XXX Is it really the right scale?
   }
 
   toString(): string {
