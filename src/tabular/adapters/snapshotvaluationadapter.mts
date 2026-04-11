@@ -5,19 +5,27 @@ export class SnapshotValuationTabularAdapter implements TabularAdapter {
   constructor(readonly head: SnapshotValuation) {}
 
   headings() {
-    return ["date", "deposits", "cashIn", "value", "tags"] as const;
+    return ["date", "deposits", "fiscalCash", "valueAfter", "tags"] as const;
   }
 
   *rows() {
-    const { head } = this;
-    const tags = [...head.tags.keys()].join(", ");
+    // Rewrite the table in reverse chronological order.
+    const snapshots: SnapshotValuation[] = [];
+    let curr: SnapshotValuation | null = this.head;
+    while (curr) {
+      snapshots.push(curr);
+      curr = curr.parent;
+    }
 
-    yield [
-      head.date,
-      head.fiatDeposits,
-      head.fiscalCash,
-      head.cryptoValueAfter.totalCryptoValue,
-      tags,
-    ];
+    // yield rows from table
+    for (const snapshot of snapshots) {
+      yield [
+        snapshot.date,
+        snapshot.fiatDeposits,
+        snapshot.fiscalCash,
+        snapshot.cryptoValueAfter.totalCryptoValue,
+        [...snapshot.tags.keys()].join(", "),
+      ];
+    }
   }
 }

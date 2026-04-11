@@ -67,6 +67,8 @@ export const ERRORS = {
   "C3107": "Blockchain is not a Solana blockchain",
   "C3108": "Blockchain is not an XRPLedger blockchain",
   "C3109": "Unable to resolve the ERC20 token",
+  "C3110": "Inconsistent units (Amount)",
+  "C3111": "Inconsistent units (Value)",
   
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

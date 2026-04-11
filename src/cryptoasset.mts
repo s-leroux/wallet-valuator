@@ -15,6 +15,7 @@ import { logger } from "./debug.mjs";
 import { Value } from "./valuation.mjs";
 import { Quantity } from "./quantity.mjs";
 import { InstanceCache } from "./instancecache.mjs";
+import { Logged } from "./errorutils.mjs";
 const log = logger("crypto-asset");
 
 type AmountSource = FixedSource;
@@ -92,6 +93,15 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
   }
 
   toDisplayString(options: DisplayOptions): string {
+    const formatter = options["amount.format"];
+    if (formatter) {
+      return formatter({
+        value: this.value,
+        symbol: this.crypto.symbol,
+      });
+    }
+
+    // DEPRECATED path
     const valueFormat =
       options["amount.value.format"] ??
       defaultDisplayOptions["amount.value.format"];
@@ -202,7 +212,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
 
   compare(other: Amount): CompareResult {
     if (this.crypto !== other.crypto) {
-      throw new InconsistentUnitsError(this, other);
+      throw Logged("C3110", InconsistentUnitsError, this, other);
     }
     return this.value.compare(other.value);
   }

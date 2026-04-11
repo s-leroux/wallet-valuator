@@ -10,6 +10,7 @@ export class SnapshotTabularAdapter implements TabularAdapter {
   }
 
   *rows() {
+    // Rewrite the table in reverse chronological order.
     const snapshots: Snapshot[] = [];
     let curr: Snapshot | null = this.head;
     while (curr) {
@@ -17,6 +18,7 @@ export class SnapshotTabularAdapter implements TabularAdapter {
       curr = curr.parent;
     }
 
+    // yield rows from table
     for (const snapshot of snapshots) {
       // Snapshot.timeStamp is Unix time in seconds; Date expects milliseconds.
       const date = new Date(snapshot.timeStamp * 1000);

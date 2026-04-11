@@ -39,6 +39,7 @@ import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptore
 import { OHLCOracle } from "../src/services/oracles/ohlcoracle.mjs";
 import { CompositeOracle } from "../src/services/oracles/compositeoracle.mjs";
 import { ZeroOracle } from "../src/services/oracles/zerooracle.mjs";
+import { objectFormatter } from "../src/displayable.mjs";
 
 const cryptoRegistry = CryptoRegistryNG.create();
 const cryptoMetadata = CryptoMetadata.create();
@@ -118,8 +119,11 @@ const adapter = new SnapshotValuationTabularAdapter(latestValuation);
 const columnSpecs: readonly ColumnSpec[] = [
   { name: "date", "date.format": "YYYY-MM-DD" },
   { name: "deposits" },
-  { name: "cashIn" },
-  { name: "value" },
+  { name: "fiscalCash" },
+  {
+    name: "valueAfter",
+    "amount.format": objectFormatter("{value:14.4} {symbol}"),
+  },
   { name: "tags" },
 ];
 

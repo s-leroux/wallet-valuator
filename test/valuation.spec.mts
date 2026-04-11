@@ -23,9 +23,23 @@ import { InconsistentUnitsError } from "../src/error.mjs";
 import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
 import { PriceResolver } from "../src/priceresolver.mjs";
 import { Fixed } from "../src/bignumber.mjs";
+import { testQuantityInterface } from "./support/quantity.helper.mjs";
 
 describe("Value", () => {
   const { EUR, USD } = FakeFiatCurrency;
+
+  testQuantityInterface<FiatCurrency, Value>(
+    {
+      make(unit, value) {
+        return Value.from(unit, value);
+      },
+      unitEquals(a, b) {
+        return a.fiatCurrency === b.fiatCurrency;
+      },
+    },
+    EUR,
+    USD,
+  );
 
   function make(unit: FiatCurrency, value: bigint | string) {
     return Value.from(unit, value);

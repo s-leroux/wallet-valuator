@@ -4,7 +4,12 @@ import {
   MissingPriceError,
   ProtocolError,
 } from "./error.mjs";
-import { Fixed, fixedFromSource, FixedSource } from "./bignumber.mjs";
+import {
+  CompareResult,
+  Fixed,
+  fixedFromSource,
+  FixedSource,
+} from "./bignumber.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
@@ -21,6 +26,8 @@ import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
 import { PriceResolver } from "./priceresolver.mjs";
+import { Quantity } from "./quantity.mjs";
+import { Logged } from "./errorutils.mjs";
 const log = logger("valuation");
 
 //======================================================================
@@ -42,7 +49,7 @@ const log = logger("valuation");
  * FIXED Unify that class with `Amount` usign generics.
  * FIXED This was fixed when `Quantity` was implemented.
  */
-export class Value {
+export class Value implements Quantity<FiatCurrency, Value> {
   readonly fiatCurrency: FiatCurrency;
   readonly value: Fixed;
 
@@ -135,16 +142,21 @@ export class Value {
     return this.value.div(other.value, this.value.scale);
   }
 
-  isZero() {
-    return this.value.isZero();
-  }
-
   toString(): string {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return `${this.value} ${this.fiatCurrency}`;
   }
 
   toDisplayString(options: DisplayOptions): string {
+    const formatter = options["amount.format"];
+    if (formatter) {
+      return formatter({
+        value: this.value,
+        symbol: this.fiatCurrency.code,
+      });
+    }
+
+    // DEPRECATED path
     const valueFormat =
       options["amount.value.format"] ??
       defaultDisplayOptions["amount.value.format"];
@@ -161,6 +173,29 @@ export class Value {
 
   negated(): Value {
     return new Value(this.fiatCurrency, this.value.negated());
+  }
+
+  compare(other: Value): CompareResult {
+    if (this.fiatCurrency != other.fiatCurrency) {
+      throw Logged("C3111", InconsistentUnitsError, this, other);
+    }
+    return this.value.compare(other.value);
+  }
+
+  isZero(): boolean {
+    return this.value.isZero();
+  }
+
+  isNonZero(): boolean {
+    return this.value.isNonZero();
+  }
+
+  isPositive(): boolean {
+    return this.value.isPositive();
+  }
+
+  isNegative(): boolean {
+    return this.value.isNegative();
   }
 }
 
