@@ -69,6 +69,7 @@ export const ERRORS = {
   "C3109": "Unable to resolve the ERC20 token",
   "C3110": "Inconsistent units (Amount)",
   "C3111": "Inconsistent units (Value)",
+  "C3112": "CryptoAsset not found (CryptoRegistry)",
   
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

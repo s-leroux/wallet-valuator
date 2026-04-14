@@ -24,6 +24,11 @@ type AmountSource = FixedSource;
 //  CryptoAssetInternalId
 //======================================================================
 
+/**
+ * An internal identifier for a LOGICAL crypto-asset.
+ *
+ * A logical crypto-asset is an equivalence class for one or more physical crypto-assets.
+ */
 export type CryptoAssetInternalId = Lowercase<string> & {
   readonly __brand: unique symbol;
 };
@@ -287,7 +292,7 @@ let _cryptoAssetCount = 0;
  * required to convert a raw value into a human-readable format.
  */
 export class CryptoAsset {
-  readonly _uid: number = _cryptoAssetCount++;
+  readonly _uid: number = _cryptoAssetCount++; // This property was added for debugging purposes only
   readonly id: CryptoAssetInternalId;
   readonly name: string;
   readonly symbol: string;

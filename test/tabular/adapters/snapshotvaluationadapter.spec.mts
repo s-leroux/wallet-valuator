@@ -67,8 +67,8 @@ describe("SnapshotValuationTabularAdapter", () => {
       assert.deepEqual(columns, [
         "date",
         "deposits",
-        "cashIn",
-        "value",
+        "fiscalCash",
+        "valueAfter",
         "tags",
       ]);
     });

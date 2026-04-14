@@ -1,6 +1,10 @@
 import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
-import { CryptoAsset, CryptoAssetCache } from "./cryptoasset.mjs";
+import {
+  CryptoAsset,
+  CryptoAssetCache,
+  toCryptoAssetInternalId,
+} from "./cryptoasset.mjs";
 import { logger } from "./debug.mjs";
 import {
   WellKnownCryptoAsset,
@@ -144,8 +148,12 @@ export class CryptoRegistryNG {
    * “obtain the registry’s singleton for this id,” matching
    * {@link CryptoAsset.create} documentation.
    */
-  findCryptoAsset(internalId: string | ChainAddress): CryptoAsset {
-    return this.createCryptoAsset(internalId);
+  findCryptoAsset(internalId: string): CryptoAsset {
+    const normalizedId = toCryptoAssetInternalId(internalId);
+    const cached = this.cache.getOrCreate(normalizedId, () => {
+      throw Logged("C3112", ValueError, `${internalId} not found`);
+    });
+    return cached;
   }
 
   registerCryptoAsset(cryptoAsset: CryptoAsset) {

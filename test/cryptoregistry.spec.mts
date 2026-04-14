@@ -7,6 +7,7 @@ import {
   CryptoRegistryNG,
 } from "../src/cryptoregistry.mjs";
 import { toCryptoAssetInternalId } from "../src/cryptoasset.mjs";
+import { idText, isNamedExportBindings } from "typescript";
 
 describe("CryptoRegistry", () => {
   let cryptoRegistry: CryptoRegistryNG;
@@ -36,7 +37,10 @@ describe("CryptoRegistry", () => {
     const bitcoin2 = cryptoRegistry2.createCryptoAsset("bitcoin");
 
     assert.notStrictEqual(bitcoin, bitcoin2);
-    assert.deepEqual(bitcoin, bitcoin2); // Same data but different instances
+    assert.deepEqual(bitcoin.decimal, bitcoin2.decimal); // Same data but different instances
+    assert.deepEqual(bitcoin.id, bitcoin2.id); // Same data but different instances
+    assert.deepEqual(bitcoin.name, bitcoin2.name); // Same data but different instances
+    assert.deepEqual(bitcoin.symbol, bitcoin2.symbol); // Same data but different instances
   });
 
   it("findCryptoAsset is an alias of createCryptoAsset (well-known id)", () => {
