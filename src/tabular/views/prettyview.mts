@@ -1,14 +1,13 @@
-import { DisplayOptions, toDisplayString } from "../../displayable.mjs";
+import { toDisplayString } from "../../displayable.mjs";
 import { TabularAdapter } from "../adapter.mjs";
-
-export type ColumnSpec = Readonly<DisplayOptions> & { name: string };
+import { ColumnSpec, TabularView } from "../view.mjs";
 
 /**
  * PrettyTabularView is a view that formats a tabular data source as a list of lines.
  *
  * @param tabularDataSource - The tabular data source to format.
  */
-export class PrettyTabularView {
+export class PrettyTabularView implements TabularView {
   constructor(readonly tabularDataSource: TabularAdapter) {}
 
   /**

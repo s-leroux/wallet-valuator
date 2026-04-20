@@ -26,10 +26,8 @@ import { CryptoMetadata } from "../src/cryptometadata.mjs";
 import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { SnapshotValuation, PortfolioValuation } from "../src/valuation.mjs";
 import { PrettyTabularView } from "../src/tabular/views/prettyview.mjs";
-import {
-  CSVTabularView,
-  type ColumnSpec,
-} from "../src/tabular/views/csvview.mjs";
+import type { ColumnSpec } from "../src/tabular/view.mjs";
+import { CSVTabularView } from "../src/tabular/views/csvview.mjs";
 import { SnapshotValuationTabularAdapter } from "../src/tabular/adapters/snapshotvaluationadapter.mjs";
 import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
 import { FakeFiatCurrency } from "../test/support/fiatcurrency.fake.mjs";

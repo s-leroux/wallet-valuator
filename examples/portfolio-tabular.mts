@@ -28,7 +28,7 @@ import { TestScan } from "../src/services/explorers/testscan.mjs";
 import { PortfolioTabularAdapter } from "../src/tabular/adapters/portfolioadapter.mjs";
 import { PrettyTabularView } from "../src/tabular/views/prettyview.mjs";
 import { CSVTabularView } from "../src/tabular/views/csvview.mjs";
-import type { ColumnSpec } from "../src/tabular/views/csvview.mjs";
+import type { ColumnSpec } from "../src/tabular/view.mjs";
 
 const cryptoRegistry = CryptoRegistryNG.create();
 const cryptoMetadata = CryptoMetadata.create();

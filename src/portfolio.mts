@@ -236,7 +236,7 @@ export class Portfolio {
       .join("\n");
   }
 
-  asCSV(): string {
+  asCSVString(): string {
     const separator = ",";
     const lines = [] as string[];
     const cryptoAssets = this.allAssetsEverOwned();

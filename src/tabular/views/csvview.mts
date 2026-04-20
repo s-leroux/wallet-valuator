@@ -1,14 +1,13 @@
-import { DisplayOptions, toDisplayString } from "../../displayable.mjs";
+import { toDisplayString } from "../../displayable.mjs";
 import { TabularAdapter } from "../adapter.mjs";
-
-export type ColumnSpec = Readonly<DisplayOptions> & { name: string };
+import { ColumnSpec, TabularView } from "../view.mjs";
 
 /**
  * CSVView is a view that formats a tabular data source as a CSV string.
  *
  * @param tabularDataSource - The tabular data source to format.
  */
-export class CSVTabularView {
+export class CSVTabularView implements TabularView {
   constructor(
     readonly tabularDataSource: TabularAdapter,
     readonly separator: string = ",",

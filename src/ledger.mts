@@ -9,6 +9,8 @@ import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { asBlockchain } from "./blockchain.mjs";
 import { ChainAddress } from "./chainaddress.mjs";
+import { asCSV } from "./tabular/utils.mjs";
+import { LedgerTabularAdapter } from "./tabular/adapters/ledgeradapter.mjs";
 
 const log = logger("ledger");
 
@@ -294,13 +296,16 @@ export class Ledger implements Iterable<Entry> {
     /**
      * Return a CSV representation of the ledger in a string
      */
-    const sep = ",";
-    const fields = ["timeStamp", "type", "chainName", "from", "to", "amount"];
-    for (const tr of this.entries) {
-      yield fields
-        .map((field) => tr.transaction[field as keyof Transaction]?.toString())
-        .join(sep);
-    }
+    yield* asCSV(
+      this,
+      LedgerTabularAdapter,
+      { name: "timeStamp" },
+      { name: "type" },
+      { name: "chainName" },
+      { name: "from" },
+      { name: "to" },
+      { name: "amount" },
+    );
   }
 
   //========================================================================

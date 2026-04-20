@@ -5,7 +5,7 @@ export class LedgerTabularAdapter implements TabularAdapter {
   constructor(readonly ledger: Ledger) {}
 
   headings() {
-    return ["timeStamp", "type", "from", "to", "amount"] as const;
+    return ["timeStamp", "type", "chainName", "from", "to", "amount"] as const;
   }
 
   *rows() {
@@ -13,9 +13,12 @@ export class LedgerTabularAdapter implements TabularAdapter {
       yield [
         entry.transaction.timeStamp,
         entry.transaction.type,
-        entry.transaction.from,
-        entry.transaction.to,
-        entry.transaction.amount,
+        entry.transaction.chainName.id,
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        entry.transaction.from.toString(),
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        entry.transaction.to.toString(),
+        entry.transaction.amount.toString(),
       ];
     }
   }

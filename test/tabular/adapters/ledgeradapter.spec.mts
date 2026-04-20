@@ -23,6 +23,7 @@ describe("LedgerTabularAdapter", () => {
     assert.deepEqual(adapter.headings(), [
       "timeStamp",
       "type",
+      "chainName",
       "from",
       "to",
       "amount",
@@ -36,8 +37,8 @@ describe("LedgerTabularAdapter", () => {
 
     // prettier-ignore
     assert.deepEqual(rows, [
-      [1609459200, "TRADE", addr1, addr2, bitcoin.amountFromString("100")],
-      [1609545600, "TRADE", addr2, addr1, ethereum.amountFromString("50")],
+      [1609459200, "TRADE", "gnosis", "gnosis:0x123", "gnosis:0x456", "100 BTC"],
+      [1609545600, "TRADE", "gnosis", "gnosis:0x456", "gnosis:0x123", "50 ETH"],
     ]);
   });
 });

@@ -54,7 +54,7 @@ ledger.from(address).tag("EGRESS");
 ledger.to(address).tag("INGRESS");
 
 const portfolio = Portfolio.createFromLedger(ledger);
-console.log("%s", portfolio.asCSV()); // ISSUE #23 Actually this shows the portfolio _history_
+console.log("%s", portfolio.asCSVString()); // ISSUE #23 Actually this shows the portfolio _history_
 const valuations = await portfolio.evaluate(
   cryptoRegistry,
   cryptoMetadata,

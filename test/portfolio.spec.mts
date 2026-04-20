@@ -105,7 +105,7 @@ describe("Portfolio", () => {
 
   describe("asCSV()", () => {
     it("should list of all assets ever owned in the header", () => {
-      const csv = portfolio.asCSV();
+      const csv = portfolio.asCSVString();
 
       const lines = csv.split(os.EOL); // this will implicitly check if we use the OS-specific EOL
       assert.equal(lines.length, 1 + movements.length + 1); // header, content, trailing EOL
