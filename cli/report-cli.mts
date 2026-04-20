@@ -11,9 +11,9 @@ program
   .name("report-cli")
   .description("Generate a text report for income tax declarations")
   .showHelpAfterError()
-  .version("1.1.0")
+  .version("1.2.0a")
   .option("-c, --config <config.json>", "JSON configuration")
-  .action(async (options) => processAddresses(options.config));
+  .action(async (options) => processAddresses(options.config as string));
 
 // Parse and execute
 program.parse(process.argv);

@@ -60,8 +60,15 @@ function createCryptoResolver(envvars: EnvVars) {
 
 function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
   return [
-    ExplorerFactories.gnosis.create(registry, envvars["ETHERSCAN_API_KEY"]),
-  ];
+    "gnosis",
+    "arbitrum",
+    "bnb-chain",
+    "ethereum",
+    "polygon",
+    "optimism",
+  ].map((id) =>
+    ExplorerFactories[id].create(registry, envvars["ETHERSCAN_API_KEY"]),
+  );
 }
 
 async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
