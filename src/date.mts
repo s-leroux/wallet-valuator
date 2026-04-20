@@ -22,7 +22,7 @@ const formatters: Record<string, (date: Date) => string> = {
  */
 export function formatDate(format: string, date: Date) {
   return format.replace(/(YYYY|MMM|MM|DD|D)/g, (match) =>
-    formatters[match](date)
+    formatters[match](date),
   );
 }
 
@@ -38,7 +38,7 @@ const parsers: Record<string, RegExp> = {
  * Parses a date string according to the specified format pattern.
  * The pattern must use named capturing groups for year, month and day.
  */
-export function parseDate(format: string | RegExp, date: string) {
+export function parseDate(format: string | RegExp, date: string): Date {
   const pattern = typeof format === "string" ? parsers[format] : format;
   if (!pattern) {
     throw new ValueError(`${format} is not a valid date format`);
@@ -57,7 +57,7 @@ export function parseDate(format: string | RegExp, date: string) {
   };
   if (!year || !month || !day) {
     throw new ValueError(
-      `The format must defined capturing groups for day, month and year`
+      `The format must defined capturing groups for day, month and year`,
     );
   }
 
@@ -65,11 +65,43 @@ export function parseDate(format: string | RegExp, date: string) {
     return new Date(
       parseInt(year, 10),
       parseInt(month, 10) - 1,
-      parseInt(day, 10)
+      parseInt(day, 10),
     );
   }
 
   throw new ValueError(
-    `Cannot create a valid date from ${year} ${month} ${day}`
+    `Cannot create a valid date from ${year} ${month} ${day}`,
   );
+}
+
+export type DateSource = number | string | Date;
+
+/**
+ * Converts a variety of date sources to a JavaScript Date.
+ * - If given a number, assumes it is a Unix timestamp in seconds since the epoch (UTC).
+ * - If given a string, assumes format "YYYY-MM-DD".
+ * - If given a Date, returns it as-is.
+ */
+export function asDate(date: DateSource): Date {
+  if (typeof date === "number") {
+    // Assumes date is a Unix timestamp in seconds since epoch (UTC)
+    return new Date(date * 1000);
+  }
+  if (typeof date === "string") {
+    // Assumes string is in "YYYY-MM-DD" format
+    return parseDate("YYYY-MM-DD", date);
+  }
+  return date; // Assumes date is already a Date object
+}
+
+/**
+ * Converts a date source into a timestamp (number, in *seconds* since epoch, floating point precision).
+ * - If the input is a number, it is treated as a Unix timestamp in seconds.
+ * - If the input is a string, it is implicitly expected in "YYYY-MM-DD" format.
+ * - If the input is a Date object, it will be used directly.
+ * @param date Number (unix seconds), Date, or "YYYY-MM-DD" string.
+ * @returns Number of seconds since the Unix epoch (may include fractions).
+ */
+export function timeStampFromDate(date: DateSource): number {
+  return asDate(date).getTime() / 1000;
 }

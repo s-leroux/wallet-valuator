@@ -12,6 +12,8 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
+import { DEFAULT_PRICE_SCALE } from "../../../src/price.mjs";
+import { Fixed } from "../../../src/bignumber.mjs";
 
 describe("FakeOracle", function () {
   let fakeoracle: FakeOracle | undefined;
@@ -30,15 +32,19 @@ describe("FakeOracle", function () {
     it("should return historical prices", async function () {
       const bitcoin = FakeCryptoAsset.bitcoin;
 
-      const test_cases: [string, string, Record<string, number>][] = [
+      const test_cases: [string, string, Record<string, string>][] = [
         [
           "bitcoin",
           "2024-12-30",
-          { btc: 1, usd: 93663.44751964067, eur: 89809.00932731242 },
+          {
+            btc: "1",
+            usd: "93663.44751964067",
+            eur: "89809.00932731242",
+          },
         ],
       ];
 
-      for (const [id, date, expected] of test_cases) {
+      for (const [, date, expected] of test_cases) {
         const priceMap = new Map() as PriceMap;
         await fakeoracle!.getPrice(
           cryptoRegistry,
@@ -46,14 +52,18 @@ describe("FakeOracle", function () {
           bitcoin,
           new Date(date),
           new Set(Object.keys(expected).map(FiatCurrency)),
-          priceMap
+          priceMap,
         );
 
         assert.equal(priceMap.size, Object.keys(expected).length);
         for (const [currency, expectedRate] of Object.entries(expected)) {
           const price = priceMap.get(FiatCurrency(currency));
           assert.exists(price, `Price for ${currency} should exist`);
-          assert.equal(+price.rate, expectedRate);
+          assert.equal(
+            price.rate.toDecimalString(DEFAULT_PRICE_SCALE),
+            Fixed.fromString(expectedRate).toDecimalString(DEFAULT_PRICE_SCALE),
+            `rate for ${currency}`,
+          );
           assert.equal(price.fiatCurrency, FiatCurrency(currency));
           assert.equal(price.crypto, bitcoin);
         }

@@ -143,7 +143,7 @@ describe("CSVFile", function () {
       const csvFile = await CSVFile.createFromPath(
         CSV_TEST_FILE,
         String,
-        String
+        String,
       );
       assert.exists(csvFile);
     });
@@ -153,7 +153,7 @@ describe("CSVFile", function () {
       const csvFile = await CSVFile.createFromPath(
         CSV_TEST_FILE,
         String,
-        String
+        String,
       );
       // prettier-ignore
       const testcases = [
@@ -173,7 +173,7 @@ describe("CSVFile", function () {
       const csvFile = await CSVFile.createFromPath(
         CSV_TEST_FILE,
         String,
-        String
+        String,
       );
       // prettier-ignore
       const testcases: [string, string[], string[]][] = [
@@ -187,7 +187,7 @@ describe("CSVFile", function () {
           () => {
             const actual = csvFile.getMany(row, cols);
             assert.deepEqual(actual && actual.slice(1), expected);
-          }
+          },
         );
       }
     });
@@ -196,7 +196,7 @@ describe("CSVFile", function () {
       const csvFile = await CSVFile.createFromPath(
         CSV_TEST_FILE,
         String,
-        String
+        String,
       );
 
       let lineCount = 0;
@@ -226,7 +226,7 @@ describe("CSVFile", function () {
 
             return input;
           },
-        }
+        },
       );
 
       // prettier-ignore

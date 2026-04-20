@@ -20,6 +20,9 @@ describe("Type utilities", function () {
       ["isString", 123.456, TypeError],
       ["isString", {}, TypeError],
       ["isString", [], TypeError],
+      ["isString", ["abcde"], TypeError],
+      ["isString", ["abcde", "fghij"], TypeError],
+      ["isString", ["abcde", 123], TypeError],
 
       ["isNumber", null, TypeError],
       ["isNumber", "", TypeError],
@@ -28,6 +31,9 @@ describe("Type utilities", function () {
       ["isNumber", 123.456],
       ["isNumber", {}, TypeError],
       ["isNumber", [], TypeError],
+      ["isNumber", ["abcde"], TypeError],
+      ["isNumber", ["abcde", "fghij"], TypeError],
+      ["isNumber", ["abcde", 123], TypeError],
 
       [ownsProperty, { prop: "value" }],
       [ownsProperty, { other: "value" }, TypeError],
@@ -37,6 +43,29 @@ describe("Type utilities", function () {
       [ownsProperty, 123, TypeError],
       [ownsProperty, "string", TypeError],
       [ownsProperty, [], TypeError],
+      [ownsProperty, ["abcde"], TypeError],
+      [ownsProperty, ["abcde", "fghij"], TypeError],
+      [ownsProperty, ["abcde", 123], TypeError],
+
+      ["isArray", null, TypeError],
+      ["isArray", "", TypeError],
+      ["isArray", "abcde", TypeError],
+      ["isArray", 123, TypeError],
+      ["isArray", 123.456, TypeError],
+      ["isArray", {}, TypeError],
+      ["isArray", ["abcde"]],
+      ["isArray", ["abcde", "fghij"]],
+      ["isArray", ["abcde", 123]],
+
+      ["isStringArray", null, TypeError],
+      ["isStringArray", "", TypeError],
+      ["isStringArray", "abcde", TypeError],
+      ["isStringArray", 123, TypeError],
+      ["isStringArray", 123.456, TypeError],
+      ["isStringArray", {}, TypeError],
+      ["isStringArray", ["abcde"]],
+      ["isStringArray", ["abcde", "fghij"]],
+      ["isStringArray", ["abcde", 123], TypeError],
     ] as const;
 
     for (const [fn, value, errType] of test_cases) {

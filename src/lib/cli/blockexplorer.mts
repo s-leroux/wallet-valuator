@@ -1,5 +1,5 @@
 import { Swarm } from "../../../src/swarm.mjs";
-import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
+import { ExplorerFactories } from "../../../src/services/explorers/etherscan.mjs";
 import { LazyCryptoResolver } from "../../../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
@@ -27,7 +27,9 @@ function createCryptoResolver(envvars: EnvVars) {
 }
 
 function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
-  return [GnosisScan.create(registry, envvars["ETHERSCAN_API_KEY"])];
+  return [
+    ExplorerFactories.ethereum.create(registry, envvars["ETHERSCAN_API_KEY"]),
+  ];
 }
 
 function loadEnvironmentVariables() {

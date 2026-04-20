@@ -4,7 +4,12 @@ import {
   MissingPriceError,
   ProtocolError,
 } from "./error.mjs";
-import { BigNumber, BigNumberSource } from "./bignumber.mjs";
+import {
+  CompareResult,
+  Fixed,
+  fixedFromSource,
+  FixedSource,
+} from "./bignumber.mjs";
 import { FiatCurrency } from "./fiatcurrency.mjs";
 import { CryptoMetadata, CryptoRegistryNG } from "./cryptoregistry.mjs";
 import { CryptoAsset, type Amount } from "./cryptoasset.mjs";
@@ -20,8 +25,9 @@ import {
 import { Snapshot } from "./portfolio.mjs";
 
 import { logger as logger } from "./debug.mjs";
-import { Quantity } from "./quantity.mjs";
 import { PriceResolver } from "./priceresolver.mjs";
+import { Quantity } from "./quantity.mjs";
+import { Logged } from "./errorutils.mjs";
 const log = logger("valuation");
 
 //======================================================================
@@ -31,23 +37,26 @@ const log = logger("valuation");
 /**
  * Represents a monetary value in a specific fiat currency.
  *
- * The Value class encapsulates an amount of fiat currency (e.g. USD, EUR) backed by BigNumber
+ * The Value class encapsulates an amount of fiat currency (e.g. USD, EUR) backed by `Fixed`
  * for precise decimal arithmetic. It provides methods for basic arithmetic operations
  * while ensuring currency consistency.
  *
  * @example
- * const usdValue = new Value(FiatCurrency("USD"), BigNumber.from(100));
- * const eurValue = new Value(FiatCurrency("EUR"), BigNumber.from(85));
+ * const usdValue = new Value(FiatCurrency("USD"), Fixed.from(100n));
+ * const eurValue = new Value(FiatCurrency("EUR"), Fixed.from(85n));
  * // usdValue.plus(eurValue) // Throws InconsistentUnitsError
  *
  * FIXED Unify that class with `Amount` usign generics.
  * FIXED This was fixed when `Quantity` was implemented.
  */
 export class Value implements Quantity<FiatCurrency, Value> {
-  constructor(
-    readonly fiatCurrency: FiatCurrency,
-    readonly value: BigNumber = BigNumber.ZERO,
-  ) {}
+  readonly fiatCurrency: FiatCurrency;
+  readonly value: Fixed;
+
+  constructor(fiatCurrency: FiatCurrency, value: FixedSource = Fixed.ZERO) {
+    this.fiatCurrency = fiatCurrency;
+    this.value = fixedFromSource(value);
+  }
 
   /**
    * Creates a Value instance from a fiat currency identifier and numeric value.
@@ -57,10 +66,19 @@ export class Value implements Quantity<FiatCurrency, Value> {
    * @param value - The numeric value to create the Value instance with
    * @returns A new Value instance
    */
-  static from(fiat: string | FiatCurrency, value: BigNumberSource) {
-    return new Value(FiatCurrency(fiat), BigNumber.from(value));
+  static from(fiat: string | FiatCurrency, value: FixedSource) {
+    return new Value(FiatCurrency(fiat), value);
   }
 
+  /**
+   * Fiat currency addition.
+   *
+   * Both the receiver and the argument must be expressed in the same fiat currency.
+   * The result is expressed at the scale of the highest-scale operand.
+   *
+   * @param other - The other Value to add to the receiver.
+   * @returns A new Value representing the sum of the receiver and the argument.
+   */
   plus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
@@ -69,6 +87,15 @@ export class Value implements Quantity<FiatCurrency, Value> {
     return new Value(this.fiatCurrency, this.value.plus(other.value));
   }
 
+  /**
+   * Fiat currency subtraction.
+   *
+   * Both the receiver and the argument must be expressed in the same fiat currency.
+   * The result is expressed at the scale of the highest-scale operand.
+   *
+   * @param other - The other Value to subtract from the receiver.
+   * @returns A new Value representing the difference between the receiver and the argument.
+   */
   minus(other: Value) {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
@@ -77,19 +104,43 @@ export class Value implements Quantity<FiatCurrency, Value> {
     return new Value(this.fiatCurrency, this.value.minus(other.value));
   }
 
-  scaledBy(factor: BigNumberSource): Value {
-    return new Value(this.fiatCurrency, this.value.mul(factor));
+  /**
+   * Returns a new value representing this value scaled by a given factor.
+   *
+   * Result is rescaled to the receiver's scale.
+   *
+   * Quantization policy:
+   * - multiplication is computed in fixed-point arithmetic,
+   * - then truncated to the receiver scale (via `Fixed.mul(..., this.value.scale)`),
+   * - so this operation is stable in value domains where amounts are represented
+   *   with a fixed number of decimals (e.g. fiat cents).
+   */
+  scaledBy(factor: FixedSource): Value {
+    const factorFixed = fixedFromSource(factor);
+    return new Value(
+      this.fiatCurrency,
+      this.value.mul(factorFixed, this.value.scale),
+    );
   }
 
-  relativeTo(other: Value): BigNumber {
+  /**
+   * Returns the scalar ratio between this Value and a base Value.
+   *
+   * Quantization policy:
+   * - division uses `Fixed.div(..., this.value.scale)`,
+   * - the quotient is therefore truncated toward zero at the receiver scale.
+   *
+   * The result is expressed as a dimensionless {@link Fixed} quantity whose scale is
+   * implementation-dependent but large enough to ensure it is invertible using {@link scaledBy}.
+   *
+   * @param other - The reference Amount to compare against.
+   * @returns The scalar ratio (this / other).
+   */
+  relativeTo(other: Value): Fixed {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
     }
-    return this.value.div(other.value);
-  }
-
-  isZero() {
-    return this.value.isZero();
+    return this.value.div(other.value, this.value.scale + other.value.scale); // XXX Is it really the right scale?
   }
 
   toString(): string {
@@ -98,6 +149,15 @@ export class Value implements Quantity<FiatCurrency, Value> {
   }
 
   toDisplayString(options: DisplayOptions): string {
+    const formatter = options["amount.format"];
+    if (formatter) {
+      return formatter({
+        value: this.value,
+        symbol: this.fiatCurrency.code,
+      });
+    }
+
+    // DEPRECATED path
     const valueFormat =
       options["amount.value.format"] ??
       defaultDisplayOptions["amount.value.format"];
@@ -114,6 +174,29 @@ export class Value implements Quantity<FiatCurrency, Value> {
 
   negated(): Value {
     return new Value(this.fiatCurrency, this.value.negated());
+  }
+
+  compare(other: Value): CompareResult {
+    if (this.fiatCurrency != other.fiatCurrency) {
+      throw Logged("C3111", InconsistentUnitsError, this, other);
+    }
+    return this.value.compare(other.value);
+  }
+
+  isZero(): boolean {
+    return this.value.isZero();
+  }
+
+  isNonZero(): boolean {
+    return this.value.isNonZero();
+  }
+
+  isPositive(): boolean {
+    return this.value.isPositive();
+  }
+
+  isNegative(): boolean {
+    return this.value.isNegative();
   }
 }
 
@@ -227,7 +310,7 @@ export class SnapshotValuation {
     readonly date: Date,
     readonly cryptoValueBefore: PointInTimeValuation,
     readonly cryptoValueAfter: PointInTimeValuation,
-    readonly tags: Map<string, any>,
+    readonly tags: Map<string, unknown>,
     readonly comments: string[],
     readonly fiatDeposits: Value,
     readonly fiscalCash: Value, // The "cash-in" according to the French fiscal rules
@@ -255,7 +338,7 @@ export class SnapshotValuation {
       const metadata = cryptoMetadata.getMetadata(crypto);
       if (metadata?.fiscalCategory === "SECURITY") {
         // SECURITY tokens have no fiscal price
-        return crypto.price(fiatCurrency, 0); // ISSUE #131 Is this correct
+        return crypto.price(fiatCurrency, Fixed.ZERO); // ISSUE #131 Is this correct
       }
       // This is a regular crypto-asset. Use the oracle to get the price.
       const prices = await priceResolver.getPrice(
@@ -308,7 +391,9 @@ export class SnapshotValuation {
     );
 
     // Copy auxiliary data
-    const tags = new Map<string, any>(snapshot.tags);
+    const tags = new Map<string, unknown>(
+      snapshot.tags as Map<string, unknown>,
+    );
     const comments = snapshot.comments;
 
     // Track cash movements
@@ -327,14 +412,20 @@ export class SnapshotValuation {
       deposits = deposits.plus(delta);
       cashIn = cashIn.plus(delta);
     } else if (tags.get("CASH-OUT")) {
-      const cachOut = start.totalCryptoValue.minus(end.totalCryptoValue); // This is supposed to be positive too !!!
-      deposits = deposits.minus(cachOut);
+      const cashOut = start.totalCryptoValue.minus(end.totalCryptoValue); // This is supposed to be positive too !!!
+      deposits = deposits.minus(cashOut);
 
       // Specific French accounting formula (2025)
       // see https://www.waltio.com/fr/comment-calculer-impots-crypto/
-      const share = cachOut.relativeTo(start.totalCryptoValue); // positive
+      //
+      // Fixed-point expectation:
+      // - `share` is quantized at `cashOut` scale and truncated toward zero.
+      // - `cashInMulShare` is then quantized at `cashIn` scale.
+      // This keeps the fiscal pipeline deterministic across runs and avoids
+      // accidental precision growth from intermediate operations.
+      const share = cashOut.relativeTo(start.totalCryptoValue); // positive
       cashInMulShare = cashIn.scaledBy(share);
-      gainOrLoss = cachOut.minus(cashInMulShare);
+      gainOrLoss = cashOut.minus(cashInMulShare);
       cashIn = cashIn.minus(cashInMulShare); // same as cashIn * (1 - share)
     }
 

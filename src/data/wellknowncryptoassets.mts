@@ -1,8 +1,8 @@
 export type WellKnownCryptoAsset = [
-  id: string,
+  internalId: Lowercase<string>, // The internal identifier for the crypto-asset
   displayName: string,
-  unitName: string,
-  decimal: number,
+  currencySymbol: string,
+  decimals: number, // Number of decimal places used to represent the crypto-asset
   metadata: Record<string, unknown> & { coingeckoId?: string },
 ];
 

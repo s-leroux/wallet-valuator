@@ -29,7 +29,45 @@ navigation layer still exists, but accounting is the main focus.
 
 ## Project Status
 
-🚧 **Under Active Development (02-2026)** 🚧
+🚧 **Under Active Development (03-2026)** 🚧
+
+## Numeric representation
+
+Decimal amounts and rates in the library use a fixed-point type **`Fixed`**: a signed **unscaled value** (`value`, `bigint`) plus a decimal **scale**, not raw JavaScript **`number`**, at domain boundaries. For decimal text, use **`Fixed.toDecimalString`** (truncation when narrowing scale), not `Number.prototype.toFixed` (rounding). **Contributors** should read the **`Fixed`-point policy** in [`AGENTS.md`](AGENTS.md) (`FixedLike` vs `FixedSource`, string scale inference, `IntegerSource`, arithmetic rules, and **`toDecimalString`** semantics).
+
+## Block explorer data (EVM)
+
+Explorers return **normal transactions**, **internal transactions** (traces), and **token transfers** as related views that often share one transaction **`hash`**. **Gas fees** should be counted from the **normal** row only—**not** summed again from internal traces (that would overstate fees). Contributors and agents: see [Block explorer views and fees (EVM)](CONTRIBUTING.md#block-explorer-views-and-fees-evm) in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## Development environment (Dev Container)
+
+All development is intended to happen **inside the Development Container** built
+from `docker/Dockerfile`. The host system is only used to build and run that
+container and to start your editor attached to it.
+
+- The dev container includes tools such as `vim`, `node`, `npm`, `npx`, `tsc`,
+  `jq`, `gemini` and others; see `docker/Dockerfile` on the host for details.
+- Inside the container, when possible, use `npm` and `npx` (see [`package.json`](package.json)) for
+  compilation, linting, and tests. Once dependencies are installed, you may also invoke tools from
+  `/app/node_modules/.bin` directly (`tsc`, `eslint`, `mocha`, etc.); that directory is on `PATH` in the image.
+- The `Makefile` and its targets are intended **only for use on the host** to
+  manage the container lifecycle and run commands in the container.
+
+Remote in‑container development from the host is straightforward with VS Code or
+Cursor using the **Dev Containers** extension (`ms-vscode-remote.remote-containers`):
+
+- Start or reuse a dev container as described below.
+- From the host, you can launch your IDE already attached to a running container
+  with:
+
+  ```sh
+  make open-ide IDE=Cursor DEV_CONTAINER=$CONTAINER_ID
+  ```
+
+  (replace `Cursor` if you prefer another supported IDE value — currently only the `Cursor` and `Code` editors are supported).
+
+Once the IDE is attached, you work entirely against the `/app` directory inside
+the container as if it were a local project.
 
 # Stage 0
 
@@ -56,31 +94,50 @@ Once inside the container, you will need to install Node.js dependencies:
 node@...:~$ npm install
 ```
 
-And then you can compile the TypeScript sources:
+Compile the TypeScript sources (writes to `build/`):
 
 ```
-node@...:~$ npx tsc
-# or using make from the host
-# make docker-compile
+node@...:~$ npm run compile
 ```
 
-# Stage 2: Run Mocha
+(`npx tsc` is equivalent.)
 
-To run the tests:
+# Stage 2: Run tests
+
+From inside the container, after a successful compile:
 
 ```sh
-make docker-test
+node@...:~$ npm test
 ```
+
+This runs Mocha against `build/test/**/*.mjs` (see [`package.json`](package.json)).
+
+On the **host**, without opening an interactive shell, you can use `make docker-test`, which runs `npm test` in a one-off container with the repo bind-mounted. Ensure `npm install` and `npm run compile` have been run at least once so `node_modules/` and `build/` exist on the mounted workspace.
+
+### Environment variables (tests)
+
+`npm test` loads [`.mocharc.cjs`](.mocharc.cjs), which sets **`NODE_ENV`** to `test` when it was unset. Some library code relies on that during tests.
+
+Several suites are **optional** or **live** (network + API keys). The helper **`when()`** in [`test/support/test.helper.mts`](test/support/test.helper.mts) treats a variable as _off_ when it is **unset** or set to **`0`** or **`no`** (case-insensitive); any other value turns the gated block _on_. You still need a valid key when a live suite runs.
+
+| Variable                | Role                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`ETHERSCAN_API_KEY`** | **Etherscan** live tests ([`test/services/explorers/etherscan.spec.mts`](test/services/explorers/etherscan.spec.mts)): **must be set** to a real key, or the suite’s `before` hook throws and **`npm test` fails**. The same variable is used for **GnosisScan** live tests ([`gnosisscan.spec.mts`](test/services/explorers/gnosisscan.spec.mts)), but that block is wrapped in `when("ETHERSCAN_API_KEY", …)`—so it is **skipped** when the variable is off. |
+| **`COINGECKO_API_KEY`** | **CoinGecko** live tests ([`coingecko.spec.mts`](test/services/oracles/coingecko.spec.mts)): skipped when off via `when("COINGECKO_API_KEY", …)`.                                                                                                                                                                                                                                                                                                              |
+| **`EXAMPLES`**          | **Example programs** ([`test/examples.spec.mts`](test/examples.spec.mts)): the whole describe is skipped when off via `when("EXAMPLES", …)`.                                                                                                                                                                                                                                                                                                                   |
+| **`APP_ROOT_PATH`**     | Root directory for resolving **`build/examples`** in example tests; defaults to **`.`** if unset (same file).                                                                                                                                                                                                                                                                                                                                                  |
 
 # Stage 3: Run ESLint
 
-To run the linter, you must first enter the container shell using `make docker-shell`, then execute the npm command:
+From inside the container:
 
 ```sh
-make docker-shell
-# Inside the container:
-node@...:~$ npm run lint-in-container
+node@...:~$ npm run lint
 ```
+
+The configured script runs ESLint with `--fix` and may modify files.
+
+On the **host**, `make docker-lint` runs the same npm lint script in a one-off container (see the `Makefile`).
 
 ## CLI Usage
 
@@ -95,7 +152,7 @@ The resulting text can be copied directly into your yearly French tax return.
 
 ## Important Notice
 
-This project is being actively developed to meet the 2025 French tax declaration deadline.
+This project is being actively developed to meet the 2026 French tax declaration deadline.
 The current focus is on core functionality and backend stability.
 Comprehensive documentation and user interface improvements will be added in subsequent updates.
 

@@ -6,7 +6,8 @@ import {
   CryptoMetadata,
   CryptoRegistryNG,
 } from "../src/cryptoregistry.mjs";
-import { toCryptoAssetID } from "../src/cryptoasset.mjs";
+import { toCryptoAssetInternalId } from "../src/cryptoasset.mjs";
+import { idText, isNamedExportBindings } from "typescript";
 
 describe("CryptoRegistry", () => {
   let cryptoRegistry: CryptoRegistryNG;
@@ -23,7 +24,7 @@ describe("CryptoRegistry", () => {
   it("should create well known crypto-assets", () => {
     const bitcoin = cryptoRegistry.createCryptoAsset("bitcoin");
     assert.include(bitcoin, {
-      id: toCryptoAssetID("bitcoin"),
+      id: toCryptoAssetInternalId("bitcoin"),
       name: "Bitcoin",
       decimal: 8,
     });
@@ -36,7 +37,33 @@ describe("CryptoRegistry", () => {
     const bitcoin2 = cryptoRegistry2.createCryptoAsset("bitcoin");
 
     assert.notStrictEqual(bitcoin, bitcoin2);
-    assert.deepEqual(bitcoin, bitcoin2); // Same data but different instances
+    assert.deepEqual(bitcoin.decimal, bitcoin2.decimal); // Same data but different instances
+    assert.deepEqual(bitcoin.id, bitcoin2.id); // Same data but different instances
+    assert.deepEqual(bitcoin.name, bitcoin2.name); // Same data but different instances
+    assert.deepEqual(bitcoin.symbol, bitcoin2.symbol); // Same data but different instances
+  });
+
+  it("findCryptoAsset is an alias of createCryptoAsset (well-known id)", () => {
+    const viaCreate = cryptoRegistry.createCryptoAsset("bitcoin");
+    const viaFind = cryptoRegistry.findCryptoAsset("bitcoin");
+    assert.strictEqual(viaFind, viaCreate);
+  });
+
+  it("findCryptoAsset is an alias of createCryptoAsset (explicit metadata)", () => {
+    const viaCreate = cryptoRegistry.createCryptoAsset(
+      "custom-token",
+      "Custom Token",
+      "CST",
+      9,
+    );
+    const viaFind = cryptoRegistry.findCryptoAsset("custom-token");
+    assert.strictEqual(viaFind, viaCreate);
+  });
+
+  it("repeated createCryptoAsset returns the same cached instance", () => {
+    const first = cryptoRegistry.createCryptoAsset("ethereum");
+    const second = cryptoRegistry.createCryptoAsset("ethereum");
+    assert.strictEqual(second, first);
   });
 });
 

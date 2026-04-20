@@ -89,7 +89,7 @@ export class Caching /*extends Oracle*/ {
       log.error(
         "C3005",
         `Cannot open the database ${path}`,
-        `(${process.cwd()})`
+        `(${process.cwd()})`,
       );
       throw err;
     }
@@ -119,7 +119,7 @@ export class Caching /*extends Oracle*/ {
 
   dbMetadata(key: string) {
     const stmt = this.db.prepare<[string], { value: string }>(
-      "SELECT value FROM db_metadata WHERE key = ?"
+      "SELECT value FROM db_metadata WHERE key = ?",
     );
     return stmt.get(key);
   }
@@ -131,7 +131,7 @@ export class Caching /*extends Oracle*/ {
   dictionary(text: string) {
     // ISSUE #107 Cache those data!
     const select_stmt = this.db.prepare<[string], { rowid: number }>(
-      "SELECT rowid FROM dictionary WHERE value = ?"
+      "SELECT rowid FROM dictionary WHERE value = ?",
     );
 
     const result = select_stmt.get(text);
@@ -141,7 +141,7 @@ export class Caching /*extends Oracle*/ {
     // else
 
     const insert_stmt = this.db.prepare<[string]>(
-      "INSERT OR IGNORE INTO dictionary(value) VALUES (?)"
+      "INSERT OR IGNORE INTO dictionary(value) VALUES (?)",
     );
     const info = insert_stmt.run(text);
     return info.lastInsertRowid;
@@ -180,13 +180,13 @@ export class Caching /*extends Oracle*/ {
   insertPrice(date: string, prices: PriceMap): void {
     // ISSUE #108 Above ^^ Use a Date parameter
     const stmt = this.db.prepare(
-      "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin) VALUES (?,?,?,?,?)"
+      "INSERT OR REPLACE INTO prices(oracle_id, date, currency, price, origin) VALUES (?,?,?,?,?)",
     );
     for (const price of prices.values()) {
       log.trace(
         "C1010",
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        `Caching price for ${price.crypto}/${price.fiatCurrency} at ${date}`
+        `Caching price for ${price.crypto}/${price.fiatCurrency} at ${date}`,
       );
 
       const metadata = GlobalPriceMetadata.getMetadata(price);
@@ -196,8 +196,8 @@ export class Caching /*extends Oracle*/ {
         price.crypto.id,
         date,
         price.fiatCurrency.code,
-        price.rate.toFixed(),
-        origin
+        price.rate.toDecimalString(),
+        origin,
       );
     }
   }
@@ -208,22 +208,22 @@ export class Caching /*extends Oracle*/ {
     crypto: CryptoAsset,
     date: Date,
     currencies: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     const dateYyyyMmDd = date.toISOString().substring(0, 10); // XXX replace with formatDate
     const missing: FiatCurrency[] = [];
     const stmt = this.db.prepare<[string, string, string], { price: number }>(
-      "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?"
+      "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?",
     );
     for (const currency of currencies) {
       const row = stmt.get(crypto.id, dateYyyyMmDd, currency.code);
       if (row) {
-        result.set(currency, crypto.price(currency, row.price));
+        result.set(currency, crypto.price(currency, row.price.toString()));
       } else {
         log.trace(
           "C1007",
           // eslint-disable-next-line @typescript-eslint/no-base-to-string
-          `Cache miss for ${crypto}/${currency} as ${dateYyyyMmDd}`
+          `Cache miss for ${crypto}/${currency} as ${dateYyyyMmDd}`,
         );
         missing.push(currency);
       }
@@ -238,7 +238,7 @@ export class Caching /*extends Oracle*/ {
       crypto,
       date,
       new Set(missing), // request only missing data!
-      result
+      result,
     );
     this.backend_calls += 1;
     this.insertPrice(dateYyyyMmDd, result); // ISSUE #158 We should only insert *missing* prices (or maybe more accurate one? See #94)

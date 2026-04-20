@@ -5,14 +5,18 @@ import { Explorer } from "../src/services/explorer.mjs";
 import { LazyCryptoResolver } from "../src/services/cryptoresolvers/lazycryptoresolver.mjs";
 import { Ledger, sort, join } from "../src/ledger.mjs";
 import { OnChainTransaction } from "../src/transaction.mjs";
-import { FakeExplorer } from "./fake-explorer.mjs";
+import { FakeExplorer } from "./support/explorer.fake.mjs";
 import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
-import { Blockchain } from "../src/blockchain.mjs";
+import { asBlockchain, Blockchain } from "../src/blockchain.mjs";
 
 // From https://docs.gnosisscan.io/api-endpoints/accounts#get-a-list-of-erc20-token-transfer-events-by-address
 import NormalTransactions from "../fixtures/GnosisScan/NormalTransactions.json" with { type: "json" };
 import InternalTransactions from "../fixtures/InternalTransactions.json" with { type: "json" };
 import ERC20TokenTransferEvents from "../fixtures/ERC20TokenTransferEvents.json" with { type: "json" };
+import { FakeCryptoAsset } from "./support/cryptoasset.fake.mjs";
+import { FakeTransaction } from "./support/transaction.fake.mjs";
+import { ChainAddress } from "../src/chainaddress.mjs";
+import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 
 const UNISWAP_V2_ADDRESS = "0x01F4A4D82a4c1CF12EB2Dadc35fD87A14526cc79";
 const DISPERSE_APP_ADDRESS = "0xd152f549545093347a162dce210e7293f1452150";
@@ -67,7 +71,10 @@ describe("Ledger", () => {
   let chain: Blockchain;
   let explorer: Explorer;
   let transactions: OnChainTransaction[];
-  const cryptoResolver = LazyCryptoResolver.create();
+  const cryptoResolvers = [
+    FakeCryptoResolver.create(),
+    LazyCryptoResolver.create(),
+  ];
   let cryptoRegistry: CryptoRegistryNG;
   let cryptoMetadata: CryptoMetadata;
 
@@ -81,9 +88,22 @@ describe("Ledger", () => {
       [explorer],
       cryptoRegistry,
       cryptoMetadata,
-      cryptoResolver,
+      cryptoResolvers,
     );
 
+    /* `jq` equivalent:
+
+    ```console
+          jq -s '{
+            status: .[0].status,
+            message: .[0].message,
+            result: map(.result) | add
+          }' \
+            fixtures/ERC20TokenTransferEvents.json \
+            fixtures/GnosisScan/NormalTransactions.json \
+            fixtures/InternalTransactions.json > allTransactions.json
+    ```
+    */
     const a = await Promise.all(
       ERC20TokenTransferEvents.result.map((tr) => {
         return swarm.tokenTransfer(chain, tr);
@@ -108,7 +128,7 @@ describe("Ledger", () => {
       const ledger = Ledger.create(transactions);
 
       // According to:
-      // jq '.result | length' fixtures/*.json
+      // jq '.result | length' allTransactions.json
       assert.equal(ledger.entries.length, 745);
     });
   });
@@ -138,7 +158,7 @@ describe("Ledger", () => {
          jq '
               .result |
               map(select(.from == "0xd152f549545093347a162dce210e7293f1452150")) |
-              length' fixtures/*.json
+              length' fixtures/*trans*.json
       */
       const ledger = Ledger.create(transactions);
       const address = await swarm.address(chain, DISPERSE_APP_ADDRESS);
@@ -152,6 +172,44 @@ describe("Ledger", () => {
     });
   });
 
+  describe("filter by crypto-asset", () => {
+    it("should return a new Ledger containing only transactions with the given crypto asset", async () => {
+      /* Validation:
+          ```console
+          # ERC20 Token: USDC → 80 transfers
+          jq '
+              .result |
+              map(select(
+                (.tokenSymbol | ascii_downcase == "usdc") and (.value | tonumber > 0)
+              )) |
+              length' ./fixtures/ERC20TokenTransferEvents.json
+
+          # Native Coin: 42 transfers
+          jq '
+              .result |
+              map(select(
+                .value | tonumber > 0
+              )) |
+              length' ./fixtures/GnosisScan/NormalTransactions.json
+
+          # Internal Transaction: 145 transfers
+          jq '
+              .result |
+              map(select(
+                .value | tonumber > 0
+              )) |
+              length' ./fixtures/InternalTransactions.json
+
+          ```
+      */
+      const ledger = Ledger.create(transactions);
+      const subset = ledger.filter(cryptoRegistry, cryptoMetadata, {
+        "crypto-asset-v2": ["usdc", "xdai"],
+      });
+      assert.equal(subset.entries.length, 80 + 42 + 145); // Ignore zero value transfers
+    });
+  });
+
   describe("tag method", () => {
     it("should tag all entries in the ledger", () => {
       const ledger = Ledger.create(transactions).slice(0, 100);
@@ -159,13 +217,14 @@ describe("Ledger", () => {
       const sentinel = {};
       subset.tag("T", sentinel);
 
-      const n = 0;
+      let n = 0;
       for (const entry of ledger) {
         if (n < 2 || n >= 10) {
           assert.notInclude(entry.tags, "T");
         } else {
           assert.equal(entry.tags.get("T"), sentinel);
         }
+        ++n;
       }
     });
   });
@@ -196,6 +255,45 @@ describe("Ledger", () => {
         curr_ts = entry_ts;
       }
     });
+  });
+});
+
+describe("Ledger", () => {
+  const { bitcoin, ethereum } = FakeCryptoAsset;
+  const addr1 = ChainAddress("gnosis", "0x123");
+  const addr2 = ChainAddress("gnosis", "0x456");
+
+  // prettier-ignore
+  const transactions = [
+    FakeTransaction("TRADE", asBlockchain("gnosis"), "2021-01-01", bitcoin.amountFromString("100"), addr1, addr2),
+    FakeTransaction("TRADE", asBlockchain("gnosis"), "2021-01-02", ethereum.amountFromString("50"), addr2, addr1),
+  ];
+
+  it("should create a fake ledger", () => {
+    const ledger = Ledger.create(transactions);
+
+    assert.equal(ledger.entries.length, 2);
+    assert.equal(ledger.entries[0].transaction.from, addr1);
+    assert.equal(ledger.entries[0].transaction.to, addr2);
+    assert.deepEqual(
+      ledger.entries[0].transaction.amount,
+      bitcoin.amountFromString("100"),
+    );
+    assert.equal(ledger.entries[1].transaction.from, addr2);
+    assert.equal(ledger.entries[1].transaction.to, addr1);
+    assert.deepEqual(
+      ledger.entries[1].transaction.amount,
+      ethereum.amountFromString("50"),
+    );
+  });
+
+  it("should export a ledger as CSV", () => {
+    const ledger = Ledger.create(transactions);
+    const csv = Array.from(ledger.asCSV());
+    assert.deepEqual(csv, [
+      "1609459200,TRADE,gnosis,gnosis:0x123,gnosis:0x456,100 BTC",
+      "1609545600,TRADE,gnosis,gnosis:0x456,gnosis:0x123,50 ETH",
+    ]);
   });
 });
 

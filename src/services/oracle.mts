@@ -34,7 +34,7 @@ export abstract class Oracle {
     crypto: CryptoAsset,
     date: Date,
     fiat: Set<FiatCurrency>,
-    priceMap: PriceMap
+    priceMap: PriceMap,
   ): Promise<void>;
 
   /**

@@ -3,7 +3,6 @@ import type { CryptoAsset } from "../../src/cryptoasset.mjs";
 import type { CryptoRegistryNG } from "../../src/cryptoregistry.mjs";
 import type { FiatCurrency } from "../../src/fiatcurrency.mjs";
 import { formatDate } from "../../src/date.mjs";
-import type { FiatConverter } from "../../src/services/fiatconverter.mjs";
 import type { PriceMap } from "../../src/services/oracle.mjs";
 import type { CryptoMetadata } from "../../src/cryptoregistry.mjs";
 
@@ -19,24 +18,34 @@ import HistoricalPrices from "../../fixtures/HistoricalPrices.json" with { type:
 type HistoricalDataRecord = [
   date: string, // dd-mm-yyyy format like in the CoinGecko API
   crypto: string,
-  prices: Record<string, number>
+  prices: Record<string, number>,
 ];
 const DATA = HistoricalPrices as HistoricalDataRecord[];
 
+/**
+ * An Oracle that uses hard-coded data from the fixtures directory.
+ *
+ * It does not recognize the "fake-" prefix as {@link FakeCryptoResolver} but this later
+ * should have handled "fake" chain ids and mapped their currencies to the real ones.
+ *
+ * For testing purposes only.
+ *
+ */
 export class FakeOracle extends Oracle {
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getPrice(
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     crypto: CryptoAsset,
     date: Date,
     fiats: Set<FiatCurrency>,
-    result: PriceMap
+    result: PriceMap,
   ): Promise<void> {
     const cryptoId = crypto.id;
     const dateDdMmYyyy = formatDate("DD-MM-YYYY", date);
 
     const dataRecord = DATA.find(
-      (item) => item[0] === dateDdMmYyyy && item[1] === cryptoId
+      (item) => item[0] === dateDdMmYyyy && item[1] === cryptoId,
     );
     if (!dataRecord) {
       throw new Error(`No record for ${cryptoId} at ${dateDdMmYyyy}`);
@@ -44,7 +53,10 @@ export class FakeOracle extends Oracle {
     const prices = dataRecord[2];
 
     for (const fiat of fiats) {
-      result.set(fiat, crypto.price(fiat, prices[fiat.toString().toLowerCase()]));
+      const rawPrice = prices[fiat.code.toLowerCase()];
+      // Keep all decimal digits from fixture values for valuation tests.
+      // Using `priceFromNumber` would quantize to DEFAULT_PRICE_SCALE (6).
+      result.set(fiat, crypto.price(fiat, rawPrice.toString()));
     }
   }
 

@@ -10,29 +10,49 @@ describe("Price", () => {
 
   describe("constructor", () => {
     it("should correctly initialize a price instance", () => {
-      const price = new Price(ethereum, eur, 3000);
+      const price = new Price(ethereum, eur, "3000");
 
       assert.strictEqual(price.crypto, ethereum);
       assert.strictEqual(price.fiatCurrency, eur);
-      assert.strictEqual(+price.rate, 3000);
+      assert.strictEqual(price.rate.toDecimalString(), "3000");
     });
   });
 
   describe("to()", () => {
     it("should return a new price expressed in the conversion fiat currency", () => {
-      const price1 = new Price(ethereum, eur, 4000);
-      const price2 = price1.to(usd, 1.1);
+      const price1 = new Price(ethereum, eur, "4000");
+      const price2 = price1.to(usd, "1.1");
 
       assert.notStrictEqual(price1, price2);
       assert.strictEqual(price2.crypto, ethereum);
       assert.strictEqual(price2.fiatCurrency, usd);
-      assert.strictEqual(+price2.rate, 4000 * 1.1);
+      assert.strictEqual(price2.rate.toDecimalString(), String(4000 * 1.1));
+    });
+  });
+
+  describe("mul()", () => {
+    it("should return a new price with its rate multiplied by a scalar", () => {
+      const price1 = new Price(ethereum, eur, "4000");
+      const price2 = price1.mul("1.1");
+
+      assert.notStrictEqual(price1, price2);
+      assert.strictEqual(price2.crypto, ethereum);
+      assert.strictEqual(price2.fiatCurrency, eur);
+      assert.strictEqual(price2.rate.toDecimalString(), String(4000 * 1.1));
+    });
+
+    it("should accept a string scalar multiplier", () => {
+      const price1 = new Price(ethereum, eur, "4000");
+      const price2 = price1.mul("2");
+
+      assert.notStrictEqual(price1, price2);
+      assert.strictEqual(price2.rate.toDecimalString(), "8000");
     });
   });
 
   describe("toString()", () => {
     it("should return a string representation of the price", () => {
-      const price = new Price(ethereum, eur, 3000);
+      const price = new Price(ethereum, eur, "3000");
       assert.strictEqual(price.toString(), `${ethereum}/EUR 3000`);
     });
   });

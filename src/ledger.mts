@@ -9,6 +9,8 @@ import { ValueError } from "./error.mjs";
 import { Logged } from "./errorutils.mjs";
 import { asBlockchain } from "./blockchain.mjs";
 import { ChainAddress } from "./chainaddress.mjs";
+import { asCSV } from "./tabular/utils.mjs";
+import { LedgerTabularAdapter } from "./tabular/adapters/ledgeradapter.mjs";
 
 const log = logger("ledger");
 
@@ -73,11 +75,14 @@ export function join<T extends Sortable>(a: Array<T>, b: Array<T>) {
 // =========================================================================
 // Ledger and entries
 // =========================================================================
+export type FilterSelectorParam = string | string[];
+export type FilterSelector = Record<string, FilterSelectorParam>;
+
 type Filter = (
   cryptoRegistry: CryptoRegistryNG,
   cryptoMetadata: CryptoMetadata,
   entries: Entry[],
-  value: unknown
+  value: FilterSelectorParam,
 ) => Entry[];
 
 const FILTERS: Record<string, Filter | undefined> = {
@@ -88,7 +93,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    chainName: unknown
+    chainName: FilterSelectorParam,
   ) {
     const blockchain = asBlockchain(Ensure.isString(chainName));
     return entries.filter((entry) => {
@@ -100,7 +105,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    chainName: unknown
+    chainName: FilterSelectorParam,
   ) {
     // NOOP
     return entries;
@@ -110,7 +115,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    cryptoId: unknown
+    cryptoId: FilterSelectorParam,
   ) {
     cryptoId = Ensure.isString(cryptoId);
     return entries.filter((entry) => {
@@ -118,11 +123,32 @@ const FILTERS: Record<string, Filter | undefined> = {
     });
   },
 
+  "crypto-asset-v2"(
+    registry: CryptoRegistryNG,
+    cryptoMetadata: CryptoMetadata,
+    entries: Entry[],
+    cryptoId: FilterSelectorParam,
+  ) {
+    const cryptoAssets = Ensure.isStringArray(cryptoId).map((id) =>
+      registry.findCryptoAsset(id),
+    );
+    return entries.filter((entry) => {
+      const amount = entry.transaction.amount;
+      // console.log(
+      //   amount.crypto.id,
+      //   amount,
+      //   cryptoAssets,
+      //   cryptoAssets.includes(amount.crypto),
+      // );
+      return amount.isNonZero() && cryptoAssets.includes(amount.crypto);
+    });
+  },
+
   "crypto-resolver"(
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    resolverName: unknown
+    resolverName: FilterSelectorParam,
   ) {
     resolverName = Ensure.isString(resolverName);
     return entries.filter((entry) => {
@@ -137,7 +163,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    address: unknown
+    address: FilterSelectorParam,
   ) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
@@ -154,7 +180,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    address: unknown
+    address: FilterSelectorParam,
   ) {
     if (address === null) {
       address = "0x0000000000000000000000000000000000000000";
@@ -171,7 +197,7 @@ const FILTERS: Record<string, Filter | undefined> = {
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
     entries: Entry[],
-    type: unknown
+    type: FilterSelectorParam,
   ) {
     type = Ensure.isString(type);
 
@@ -230,7 +256,7 @@ export class Ledger implements Iterable<Entry> {
    */
   static create(...lists: Array<Iterable<Transaction>>) {
     const arrays: Array<Array<Entry>> = lists.map((it) =>
-      Array.from(it, (tr) => new Entry(tr))
+      Array.from(it, (tr) => new Entry(tr)),
     );
     const entries: Array<Entry> = [];
 
@@ -261,7 +287,7 @@ export class Ledger implements Iterable<Entry> {
     return this.entries
       .map(
         (entry, idx) =>
-          `${String(idx).padStart(6)} ${entry.toDisplayString(options)}`
+          `${String(idx).padStart(6)} ${entry.toDisplayString(options)}`,
       )
       .join("\n");
   }
@@ -270,11 +296,16 @@ export class Ledger implements Iterable<Entry> {
     /**
      * Return a CSV representation of the ledger in a string
      */
-    const sep = ",";
-    const fields = ["timestamp", "blockNumber", "from", "to", "unit", "amount"];
-    for (const tr of this.entries) {
-      yield fields.map((field) => (tr as any)[field]).join(sep);
-    }
+    yield* asCSV(
+      this,
+      LedgerTabularAdapter,
+      { name: "timeStamp" },
+      { name: "type" },
+      { name: "chainName" },
+      { name: "from" },
+      { name: "to" },
+      { name: "amount" },
+    );
   }
 
   //========================================================================
@@ -300,7 +331,7 @@ export class Ledger implements Iterable<Entry> {
   filter(
     registry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
-    selector: Record<string, any>
+    selector: Record<string, FilterSelectorParam>,
   ): Ledger {
     let entries = this.entries;
     for (const key of Object.keys(selector)) {
@@ -314,6 +345,7 @@ export class Ledger implements Iterable<Entry> {
     }
     return new Ledger(entries);
   }
+
   /**
    * Return a new Ledger containing only events from the given address.
    */
@@ -324,7 +356,7 @@ export class Ledger implements Iterable<Entry> {
     const entries = this.entries.filter(
       (entry) =>
         entry.transaction.from.address === account.address &&
-        entry.transaction.from.chain === account.chain
+        entry.transaction.from.chain === account.chain,
     );
 
     return new Ledger(entries);
@@ -340,7 +372,7 @@ export class Ledger implements Iterable<Entry> {
     const entries = this.entries.filter(
       (entry) =>
         entry.transaction.to.address === account.address &&
-        entry.transaction.to.chain === account.chain
+        entry.transaction.to.chain === account.chain,
     );
 
     return new Ledger(entries);

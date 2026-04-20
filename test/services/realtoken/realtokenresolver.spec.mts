@@ -57,7 +57,7 @@ describe("RealTokenResolver", function () {
             contract,
             "REALTOKEN-FAKE NAME",
             "REALTOKEN-XYZ",
-            18
+            18,
           );
 
           if (!result || result.status !== "resolved") {
@@ -91,7 +91,7 @@ describe("RealTokenResolver", function () {
             contract,
             "REALTOKEN-FAKE NAME",
             "REALTOKEN-XYZ",
-            18
+            18,
           );
 
           if (!result || result.status !== "resolved") {
@@ -99,7 +99,7 @@ describe("RealTokenResolver", function () {
             assert.fail(`result was ${result}`);
           }
           const md = cryptoMetadata.getMetadata<RealTokenMetadata>(
-            result.asset
+            result.asset,
           );
           assert.isDefined(md);
           assert.equal(md["realtoken.uuid"], uuid);

@@ -59,7 +59,18 @@ export const ERRORS = {
   "C3017": "Invalid API key (RealTokenProvider)",
   "C3100": "Chain not found",
   "C3101": "Protocol violation in PriceResolver",
-
+  "C3102": "Unknown blockchain",
+  "C3103": "Empty blockchain ID",
+  "C3104": "Blockchain is not an EVM blockchain",
+  "C3105": "Blockchain is not a Binance CEX",
+  "C3106": "Blockchain is not a Bitcoin blockchain",
+  "C3107": "Blockchain is not a Solana blockchain",
+  "C3108": "Blockchain is not an XRPLedger blockchain",
+  "C3109": "Unable to resolve the ERC20 token",
+  "C3110": "Inconsistent units (Amount)",
+  "C3111": "Inconsistent units (Value)",
+  "C3112": "CryptoAsset not found (CryptoRegistry)",
+  
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",
 } as const;

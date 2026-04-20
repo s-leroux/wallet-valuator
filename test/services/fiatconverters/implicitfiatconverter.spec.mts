@@ -41,7 +41,7 @@ describe("ImplicitFiatConverter", function () {
         ethereum,
         date,
         new Set([FakeFiatCurrency.EUR, FakeFiatCurrency.USD]),
-        priceMap
+        priceMap,
       );
 
       assert.isTrue(priceMap.has(eur));
@@ -50,16 +50,14 @@ describe("ImplicitFiatConverter", function () {
         cryptoRegistry,
         date,
         priceMap.get(eur)!,
-        FakeFiatCurrency.USD
+        FakeFiatCurrency.USD,
       );
 
       assert.strictEqual(result.fiatCurrency, usd);
       assert.strictEqual(result.crypto, ethereum);
-      assert.approximately(
-        +result.rate.mul(100).div(priceMap.get(usd)!.rate),
-        100,
-        error
-      );
+      const r = Number(result.rate.toDecimalString());
+      const u = Number(priceMap.get(usd)!.rate.toDecimalString());
+      assert.approximately((r * 100) / u, 100, error);
     });
   });
 });

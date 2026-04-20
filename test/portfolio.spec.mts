@@ -8,8 +8,6 @@ import {
   snapshotFromMovements,
   snapshotsFromMovements,
 } from "./support/snapshot.fake.mjs";
-import { Amount, CryptoAsset } from "../src/cryptoasset.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
 import { Portfolio, Snapshot } from "../src/portfolio.mjs";
 
 const INGRESS = [true, false] as const;
@@ -26,13 +24,13 @@ describe("Snapshot", () => {
         value,
         "ethereum",
         ["A", true],
-        ["B", false]
+        ["B", false],
       );
       const snapshot = new Snapshot(...movement);
       assert.equal(snapshot.holdings.size, 1);
       assert.equal(
         snapshot.holdings.get(FakeCryptoAsset.ethereum)!.toString(),
-        `${value} ${FakeCryptoAsset.ethereum.symbol}`
+        `${value} ${FakeCryptoAsset.ethereum.symbol}`,
       );
     });
 
@@ -50,11 +48,11 @@ describe("Snapshot", () => {
       assert.equal(snapshot.holdings.size, 2);
       assert.equal(
         snapshot.holdings.get(FakeCryptoAsset.ethereum)!.toString(),
-        "500 ETH"
+        "500 ETH",
       );
       assert.equal(
         snapshot.holdings.get(FakeCryptoAsset.dai)!.toString(),
-        "75 DAI"
+        "75 DAI",
       );
     });
   });
@@ -107,7 +105,7 @@ describe("Portfolio", () => {
 
   describe("asCSV()", () => {
     it("should list of all assets ever owned in the header", () => {
-      const csv = portfolio.asCSV();
+      const csv = portfolio.asCSVString();
 
       const lines = csv.split(os.EOL); // this will implicitly check if we use the OS-specific EOL
       assert.equal(lines.length, 1 + movements.length + 1); // header, content, trailing EOL

@@ -8,7 +8,7 @@ import {
 } from "../../../src/cryptoregistry.mjs";
 import { OHLCOracle } from "../../../src/services/oracles/ohlcoracle.mjs";
 import { CSVFile } from "../../../src/csvfile.mjs";
-import { BigNumber } from "../../../src/bignumber.mjs";
+import { Fixed } from "../../../src/bignumber.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 
@@ -31,7 +31,7 @@ May 18, 2025;103186.95;106597.17;103142.60;106446.01;106446.01;49887082058
 
 describe("OHLCOracle", function () {
   const { USD } = FakeFiatCurrency;
-  let oracle: OHLCOracle<BigNumber>;
+  let oracle: OHLCOracle<Fixed>;
   const cryptoRegistry = CryptoRegistryNG.create();
   const cryptoMetadata = CryptoMetadata.create();
   const bitcoin = cryptoRegistry.createCryptoAsset("bitcoin");
@@ -41,10 +41,10 @@ describe("OHLCOracle", function () {
       CSV_DATA,
       String,
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      BigNumber.from,
+      Fixed.fromString,
       {
         separator: ";",
-      }
+      },
     );
     oracle = new OHLCOracle(bitcoin, USD, datasource, {
       dateFormat: "MMM D, YYYY",
@@ -56,10 +56,10 @@ describe("OHLCOracle", function () {
       const register = prepare(this);
 
       const testCases = [
-        ["2025-05-20", "106101.5766"],
-        ["2025-05-26", "109567.0066"],
-        ["2025-05-23", "108642.6700"],
-        ["2025-05-18", "105395.2600"],
+        ["2025-05-20", "106101.5700"],
+        ["2025-05-26", "109567.0000"],
+        ["2025-05-23", "108642.6666"],
+        ["2025-05-18", "105395.2366"],
       ] as const;
 
       for (const [date, expected] of testCases) {
@@ -71,13 +71,13 @@ describe("OHLCOracle", function () {
             bitcoin,
             new Date(date),
             new Set([USD]),
-            priceMap
+            priceMap,
           );
           const price = priceMap.get(USD);
           if (!price) {
             assert.fail(`price not found`);
           } else {
-            assert.equal(price.rate.toFixed(4), expected);
+            assert.equal(price.rate.toDecimalString(4), expected);
             assert.equal(price.fiatCurrency, USD);
             assert.equal(price.crypto, bitcoin);
           }

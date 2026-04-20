@@ -14,6 +14,7 @@ import type { Explorer } from "./services/explorer.mjs";
 interface Movement {
   // ISSUE #123 We should revise this type. Maybe replace by the existing Transaction interface?
   explorer?: Explorer;
+  type: string;
   timeStamp: number;
   amount: Amount;
   from?: { address: string | null };
@@ -27,6 +28,7 @@ export class Snapshot {
   readonly holdings: Map<CryptoAsset, Amount>; // Portfolio balance _after_ update
   readonly tags: Map<string, any>; // Copy of the transaction's tags
   readonly comments: string[];
+  readonly type: string;
 
   constructor(
     ingress: boolean,
@@ -38,19 +40,15 @@ export class Snapshot {
   ) {
     this.parent = parent;
     this.timeStamp = movement.timeStamp;
+    this.type = movement.type;
     // Naive implementation: just clone the whole map
     this.holdings = new Map(parent?.holdings);
     this.tags = new Map(tags);
     this.comments = [...comments];
-    this.update(ingress, egress, movement, tags);
+    this.update(ingress, egress, movement);
   }
 
-  update(
-    ingress: boolean,
-    egress: boolean,
-    movement: Movement,
-    tags: Map<string, any>,
-  ): void {
+  update(ingress: boolean, egress: boolean, movement: Movement): void {
     /*
      * This is where all the "magic" happens.
      * This function uses a set of well-known tags and heuristics to
@@ -238,7 +236,7 @@ export class Portfolio {
       .join("\n");
   }
 
-  asCSV(): string {
+  asCSVString(): string {
     const separator = ",";
     const lines = [] as string[];
     const cryptoAssets = this.allAssetsEverOwned();

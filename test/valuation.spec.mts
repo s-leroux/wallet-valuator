@@ -18,10 +18,11 @@ import {
 } from "../src/valuation.mjs";
 import { CryptoMetadata, CryptoRegistryNG } from "../src/cryptoregistry.mjs";
 import { FiatCurrency } from "../src/fiatcurrency.mjs";
-import { testQuantityInterface } from "./support/quantity.helper.mjs";
-import { BigNumber } from "../src/bignumber.mjs";
+import { prepare } from "./support/register.helper.mjs";
 import { NullFiatConverter } from "../src/services/fiatconverter.mjs";
 import { PriceResolver } from "../src/priceresolver.mjs";
+import { Fixed } from "../src/bignumber.mjs";
+import { testQuantityInterface } from "./support/quantity.helper.mjs";
 
 describe("Value", () => {
   const { EUR, USD } = FakeFiatCurrency;
@@ -29,14 +30,14 @@ describe("Value", () => {
   testQuantityInterface<FiatCurrency, Value>(
     {
       make(unit, value) {
-        return new Value(unit, BigNumber.from(value));
+        return Value.from(unit, value);
       },
       unitEquals(a, b) {
-        return a.fiatCurrency == b.fiatCurrency;
+        return a.fiatCurrency === b.fiatCurrency;
       },
     },
     EUR,
-    USD
+    USD,
   );
 });
 
@@ -46,19 +47,19 @@ describe("SnapshotValuation", () => {
   describe("valueFromAmountAndRate()", () => {
     const bitcoin = FakeCryptoAsset.bitcoin;
     const amount = bitcoin.amountFromString("100.5");
-    const fiat = FakeFiatCurrency.EUR;
-    const price = bitcoin.price(fiat, 100000);
+    const { EUR } = FakeFiatCurrency;
+    const price = bitcoin.price(EUR, 100000n);
 
     it("should create a Value instance from amount and rate", () => {
-      const value = amount.valueAt(price);
+      const value = amount.valueAt(price, 0n);
       assert.strictEqual(value.toString(), "10050000 EUR");
     });
 
     it("should check if the amount and rate are consistent", () => {
       assert.throws(() => {
-        const price = FakeCryptoAsset.ethereum.price(fiat, 5000);
+        const price = FakeCryptoAsset.ethereum.price(EUR, "5000");
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const value = amount.valueAt(price);
+        const value = amount.valueAt(price, 0n);
       });
     });
   });
@@ -88,27 +89,27 @@ describe("SnapshotValuation", () => {
             priceResolver,
             fiatCurrency,
             snapshot,
-            null
-          )
-        )
+            null,
+          ),
+        ),
       );
 
       // Check that total valuation is properly computed
       assert.strictEqual(
         valuations[0].cryptoValueAfter.totalCryptoValue.toString(),
-        "199930.97669449622 USD"
+        "199930.97669449622 USD",
       );
       assert.strictEqual(valuations[0].fiatCurrency, fiatCurrency);
 
       assert.strictEqual(
         valuations[1].cryptoValueAfter.totalCryptoValue.toString(),
-        "104229.2128726388532087224934266 USD"
+        "104229.2128726388532087224934266 USD",
       );
       assert.strictEqual(valuations[1].fiatCurrency, fiatCurrency);
 
       assert.strictEqual(
         valuations[2].cryptoValueAfter.totalCryptoValue.toString(),
-        "200062.3491026753532087224934266 USD"
+        "200062.3491026753532087224934266 USD",
       );
       assert.strictEqual(valuations[2].fiatCurrency, fiatCurrency);
     });
@@ -123,11 +124,7 @@ describe("PortfolioValuation", () => {
     const cryptoMetadata: CryptoMetadata = CryptoMetadata.create();
     const oracle = FakeOracle.create();
     const fiat = FakeFiatCurrency.EUR;
-    const timeStamp = new Date("2024-12-30").getTime() / 1000;
-    const amounts = [
-      FakeCryptoAsset.bitcoin.amountFromString("0.001"),
-      FakeCryptoAsset.ethereum.amountFromString("5"),
-    ];
+    // const timeStamp = new Date("2024-12-30").getTime() / 1000;
 
     it("should create a PortfolioValuation instance from snapshots", async () => {
       const INGRESS = [true, false] as const;
@@ -145,21 +142,21 @@ describe("PortfolioValuation", () => {
         oracle,
         fiatConverter,
         fiat,
-        snapshots
+        snapshots,
       );
 
       assert.strictEqual(valuation.snapshotValuations.length, 3);
       assert.strictEqual(
         valuation.snapshotValuations[0].cryptoValueAfter.totalCryptoValue.toString(),
-        "189643.12842672764 EUR"
+        "189643.12842672764 EUR",
       );
       assert.strictEqual(
         valuation.snapshotValuations[1].cryptoValueAfter.totalCryptoValue.toString(),
-        "99253.8313961634461160286655519 EUR"
+        "99253.8313961634461160286655519 EUR",
       );
       assert.strictEqual(
         valuation.snapshotValuations[2].cryptoValueAfter.totalCryptoValue.toString(),
-        "190508.8270422186461160286655519 EUR"
+        "190508.8270422186461160286655519 EUR",
       );
     });
   });

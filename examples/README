@@ -1,7 +1,11 @@
-npm run shell
+## Run one example file:
 
-. .env
-export $(sed 's/=.*//' .env)
+```console
+sh$ node -r source-map-support/register build/examples/portfolio-valuation-tabular.mjs
+```
 
-npm run build/examples/find-address.mjs
+## Run the example suite
 
+```console
+sh$ EXAMPLES=1 npm test -- -grep "Example"
+```

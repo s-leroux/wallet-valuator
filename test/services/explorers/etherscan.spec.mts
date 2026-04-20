@@ -9,6 +9,7 @@ import {
   EtherscanProvider,
   EtherscanAPI,
   Etherscan,
+  DefaultEtherscanBoundAPI,
 } from "../../../src/services/explorers/etherscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
 import {
@@ -27,6 +28,7 @@ import RateLimit from "../../../fixtures/GnosisScan/RateLimit.json" with { type:
 import TokenTransfer from "../../../fixtures/GnosisScan/TokenTransfer.json" with { type: "json" };
 
 import { Payload } from "../../../src/provider.mjs";
+import { when } from "../../support/test.helper.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["ETHERSCAN_API_KEY"];
@@ -60,20 +62,16 @@ describe("EtherscanProvider", function () {
   });
 });
 
-describe("Etherscan", function () {
-  if (!API_KEY) {
-    throw Error("You must define the ETHERSCAN_API_KEY environment variable");
-  }
-
+when("ETHERSCAN_API_KEY", describe)("Etherscan", function () {
   this.timeout(MOCHA_TEST_TIMEOUT);
   this.slow(MOCHA_TEST_TIMEOUT);
 
   const cryptoResolver = FakeCryptoResolver.create();
   let provider: EtherscanProvider;
-  let gs: EtherscanAPI | undefined;
+  let gs: EtherscanAPI;
 
   beforeEach(function () {
-    provider = new EtherscanProvider(API_KEY);
+    provider = new EtherscanProvider(API_KEY!);
     gs = new EtherscanAPI(provider);
   });
 
@@ -164,7 +162,11 @@ describe("Etherscan", function () {
     beforeEach(() => {
       cryptoRegistry = CryptoRegistryNG.create();
       cryptoMetadata = CryptoMetadata.create();
-      explorer = new Etherscan(cryptoRegistry, gs!, TEST_CHAIN_NAME);
+      explorer = new Etherscan(
+        cryptoRegistry,
+        new DefaultEtherscanBoundAPI(TEST_CHAIN_EXPLORER_ID, gs),
+        TEST_CHAIN_NAME,
+      );
       sw = Swarm.create(
         [explorer],
         cryptoRegistry,
@@ -174,7 +176,7 @@ describe("Etherscan", function () {
     });
 
     it("should use the chain given in constructor", () => {
-      assert.equal(explorer.chain.name, TEST_CHAIN_NAME);
+      assert.equal(explorer.chain.id, TEST_CHAIN_NAME);
     });
     describe("normalTransaction()", () => {
       it("should load a transaction by its hash", async () => {

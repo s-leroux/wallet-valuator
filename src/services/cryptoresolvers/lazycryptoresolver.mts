@@ -1,7 +1,5 @@
-import { CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoResolver, ResolutionResult } from "../cryptoresolver.mjs";
 
-import { MMap } from "../../memoizer.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 import { CryptoMetadata } from "../../cryptometadata.mjs";
@@ -10,42 +8,29 @@ import { CryptoMetadata } from "../../cryptometadata.mjs";
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
   chain: string,
-  smartContractAddress: string | null
+  smartContractAddress: string | null,
 ): ChainAddress {
   return `${chain}:${smartContractAddress || ""}`.toLowerCase() as ChainAddress;
 }
 
-export type LazyCryptoAsset = readonly [
-  key: string,
-  chain: string,
-  contractAddress: string | null,
-  name: string,
-  symbol: string,
-  decimal: number
-];
-
-type Entry = {
-  key: string;
-  name: string;
-  symbol: string;
-  decimal: number;
-};
-
 /**
  * `LazyCryptoResolver`
  *
- * This resolver acts as a catch-all `CryptoResolver`, creating and caching
- * new crypto assets on demand. Each asset is identified by a unique
- * (chain, smart contract address) pair.
+ * A catch-all {@link CryptoResolver} that creates logical
+ * `CryptoAsset` instances on demand for tokens that no other resolver
+ * recognised.
+ *
+ * Because the token is unrecognised, there is no known cross-chain equivalence,
+ * so the resolver creates a **singleton** logical asset whose `id` is derived
+ * from the chain-address (e.g. `"ethereum:0xa0b8…"`). That asset is a logical
+ * equivalence class of size one — a single physical representative mapped to
+ * its own dedicated logical `CryptoAsset`.
  *
  * By design, crypto assets returned by this class **cannot** be cross-chain.
  */
 export class LazyCryptoResolver extends CryptoResolver {
-  private readonly cryptos: MMap<ChainAddress, CryptoAsset>;
-
   protected constructor() {
     super();
-    this.cryptos = new MMap();
   }
 
   static create() {
@@ -61,35 +46,17 @@ export class LazyCryptoResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
-
+    const chainAddress = ChainAddress(chain.id, smartContractAddress);
     return {
       status: "resolved",
-      asset: this.cryptos.get(chainAddress, () =>
-        swarm.cryptoRegistry.createCryptoAsset(
-          chainAddress,
-          name,
-          symbol,
-          decimal
-        )
+      asset: swarm.cryptoRegistry.createCryptoAsset(
+        chainAddress,
+        name,
+        symbol,
+        decimal,
       ),
     };
-  }
-
-  /**
-   * @internal
-   * Utility to retrieve a cached crypto-asset by it key.
-   *
-   * For testing purposes only
-   */
-  get(chain: string, contractAddress: string): CryptoAsset {
-    if (process.env.NODE_ENV !== "test") {
-      throw new Error(
-        "This method is for testing purposes only and cannot be called in production code"
-      );
-    }
-    return this.cryptos.get(ChainAddress(chain, contractAddress));
   }
 }

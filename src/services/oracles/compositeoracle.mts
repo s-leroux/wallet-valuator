@@ -42,7 +42,6 @@ export class CompositeOracle extends Oracle {
     currencies: Set<FiatCurrency>,
     result: PriceMap,
   ): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     log.trace("C1006", `Get price for ${crypto}/${currencies} at ${date}`);
     const missing = new Set(currencies);
 

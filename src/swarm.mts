@@ -37,7 +37,7 @@ export class Swarm {
     explorers: Explorer[],
     readonly cryptoRegistry: CryptoRegistryNG,
     readonly cryptoMetadata: CryptoMetadata,
-    readonly cryptoResolver: CryptoResolver
+    readonly cryptoResolvers: readonly CryptoResolver[],
   ) {
     this.blocks = new Map();
     this.addresses = new Map();
@@ -46,7 +46,7 @@ export class Swarm {
     this.explorers = new Map();
     for (const explorer of explorers) {
       this.explorers.set(explorer.chain, explorer);
-      explorer.register(this);
+      explorer.register(this); // XXX Technical debt: we should load blockchains and explorers from a registry.
     }
   }
 
@@ -54,9 +54,17 @@ export class Swarm {
     explorers: Explorer[],
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
-    cryptoResolver: CryptoResolver
+    cryptoResolvers: CryptoResolver | CryptoResolver[],
   ) {
-    return new Swarm(explorers, cryptoRegistry, cryptoMetadata, cryptoResolver);
+    if (!Array.isArray(cryptoResolvers)) {
+      cryptoResolvers = [cryptoResolvers];
+    }
+    return new Swarm(
+      explorers,
+      cryptoRegistry,
+      cryptoMetadata,
+      cryptoResolvers,
+    );
   }
 
   getExplorer(chain: string | Blockchain): Explorer {
@@ -77,23 +85,29 @@ export class Swarm {
     smartContractAddress: string | null,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     if (!smartContractAddress) {
       // We are looking for a native currency
       return { status: "resolved", asset: this.getNativeCurrency(chain) };
     }
 
-    return this.cryptoResolver.resolve(
-      this,
-      this.cryptoMetadata,
-      chain,
-      block,
-      smartContractAddress,
-      name,
-      symbol,
-      decimal
-    );
+    for (const cryptoResolver of this.cryptoResolvers) {
+      const result = await cryptoResolver.resolve(
+        this,
+        this.cryptoMetadata,
+        chain,
+        block,
+        smartContractAddress,
+        name,
+        symbol,
+        decimal,
+      );
+      if (result) {
+        return result;
+      }
+    }
+    return null;
   }
 
   async store<T extends Storable, U extends T, OPT extends {}, K>(
@@ -101,9 +115,9 @@ export class Swarm {
     ctor: new (swarm: Swarm, chain: Blockchain, id: K) => U,
     chain: Blockchain,
     id: K,
-    data?: OPT
+    data?: OPT,
   ): Promise<U> {
-    const key = `${chain.name}:${id}`.toLowerCase();
+    const key = `${chain.id}:${id}`.toLowerCase();
     let obj: U = storage.get(key) as U;
     if (!obj) {
       obj = new ctor(this, chain, id);
@@ -129,7 +143,7 @@ export class Swarm {
   contract(
     chain: Blockchain,
     address: string,
-    data?: object
+    data?: object,
   ): Promise<Address> {
     return this.store(this.addresses, Address, chain, address, data);
   }
@@ -140,14 +154,14 @@ export class Swarm {
   async normalTransaction(
     chain: Blockchain,
     hash: string,
-    data?: NormalTransactionRecord
+    data?: NormalTransactionRecord,
   ): Promise<NormalTransaction> {
     return this.store(
       this.normalTransactions,
       NormalTransaction,
       chain,
       hash,
-      data
+      data,
     );
   }
 
@@ -156,7 +170,7 @@ export class Swarm {
    */
   async tokenTransfer(
     chain: Blockchain,
-    data: TokenTransferRecord
+    data: TokenTransferRecord,
   ): Promise<ERC20TokenTransfer> {
     return new ERC20TokenTransfer(this, chain).assign(this, data);
   }
@@ -168,14 +182,14 @@ export class Swarm {
     chain: Blockchain,
     txHash: string,
     traceId: string,
-    data: InternalTransactionRecord
+    data: InternalTransactionRecord,
   ): Promise<InternalTransaction> {
     return this.store(
       this.internalTransactions,
       InternalTransaction,
       chain,
       `${txHash}-${traceId}`,
-      data
+      data,
     );
   }
 }

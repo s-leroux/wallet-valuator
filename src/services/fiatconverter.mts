@@ -8,7 +8,7 @@ export abstract class FiatConverter {
     cryptoRegistry: CryptoRegistryNG,
     date: Date,
     from: Price,
-    to: FiatCurrency
+    to: FiatCurrency,
   ): Promise<Price>;
 }
 
@@ -20,7 +20,7 @@ export class NullFiatConverter extends FiatConverter {
     registry: CryptoRegistryNG,
     date: Date,
     from: Price,
-    to: FiatCurrency
+    to: FiatCurrency,
   ): Promise<Price> {
     throw new NotImplementedError();
   }

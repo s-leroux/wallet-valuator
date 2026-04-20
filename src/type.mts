@@ -12,6 +12,16 @@ import { Logged } from "./errorutils.mjs";
  */
 export type NotUndefined<T> = T extends undefined ? never : T;
 
+/**
+ * Alternative implementation of the {@link Ensure} class for run-time type checking.
+ *
+ * It is more verbose but provides more control over the error message and uses the
+ * {@link Logged} function to log the error.
+ *
+ * It is not obvious that `EnsureNG` in really better in practice than `Ensure`.
+ * Notably `EnsureNG` log all error messages as comming from  the {@link errorutils.mjs} module,
+ * a known limitation of the {@link logger} function.
+ */
 export class EnsureNG {
   // 1. Default message
   static isDefined<T>(
@@ -103,6 +113,16 @@ export class EnsureNG {
  * These functions verify at run-time that a given value is of the expected type,
  * without attempting to convert the value. They return the value unchanged if the check passes.
  * If the value does not match the expected type, a TypeError is thrown.
+ *
+ * The class was **not** obsoleted by {@link EnsureNG} and you may continue to use it
+ * in new code, or enhance it with more type checks.
+ *
+ * ```typescript
+ * function myFunction(param: unknown) {
+ *   const paramAsString = Ensure.isString(param);
+ *   ...
+ * }
+ * ```
  */
 export class Ensure {
   /**
@@ -112,12 +132,41 @@ export class Ensure {
    * @returns The same value if it is a string.
    * @throws {TypeError} If the value is not a string.
    */
-  static isString(obj: unknown): string {
+  static isString(this: void, obj: unknown): string {
     const type = typeof obj;
     if (type !== "string") {
       throw new TypeError(`Expected string but got ${type}`);
     }
     return obj as string;
+  }
+
+  /**
+   * Checks that the provided value is an array.
+   *
+   * @param obj - The value to test.
+   * @returns The same value if it is an array.
+   * @throws {TypeError} If the value is not an array.
+   */
+  static isArray(this: void, obj: unknown): unknown[] {
+    if (!Array.isArray(obj)) {
+      throw new TypeError(`Expected array but got ${typeof obj}`);
+    }
+    return obj as unknown[];
+  }
+
+  /**
+   * Checks that the provided value is an array of strings.
+   *
+   * @param obj - The value to test.
+   * @returns The same value if it is an array of strings.
+   * @throws {TypeError} If the value is not an array of strings.
+   */
+  static isStringArray(this: void, obj: unknown): string[] {
+    const array = Ensure.isArray(obj);
+    for (const item of array) {
+      Ensure.isString(item);
+    }
+    return array as string[];
   }
 
   /**
@@ -127,7 +176,7 @@ export class Ensure {
    * @returns The same value if it is a number.
    * @throws {TypeError} If the value is not a number.
    */
-  static isNumber(obj: unknown): number {
+  static isNumber(this: void, obj: unknown): number {
     const type = typeof obj;
     if (type !== "number") {
       throw new TypeError(`Expected number but got ${type}`);
@@ -135,7 +184,7 @@ export class Ensure {
     return obj as number;
   }
 
-  static isDefined<T>(obj: T | undefined): NotUndefined<T> {
+  static isDefined<T>(this: void, obj: T | undefined): NotUndefined<T> {
     if (obj === undefined) {
       throw new ValueError("Expected defined value but got undefined");
     }
@@ -143,7 +192,7 @@ export class Ensure {
     return obj as NotUndefined<T>;
   }
 
-  static isNonEmptyString(obj: unknown): string {
+  static isNonEmptyString(this: void, obj: unknown): string {
     const type = typeof obj;
     if (type !== "string" || obj === "") {
       throw new TypeError(`Expected a non-empty string but got ${obj}`);
@@ -151,7 +200,7 @@ export class Ensure {
     return obj as string;
   }
 
-  static ownsProperty<T>(obj: T, property: string): T {
+  static ownsProperty<T>(this: void, obj: T, property: string): T {
     if (typeof obj !== "object" || obj === null) {
       throw new TypeError(`Expected object but got ${typeof obj}`);
     }
@@ -159,6 +208,6 @@ export class Ensure {
     if (!Object.prototype.hasOwnProperty.call(obj, property)) {
       throw new TypeError(`Object does not have property "${property}"`);
     }
-    return obj;
+    return obj as T;
   }
 }

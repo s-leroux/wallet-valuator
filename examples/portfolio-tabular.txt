@@ -1,0 +1,741 @@
+2024-11-10|                                                       30000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-11-10|                                                       50000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-10-30|                                                        5000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-09-25|                                     12630.08648853436686425 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-08-13|                                     1954.380491457058543246 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-08-05|                                      1954.10114616542260734 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-08-05|                                                        4000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-08-04|                                                       15000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-08-04|                                     3982.862803098827895342 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-07-15|                                                        3050 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-07-09|                                     3981.759980658119103526 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-06-25|                                     1992.732649352797258888 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-06-24|                                                        5000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-06-24|                                     1995.575582089909255559 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-06-11|                                     1843.084920042441787084 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-06-10|                                    17638.124958612212147791 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-06-10|                                                       13000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-05-31|                                                       10000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-04-10|                                                       55500 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-04-08|                                     1981.802488518990065332 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-04-02|                                     1995.853297474227655354 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-04-02|                                                        1825 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-03-31|                                                       13600 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-03-20|                                                        7400 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-03-19|                                     1260.048315210382586691 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-03-18|                                     3993.829779850427389162 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-03-05|                                                        5000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-03-05|                                      1894.03590815523687006 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-03-05|                                                        8100 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2024-02-12|                                    24619.077960975245839588 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-11-22|                                     1761.608202310808623565 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-11-14|                                     1689.906087549386448521 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-11-13|                                      116.045483044062520481 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-11-13|                                       31.868985816873120359 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-11-07|                                     3325.447652572958646908 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-26|                                                        1520 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-24|                                      3269.58923506219241626 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-23|                                     3268.465938075848803896 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-13|                                     4962.838686676597387399 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-13|                                    12907.677474844143974111 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-13|                                     4971.251886628304929227 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-13|                                        0.000005114914809418 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-13|                                                       23200 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-13|                                     1588.291153592500516693 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-10-02|                                     1590.716878359073302796 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-09-25|                                     1590.692765845865211053 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-09-19|                                        0.000003615211621298 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-09-19|                                                        9827 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-09-19|                                     1580.475428025694557236 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-09-12|                                     1580.469422552326419764 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-09-09|                                     7473.945980321046175967 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-09-09|                                     4576.770210921449494385 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-08-16|                                       67.557348084351416279 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-08-16|                                     1515.504802747610440501 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-08-11|                                     1516.101400693944264606 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-08-04|                                     6045.218689973612546472 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-29|                                                        5100 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-29|                                                       13300 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-29|                                     1797.621892811455044274 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-20|                                              98.10819606553 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-20|                                     1759.923642216129327334 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-19|                                                        1500 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-19|                                     3526.237630719161107735 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-06-04|                                    38947.293575953552936167 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-05-18|                                                         500 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-05-18|                                                       40230 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-05-15|                                       88.483393628984336327 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-05-15|                                                       20656 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-04-24|                                                 1772.609641 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-04-17|                                                   1742.4806 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-04-10|                                                 1742.507624 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-04-03|                                                 1696.883751 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-29|                                                 1351.624134 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-28|                                                  824.570244 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-28|                                     2695.286846959292504738 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-28|                                                       11000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-28|                                                        7000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-28|                                     3107.576490148374073112 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-27|                                                 1731.844536 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-22|                                     4407.121038755255214327 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-20|                                                 1733.876317 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-17|                                        1.267018788392551908 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-17|                                                         255 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-13|                                                 1699.040671 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-03-06|                                                 1689.465462 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-02-27|                                                 1680.561365 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-02-20|                                                 1640.467232 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-02-16|                                                       20180 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-02-13|                                                 1640.467232 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-02-06|                                                 1640.467232 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-01-30|                                                 1655.570034 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2023-01-26|                                                       20150 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-12-02|                                                       0.005 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-11-25|                                                        1747 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-10-07|                                                       20120 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-08-05|                                                       10100 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-05-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-05-19|                                                       -5026 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-05-19|                                                        5026 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-05-19|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-05-19|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-05-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-05-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-05-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-05-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-28|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-14|                                                    -1267.75 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-14|                                                        1300 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-04-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-11|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-11|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-05|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-04-05|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-03-24|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-03-24|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-03-24|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-03-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-03-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-03-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-28|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-28|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-28|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-28|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-10|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-10|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-10|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-10|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-02-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-25|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-25|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-25|                                                       -1305 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-25|                                     1304.230024313392650236 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-01-25|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-25|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-20|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-10|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-10|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-10|                                                       -3940 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                     3644.755772121458316323 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                      295.931259417937395992 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2022-01-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-14|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-05|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                          -9 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                    -7873.289464857287435791 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                     7880.442722451922136404 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-02|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-12-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                       -8415 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                     8419.470006979109735197 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-29|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                        0.000000968552908026 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                    -2531.563901322530663754 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                     2531.564770832530663754 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                    -9999.999268693559423323 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                                       10000 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-26|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-26|                                        0.000252255559423323 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-26|                                    -9788.373678791130312496 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-26|                                     9781.096385375399679604 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-24|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-24|                                                       -4910 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-24|                                     4907.298065877023986372 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-24|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-24|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-24|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-22|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-22|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-22|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-21|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-21|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-21|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-21|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-21|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-21|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-21|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-20|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-20|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                       -5130 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                     2560.694570986412923086 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                     2571.992298813489897578 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                          -1 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                      -403.74229045041403896 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                      403.862133650556722604 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-15|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-15|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-15|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                       0.000155453929309515 STAKE|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                       5.464139921238346497 SUSHI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                        -0.001474383882842061 SLP| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                       4.554397262927578508 STAKE|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                         0.001474383882842061 SLP|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                -1496.197637 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                   -1499.827062754975983079 WXDAI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                     1498.11425137675966047 WXDAI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                       -1500 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-11-08|                                                 1072.222887 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-11-01|                                                   1004.6321 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-28|                       200 REALTOKEN-S-20160-CONANT-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-25|                                                  981.608074 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                        -0.000526882978265067 SLP| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                       0.257615963778892292 STAKE|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                         0.000526882978265067 SLP|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                    -534.999999676005890896 WXDAI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                                 -534.792027 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                     536.712811021749647616 WXDAI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                                        -538 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-18|                                                  970.503965 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                        -0.007055407378252193 SLP| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                         0.007055407378252193 SLP|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                   -7161.537524465451351067 WXDAI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                -7163.239915 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                    7161.537524497923916956 WXDAI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                       -7200 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-17|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-15|                50 REALTOKEN-S-19144-RIOPELLE-ST-HIGHLAND-PARK-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-15|                    50 REALTOKEN-S-12779-STRATHMOOR-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-15|                   50 REALTOKEN-S-18668-SAINT-LOUIS-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-15|                          50 REALTOKEN-S-5846-CRANE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-11|                                                  968.278685 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-08|                  400 REALTOKEN-S-8060-DREAMSICLE-DR-KISSIMMEE-FL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-08|                  490 REALTOKEN-S-8060-DREAMSICLE-DR-KISSIMMEE-FL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-08|                     100 REALTOKEN-S-9171-WHITTIER-AVE-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-07|                                                  5088.75365 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-07|                                                      -5090 WXDAI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-07|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-07|                                                       -5090 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-10-05|                                                  944.043037 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-10-05|                                                          15 USBL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-29|                                                    5.406575 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-29|                                                  920.459726 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-24|                  197 REALTOKEN-S-1204-E-MANHATTAN-BLVD-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-21|                         18 REALTOKEN-S-1612-DENVER-AVE-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-21|                   78 REALTOKEN-S-1204-E-MANHATTAN-BLVD-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-21|                          24 REALTOKEN-S-128-E-WEBER-ST-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-21|                          24 REALTOKEN-S-338-WILLARD-ST-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-21|                           18 REALTOKEN-S-601-MILTON-ST-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-20|                                                  920.459726 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-16|                      60 REALTOKEN-S-8366-SCHAEFER-HWY-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-14|                     150 REALTOKEN-S-8366-SCHAEFER-HWY-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-13|                                                  898.117405 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-09|                      71 REALTOKEN-S-8366-SCHAEFER-HWY-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-09|                          3 REALTOKEN-S-4340-EAST-71-CLEVELAND-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-07|                   1 REALTOKEN-S-2950-2952-MONTEREY-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-07|                       1 REALTOKEN-S-8531-INTERVALE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-07|                         1 REALTOKEN-S-17616-BELAND-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-07|                        1 REALTOKEN-S-20552-WALTHAM-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-09-06|                                                  845.145391 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-30|                                                  726.084408 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-28|                        10 REALTOKEN-S-2550-GREENWAY-ST-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-26|                      1000 REALTOKEN-S-2550-GREENWAY-ST-TOLEDO-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-23|                                                  726.084408 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-19|              200 REALTOKEN-S-12747-12749-NASHVILLE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-19|              200 REALTOKEN-S-12747-12749-NASHVILLE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-16|                                                  720.462103 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-10|                    29 REALTOKEN-S-587-JEFFERSON-AVE-ROCHESTER-NY|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-09|                                                   711.04062 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-06|                       34 REALTOKEN-S-20418-ANDOVER-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-06|                       34 REALTOKEN-S-18949-FENMORE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-06|                      34 REALTOKEN-S-14432-WILSHIRE-DR-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-05|                                       -1.914158564339193166 WETH| EGRESS, DELTA, CHAIN, FROM, TO
+2021-08-05|                                     5096.138952440535552869 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-05|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-08-05|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-08-03|                                        0.354179849996467933 WETH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-08-03|                                                        -900 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-08-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-08-02|                                                  709.398289 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                        0.218079279957190222 WETH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                                        -500 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                        0.217552677498826264 WETH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                                        -500 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                        0.25789475451603222 xCOMB|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-27|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-07-26|                                                  655.566236 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                       10 REALTOKEN-S-11758-CHRISTY-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                      10 REALTOKEN-S-15864-EASTBURN-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                         10 REALTOKEN-S-15841-CORAM-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                        10 REALTOKEN-S-15379-PATTON-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                       10 REALTOKEN-S-12410-HAMBURG-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                  10 REALTOKEN-S-116-MONTEREY-ST-HIGHLAND-PARK-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                         10 REALTOKEN-S-14884-WARD-AVE-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                     11 REALTOKEN-S-14839-WISCONSIN-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-24|                     10 REALTOKEN-S-14215-HAMPSHIRE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-19|                                                  542.840209 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-15|                1320 REALTOKEN-S-1521-1523-S.DRAKE-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-15|                 280 REALTOKEN-S-1521-1523-S.DRAKE-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-12|                                                  517.759063 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-09|              100 REALTOKEN-S-2318-2324-W.MARQUETTE-RD-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-09|              100 REALTOKEN-S-2318-2324-W.MARQUETTE-RD-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-09|                       7 REALTOKEN-S-402-S.KOSTNER-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-09|                       5 REALTOKEN-16200-FULLERTON-AVE-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-05|                                                  469.811231 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-07-01|              400 REALTOKEN-S-2318-2324-W.MARQUETTE-RD-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-28|                                        0.418512197215320357 WETH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-28|                                                 -886.288209 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-28|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-28|                                                   452.42493 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-24|                     200 REALTOKEN-S-738-742-E.87TH-PL-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-22|                                                  433.863279 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-16|                      100 REALTOKEN-S-1617-S.AVERS-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-16|                   100 REALTOKEN-S-14066-SANTA-ROSA-DR-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-15|                                        0.266030738567063622 WETH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-15|                                                 -699.594962 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-15|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-15|                                        0.439803821104324768 WETH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-15|                                                       -1150 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-14|                                                  386.098851 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-09|                      101 REALTOKEN-S-1815-S.AVERS-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-08|                      100 REALTOKEN-S-1815-S.AVERS-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-07|                                                  313.496111 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                   2211048.044502659636955362 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                 -47634.044925887665579136 BAO-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                      1134.97129671633292186 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                  47634.044925887665579136 BAO-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                  -1578.916031403067535698 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                   1662.016875161123721788 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-06-02|                 420 REALTOKEN-S-4852-4854-W.CORTEZ-ST-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-06-02|                 580 REALTOKEN-S-4852-4854-W.CORTEZ-ST-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                      -0.00038461080099977 BAO-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                       0.00038461080099977 BAO-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                 -394.134404 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                     -392.562131902854593747 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                   12.366068 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                 -22867.054931110552286538 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                -434474.043691100493444221 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                 457341.098622211045730759 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                   40.053047 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                         -40 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                          60 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                        0.269099692831260777 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                      -60.119031376038089165 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                   56.476924 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-31|                                                  225.238365 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-27|                                                       15.25 SOON|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-27|                                                   15.696429 SOON|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-27|                                                      17.697 SOON|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                 -47887.651854488088811915 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                       24.131861230203323363 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                -909865.385235273687426374 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                 957753.037089761776238289 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                                 -471.285503 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                      463.433503901445424306 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                       21.928573044784147944 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-26|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-25|                                                   15.776712 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-25|                                                  230.270426 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-20|                                                  484.981538 SOON|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-20|                                                      479.92 SOON|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-20|                     305 REALTOKEN-S-11078-LONGVIEW-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-20|                     195 REALTOKEN-S-11078-LONGVIEW-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-17|                                                  225.238365 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-13|                   275 REALTOKEN-S-1542-S.RIDGEWAY-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                           10 REALTOKEN-S-14918-JOY-RD-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                                    -494.400000000000000001 WXDAI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                                     -516.328573044784147945 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                                                 -222.029795 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                                      219.750851148773372177 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                   -184551.170599113058000445 BAO| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                      144.456007634331089288 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                     19324.126774548161917388 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                 -23688.237832659181213703 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                -450076.518820524443060357 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                  473764.75665318362427406 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-11|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-10|                                                  222.029795 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-10|                      13 REALTOKEN-S-402-S.KOSTNER-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-06|                      10 REALTOKEN-S-402-S.KOSTNER-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-06|                      20 REALTOKEN-S-402-S.KOSTNER-AVE-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-06|                           20 REALTOKEN-S-14918-JOY-RD-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-05|                                    103923.367930821967642654 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-05|                                                         -95 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-05|                                                 -217.279928 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-05|                                      216.561889995085518819 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-05|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                                  217.279928 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                     61303.675893742928440403 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                 -71732.975676302158372833 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                -157793.730597132495524401 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                 166098.663786455258446738 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-05-03|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                  -2598.937597802605955647 BAO-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                   -1529.33169065386351995 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                   1609.822832267224757843 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                   2598.937597802605955647 BAO-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                    -86500.653977403538536197 BAO| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                      -84.747602831292474652 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                      106.711597542633007441 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                     86500.637764121408130041 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                        -85 WXDAI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                     191.711597542633007441 WXDAI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                 -192.151746 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                -178965.823832584161854651 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                 188385.077718509644057528 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-29|                     39 REALTOKEN-S-10700-WHITTIER-AVE-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-26|                                                  192.151746 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-26|                                -296301.119303784811292834 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-26|                                 311895.915056615590834563 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-26|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-25|                         31 REALTOKEN-S-1115-S.TROY-ST-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-25|27.458118985484544796 REALTOKEN-S-10617-HATHAWAY-AVE-CLEVELAND-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-24|                                                         10 SNAFU|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-24|                                                        -2.5 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-23|                       5 REALTOKEN-S-15753-HARTWELL-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-23|                    13 REALTOKEN-S-11653-NOTTINGHAM-RD-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-23|                     13 REALTOKEN-S-17500-EVERGREEN-RD-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                  -7375.886196742758069961 BAO-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                -138189.150944929781468919 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                 145462.264152557664704126 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                   7375.886196742758069961 BAO-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                   -240518.921964721308945148 BAO| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                      -244.28442549719699258 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                    240518.938178003439351304 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                                        -245 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                                 -183.517017 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                       183.00576717921721408 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-20|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-19|                                                  183.517017 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-19|                      -5 REALTOKEN-S-14494-CHELSEA-AVE-DETROIT-MI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-19|                                      307.821636898701086366 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-19|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-19|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-16|                                -185397.918250497387229514 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-16|                                 195155.703421576197083699 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-16|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-15|                         5 REALTOKEN-S-18983-ALCOY-AVE-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-15|                           5 REALTOKEN-S-13045-WADE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-15|                       5 REALTOKEN-S-14494-CHELSEA-AVE-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-15|                      5 REALTOKEN-S-19200-STRASBURG-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                  -2788.008802436418175552 BAO-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                  -7343.836925441301132702 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                   7730.354658359264350213 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                   2788.008802436418175552 BAO-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                    -83899.614630172664290135 BAO| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                      -99.703445599388806248 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                     83899.614630172664290135 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                                        -100 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                       -0.083598023469500778 WETH| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                      182.530563240788720247 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                        0.083598023469500778 WETH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                                 -182.640996 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                -176110.435199667340651219 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                 185379.405473334042790757 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-13|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-12|                                                  182.640996 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-11|                                -190834.055446752625808032 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-11|                                 200877.953101844869271613 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-11|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-09|                           3 REALTOKEN-20200-LESURE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-09|                         3 REALTOKEN-10024-APPOLINE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-09|                         3 REALTOKEN-8342-SCHAEFER-HWY-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-09|                         3 REALTOKEN-18276-APPOLINE-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-09|                                 -28536.082825125869212232 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-09|                                  30037.981921185125486561 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-09|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                  -1825.748419656801251579 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                   1921.840441744001317452 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                    -99.304413514570137677 BAO.cx| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     104.53096159428435545 BAO.cx|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                 -35235.967208326371363954 BAO-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                  35235.967208326371363954 BAO-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                   -909321.066666282122793759 BAO| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                    -1466.464771404379920655 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                    909321.066666282122793759 BAO|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                       -1470 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     -208.00214531688020402 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     1485.342189588823110754 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                      203.49573002677367556 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                   -541.305260709370914889 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     1474.873295184123036868 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                    541.305260709370914889 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                        1.02594156489730805 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                   -541.305260709370914889 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                    541.305260709370914889 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     -206.08635428495574679 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                        0.000000000000000007 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                       -1456 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     -22.274888507757437202 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                         157 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                      -22.11358560340681254 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                         156 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                      89.549441239371289038 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                     -10 REALTOKEN-S-19596-GOULBURN-ST-DETROIT-MI| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     160.309200195848528269 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                   -422.963435077306131616 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                     1142.787053591215406521 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                    422.963435077306131616 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                       4.081838906359189091 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-08|                     3 REALTOKEN-S-587-JEFFERSON-AVE-ROCHESTER-NY|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                    -16.733613618743596307 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                       0.005156225563735316 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                     16.733613618743596307 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                      -6.451253893114044653 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                      -44.396606006540895866 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                         -6 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                       41.116923830289882241 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                         0 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                       0.001719196696568532 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                    -39.532075033413053814 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                      12.459200250603951349 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                     39.532075033413053814 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                     -15.247884662195259677 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                     -104.834189881052887417 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                      15.247884662195259677 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                        -105 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                 -217.021755 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                      215.258556310223939416 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-06|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-05|                                                  194.835577 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-02|                                                   22.186178 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-02|                          5 REALTOKEN-S-5601-S.WOOD-ST-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-02|                                                         0.5 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                      10 REALTOKEN-S-19596-GOULBURN-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                   -366.697746425149481495 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                    366.697746425149481495 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                    -170.561167845678564862 LEVIN| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                        0.003276731338187658 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                     -802.967736590866929508 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                     170.561167845678564862 LEVIN|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                        -800 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                 -806.951862 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                      796.434826357187076007 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                  804.153392 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                      -0.00079733473227959 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                      804.999999695188948367 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                       0.00079733473227959 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                 -804.153393 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                        0.000000304810561541 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                        -805 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                   806.94658 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                     -0.000739878358961195 UNI-V2| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                       805.45777069268571119 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-04-01|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-30|                                      0.000077548991453956 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-30|                                                  -84.389824 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-30|                                      -84.463974381966028463 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-30|                                                         -85 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-30|                                       84.858568712599594247 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-30|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-30|                                                  169.395107 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                      0.000111462282229989 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                                 -120.166824 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                        0.000680162411164521 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                     -121.739101006291781123 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                                        -120 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                      121.121632351264903382 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-23|                                                  236.355755 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-21|                         10 REALTOKEN-S-1115-S.TROY-ST-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-21|                         98 REALTOKEN-S-1115-S.TROY-ST-CHICAGO-IL|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-19|                      10 REALTOKEN-S-19218-HOUGHTON-ST-DETROIT-MI|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-19|                   10 REALTOKEN-S-10617-HATHAWAY-AVE-CLEVELAND-OH|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-15|                                      0.000092146662481276 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-15|                                                  -98.640986 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-15|                                     -100.071932379465910777 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-15|                                                         -96 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-15|                                       96.932975324758778858 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-15|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-15|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                      0.000458720422795974 UNI-V2|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                                 -492.245863 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                        0.000000582776465238 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                                        -495 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                                 -476.692047 USDC| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                                         475 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-12|                                                           0 xDai| EGRESS, DELTA, CHAIN, FROM, TO
+2021-03-10|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-03|                                                          25 xDai|INGRESS, DELTA, CHAIN, FROM, TO
+2021-03-01|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-02-22|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-02-22|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-02-22|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO
+2021-02-21|                                                  166.769995 USDC|INGRESS, DELTA, CHAIN, FROM, TO

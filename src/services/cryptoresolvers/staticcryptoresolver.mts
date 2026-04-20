@@ -1,4 +1,3 @@
-import type { CryptoAsset } from "../../cryptoasset.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
 import type { CryptoRegistryNG } from "../../cryptoregistry.mjs";
@@ -11,7 +10,7 @@ import { CryptoMetadata } from "../../cryptometadata.mjs";
 type BasePhysicalCryptoAsset = readonly [
   key: string,
   chain: string,
-  contractAddress: string | null
+  contractAddress: string | null,
 ];
 
 export type PhysicalCryptoAsset =
@@ -23,26 +22,28 @@ export type LogicalCryptoAsset = readonly [
   name: string,
   symbol: string,
   decimal: number,
-  metadata: object
+  metadata: object,
 ];
 
 /**
- * A KISS class to support a hard-coded crypto-asset database.
+ * A KISS resolver backed by two hard-coded tables.
+ *
+ * - The **physical** table maps `ChainAddress` → logical crypto-asset key.
+ *   It answers "given this on-chain token, which logical asset does it belong to?"
+ * - The **logical** table maps key → display/metadata for the logical
+ *   `CryptoAsset`. Multiple physical entries may share the same logical key
+ *   (e.g. USDC on several chains all point to `"usdc"`).
  */
 export class StaticCryptoResolver extends CryptoResolver {
   // Database:
   private readonly logicalCryptoAssets: Map<string, LogicalCryptoAsset>;
   private readonly physicalCryptoAssets: Map<ChainAddress, PhysicalCryptoAsset>;
 
-  // Cache
-  private readonly cache: Map<ChainAddress, CryptoAsset>;
-
   protected constructor(
     physicalCryptoAssets: Iterable<Readonly<PhysicalCryptoAsset>>,
-    logicalCryptoAssets: Iterable<Readonly<LogicalCryptoAsset>>
+    logicalCryptoAssets: Iterable<Readonly<LogicalCryptoAsset>>,
   ) {
     super();
-    this.cache = new Map();
 
     // Populate the table of logical crypto-assets
     this.logicalCryptoAssets = new Map();
@@ -65,7 +66,7 @@ export class StaticCryptoResolver extends CryptoResolver {
 
   static create(
     cryptoTable: Iterable<PhysicalCryptoAsset>,
-    keyDomainsMap: Iterable<LogicalCryptoAsset> = []
+    keyDomainsMap: Iterable<LogicalCryptoAsset> = [],
   ): StaticCryptoResolver {
     return new this(cryptoTable, keyDomainsMap);
   }
@@ -77,7 +78,7 @@ export class StaticCryptoResolver extends CryptoResolver {
   getCryptoAsset(
     cryptoRegistry: CryptoRegistryNG,
     cryptoMetadata: CryptoMetadata,
-    id: string
+    id: string,
   ) {
     const logicalCryptoAsset = this.logicalCryptoAssets.get(id);
     if (!logicalCryptoAsset) {
@@ -100,9 +101,9 @@ export class StaticCryptoResolver extends CryptoResolver {
     smartContractAddress: string | null,
     _name: string,
     _symbol: string,
-    _decimal: number
+    _decimal: number,
   ): Promise<ResolutionResult> {
-    const chainAddress = ChainAddress(chain.name, smartContractAddress); // ISSUE #99 could this be done at higher level?
+    const chainAddress = ChainAddress(chain.id, smartContractAddress); // ISSUE #99 could this be done at higher level?
 
     // 1. Check that we know something about the crypto-asset
     const physicalCryptoAsset = this.physicalCryptoAssets.get(chainAddress);
@@ -121,44 +122,27 @@ export class StaticCryptoResolver extends CryptoResolver {
       }
     }
 
-    // 3. Maybe have we already cached the corresponding physical crypto-asset
-    const cached = this.cache.get(chainAddress);
-    if (cached) {
-      return { status: "resolved", asset: cached };
-    }
-
     // 4. We should find the corresponding logical crypto-asset in our database
     const logicalCryptoAsset = this.logicalCryptoAssets.get(id);
     if (!logicalCryptoAsset) {
       throw new InternalError(
-        `No matching logical crypto-asset for ${physicalCryptoAsset}`
+        `No matching logical crypto-asset for ${physicalCryptoAsset}`,
       );
     }
 
-    // 5. Eventually create, update metadata, then return the logical crypto-asset
+    // 5. Create the logical crypto-asset, attach metadata, cache by chain-address, and return
     const [, name, symbol, decimals, metadata] = logicalCryptoAsset;
     const crypto = swarm.cryptoRegistry.createCryptoAsset(
       id,
       name,
       symbol,
-      decimals
+      decimals,
     );
     cryptoMetadata.setMetadata(crypto, metadata);
-    this.cache.set(chainAddress, crypto);
 
     return {
       status: "resolved",
       asset: crypto,
     };
-  }
-
-  /**
-   * @internal
-   * Utility to retrieve a cached crypto-asset by its key.
-   *
-   * For testing purposes only
-   */
-  get(key: ChainAddress): CryptoAsset | null {
-    return this.cache.get(key) ?? null;
   }
 }

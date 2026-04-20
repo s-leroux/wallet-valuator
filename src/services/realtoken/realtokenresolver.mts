@@ -17,16 +17,17 @@ import type { Swarm } from "../../swarm.mjs";
 
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
+// XXX: Why not use ChainAddress from ../../chainaddress.mjs?
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
   chain: string,
-  smartContractAddress: string
+  smartContractAddress: string,
 ): ChainAddress {
   return `${chain}:${smartContractAddress}`.toLowerCase() as ChainAddress;
 }
 
+// XXX: We don't need this extra layer of encapsulation. Just use the RealToken type directly.
 type Entry = {
-  crypto?: CryptoAsset; // cached crypto-asset
   data: RealToken; // raw data from the API
 };
 
@@ -41,23 +42,19 @@ function cryptoAssetFromEntry(
   registry: CryptoRegistryNG,
   metadata: CryptoMetadata,
   entry: Entry,
-  name: string,
-  symmbol: string,
-  decimal: number
+  _name: string,
+  _symbol: string,
+  decimal: number,
 ): CryptoAsset {
-  let crypto = entry.crypto;
-  if (crypto) {
-    // ISSUE #65 assert the decimal are consistent with what we alreaady know. This is the only critical field
-    // Other "user-supplied" fields are replaced by API values.
-    return crypto;
-  }
+  // ISSUE #65 assert the decimal are consistent with what we alreaady know. This is the only critical field
+  // Other "user-supplied" fields are replaced by API values.
 
   const { uuid, fullName, symbol } = entry.data;
-  crypto = entry.crypto = registry.createCryptoAsset(
+  const crypto = registry.createCryptoAsset(
     uuid.toLowerCase(),
     fullName,
     symbol,
-    decimal
+    decimal,
   );
 
   // Record domain specific metadata
@@ -127,7 +124,7 @@ export class RealTokenResolver extends CryptoResolver {
     smartContractAddress: string,
     name: string,
     symbol: string,
-    decimal: number
+    decimal: number,
   ): Promise<ResolutionResult> {
     if (!symbol.startsWith("REALTOKEN")) {
       // Not our business
@@ -137,7 +134,7 @@ export class RealTokenResolver extends CryptoResolver {
     // **Maybe** it is one of our tokens
     const tokens = await this.load();
 
-    const chainAddress = ChainAddress(chain.name, smartContractAddress);
+    const chainAddress = ChainAddress(chain.id, smartContractAddress);
     const entry = tokens.get(chainAddress);
     if (!entry) {
       // Not our business
@@ -153,7 +150,7 @@ export class RealTokenResolver extends CryptoResolver {
         entry,
         name,
         symbol,
-        decimal
+        decimal,
       ),
     };
   }

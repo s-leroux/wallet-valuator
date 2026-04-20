@@ -7,8 +7,13 @@ import {
   Displayable,
   tabular,
   TextUtils,
+  DateFormat,
+  objectFormatter,
+  FormatGroups,
+  FORMAT_RE,
 } from "../src/displayable.mjs";
 import { NotImplementedError, ValueError } from "../src/error.mjs";
+import { Fixed } from "../src/bignumber.mjs";
 
 describe("toDisplayString", function () {
   it("should call toDisplayString() on Displayable objects", function () {
@@ -44,8 +49,24 @@ describe("toDisplayString", function () {
     // TBD
   });
 
+  it("should forward Date to TextUtils.formatDate()", function () {
+    const date = "2026-02-10";
+
+    assert.strictEqual(
+      toDisplayString(new Date(date), { "date.format": "YYYY-MM-DD" }),
+      date,
+    );
+  });
+
   it("should return '[]' for empty arrays", function () {
     assert.strictEqual(toDisplayString([]), "[]");
+  });
+
+  it("should format Fixed values preserving internal scale", function () {
+    assert.strictEqual(toDisplayString(Fixed.fromString("1.0000")), "1.0000");
+    assert.strictEqual(toDisplayString(Fixed.fromString("0.10")), "0.10");
+    assert.strictEqual(toDisplayString(Fixed.fromString("123.456")), "123.456");
+    assert.strictEqual(toDisplayString(Fixed.fromString("-2")), "-2");
   });
 
   it("should indent content of arrays", function () {
@@ -89,6 +110,83 @@ describe("tabular", function () {
   });
 });
 
+describe("objectFormatter", function () {
+  describe("FORMAT_RE", function () {
+    const register = prepare(this);
+    const LOCAL_RE = new RegExp(FORMAT_RE.source); // no /g: preserve .groups on match()
+
+    // prettier-ignore
+    const testcases: [format: string, expected: FormatGroups | null][] = [
+      ["{str:10.2}", { field: "str", format: ":10.2", zero: undefined, width: "10", precision: "2" }],
+      ["{str:10.02}", { field: "str", format: ":10.02", zero: undefined, width: "10", precision: "02" }],
+      ["{str:10}", { field: "str", format: ":10", zero: undefined, width: "10", precision: undefined }],
+      ["{str:10.0}", { field: "str", format: ":10.0", zero: undefined, width: "10", precision: "0" }],
+      ["{str:0}", null], // The "0" format is invalid
+      ["{str}", { field: "str", format: undefined, zero: undefined, width: undefined, precision: undefined }],
+    ] as const;
+
+    for (const [format, expected] of testcases) {
+      register(format, () => {
+        const result = format.match(LOCAL_RE);
+        assert.deepEqual(result && (result.groups as FormatGroups), expected);
+      });
+    }
+  });
+
+  describe("format", function () {
+    const register = prepare(this);
+    const src = {
+      __proto__: null,
+      str: "hello",
+      num: 123.456,
+      fixed: Fixed.fromString("123.4560"),
+    };
+
+    // prettier-ignore
+    const testcases = [
+      [src, "{fixed:10.0}", "       123"],
+      [src, "{fixed:10.1}", "     123.4"],
+      [src, "{fixed:10.2}", "    123.45"],
+      [src, "{fixed:10.3}", "   123.456"],
+      [src, "{fixed:10.4}", "  123.4560"],
+      [src, "{fixed:10.5}", " 123.45600"],
+      [src, "{fixed:10.6}", "123.456000"],
+      [src, "{fixed:10.7}", "…3.4560000"],
+      [src, "{fixed:10.8}", "….45600000"],
+      [src, "{fixed:10}", "  123.4560"],
+      [src, "{fixed}", "123.4560"],
+      [src, "{num:10.0}", "       123"],
+      [src, "{num:10.1}", "     123.4"],
+      [src, "{num:10.2}", "    123.45"],
+      [src, "{num:10.3}", "   123.456"],
+      [src, "{num:10.4}", "  123.4560"],
+      [src, "{num:10.5}", " 123.45600"],
+      [src, "{num:10.6}", "123.456000"],
+      [src, "{num:10.7}", "…3.4560000"],
+      [src, "{num:10.8}", "….45600000"],
+      [src, "{num:10}", "123.456000"],
+      [src, "{num}", "123.456"],
+      [src, "{str:10.0}", "          "],
+      [src, "{str:10.1}", "h         "],
+      [src, "{str:10.2}", "he        "],
+      [src, "{str:10.3}", "hel       "],
+      [src, "{str:10.4}", "hell      "],
+      [src, "{str:10.5}", "hello     "],
+      [src, "{str:10.6}", "hello     "],
+      [src, "{str:10.7}", "hello     "],
+      [src, "{str:10.8}", "hello     "],
+      [src, "{str:10}", "hello     "],
+      [src, "{str}", "hello"],
+    ] as const;
+    for (const [input, format, expected] of testcases) {
+      register(format, () => {
+        const formatter = objectFormatter(format);
+        assert.strictEqual(formatter(input), expected);
+      });
+    }
+  });
+});
+
 describe("TextUtils", function () {
   describe("indent", function () {
     it("should indent lines with default shift width", function () {
@@ -115,5 +213,24 @@ describe("TextUtils", function () {
     it("should handle an empty input array", function () {
       assert.deepEqual(TextUtils.indent([], 2), []);
     });
+  });
+
+  describe("formatDate", function () {
+    // prettier-ignore
+    const testcases: [date: number | Date, format : DateFormat, expected:string, desc:string][] = [
+      [ new Date("2026-02-10"), "YYYY-MM-DD", "2026-02-10", "formats full ISO date"],
+      [ new Date("2026-02-10"), "YYYY", "2026", "formats year only"],
+      [ new Date("2026-02-10").getTime(), "YYYY-MM-DD", "2026-02-10", "accepts timestamp input"],
+      [ new Date("2026-02-10").getTime(), (date) => String(date.getTime()), "1770681600000", "custom function"],
+    ] as const;
+
+    const register = prepare(this);
+    for (const [date, format, expected, desc] of testcases) {
+      register(desc, function () {
+        const result = TextUtils.formatDate(date, { "date.format": format });
+
+        assert.strictEqual(result, expected);
+      });
+    }
   });
 });

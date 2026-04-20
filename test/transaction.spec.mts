@@ -16,14 +16,12 @@ import ERC20TokenTransfersFixture from "../fixtures/ERC20TokenTransferEvents.jso
 import internalTransactionsFixture from "../fixtures/InternalTransactions.json" with { type: "json" };
 import normalTransactionsFixture from "../fixtures/GnosisScan/NormalTransactions.json" with { type: "json" };
 
+import { Fixed } from "../src/bignumber.mjs";
 import {
   ERC20TokenTransfer,
   InternalTransaction,
   NormalTransaction,
 } from "../src/transaction.mjs";
-import { asBlockchain } from "../src/blockchain.mjs";
-
-const CHAIN_NAME = "MyChain";
 
 describe("Swarm and Transaction integration", () => {
   let swarm: Swarm;
@@ -34,11 +32,11 @@ describe("Swarm and Transaction integration", () => {
   let chain: Blockchain;
 
   beforeEach(() => {
-    chain = asBlockchain(CHAIN_NAME);
     cryptoRegistry = CryptoRegistryNG.create();
     cryptoMetadata = CryptoMetadata.create();
     cryptoResolver = LazyCryptoResolver.create();
-    explorer = new TestScan(cryptoRegistry, chain);
+    explorer = new TestScan(cryptoRegistry);
+    chain = explorer.chain;
     swarm = Swarm.create(
       [explorer],
       cryptoRegistry,
@@ -105,6 +103,18 @@ describe("Swarm and Transaction integration", () => {
       it("should have an amount", () => {
         for (const transaction of transactions)
           assert.notEqual(transaction.amount, undefined);
+      });
+
+      it("should store gas fees as Fixed in native units (wei·gas / 1e18)", () => {
+        const tr = transactions[0];
+        assert.equal(
+          tr.feesAsString,
+          tr.fees.toString(),
+          "feesAsString stays aligned with fees for CSV/export callers",
+        );
+        // First fixture row: gasPrice 1e9, gasUsed 21000 => 21e12 wei fee.
+        const expected = Fixed.create(21_000_000_000_000n, 18n);
+        assert.isTrue(tr.fees.equals(expected));
       });
     });
   });

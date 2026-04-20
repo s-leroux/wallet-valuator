@@ -24,13 +24,13 @@ export class FakeCurveAPI implements CurveAPI {
   async getUSDPrice(
     chain: string,
     tokenAddress: string,
-    date: Date
+    date: Date,
   ): Promise<CurvePriceHistory> {
     const dateString = formatDate("YYYY-MM-DDT00:00:00", date);
     const data = [];
     if (tokenAddress.toLowerCase() === MockPriceHistory.address.toLowerCase()) {
       const price = MockPriceHistory.data.find(
-        (value) => value.timestamp === dateString
+        (value) => value.timestamp === dateString,
       );
       if (price) {
         data.push(price);
@@ -91,7 +91,7 @@ export class FakeCurveAPI implements CurveAPI {
   getLiquidityPoolOHLC(
     chainName: string,
     poolAddress: string,
-    date: Date
+    date: Date,
   ): Promise<CurveOHLC> {
     throw new NotImplementedError("Method not implemented.");
   }
@@ -99,7 +99,7 @@ export class FakeCurveAPI implements CurveAPI {
   // eslint-disable-next-line @typescript-eslint/require-await
   async getLiquidityPoolFromToken(
     chainName: string,
-    tokenAddress: string
+    tokenAddress: string,
   ): Promise<string | null> {
     chainName = ToCurveChainName[chainName] ?? chainName;
 

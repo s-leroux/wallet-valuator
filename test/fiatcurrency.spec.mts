@@ -33,7 +33,7 @@ describe("FiatCurrency", () => {
     ] as const;
 
     for (const [a, b, expected] of testcases) {
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
       register(`case "${a}" "${b}"`, () => {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         const fct = expected ? assert.strictEqual : assert.notEqual;

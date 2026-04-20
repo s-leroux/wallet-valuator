@@ -11,6 +11,7 @@ import {
   CryptoRegistryNG,
   CryptoMetadata,
 } from "../../../src/cryptoregistry.mjs";
+import { FAKE_GNO_CHAIN_ID } from "../../support/blockchain.fake.mjs";
 
 describe("TestScan", function () {
   let cryptoRegistry: CryptoRegistryNG;
@@ -28,12 +29,12 @@ describe("TestScan", function () {
       [explorer],
       cryptoRegistry,
       cryptoMetadata,
-      cryptoResolver
+      cryptoResolver,
     );
   });
 
   it("should default to the fake Gnosis chain", () => {
-    assert.equal(explorer.chain.name, "gnosis-fake");
+    assert.equal(explorer.chain.id, FAKE_GNO_CHAIN_ID);
   });
 
   describe("normalTransaction()", () => {
@@ -57,14 +58,14 @@ describe("TestScan", function () {
       const address = "0x89344efa2d9953accd3e907eab27b33542ed9e25";
       const transactions = await explorer.getInternalTransactionsByAddress(
         sw,
-        address
+        address,
       );
 
       assert.lengthOf(transactions, 145);
       for (const transaction of transactions) {
         assert.isTrue(
           transaction.to.address == address ||
-            transaction.from.address == address
+            transaction.from.address == address,
         );
         assert.include(transaction, {
           type: "INTERNAL",

@@ -37,7 +37,7 @@ export class MMap<K, V> {
 
     if (!factory) {
       const error = new AssertionError(
-        "Key not found and no factory function provided. Either provide a factory function to compute the value or ensure the key exists."
+        "Key not found and no factory function provided. Either provide a factory function to compute the value or ensure the key exists.",
       );
       log.error("C3014", error);
       throw error;

@@ -3,7 +3,7 @@ import { assert } from "chai";
 import { prepare } from "./support/register.helper.mjs";
 
 import { Swarm } from "../src/swarm.mjs";
-import { FakeExplorer } from "./fake-explorer.mjs";
+import { FakeExplorer } from "./support/explorer.fake.mjs";
 import { FakeCryptoResolver } from "./support/cryptoresolver.fake.mjs";
 import { CryptoRegistryNG, CryptoMetadata } from "../src/cryptoregistry.mjs";
 import { asBlockchain } from "../src/blockchain.mjs";
@@ -27,7 +27,7 @@ describe("Block", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const block = new Block(swarm, chain, blockNumber);
@@ -48,7 +48,7 @@ describe("Block", function () {
           [explorer],
           cryptoRegistry,
           cryptoMetadata,
-          cryptoResolver
+          cryptoResolver,
         );
 
         const block = new Block(swarm, chain, blockNumber);

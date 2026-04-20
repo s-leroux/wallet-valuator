@@ -19,7 +19,7 @@ describe("Date utilities", () => {
         assert.equal(
           formatDate("DD-MM-YYYY", new Date(timestamp * 1000)),
           expected,
-          `for timestamp ${timestamp}`
+          `for timestamp ${timestamp}`,
         );
       }
     });
@@ -34,7 +34,7 @@ describe("Date utilities", () => {
         assert.equal(
           formatDate("YYYY-MM-DD", new Date(timestamp * 1000)),
           expected,
-          `for timestamp ${timestamp}`
+          `for timestamp ${timestamp}`,
         );
       }
     });
@@ -49,7 +49,7 @@ describe("Date utilities", () => {
         assert.equal(
           formatDate("MMM D, YYYY", new Date(timestamp * 1000)),
           expected,
-          `for timestamp ${timestamp}`
+          `for timestamp ${timestamp}`,
         );
       }
     });
@@ -73,7 +73,7 @@ describe("Date utilities", () => {
 
           assert.equal(
             date.toISOString(),
-            `${year}-${month}-${day}T00:00:00.000Z`
+            `${year}-${month}-${day}T00:00:00.000Z`,
           );
         });
       }
@@ -95,7 +95,7 @@ describe("Date utilities", () => {
 
       for (const [input, format, error] of testcases) {
         register(`${input} as ${format}`, () =>
-          assert.throws(() => parseDate(format, input), error)
+          assert.throws(() => parseDate(format, input), error),
         );
       }
     });

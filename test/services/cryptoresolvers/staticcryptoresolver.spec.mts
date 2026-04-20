@@ -17,7 +17,7 @@ import { Swarm } from "../../../src/swarm.mjs";
 
 //prettier-ignore
 const cryptoTable:PhysicalCryptoAsset[] = [
-  ["binance coin", "bnb chain", null],
+  ["binance coin", "bnb-chain", null],
   ["bitcoin", "bitcoin", null],
   ["dai", "ethereum", "0x6B175474E89094C44Da98b954EedeAC495271d0F", 0, Infinity],
   ["dai", "gnosis", "0x44FA8E6F47987339850636F88629646662444217"],
@@ -31,7 +31,7 @@ const cryptoTable:PhysicalCryptoAsset[] = [
   ["monerium-eure", "polygon", "0xE0aEa583266584DafBB3f9C3211d5588c73fEa8d", 60733237, Infinity],
   ["solana", "solana", null],
   ["usdc", "arbitrum", "0xaf88d065e77c8cc2239327c5edb3a432268e5831"],
-  ["usdc", "bnb chain", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"],
+  ["usdc", "bnb-chain", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"],
   ["usdc", "ethereum", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
   ["usdc", "gnosis", "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83"],
   ["usdc", "polygon", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
@@ -42,7 +42,7 @@ const cryptoTable:PhysicalCryptoAsset[] = [
   ["wbtc" , "polygon" ,"0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"],
   ["wbtc" ,"gnosis", "0x8e5bBbb09Ed1ebd8674Cda39A0c169401db4252"],
   ["wbtc", "arbitrum", "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f"],
-  ["wbtc", "bnb chain", "0x0555e30da8f98308edb960aa94c0db47230d2b9c"],
+  ["wbtc", "bnb-chain", "0x0555e30da8f98308edb960aa94c0db47230d2b9c"],
   ["wbtc", "ethereum", "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"],
   ["wbtc", "gnosis", "0x8e5bbbb09ed1ebde8674cda39a0c169401db4252"],
   ["wbtc", "polygon", "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"],
@@ -111,7 +111,7 @@ describe("StaticCryptoResolver", function () {
             address,
             name,
             symbol,
-            decimal
+            decimal,
           );
           if (!result || result.status !== "resolved") {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -120,7 +120,7 @@ describe("StaticCryptoResolver", function () {
           const expectedId = chain === B ? "bitcoin" : "usdc";
           assert.strictEqual(
             result.asset,
-            swarm.cryptoRegistry.createCryptoAsset(expectedId)
+            swarm.cryptoRegistry.createCryptoAsset(expectedId),
           );
         });
       }
@@ -159,7 +159,7 @@ describe("StaticCryptoResolver", function () {
             address,
             name,
             symbol,
-            decimal
+            decimal,
           );
           assert.exists(result);
           assert.equal(result?.status, expected);
@@ -191,7 +191,7 @@ describe("StaticCryptoResolver", function () {
           address,
           name,
           symbol,
-          decimal
+          decimal,
         );
         if (!result || result.status !== "resolved") {
           // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -233,7 +233,7 @@ describe("StaticCryptoResolver", function () {
           address,
           name,
           symbol,
-          decimal
+          decimal,
         );
         if (!result || result.status !== "resolved") {
           // eslint-disable-next-line @typescript-eslint/no-base-to-string

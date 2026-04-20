@@ -7,8 +7,8 @@
 import { readFile } from "node:fs/promises";
 
 import { Swarm } from "../../../src/swarm.mjs";
-import { Ledger } from "../../../src/ledger.mjs";
-import { GnosisScan } from "../../../src/services/explorers/gnosisscan.mjs";
+import { FilterSelector, Ledger } from "../../../src/ledger.mjs";
+import { ExplorerFactories } from "../../../src/services/explorers/etherscan.mjs";
 import { CompositeCryptoResolver } from "../../../src/services/cryptoresolvers/compositecryptoresolver.mjs";
 import { CryptoRegistryNG } from "../../../src/cryptoregistry.mjs";
 import { asBlockchain } from "../../blockchain.mjs";
@@ -29,7 +29,7 @@ import { RealTokenResolver } from "../../services/realtoken/realtokenresolver.mj
 import { PortfolioValuationReporter } from "../../services/reporters/valuationreporter.mjs";
 import { DefiLlamaOracle } from "../../services/defillama/defillamaoracle.mjs";
 import { MakeAccount } from "../../account.mjs";
-import { WellKnownCryptoAssets } from "../../wellknowncryptoassets.mjs";
+import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { OHLCOracle } from "../../services/oracles/ohlcoracle.mjs";
 import { CryptoMetadata } from "../../../src/cryptometadata.mjs";
 
@@ -59,7 +59,9 @@ function createCryptoResolver(envvars: EnvVars) {
 }
 
 function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
-  return [GnosisScan.create(registry, envvars["ETHERSCAN_API_KEY"])];
+  return [
+    ExplorerFactories.gnosis.create(registry, envvars["ETHERSCAN_API_KEY"]),
+  ];
 }
 
 async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
@@ -172,7 +174,9 @@ export async function processAddresses(configPath?: string): Promise<void> {
   // Apply user-defined filters to categorize transactions
   // This allows for custom tagging of transactions based on rules
   for (const [selector, tag, value] of config.filters ?? []) {
-    ledger.filter(cryptoRegistry, cryptoMetadata, selector).tag(tag, value);
+    ledger
+      .filter(cryptoRegistry, cryptoMetadata, selector as FilterSelector)
+      .tag(tag, value);
   }
 
   // Create a portfolio representation of all transactions
