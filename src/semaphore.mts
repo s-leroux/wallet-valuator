@@ -42,7 +42,7 @@ export class Semaphore {
   }
 
   // prettier-ignore
-  public async do<T, P extends any[]>(fn: (...args: P) => T, ...rest: P): Promise<T> {
+  public async do<T, P extends unknown[]>(fn: (...args: P) => T, ...rest: P): Promise<Awaited<T>> {
     await this.get();
     try {
       return await fn(...rest);

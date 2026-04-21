@@ -14,8 +14,11 @@ import {
 } from "./realtokenapi.mjs";
 import type { Blockchain } from "../../blockchain.mjs";
 import type { Swarm } from "../../swarm.mjs";
+import { Semaphore } from "../../semaphore.mjs";
 
 export type CryptoLike = Pick<CryptoAsset, "symbol">;
+
+const realTokenAPISemaphore = new Semaphore(1);
 
 // XXX: Why not use ChainAddress from ../../chainaddress.mjs?
 type ChainAddress = string & { readonly brand: unique symbol };
@@ -76,17 +79,17 @@ export class RealTokenResolver extends CryptoResolver {
   }
 
   static create(api?: RealTokenAPI | string) {
-    let resolvedApi: RealTokenAPI;
+    let resolvedAPI: RealTokenAPI;
 
     if (typeof api === "string") {
-      resolvedApi = DefaultRealTokenAPI.create(api);
+      resolvedAPI = DefaultRealTokenAPI.create(api);
     } else if (api === undefined) {
-      resolvedApi = DefaultRealTokenAPI.create(null);
+      resolvedAPI = DefaultRealTokenAPI.create(null);
     } else {
-      resolvedApi = api;
+      resolvedAPI = api;
     }
 
-    return new RealTokenResolver(resolvedApi);
+    return new RealTokenResolver(resolvedAPI);
   }
 
   async load() {
@@ -132,7 +135,7 @@ export class RealTokenResolver extends CryptoResolver {
     }
 
     // **Maybe** it is one of our tokens
-    const tokens = await this.load();
+    const tokens = await realTokenAPISemaphore.do(() => this.load());
 
     const chainAddress = ChainAddress(chain.id, smartContractAddress);
     const entry = tokens.get(chainAddress);
