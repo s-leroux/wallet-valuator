@@ -2,8 +2,10 @@
 //  This example show how obtain the balance for an account
 //
 import { Command } from "commander";
+import { PACKAGE_VERSION } from "../src/version.mjs";
+
 const program = new Command();
-program.argument("[<address>]");
+program.version(PACKAGE_VERSION).argument("[<address>]");
 
 program.parse();
 // const options = program.opts();

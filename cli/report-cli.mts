@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { processAddresses } from "../src/lib/cli/report.mjs";
+import { PACKAGE_VERSION } from "../src/version.mjs";
 
 // Initialize commander
 const program = new Command();
@@ -11,7 +12,7 @@ program
   .name("report-cli")
   .description("Generate a text report for income tax declarations")
   .showHelpAfterError()
-  .version("1.2.0a")
+  .version(PACKAGE_VERSION)
   .option("-c, --config <config.json>", "JSON configuration")
   .action(async (options) => processAddresses(options.config as string));
 

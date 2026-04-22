@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { processBlock } from "../src/lib/cli/blockexplorer.mjs";
+import { PACKAGE_VERSION } from "../src/version.mjs";
 
 // Initialize commander
 const program = new Command();
@@ -7,7 +8,7 @@ const program = new Command();
 program
   .name("blockexplorer-cli")
   .description("Command-line tool to display addresses by block")
-  .version("1.0.0")
+  .version(PACKAGE_VERSION)
   .arguments("<block...>")
   .action(async (blocks) => processBlock(blocks));
 

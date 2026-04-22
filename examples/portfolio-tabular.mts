@@ -3,9 +3,11 @@
 //  fixture-backed explorer data (TestScan).
 //
 import { Command } from "commander";
+import { PACKAGE_VERSION } from "../src/version.mjs";
 
 const program = new Command();
 program
+  .version(PACKAGE_VERSION)
   .argument("[address]")
   .option("--view <view>", "output view (pretty|csv)", "pretty")
   .option("--separator <sep>", "CSV separator", ",");

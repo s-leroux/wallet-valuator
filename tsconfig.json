@@ -85,6 +85,7 @@
     "test/transaction.spec.mts",
     "test/type.spec.mts",
     "test/valuation.spec.mts",
+    "test/version.spec.mts",
     "test/wellknowndata.spec.mts",
 
     "test/walk.d.ts",
@@ -188,6 +189,7 @@
     "src/transaction.mts",
     "src/type.mts",
     "src/valuation.mts",
+    "src/version.mts",
     "src/data/wellknownblockchains.mts",
     "src/data/wellknowncryptoassets.mts",
 
