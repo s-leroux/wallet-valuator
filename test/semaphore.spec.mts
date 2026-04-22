@@ -123,13 +123,15 @@ describe("Semaphore", function () {
           throw new Error("Test error");
         });
         assert.fail("Expected error was not thrown");
-      } catch (err: any) {
-        errorCaught = true;
-        assert.strictEqual(
-          err.message,
-          "Test error",
-          "Expected error message to match",
-        );
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          errorCaught = true;
+          assert.strictEqual(
+            err.message,
+            "Test error",
+            "Expected error message to match",
+          );
+        }
       }
       assert.isTrue(errorCaught, "Error should be caught");
 

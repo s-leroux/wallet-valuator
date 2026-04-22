@@ -1,0 +1,107 @@
+﻿User ID,Time,Account,Operation,Coin,Change,Remark
+9c0c1..03,23-12-22 18:26:26,Spot,Buy Crypto With Fiat,USDT,325.94914962,RefWallet
+9c0c1..03,23-12-22 18:26:26,Spot,Transaction Spend,USDT,-159.264,
+9c0c1..03,23-12-22 18:34:46,Spot,Transaction Buy,SOL,1.68,
+9c0c1..03,23-12-22 18:34:46,Spot,Transaction Fee,SOL,-0.00168,
+9c0c1..03,23-12-22 18:34:46,Spot,Transaction Fee,ETH,-0.000069,
+9c0c1..03,23-12-22 18:41:50,Spot,Transaction Spend,USDT,-159.79089,
+9c0c1..03,23-12-22 18:41:50,Spot,Transaction Buy,ETH,0.069,
+9c0c1..03,23-12-22 18:41:50,Spot,Cashback Voucher,USDT,0.15952744,
+9c0c1..03,23-12-23 04:20:58,Spot,Transaction Fee,BNB,-0.0000135,
+9c0c1..03,23-12-23 20:17:16,Spot,Transaction Spend,USDT,-4.8726,
+9c0c1..03,23-12-23 20:17:16,Spot,Transaction Buy,BNB,0.018,
+9c0c1..03,23-12-23 20:17:16,Spot,Transaction Sold,SOL,-0.8,
+9c0c1..03,23-12-23 20:35:46,Spot,Transaction Revenue,USDT,79.6,
+9c0c1..03,23-12-23 20:35:46,Spot,Transaction Fee,BNB,-0.00022053,
+9c0c1..03,23-12-24 01:09:03,Spot,Transaction Buy,SOL,0.75,
+9c0c1..03,23-12-24 01:09:03,Spot,Transaction Spend,USDT,-81.15,
+9c0c1..03,23-12-24 01:09:03,Spot,Cashback Voucher,USDT,0.05779396,
+9c0c1..03,23-12-24 04:20:07,Spot,Transaction Sold,SOL,-0.17,
+9c0c1..03,23-12-24 07:41:15,Spot,Transaction Sold,SOL,-0.5,
+9c0c1..03,23-12-24 07:41:15,Spot,Transaction Sold,SOL,-0.08,
+9c0c1..03,23-12-24 07:41:15,Spot,Transaction Revenue,USDT,54.915,
+9c0c1..03,23-12-24 07:41:15,Spot,Transaction Revenue,USDT,8.7864,
+9c0c1..03,23-12-24 07:41:15,Spot,Transaction Revenue,USDT,18.6711,
+9c0c1..03,23-12-24 21:36:13,Spot,Simple Earn Locked Rewards,POND,0.0191779,Binance Earn
+9c0c1..03,23-12-25 03:34:45,Spot,Cashback Voucher,USDT,0.08692726,
+9c0c1..03,23-12-25 22:37:49,Spot,Simple Earn Locked Rewards,POND,0.0191779,Binance Earn
+9c0c1..03,23-12-26 03:34:42,Spot,Cashback Voucher,USDT,0.0364892,
+9c0c1..03,23-12-26 04:20:01,Spot,Simple Earn Locked Rewards,POND,0.0191779,Binance Earn
+9c0c1..03,23-12-27 17:48:23,Spot,Simple Earn Locked Rewards,POND,0.0191779,Binance Earn
+9c0c1..03,23-12-28 04:22:35,Spot,Buy Crypto With Fiat,USDT,328.89003858,RefWallet
+9c0c1..03,23-12-31 04:21:40,Spot,Buy Crypto With Fiat,USDT,326.98424932,RefWallet
+9c0c1..03,24-01-11 18:08:26,Funding,Crypto Box,USDT,0.03,Binance Pay
+9c0c1..03,24-01-16 09:07:35,Spot,Launchpool Subscription/Redemption,BNB,-0.2803,Binance Launchpool
+9c0c1..03,24-01-16 11:33:48,Spot,WBETH2.0 - Staking,WBETH,0.03695537,
+9c0c1..03,24-01-16 12:44:52,Spot,WBETH2.0 - Staking,ETH,-0.038,
+9c0c1..03,24-01-16 12:44:52,Spot,Simple Earn Locked Subscription,MATIC,-116,Binance Earn
+9c0c1..03,24-01-16 13:00:31,Spot,Simple Earn Locked Subscription,SOL,-1.01,Binance Earn
+9c0c1..03,24-01-16 13:05:30,Spot,Simple Earn Flexible Subscription,BTC,-0.0022,Binance Earn
+9c0c1..03,24-01-16 13:08:42,Spot,Simple Earn Flexible Subscription,BTC,-0.0053,Binance Earn
+9c0c1..03,24-01-17 15:11:52,Spot,Launchpool Subscription/Redemption,BNB,0.2803,Binance Launchpool
+9c0c1..03,24-01-18 02:32:33,Spot,Launchpool Airdrop - User Claim Distribution,MANTA,0.35836678,Binance Launchpool
+9c0c1..03,24-01-18 03:34:01,Spot,Simple Earn Flexible Interest,BTC,0.00000005,Binance Earn
+9c0c1..03,24-01-18 05:09:42,Spot,Launchpool Subscription/Redemption,BNB,-0.3,Binance Launchpool
+9c0c1..03,24-01-19 03:43:41,Spot,Simple Earn Flexible Interest,BTC,0.00000005,Binance Earn
+9c0c1..03,24-01-20 03:33:23,Spot,Simple Earn Flexible Interest,BTC,0.00000005,Binance Earn
+9c0c1..03,24-01-21 03:33:53,Spot,Simple Earn Flexible Interest,BTC,0.00000005,Binance Earn
+9c0c1..03,24-01-24 12:16:18,Spot,Launchpool Subscription/Redemption,BNB,0.3,Binance Launchpool
+9c0c1..03,24-01-25 02:31:17,Spot,Launchpool Airdrop - User Claim Distribution,ALT,7.9075741,Binance Launchpool
+9c0c1..03,24-01-26 23:42:24,Spot,Simple Earn Flexible Subscription,BNB,-0.28,Binance Earn
+9c0c1..03,24-02-01 05:04:20,Spot,Buy Crypto With Fiat,USDT,318.85671165,RefWallet
+9c0c1..03,24-02-09 06:09:29,Spot,Launchpool Airdrop - User Claim Distribution,PIXEL,0.21275839,Binance Launchpool
+9c0c1..03,24-02-18 05:10:03,Spot,Launchpool Airdrop - User Claim Distribution,PIXEL,4.69024361,Binance Launchpool
+9c0c1..03,24-03-04 11:44:36,Spot,Simple Earn Flexible Redemption,BTC,0.00750046,Binance Earn
+9c0c1..03,24-03-07 15:01:18,Spot,Simple Earn Flexible Redemption,BNB,0.28000975,Binance Earn
+9c0c1..03,24-03-14 05:45:07,Spot,Simple Earn Flexible Redemption,SOL,1.01049605,Binance Earn
+9c0c1..03,24-03-17 11:14:36,Spot,Simple Earn Locked Redemption,MATIC,116,Binance Earn
+9c0c1..03,24-03-18 12:19:10,Spot,Transfer Between Spot and Strategy Account,USDT,-100,
+9c0c1..03,24-03-18 12:19:11,Strategy,Transfer Between Spot and Strategy Account,USDT,100,
+9c0c1..03,24-03-18 15:20:53,Spot,Strategy Trading Fee Rebate,SOL,0.00015,
+9c0c1..03,24-03-18 15:37:14,Spot,Strategy Trading Fee Rebate,BNB,-0.00004138,
+9c0c1..03,24-03-18 15:37:14,Spot,Strategy Trading Fee Rebate,BNB,-0.00003035,
+9c0c1..03,24-03-18 18:39:10,Spot,Strategy Trading Fee Rebate,SOL,0.00011,
+9c0c1..03,24-03-23 10:24:51,Spot,Withdraw,USDT,-10,Withdraw fee is included
+9c0c1..03,24-03-24 01:48:42,Spot,Withdraw,USDT,-20.2,Withdraw fee is included
+9c0c1..03,24-03-24 01:54:42,Spot,Withdraw,USDT,-6.33,Withdraw fee is included
+9c0c1..03,24-03-24 01:56:42,Spot,Withdraw,BNB,-0.002,Withdraw fee is included
+9c0c1..03,24-03-24 03:44:44,Spot,Deposit,USDT,29.8,
+9c0c1..03,24-04-01 17:45:56,Spot,Launchpool Airdrop - System Distribution,ENA,0.3343692,Binance Launchpool
+9c0c1..03,24-04-13 03:43:55,Strategy,Transfer Between Spot and Strategy Account,USDT,-10.8162226,
+9c0c1..03,24-04-13 11:05:58,Strategy,Transfer Between Spot and Strategy Account,SOL,-0.47919,
+9c0c1..03,24-06-06 18:30:28,Funding,Crypto Box,BNB,0.00001667,Binance Pay
+9c0c1..03,24-07-05 08:44:41,Spot,Merchant Acquiring,BNB,-0.00196833,Binance PayWallet
+9c0c1..03,24-07-06 18:45:58,Funding,Crypto Box,BONK,468,Binance Pay
+9c0c1..03,24-09-05 10:16:46,Spot,Asset Recovery,MATIC,-730.23188816,
+9c0c1..03,24-09-11 16:29:34,Spot,Token Swap - Distribution,POL,730.23188816,
+9c0c1..03,24-12-02 16:17:20,Spot,Deposit,EUR,10,
+9c0c1..03,24-12-31 20:50:07,Spot,Sell Crypto To Fiat,EUR,2782.74,Via CashBalanceWallet
+9c0c1..03,24-12-31 21:04:54,Spot,Sell Crypto To Fiat,USDC,-2900,Via CashBalanceWallet
+9c0c1..03,25-03-04 03:48:10,Spot,Binance Convert,USDC,0.41200646,
+9c0c1..03,25-04-04 14:02:20,Funding,Binance Convert,USDT,-0.03,
+9c0c1..03,25-04-04 14:02:21,Spot,Binance Convert,USDT,0.03,
+9c0c1..03,25-04-04 14:02:21,Spot,Binance Convert,USDT,-0.41200646,
+9c0c1..03,25-04-04 14:02:21,Spot,Deposit,EUR,199,
+9c0c1..03,25-08-28 14:38:47,Spot,Simple Earn Flexible Redemption,POND,71.43160909,Binance Earn
+9c0c1..03,25-08-28 14:44:27,Spot,Simple Earn Flexible Subscription,USDC,-1100,Binance Earn
+9c0c1..03,25-08-28 15:01:45,Spot,SOL Staking - Purchase,BNSOL,2.80206121,
+9c0c1..03,25-08-28 15:12:32,Spot,SOL Staking - Purchase,SOL,-3,
+9c0c1..03,25-09-05 06:09:48,Spot,BNSOL Staking - Extra Rewards,SIGN,0.17536365,
+9c0c1..03,25-09-19 11:06:06,Spot,Simple Earn Locked Subscription,POL,-900,Binance Earn
+9c0c1..03,25-09-19 11:20:41,Spot,Simple Earn Locked Subscription,POL,-530,Binance Earn
+9c0c1..03,25-09-26 03:12:06,Spot,HODLer Airdrops Distribution,MIRA,0.20642469,Binance Launchpool
+9c0c1..03,25-09-30 03:13:28,Spot,HODLer Airdrops Distribution,EDEN,0.2670424,Binance Launchpool
+9c0c1..03,25-10-02 03:12:59,Spot,HODLer Airdrops Distribution,2Z,0.62180081,Binance Launchpool
+9c0c1..03,25-10-03 03:12:02,Spot,HODLer Airdrops Distribution,MORPHO,0.11495991,Binance Launchpool
+9c0c1..03,25-10-03 15:17:11,Isolated Margin,Transfer Between Main Account/Futures and Margin Account,BTC,0.008,
+9c0c1..03,25-10-03 16:45:07,Spot,Transfer Between Main Account/Futures and Margin Account,BTC,-0.008,
+9c0c1..03,25-10-03 16:50:11,Isolated Margin,Isolated Margin Loan,BTC,0.0095,
+9c0c1..03,25-10-03 16:50:11,Spot,BNB Fee Deduction,BNB,-0.0013275,
+9c0c1..03,25-10-03 19:45:06,Isolated Margin,BNB Fee Deduction,USDC,2.01018644,
+9c0c1..03,25-10-03 19:45:06,Spot,Transfer Between Main Account/Futures and Margin Account,BTC,-0.001,
+9c0c1..03,25-10-03 20:00:19,Isolated Margin,Transfer Between Main Account/Futures and Margin Account,BTC,0.001,
+9c0c1..03,25-10-05 06:45:55,Isolated Margin,Isolated Margin Repayment,BTC,-0.00950039,
+9c0c1..03,25-10-05 06:45:55,Isolated Margin,BNB Fee Deduction,BTC,0.00001607,
+9c0c1..03,25-10-05 09:45:05,Spot,BNB Fee Deduction,BNB,-0.00127163,
+9c0c1..03,25-11-02 03:11:06,Spot,Launchpool Airdrop - System Distribution,KITE,2.15753491,Binance Launchpool
+9c0c1..03,25-12-02 03:10:12,Spot,Deposit,USDC,174.05103,

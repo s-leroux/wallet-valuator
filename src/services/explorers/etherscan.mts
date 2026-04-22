@@ -12,8 +12,13 @@ import {
   InternalTransactionRecord,
   NormalTransactionRecord,
 } from "../explorer.mjs";
-import { asBlockchain, BlockchainSource } from "../../blockchain.mjs";
+import {
+  asBlockchain,
+  Blockchain,
+  BlockchainSource,
+} from "../../blockchain.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
+import { WellKnownBlockchains } from "../../data/wellknownblockchains.mjs";
 
 /**
  * @module
@@ -254,12 +259,12 @@ export class EtherscanAPI {
   }
 
   async blockNoByTime(
-    chainid: string,
+    eid: number,
     timestamp: number,
     closest: "before" | "after" = "before",
   ) {
     const params = {
-      chainid,
+      chainid: String(eid),
       module: "block",
       action: "getblocknobytime",
       timestamp: timestamp,
@@ -273,11 +278,11 @@ export class EtherscanAPI {
   }
 
   async normalTransaction(
-    chainid: string,
+    eid: number,
     txhash: string,
   ): Promise<EtherscanResponse<GethTransaction>> {
     const params = {
-      chainid,
+      chainid: String(eid),
       module: "proxy",
       action: "eth_getTransactionByHash",
       txhash,
@@ -295,9 +300,9 @@ export class EtherscanAPI {
     };
   }
 
-  blockInternalTransactions(chainid: string, blockNumber: number) {
+  blockInternalTransactions(eid: number, blockNumber: number) {
     const params = {
-      chainid,
+      chainid: String(eid),
       module: "account",
       action: "txlistinternal",
       startBlock: blockNumber,
@@ -309,9 +314,9 @@ export class EtherscanAPI {
     >;
   }
 
-  accountNormalTransactions(chainid: string, address: string, block?: number) {
+  accountNormalTransactions(eid: number, address: string, block?: number) {
     const params = {
-      chainid,
+      chainid: String(eid),
       module: "account",
       action: "txlist",
       startBlock: block ?? 0,
@@ -324,9 +329,9 @@ export class EtherscanAPI {
     >;
   }
 
-  accountInternalTransactions(chainid: string, address: string) {
+  accountInternalTransactions(eid: number, address: string) {
     const params = {
-      chainid,
+      chainid: String(eid),
       module: "account",
       action: "txlistinternal",
       startBlock: 0,
@@ -339,9 +344,9 @@ export class EtherscanAPI {
     >;
   }
 
-  accountTokenTransfers(chainid: string, address: string) {
+  accountTokenTransfers(eid: number, address: string) {
     const params = {
-      chainid,
+      chainid: String(eid),
       module: "account",
       action: "tokentx",
       startBlock: 0,
@@ -360,52 +365,49 @@ export class EtherscanAPI {
  * bound API interface.
  */
 export class DefaultEtherscanBoundAPI {
-  private readonly chainid: string; // The EIP-155 chain ID **not** our internal blockchain identifier
+  private readonly eid: number; // The EIP-155 chain ID **not** our internal blockchain identifier
   private readonly delegate: EtherscanAPI;
 
-  constructor(chainid: string, delegate: EtherscanAPI) {
-    this.chainid = chainid;
+  constructor(eid: number, delegate: EtherscanAPI) {
+    this.eid = eid;
     this.delegate = delegate;
   }
 
   static forChain(
-    chainid: string,
+    chain: Blockchain,
     api_key: string,
     options: EtherscanOptionBag = {},
   ) {
+    const eid = chain.getEVMExplorerOptions().chainid;
     const api = EtherscanAPI.create(api_key, options);
-    return new DefaultEtherscanBoundAPI(chainid, api);
+    return new DefaultEtherscanBoundAPI(eid, api);
   }
 
   async blockNoByTime(
     timestamp: number,
     closest: "before" | "after" = "before",
   ) {
-    return this.delegate.blockNoByTime(this.chainid, timestamp, closest);
+    return this.delegate.blockNoByTime(this.eid, timestamp, closest);
   }
 
   async normalTransaction(txhash: string) {
-    return this.delegate.normalTransaction(this.chainid, txhash);
+    return this.delegate.normalTransaction(this.eid, txhash);
   }
 
   blockInternalTransactions(blockNumber: number) {
-    return this.delegate.blockInternalTransactions(this.chainid, blockNumber);
+    return this.delegate.blockInternalTransactions(this.eid, blockNumber);
   }
 
   accountNormalTransactions(address: string, block?: number) {
-    return this.delegate.accountNormalTransactions(
-      this.chainid,
-      address,
-      block,
-    );
+    return this.delegate.accountNormalTransactions(this.eid, address, block);
   }
 
   accountInternalTransactions(address: string) {
-    return this.delegate.accountInternalTransactions(this.chainid, address);
+    return this.delegate.accountInternalTransactions(this.eid, address);
   }
 
   accountTokenTransfers(address: string) {
-    return this.delegate.accountTokenTransfers(this.chainid, address);
+    return this.delegate.accountTokenTransfers(this.eid, address);
   }
 }
 
@@ -433,15 +435,15 @@ export type EtherscanBoundAPI = Pick<
  */
 export class Etherscan extends CommonExplorer {
   readonly api: EtherscanBoundAPI;
-  readonly chainid: string; // The EIP-155 chain ID **not** our internal blockchain identifier
+  readonly eid: number; // The EIP-155 chain ID **not** our internal blockchain identifier
 
   constructor(
     registry: CryptoRegistryNG,
+    chain: Blockchain,
     api: EtherscanBoundAPI,
-    chain: BlockchainSource,
   ) {
-    const myChain = asBlockchain(chain);
-    const explorerOptions = myChain.getEVMExplorerOptions();
+    const explorerOptions = chain.getEVMExplorerOptions();
+    const eid = explorerOptions.chainid;
 
     const myNativeCurrency = registry.createCryptoAsset(
       // XXX This is chain-specific!
@@ -451,19 +453,21 @@ export class Etherscan extends CommonExplorer {
       18,
     );
 
-    super(myChain, myNativeCurrency);
+    super(chain, myNativeCurrency);
     this.api = api;
-    this.chainid = String(explorerOptions.chainid);
+    this.eid = eid;
   }
 
   static create(
     registry: CryptoRegistryNG,
-    chainid: string,
+    chain: BlockchainSource,
     api_key: string,
     options = {} as EtherscanOptionBag,
   ) {
-    const api = DefaultEtherscanBoundAPI.forChain(chainid, api_key, options);
-    return new Etherscan(registry, api, chainid);
+    chain = asBlockchain(chain);
+
+    const api = DefaultEtherscanBoundAPI.forChain(chain, api_key, options);
+    return new Etherscan(registry, asBlockchain(chain), api);
   }
 
   /**
@@ -532,7 +536,36 @@ export class Etherscan extends CommonExplorer {
   }
 }
 
-export const ExplorerFactories = {
+export const ExplorerFactories = (() => {
+  const result: Record<
+    string,
+    {
+      create: (
+        registry: CryptoRegistryNG,
+        api_key: string,
+        options?: EtherscanOptionBag,
+      ) => Etherscan;
+    }
+  > = {};
+  for (const [internalId, chain] of Object.entries(WellKnownBlockchains)) {
+    const blockchain = Blockchain.find(internalId);
+    if (blockchain.type === "evm") {
+      result[internalId] = {
+        create(
+          registry: CryptoRegistryNG,
+          api_key: string,
+          options = {} as EtherscanOptionBag,
+        ) {
+          return Etherscan.create(registry, blockchain, api_key, options);
+        },
+      };
+    }
+  }
+  return result;
+})();
+
+// XXX Remove this dead code
+const legacy = {
   ethereum: {
     create(
       registry: CryptoRegistryNG,
@@ -549,6 +582,33 @@ export const ExplorerFactories = {
       options = {} as EtherscanOptionBag,
     ) {
       return Etherscan.create(registry, "100", api_key, options);
+    },
+    base: {
+      create(
+        registry: CryptoRegistryNG,
+        api_key: string,
+        options = {} as EtherscanOptionBag,
+      ) {
+        return Etherscan.create(registry, "8453", api_key, options);
+      },
+    },
+    arbitrum: {
+      create(
+        registry: CryptoRegistryNG,
+        api_key: string,
+        options = {} as EtherscanOptionBag,
+      ) {
+        return Etherscan.create(registry, "42161", api_key, options);
+      },
+    },
+    bnb: {
+      create(
+        registry: CryptoRegistryNG,
+        api_key: string,
+        options = {} as EtherscanOptionBag,
+      ) {
+        return Etherscan.create(registry, "56", api_key, options);
+      },
     },
   },
 };

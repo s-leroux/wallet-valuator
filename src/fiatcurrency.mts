@@ -10,6 +10,10 @@ const log = logger("fiatcurrency");
  */
 export type FiatCurrencyCode = string & { readonly brand: unique symbol };
 
+export function isFiatCurrencyCode(code: string): code is FiatCurrencyCode {
+  return code.length === 3 && (code === "EUR" || code === "USD"); // XXX Use a reference list of fiat currency codes.
+}
+
 /**
  * Value object representing a fiat currency in ISO 4217 format.
  * Instances are cached and identity-comparable.

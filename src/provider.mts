@@ -186,11 +186,11 @@ export class Provider implements ProviderInterface {
         ? (res.json() as Promise<JSONValue>)
         : res.text());
     } catch (err) {
-      return { err, is_error: true };
+      return { err: err as Error, is_error: true } as const;
     }
 
     // Call this.isError outside the try block so that exceptions from user code are not swallowed
-    return { res, payload, is_error: this.isError(res, payload) };
+    return { res, payload, is_error: this.isError(res, payload) } as const;
   }
 
   /**
@@ -208,7 +208,11 @@ export class Provider implements ProviderInterface {
     params: Record<string, string | number> = {},
     options: FetchOptionBag = {},
   ): Promise<Payload> {
-    options = Object.assign(Object.create(null), defaultFetchOptions, options);
+    options = Object.assign(
+      Object.create(null) as FetchOptionBag,
+      defaultFetchOptions,
+      options,
+    );
 
     let { cooldown, retry } = this.options;
     const url = this.buildUrl(endpoint, params as Record<string, string>);

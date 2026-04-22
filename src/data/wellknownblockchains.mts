@@ -1,4 +1,16 @@
-export const WellKnownBlockchains = {
+function hideNullProto<const T extends { __proto__: null }>(
+  obj: T,
+): Omit<T, "__proto__"> {
+  // Intentional TS workaround:
+  // JS treats `__proto__: null` in an object literal as prototype-setting syntax,
+  // not as an ordinary data property. If TS ever models that correctly,
+  // this helper should stop compiling, which is the desired signal to remove it.
+  return obj as Omit<T, "__proto__">;
+}
+
+export const WellKnownBlockchains = hideNullProto({
+  __proto__: null,
+
   "binance-cex": {
     comment: "pseudo entry for the Binance CEX",
     type: "binance",
@@ -87,4 +99,4 @@ export const WellKnownBlockchains = {
     "display-name": "XRP Ledger",
     "native-coin": "ripple",
   },
-} as const;
+});

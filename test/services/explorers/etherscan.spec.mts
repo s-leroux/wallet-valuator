@@ -29,12 +29,13 @@ import TokenTransfer from "../../../fixtures/GnosisScan/TokenTransfer.json" with
 
 import { Payload } from "../../../src/provider.mjs";
 import { when } from "../../support/test.helper.mjs";
+import { Blockchain } from "../../../src/blockchain.mjs";
 
 const MOCHA_TEST_TIMEOUT = 60000;
 const API_KEY = process.env["ETHERSCAN_API_KEY"];
 
 const TEST_CHAIN_NAME = "gnosis";
-const TEST_CHAIN_EXPLORER_ID = "100";
+const TEST_CHAIN_EXPLORER_ID = 100;
 
 describe("EtherscanProvider", function () {
   describe("Identify Etherscan errors and OK reponse", function () {
@@ -157,15 +158,17 @@ when("ETHERSCAN_API_KEY", describe)("Etherscan", function () {
     let explorer: Etherscan;
     let cryptoRegistry: CryptoRegistryNG;
     let cryptoMetadata: CryptoMetadata;
+    let chain: Blockchain;
     let sw: Swarm;
 
     beforeEach(() => {
       cryptoRegistry = CryptoRegistryNG.create();
       cryptoMetadata = CryptoMetadata.create();
+      chain = Blockchain.find(TEST_CHAIN_NAME);
       explorer = new Etherscan(
         cryptoRegistry,
+        chain,
         new DefaultEtherscanBoundAPI(TEST_CHAIN_EXPLORER_ID, gs),
-        TEST_CHAIN_NAME,
       );
       sw = Swarm.create(
         [explorer],
