@@ -64,8 +64,8 @@ DEV_CONTAINER ?=
 IDE ?= code
 open-ide:
 ifndef DEV_CONTAINER
-	@echo "Error: DEV_CONTAINER not specified"
-	@echo "Usage: make open-ide [IDE=code] DEV_CONTAINER=my-container-name-or-id
+	@echo 'Error: DEV_CONTAINER not specified'
+	@echo 'Usage: make open-ide [IDE=code] DEV_CONTAINER=my-container-name-or-id'
 	@exit 1
 else
 	$(IDE) --folder-uri "vscode-remote://attached-container+$$(echo -n "$(DEV_CONTAINER)" | xxd -p)/app"
