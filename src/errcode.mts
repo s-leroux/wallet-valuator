@@ -38,6 +38,7 @@ export const ERRORS = {
   "C2007": "Inconsistent metadata (CurveOracle)",
   "C2008": "Multiple prices found at date (CurveOracle)",
   "C2100": "Price not found",
+  "C2101": "Unknown CEX transaction type",
 
 
   // Error-level codes (3000-3999)
@@ -70,6 +71,9 @@ export const ERRORS = {
   "C3110": "Inconsistent units (Amount)",
   "C3111": "Inconsistent units (Value)",
   "C3112": "CryptoAsset not found (CryptoRegistry)",
+  "C3113": "Unknown transaction operation",
+  "C3114": "Unknown transaction operation",
+  "C3115": "Unknown Binance mnemonic",
   
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

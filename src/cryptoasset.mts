@@ -97,7 +97,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
     return `${this.value} ${this.crypto.symbol}`;
   }
 
-  toDisplayString(options: DisplayOptions): string {
+  toDisplayString(options: DisplayOptions = {}): string {
     const formatter = options["amount.format"];
     if (formatter) {
       return formatter({

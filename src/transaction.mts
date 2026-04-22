@@ -7,7 +7,10 @@ import { Blockchain } from "./blockchain.mjs";
 import { DisplayOptions, tabular, toDisplayString } from "./displayable.mjs";
 import { ValueError } from "./error.mjs";
 import { ChainAddress } from "./chainaddress.mjs";
+import { logger } from "./debug.mjs";
 import { Logged } from "./errorutils.mjs";
+
+const log = logger("transaction");
 
 type OnChainTransactionType =
   | "NORMAL" // a normal transaction
@@ -20,7 +23,7 @@ export type OffChainTransactionType =
   | "RECEIVE" // Receive crypto from external account (rewards)
   | "SEND" // Send crypto to external account (gift)
   | "TRADE" // Swap cryptos
-  | "DEPOSIT"; // Fiat deposit
+  | "UNKNOWN"; // Unknown transaction type — investigation needed
 
 type TransactionDestination = ChainAddress;
 type TransactionSource = ChainAddress;
@@ -58,6 +61,13 @@ export class CEXTransaction implements Transaction {
     comments?: string[],
   ) {
     this.comments = [...(comments ?? [])];
+
+    if (this.type === "UNKNOWN") {
+      log.warn(
+        "C2101",
+        `Unknown transaction type for "${amount}" on ${chainName}. Ignoring. Please investigate.`,
+      );
+    }
   }
 
   addComment(comment: string): this {
