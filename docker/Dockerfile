@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 #
 #
 #
@@ -54,6 +55,15 @@ RUN groupadd -g 1000 app && useradd -M -u 1000 -g 1000 app
 WORKDIR /app
 ENV PATH="/app/node_modules/.bin:${PATH}"
 ENV HOME=/home
+
+# Fix devcontainer bug https://forum.cursor.com/t/156148
+# NOTE: outer heredoc is the RUN script (BuildKit). Inner heredoc writes the file.
+RUN <<'EOT'
+set -e
+cd /usr/local/bin
+for f in /opt/node/bin/*; do ln -s "$f"; done
+EOT
+
 USER 1000:1000
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
 CMD ["npm", "test"]

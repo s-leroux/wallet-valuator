@@ -24,16 +24,16 @@ This file contains instructions for Codex agents working in this repository. The
 ### Host vs Container
 
 - On the **host**, the **`Makefile`** is an **orchestrator** used notably to rebuild the development container image, start a container and open a shell in it, attach an IDE to a running container, or run other host-driven workflows. **Agents will rarely or never need those targets**; they normally operate in an environment that is already the development container.
-- In the **development container**, run tooling with **`npm`**, **`npx`**, and the **`scripts`** in [`package.json`](package.json). After `npm install`, you may also call binaries from **`/app/node_modules/.bin`** directly (that directory is on **`PATH`** in the image, so names like `tsc`, `eslint`, and `mocha` work when dependencies are present).
+- In the **development container**, run tooling with **`npm`**, **`npx`**, and the **`scripts`** in [`package.json`](package.json). After `npm install`, you may also call binaries from **`/app/node_modules/.bin`** using `npx` (example: `npx tsc`).
 
 ### Commands Agents Use (in development container)
 
 - Install / refresh dependencies: **`npm install`**
-- Compile: `npm run compile` (`tsc`) or `npx tsc [OPTIONS...]` or `tsc [OPTIONS...]`
-- Tests: `npm test` (Mocha against `build/`; compile first). For fine-grained control, use `npx mocha [OPTIONS...]` or `mocha [OPTIONS...]` (example: `mocha --grep "Fixed"`)
+- Compile: `npm run compile` (`tsc`) or `npx tsc [OPTIONS...]`
+- Tests: `npm test` (Mocha against `build/`; compile first). For fine-grained control, use `npx mocha [OPTIONS...]` (example: `npx mocha build/test/ --grep "Fixed"`)
 - **Test environment variables:** `NODE_ENV` defaults to `test` via `.mocharc.cjs` when unset. Optional or live suites use env vars documented under [Environment variables (tests)](README.md#environment-variables-tests) in `README.md`. Note: the **Etherscan** live suite **requires** `ETHERSCAN_API_KEY`; if it is missing, `npm test` fails in that suite’s `before` hook (unlike other live blocks that skip when the variable is off).
 - Lint (applies fixes): `npm run lint` (see `package.json` — the script uses ESLint with `--fix`).
-  For fine-grained control, use `npx eslint [OPTIONS...]` or `eslint [OPTIONS...]` (example: `eslint --fix "src/**/*.ts"`)
+  For fine-grained control, use `npx eslint [OPTIONS...]` (example: `npx eslint --fix "src/**/*.mts"`)
 
 See [`package.json`](package.json)for the up-to-date list of commands.
 
@@ -93,4 +93,4 @@ Domain types (e.g. **`Price`**, **`Value`**, **`Amount`**) should expose **`Fixe
 
 - Include **test coverage** for new behavior or fixes when the change is not adequately covered already (see [`CONTRIBUTING.md`](CONTRIBUTING.md)).
 - Before committing, with dependencies installed **in the container**, ensure **`npm run compile`** and **`npm test`** succeed.
-- Run **`npm run lint`** when your edits should satisfy ESLint; the configured script runs with **`--fix`** and may modify files. For fine-grained control, use `npx eslint [OPTIONS...]` or `eslint [OPTIONS...]` (example: `eslint --fix "src/**/*.ts"`).
+- Run **`npm run lint`** when your edits should satisfy ESLint; the configured script runs with **`--fix`** and may modify files. For fine-grained control, use `npx eslint [OPTIONS...]` (example: `npx eslint --fix "src/**/*.mts"`).
