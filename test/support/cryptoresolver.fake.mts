@@ -1,7 +1,7 @@
 import { asBlockchainInternalId, Blockchain } from "../../src/blockchain.mjs";
 import { StaticCryptoResolver } from "../../src/services/cryptoresolvers/staticcryptoresolver.mjs";
 
-// XXX The following two tables are duplicated in the `src/services/cryptoresolvers/defaultcryptoresolver.mts`
+// ISSUE #208: The following two tables are duplicated in the `src/services/cryptoresolvers/defaultcryptoresolver.mts`
 // file, as well as in the `data/` directory.
 // This should be refactored to use the well-known data from the `data/` directory as the source of truth.
 

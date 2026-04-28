@@ -38,12 +38,12 @@ const defaultFormat = tabular(" | ", "", "10", "", "", "");
  */
 export interface Transaction {
   readonly type: string; // RTTI?
-  readonly chainName: Blockchain; // XXX Potentially optional: assumes on-chain transactions.
+  readonly chainName: Blockchain; // ISSUE #229: Potentially optional: assumes on-chain transactions.
 
   readonly timeStamp: number; // Unix time (seconds since January 1, 1970, 00:00:00 UTC).
   readonly amount: Amount;
-  readonly from: TransactionSource; // XXX Potentially optional.
-  readonly to: TransactionDestination; // XXX Potentially optional.
+  readonly from: TransactionSource; // ISSUE #229: Potentially optional.
+  readonly to: TransactionDestination; // ISSUE #229: Potentially optional.
 
   readonly comments: string[];
 }

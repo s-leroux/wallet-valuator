@@ -296,7 +296,7 @@ export class EtherscanAPI {
     return {
       status: iserror ? "0" : "1",
       message: iserror ? `Error finding normal transaction ${txhash}` : "OK",
-      result: response.result!, // XXX This seems a bit forced
+      result: response.result!, // ISSUE #215: This seems a bit forced
     };
   }
 
@@ -446,7 +446,7 @@ export class Etherscan extends CommonExplorer {
     const eid = explorerOptions.chainid;
 
     const myNativeCurrency = registry.createCryptoAsset(
-      // XXX This is chain-specific!
+      // ISSUE #216: This is chain-specific!
       "xdai",
       "xDai",
       "xDAI",
@@ -564,7 +564,7 @@ export const ExplorerFactories = (() => {
   return result;
 })();
 
-// XXX Remove this dead code
+// ISSUE #217: Remove this dead code
 const legacy = {
   ethereum: {
     create(

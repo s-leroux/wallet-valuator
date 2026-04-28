@@ -18,7 +18,7 @@ type Movement = [
 ];
 
 function timeStampFromDate(YYYY_MM_DD: string) {
-  // XXX Deprecated: use timeStampFromDate from date.mts instead
+  // ISSUE #213: Deprecated: use timeStampFromDate from date.mts instead
   return Date.parse(YYYY_MM_DD) / 1000;
 }
 

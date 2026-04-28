@@ -140,7 +140,7 @@ export class Value implements Quantity<FiatCurrency, Value> {
     if (this.fiatCurrency != other.fiatCurrency) {
       throw new InconsistentUnitsError(this.fiatCurrency, other.fiatCurrency);
     }
-    return this.value.div(other.value, this.value.scale + other.value.scale); // XXX Is it really the right scale?
+    return this.value.div(other.value, this.value.scale + other.value.scale); // ISSUE #224: Is it really the right scale?
   }
 
   toString(): string {

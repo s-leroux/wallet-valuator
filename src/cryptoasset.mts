@@ -213,7 +213,7 @@ export class Amount implements Quantity<CryptoAsset, Amount> {
     if (this.crypto !== other.crypto) {
       throw new InconsistentUnitsError(this, other);
     }
-    return this.value.div(other.value, this.value.scale + other.value.scale); // XXX Is it really the right scale?
+    return this.value.div(other.value, this.value.scale + other.value.scale); // ISSUE #224: Is it really the right scale?
   }
 
   compare(other: Amount): CompareResult {

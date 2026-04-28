@@ -70,7 +70,7 @@ describe("Tabular utils", () => {
 
     it.skip("should propagate custom display options to formatting", () => {
       // TODO(issue/173): add amount/date formatting assertions.
-      // XXX: we should improve `toDisplayString` to support string and number formatting options.
+      // ISSUE #214: we should improve `toDisplayString` to support string and number formatting options.
     });
   });
 });

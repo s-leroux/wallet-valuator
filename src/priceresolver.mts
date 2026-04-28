@@ -110,7 +110,7 @@ export class PriceResolver {
     // 3. Check if we have all the requested prices
     const found = new Set(prices.keys());
     const missing = fiats.difference(found);
-    // XXX If there is only 1 missing price, we should check if this is REFERENCE_FIAT_CURRENCY
+    // ISSUE #223: If there is only 1 missing price, we should check if this is REFERENCE_FIAT_CURRENCY
     // I don't know if we should throw or ignore such a case.
 
     // 4. Invoke the fiat currency converter to infer the missing values

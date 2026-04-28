@@ -5,7 +5,7 @@ import { FAKE_GNO_CHAIN_ID, FAKE_GNO_CHAIN_DATA } from "./blockchain.fake.mjs";
 
 export class FakeExplorer extends Explorer {
   constructor(registry: CryptoRegistryNG, chain?: Blockchain | string) {
-    Blockchain.create(FAKE_GNO_CHAIN_ID, FAKE_GNO_CHAIN_DATA); // XXX Hack
+    Blockchain.create(FAKE_GNO_CHAIN_ID, FAKE_GNO_CHAIN_DATA); // ISSUE #212: Hack
 
     super(
       asBlockchain(chain ?? FAKE_GNO_CHAIN_ID),

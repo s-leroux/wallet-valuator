@@ -46,7 +46,7 @@ export class Swarm {
     this.explorers = new Map();
     for (const explorer of explorers) {
       this.explorers.set(explorer.chain, explorer);
-      explorer.register(this); // XXX Technical debt: we should load blockchains and explorers from a registry.
+      explorer.register(this); // ISSUE #220: Technical debt: we should load blockchains and explorers from a registry.
     }
   }
 

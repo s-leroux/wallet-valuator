@@ -361,7 +361,7 @@ export class CSVFile<K, T> implements DataSource<K, T> {
         const [date, ...rest] = row;
         if (prev !== sentinel) {
           if (sorted && date < prev) {
-            // XXX We should check order after conversion to the key type.
+            // ISSUE #231: We should check order after conversion to the key type.
             sorted = false;
             log.trace("C1005", "The data are not sorted by column 0");
           }

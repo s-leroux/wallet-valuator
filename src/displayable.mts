@@ -100,7 +100,7 @@ export function toDisplayString(
     // ^ above: handle null gracefully: typeof null === "object", but null is falsy.
 
     // for non-object, use the default toString() implementation
-    // XXX Shouldn't we allow number formatting specifiers?
+    // ISSUE #225: Shouldn't we allow number formatting specifiers?
     return String(obj);
   }
 
@@ -308,8 +308,8 @@ export function format(format: string) {
     return id;
   }
 
-  // XXX Add tests to ensure the format max width is honored
-  // XXX The semantic of the[+-] modifier is ambiguous. It is used to indicate the sign of the number, but it is also used to indicate the alignment of the number.
+  // ISSUE #226: Add tests to ensure the format max width is honored
+  // ISSUE #227: The semantic of the[+-] modifier is ambiguous. It is used to indicate the sign of the number, but it is also used to indicate the alignment of the number.
   const match = /^([-+]?)(\d+)(.?)(\d*)$/.exec(format);
   if (!match) {
     throw new ValueError(`Invalid format ${format}`);
@@ -347,7 +347,7 @@ export const TextUtils = {
   //  Date formatting
   //----------------------------------------------------------------------
   formatDate(date: Date | number, options = {} as DisplayOptions) {
-    // XXX formatDate is a low-level function that should take DateFormat as argument, not DisplayOptions
+    // ISSUE #228: formatDate is a low-level function that should take DateFormat as argument, not DisplayOptions
     const format =
       options["date.format"] ?? defaultDisplayOptions["date.format"];
     if (typeof date !== "object") {

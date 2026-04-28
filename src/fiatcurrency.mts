@@ -11,7 +11,7 @@ const log = logger("fiatcurrency");
 export type FiatCurrencyCode = string & { readonly brand: unique symbol };
 
 export function isFiatCurrencyCode(code: string): code is FiatCurrencyCode {
-  return code.length === 3 && (code === "EUR" || code === "USD"); // XXX Use a reference list of fiat currency codes.
+  return code.length === 3 && (code === "EUR" || code === "USD"); // ISSUE #222: Use a reference list of fiat currency codes.
 }
 
 /**

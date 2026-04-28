@@ -210,7 +210,7 @@ export class Caching /*extends Oracle*/ {
     currencies: Set<FiatCurrency>,
     result: PriceMap,
   ): Promise<void> {
-    const dateYyyyMmDd = date.toISOString().substring(0, 10); // XXX replace with formatDate
+    const dateYyyyMmDd = date.toISOString().substring(0, 10); // ISSUE #210: replace with formatDate
     const missing: FiatCurrency[] = [];
     const stmt = this.db.prepare<[string, string, string], { price: number }>(
       "SELECT price FROM prices WHERE oracle_id = ? AND date = ? AND currency = ?",

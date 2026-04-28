@@ -20,7 +20,7 @@ export type CryptoLike = Pick<CryptoAsset, "symbol">;
 
 const realTokenAPISemaphore = new Semaphore(1);
 
-// XXX: Why not use ChainAddress from ../../chainaddress.mjs?
+// ISSUE #218: Why not use ChainAddress from ../../chainaddress.mjs?
 type ChainAddress = string & { readonly brand: unique symbol };
 function ChainAddress(
   chain: string,
@@ -29,7 +29,7 @@ function ChainAddress(
   return `${chain}:${smartContractAddress}`.toLowerCase() as ChainAddress;
 }
 
-// XXX: We don't need this extra layer of encapsulation. Just use the RealToken type directly.
+// ISSUE #219: We don't need this extra layer of encapsulation. Just use the RealToken type directly.
 type Entry = {
   data: RealToken; // raw data from the API
 };

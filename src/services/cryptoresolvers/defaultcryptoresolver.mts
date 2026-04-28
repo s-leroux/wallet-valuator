@@ -1,7 +1,7 @@
 import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { StaticCryptoResolver } from "./staticcryptoresolver.mjs";
 
-// XXX The following two tables are duplicated in the `test/support/cryptoresolver.fake.mts`
+// ISSUE #208: The following two tables are duplicated in the `test/support/cryptoresolver.fake.mts`
 // file, as well as in the `data/` directory.
 // This should be refactored to use the well-known data from the `data/` directory as the source of truth.
 
@@ -84,7 +84,7 @@ const defaultKeyDomainsMap = WellKnownCryptoAssets.map(
 /**
  * The default crypto-resolver using static data tables.
  *
- * XXX It is not obvious why this does NOT use the well-known data from the `data/` directory.
+ * ISSUE #208: It is not obvious why this does NOT use the well-known data from the `data/` directory.
  */
 export class DefaultCryptoResolver extends StaticCryptoResolver {
   protected constructor() {

@@ -5,7 +5,7 @@ const log = logger("instancecache");
 
 /**
  * DeepReadonly utility type.
- * XXX Check if this behaves correctly with arrays?
+ * ISSUE #221: Check if this behaves correctly with arrays?
  */
 type DeepReadonly<T> = T extends (...args: unknown[]) => unknown
   ? T

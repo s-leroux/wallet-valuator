@@ -74,7 +74,9 @@ export class OHLCOracle<T extends FixedLike> extends Oracle {
         this.fiat,
         Fixed.sum(high, low, close).div(
           Fixed.fromInteger(3n),
-          BigInt(crypto.decimal), // XXX crypto.decimal should be a bigint
+          BigInt(crypto.decimal), // ISSUE #230: crypto.decimal should be a bigint. OTOH, numbers are
+          // highly optimized and are perfectly suitable to store "small" integers.
+          // Maybe Fixed.precision should be a number?
         ),
       );
       // console.dir(price);

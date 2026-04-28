@@ -10,7 +10,7 @@ import {
 describe("ChainAddress", () => {
   describe("constructor", () => {
     it("should create a ChainAddress with string chain", () => {
-      Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA); // XXX Hack
+      Blockchain.create(FAKE_ETH_CHAIN_ID, FAKE_ETH_CHAIN_DATA); // ISSUE #212: Hack
       const addr = ChainAddress(FAKE_ETH_CHAIN_ID, "0x123");
       assert.strictEqual(addr.chain.id, FAKE_ETH_CHAIN_ID);
       assert.strictEqual(addr.address, "0x123");
