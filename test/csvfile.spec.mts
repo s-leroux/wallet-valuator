@@ -65,11 +65,18 @@ describe("CSV parser", function () {
     }
   });
 
-  describe("Should parse realistic input", async function () {
+  describe("Should parse realistic input", function () {
     const register = prepare(this);
-    const text = await readFile("fixtures/fake-report.csv", {
-      encoding: "utf8",
+
+    let parsedRows: string[][];
+
+    before(async function () {
+      const text = await readFile("fixtures/fake-report.csv", {
+        encoding: "utf8",
+      });
+      parsedRows = Array.from(parseCSV(text));
     });
+
     const testpoints = [
       [0, 7, "Fee Coin"],
       [1, 3, "42,150.50"],
@@ -79,10 +86,9 @@ describe("CSV parser", function () {
       [6, 6, ""],
     ] as const;
 
-    const data = Array.from(parseCSV(text));
     for (const [row, col, expected] of testpoints) {
       register(`data[${row}][${col}] = "${expected}"`, () => {
-        assert.strictEqual(data[row][col], expected);
+        assert.strictEqual(parsedRows[row][col], expected);
       });
     }
   });
@@ -101,13 +107,19 @@ describe("CSVFile", function () {
       assert.exists(csvFile);
     });
 
-    describe("get()", async function () {
+    describe("get()", function () {
       const register = prepare(this);
-      const csvFile = await CSVFile.createFromPath(
-        CSV_TEST_FILE,
-        String,
-        String,
-      );
+
+      let csvFile: CSVFile<string, string>;
+
+      before(async function () {
+        csvFile = await CSVFile.createFromPath(
+          CSV_TEST_FILE,
+          String,
+          String,
+        );
+      });
+
       // prettier-ignore
       const testcases = [
       ["2020-04-15 00:00:00 UTC", "price", "0.666673390515131"],
@@ -121,13 +133,19 @@ describe("CSVFile", function () {
       }
     });
 
-    describe("getMany()", async function () {
+    describe("getMany()", function () {
       const register = prepare(this);
-      const csvFile = await CSVFile.createFromPath(
-        CSV_TEST_FILE,
-        String,
-        String,
-      );
+
+      let csvFile: CSVFile<string, string>;
+
+      before(async function () {
+        csvFile = await CSVFile.createFromPath(
+          CSV_TEST_FILE,
+          String,
+          String,
+        );
+      });
+
       // prettier-ignore
       const testcases: [string, string[], string[]][] = [
         ["2020-04-22 00:00:00 UTC", ["price", "total_volume"], ["0.5728269210770057", "9610841.993019182"]],
@@ -163,24 +181,29 @@ describe("CSVFile", function () {
       assert.equal(lineCount, 1743);
     });
 
-    describe("Reordering", async function () {
+    describe("Reordering", function () {
       const register = prepare(this);
-      const csvFile = await CSVFile.createFromPath(
-        "./fixtures/Binance/binance-report.csv",
-        String,
-        String,
-        {
-          reorder(input, heading) {
-            // Swap columns 0 and 1
-            // ISSUE #134 As a matter of fact, you can change in-place input, no need to return it :/
-            const temp = input[0];
-            input[0] = input[1];
-            input[1] = temp;
 
-            return input;
+      let csvFile: CSVFile<string, string>;
+
+      before(async function () {
+        csvFile = await CSVFile.createFromPath(
+          "./fixtures/Binance/binance-report.csv",
+          String,
+          String,
+          {
+            reorder(input, heading) {
+              // Swap columns 0 and 1
+              // ISSUE #134 As a matter of fact, you can change in-place input, no need to return it :/
+              const temp = input[0];
+              input[0] = input[1];
+              input[1] = temp;
+
+              return input;
+            },
           },
-        },
-      );
+        );
+      });
 
       // prettier-ignore
       const testcases = [
