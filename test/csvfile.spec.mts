@@ -4,58 +4,11 @@ import { readFile } from "node:fs/promises";
 import { prepare } from "./support/register.helper.mjs";
 
 import {
-  lineIterator,
-  itemIterator,
   CSVFile,
   parseCSV,
 } from "../src/csvfile.mjs";
 import { ValueError } from "../src/error.mjs";
 import { ProtocolError } from "../src/error.mjs";
-
-describe("COOFile utilities", function () {
-  describe("lineIterator", function () {
-    describe("should iterate over lines", function () {
-      const register = prepare(this);
-      // prettier-ignore
-      const testcases = [
-        ["A\nBB\nCCC", ["A", "BB", "CCC"], "split lines on \\n"],
-        ["A\nBB\nCCC\n", ["A", "BB", "CCC"], "ignore trailing newline (single)"],
-        ["A\nBB\nCCC\n\n\n", ["A", "BB", "CCC"], "ignore trailing newline (multiple)"],
-        ["A\nBB\n\n\nCCC", ["A", "BB", "CCC"], "ignore empty lines (middle)"],
-        ["\n\nA\nBB\n\n\nCCC", ["A", "BB", "CCC"], "ignore empty lines (leading)"],
-        ["\n\n\n\n\n", [], "parse newline-only string as []"],
-        ["", [], "parse empty string as []"],
-      ] as const;
-
-      for (const [input, expected, message] of testcases) {
-        register(message, () => {
-          const result = Array.from(lineIterator(input));
-          assert.deepEqual(result, expected as unknown);
-        });
-      }
-    });
-  });
-
-  describe("itemIterator", function () {
-    describe("should iterate over items", function () {
-      const register = prepare(this);
-      // prettier-ignore
-      const testcases = [
-        ["A--BB--CCC", "--", ["A", "BB", "CCC"], "split items on separator"],
-        ["A--BB--CCC--", "--", ["A", "BB", "CCC", ""], "parse trailing separator"],
-        ["--A--BB--CCC", "--", ["", "A", "BB", "CCC"], "parse leading separator"],
-        ["A--BB----CCC", "--", ["A", "BB", "", "CCC"], "parse empty items"],
-      ] as const;
-
-      for (const [input, separator, expected, message] of testcases) {
-        register(message, () => {
-          const result = Array.from(itemIterator(input, separator));
-          assert.deepEqual(result, expected as unknown);
-        });
-      }
-    });
-  });
-});
 
 describe("CSV parser", function () {
   describe("Should parse valid RFC-4180 input", function () {

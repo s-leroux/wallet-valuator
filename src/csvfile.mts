@@ -197,41 +197,6 @@ export function* parseCSV(
   }
 }
 
-export function* lineIterator(input: string): IterableIterator<string> {
-  const lineRegex = /([^\r\n]+)(?:[\r\n]+|$)/g;
-
-  let match;
-  while ((match = lineRegex.exec(input)) !== null) {
-    yield match[1];
-  }
-}
-
-export function itemIterator(
-  input: string,
-  separator: string,
-): IterableIterator<string> {
-  let start = 0;
-  const inputLength = input.length;
-  const separatorLength = separator.length;
-
-  function* _itemIterator(): IterableIterator<string> {
-    while (start < inputLength) {
-      const index = input.indexOf(separator, start);
-      if (index < 0) {
-        yield input.substring(start).trim();
-        return;
-      }
-
-      yield input.substring(start, index).trim();
-      start = index + separatorLength;
-    }
-
-    yield ""; // If we are here, we have a trailing separator
-  }
-
-  return _itemIterator();
-}
-
 //======================================================================
 //  DataSource
 //======================================================================
