@@ -5,8 +5,8 @@ import type { CryptoMetadata } from "../../cryptoregistry.mjs";
 
 import { formatDate } from "../../date.mjs";
 import { fixedFromSource, FixedLike } from "../../bignumber.mjs";
-import type { DataSource } from "../../csvfile.mjs";
-import { CSVFile } from "../../csvfile.mjs";
+import type { DataSource } from "../../datasource.mjs";
+import { CSVFile } from "../../datasource.mjs";
 import { Oracle, PriceMap } from "../oracle.mjs";
 
 interface DataSourceOracleOptions {

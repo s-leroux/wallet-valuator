@@ -6,7 +6,7 @@ import { prepare } from "./support/register.helper.mjs";
 import {
   CSVFile,
   parseCSV,
-} from "../src/csvfile.mjs";
+} from "../src/datasource.mjs";
 import { ValueError } from "../src/error.mjs";
 import { ProtocolError } from "../src/error.mjs";
 

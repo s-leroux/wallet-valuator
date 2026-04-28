@@ -4,7 +4,7 @@ import { ValueError, ProtocolError } from "./error.mjs";
 import { bsearch, linsearch } from "./bsearch.mjs";
 
 import { logger } from "./debug.mjs";
-const log = logger("csvfile");
+const log = logger("datasource");
 
 type CSVParserOption = {
   separator?: string;

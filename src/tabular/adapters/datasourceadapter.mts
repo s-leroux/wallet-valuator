@@ -1,5 +1,5 @@
 import { Fixed } from "../../bignumber.mjs";
-import { CSVFile, DataSource } from "../../csvfile.mjs";
+import { CSVFile, DataSource } from "../../datasource.mjs";
 import { TabularAdapter } from "../adapter.mjs";
 
 export class DataSourceTabularAdapter implements TabularAdapter {

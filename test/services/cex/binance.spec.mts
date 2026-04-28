@@ -9,7 +9,7 @@ import {
 } from "../../../src/cryptoregistry.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
-import { EmptyDataSource } from "../../../src/csvfile.mjs";
+import { EmptyDataSource } from "../../../src/datasource.mjs";
 import { OffChainTransactionType } from "../../../src/transaction.mjs";
 import { IndexInfo } from "typescript";
 

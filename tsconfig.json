@@ -115,7 +115,7 @@
     "src/blockchain.mts",
     "src/bsearch.mts",
     "src/chainaddress.mts",
-    "src/csvfile.mts",
+    "src/datasource.mts",
     "src/cryptoasset.mts",
     "src/cryptometadata.mts",
     "src/cryptoregistry.mts",

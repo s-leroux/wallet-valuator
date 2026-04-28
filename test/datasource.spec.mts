@@ -6,7 +6,7 @@ const assert = chai.assert;
 
 import { prepare } from "./support/register.helper.mjs";
 
-import type { DataSource } from "../src/csvfile.mjs";
+import type { DataSource } from "../src/datasource.mjs";
 import { FakeDataSource } from "./support/datasource.fake.mjs";
 import { Fixed } from "../src/bignumber.mjs";
 
