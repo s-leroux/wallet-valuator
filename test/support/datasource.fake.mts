@@ -1,4 +1,4 @@
-import type { DataSource } from "../../src/csvfile.mjs";
+import type { DataSource } from "../../src/datasource.mjs";
 import { bsearch } from "../../src/bsearch.mjs";
 import { Fixed } from "../../src/bignumber.mjs";
 

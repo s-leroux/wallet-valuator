@@ -7,7 +7,7 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { OHLCOracle } from "../../../src/services/oracles/ohlcoracle.mjs";
-import { CSVFile } from "../../../src/csvfile.mjs";
+import { CSVFile } from "../../../src/datasource.mjs";
 import { Fixed } from "../../../src/bignumber.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";

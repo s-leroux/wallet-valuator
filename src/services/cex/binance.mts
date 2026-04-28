@@ -2,7 +2,7 @@ import { asBlockchain, Blockchain } from "../../blockchain.mjs";
 import { ChainAddress } from "../../chainaddress.mjs";
 import { Amount, CryptoAsset } from "../../cryptoasset.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
-import { DataSource, CSVFile } from "../../csvfile.mjs";
+import { DataSource, CSVFile } from "../../datasource.mjs";
 import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { DisplayOptions } from "../../displayable.mjs";
 import { ValueError } from "../../error.mjs";

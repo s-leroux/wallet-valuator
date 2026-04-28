@@ -1,6 +1,6 @@
 import assert from "assert";
 import { Fixed } from "../../../src/bignumber.mjs";
-import { CSVFile, DataSource } from "../../../src/csvfile.mjs";
+import { CSVFile, DataSource } from "../../../src/datasource.mjs";
 import { DataSourceTabularAdapter } from "../../../src/tabular/adapters/datasourceadapter.mjs";
 
 describe("DataSourceTabularAdapter", () => {
