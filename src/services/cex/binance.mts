@@ -167,7 +167,7 @@ export class BinanceAccount {
       const comments = comment ? [comment] : [];
       comments.unshift(`BINANCE TRANSACTION ${id}`);
 
-      switch (type.toUpperCase() as OffChainTransactionType) {
+      switch (type.toUpperCase()) {
         case "BUY": {
           const received = this.amountFromCrypto(
             swarm,
@@ -268,6 +268,10 @@ export class BinanceAccount {
           );
           break;
         }
+
+        case "DEPOSIT":
+          // Fiat deposit. Ignore.
+          break;
 
         default:
           throw Logged(
