@@ -241,7 +241,7 @@ export class Provider implements ProviderInterface {
         }
 
         // Starting from here, `res` and `payload` are defined
-        if (retry-- > 0 && this.shouldRetry(res!, payload!)) {
+        if (retry-- > 0 && this.shouldRetry(res, payload)) {
           await Promise.timeout(cooldown);
           cooldown *= 1.4 + 0.2 * Math.random();
 
@@ -255,13 +255,13 @@ export class Provider implements ProviderInterface {
         }
 
         // This is our last chance to return something useful:
-        const failover = options.failover?.(res!, payload!);
+        const failover = options.failover?.(res, payload);
         if (failover !== undefined) {
           log.warn("C2005", `Using failover value`);
 
           return failover;
         }
-        throw this.newError(res!, payload!);
+        throw this.newError(res, payload);
       }
 
       // Here, `isError` is false and so `res` and `payload` are defined
