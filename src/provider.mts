@@ -218,7 +218,7 @@ export class Provider implements ProviderInterface {
     const url = this.buildUrl(endpoint, params as Record<string, string>);
     const customHeaders = this.buildCustomHeaders(url);
 
-    log.info("C1018", "Fetch", url);
+    log.trace("C1018", "Fetch", url);
     while (true) {
       const { res, payload, is_error, err } = await this.performFetch(
         url,

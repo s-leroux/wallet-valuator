@@ -142,7 +142,7 @@ function logLevel() {
 let LOG_LEVEL = logLevel();
 
 type Severity = readonly [
-  name: string,
+  type: "Error" | "Warn" | "Info" | "Trace" | "Debug",
   level: 1 | 2 | 3 | 4 | 5 | 6,
   color: ANSI3BitColorName,
 ];

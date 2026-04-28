@@ -83,11 +83,11 @@ function noDisplayString(
     return `${classname}(${noDisplayString(Array.from(values), options)})`;
   }
 
-  log.trace("C1015", `Unable to format as display string ${classname} ${obj}`);
-  log.debug(classname, obj);
-  throw new NotImplementedError(
-    `Missing toDisplayString() in ${classname} ${obj}`,
+  log.warn(
+    "C2102",
+    `Unable to format ${classname} (${obj}) as a display string`,
   );
+  return `[${classname} ${obj}]`;
 }
 
 export function toDisplayString(

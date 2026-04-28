@@ -39,6 +39,8 @@ export const ERRORS = {
   "C2008": "Multiple prices found at date (CurveOracle)",
   "C2100": "Price not found",
   "C2101": "Unknown CEX transaction type",
+  "C2102": "Unable to format and no fallback (noDisplayString)",
+
 
 
   // Error-level codes (3000-3999)
