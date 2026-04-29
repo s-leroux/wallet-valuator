@@ -27,6 +27,7 @@ export const ERRORS = {
   "C1022": "Can't price an asset",
   "C1023": "Price not in cache",
   "C1024": "Can't use FiatConverter",
+  "C1025": "Price already found (CompositeOracle)",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",
