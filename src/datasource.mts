@@ -237,11 +237,6 @@ export interface DataSource<K, V> {
   [Symbol.iterator](): Iterator<[K, ...V[]]>; // Implements IterableIterator<[K, ...V[]]>
 }
 
-export class CSVFileOptionBag {
-  reorder?: (input: string[], heading: boolean) => string[]; // FWIW, the reorder helper may resize the row or synthetise new data
-  separator?: string;
-}
-
 //======================================================================
 //  Empty DataSource
 //======================================================================
@@ -269,6 +264,11 @@ export class EmptyDataSource<K, V> implements DataSource<K, V> {
 //======================================================================
 //  CSV DataSource
 //======================================================================
+
+export type CSVFileOptionBag = CSVParserOption & {
+  reorder?: (input: string[], heading: boolean) => string[]; // FWIW, the reorder helper may resize the row or synthetise new data
+  headings?: string[]; // User-supplied headings, if not provided, the parser will use the first line of the file as headings
+};
 
 /**
  *  Read homogenous simple CSV files.
@@ -341,7 +341,8 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     let sorted = true;
     let prev: K | typeof sentinel = sentinel;
     let empty = true;
-    let headings: string[] | undefined;
+    //let headings: string[] | undefined;
+    let headings = options.headings;
     const rows = [] as [K, ...T[]][];
 
     for (const line of parseCSV(text, options)) {

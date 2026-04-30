@@ -238,5 +238,23 @@ describe("CSVFile", function () {
         assert.deepEqual(csvFile.get("row-two", "right"), ["row-two", "pong"]);
       });
     });
+
+    describe("user-supplied headings", function () {
+      it("maps columns from headings option while every CSV line is a data row", () => {
+        // No heading row in the file — options.headings define column names.
+        // prettier-ignore
+        const text = [
+          "row-one,alfa,omega",
+          "row-two,ping,pong",
+        ].join("\n");
+
+        const csvFile = CSVFile.createFromText(text, String, String, {
+          headings: ["left", "middle", "right"],
+        });
+
+        assert.deepEqual(csvFile.get("row-one", "middle"), ["row-one", "alfa"]);
+        assert.deepEqual(csvFile.get("row-two", "right"), ["row-two", "pong"]);
+      });
+    });
   });
 });
