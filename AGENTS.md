@@ -9,24 +9,29 @@ This file contains instructions for Codex agents working in this repository. The
   The presence of the `/app` directory containing this project’s files is usually
   sufficient to confirm that. Do not attempt to build or start containers from
   inside the container.
-- The **development container** is defined by `docker/Dockerfile` and is managed **from the host**
+- The **Development Container** is defined by `docker/Dockerfile` and is managed **from the Host**
   using the `Makefile`:
-  - Build the container image with `make docker-image` (host only).
-  - Launch an interactive shell with `make docker-shell` (host only).
+  - Build the container image with `make docker-image` (Host only).
+  - Launch an interactive shell with `make docker-shell` (Host only).
   - Optionally, start an IDE attached to an existing container with
-    `make open-ide IDE=Cursor DEV_CONTAINER=$CONTAINER_ID` (host only).
-- Inside the **development container**:
+    `make open-ide IDE=Cursor DEV_CONTAINER=$CONTAINER_ID` (Host only).
+- Inside the **Development Container**:
   - Use `npm` and `npx` for all commands (see `package.json`).
   - Run compilation, linting, and tests only with `npm`/`npx` (for example,
     `npm install`, `npm run lint-in-container`, etc.).
-  - Do **not** invoke host `make` targets from within the container.
+  - Do **not** invoke Host `make` targets from within the container.
 
 ### Host vs Container
 
-- On the **host**, the **`Makefile`** is an **orchestrator** used notably to rebuild the development container image, start a container and open a shell in it, attach an IDE to a running container, or run other host-driven workflows. **Agents will rarely or never need those targets**; they normally operate in an environment that is already the development container.
-- In the **development container**, run tooling with **`npm`**, **`npx`**, and the **`scripts`** in [`package.json`](package.json). After `npm install`, you may also call binaries from **`/app/node_modules/.bin`** using `npx` (example: `npx tsc`).
+- On the **Host**, the **`Makefile`** is an **orchestrator** used notably to rebuild the Development Container image, start a container and open a shell in it, attach an IDE to a running container, or run other Host-driven workflows. **Agents will rarely or never need those targets**; they normally operate in an environment that is already the Development Container.
+- In the **Development Container**, run tooling with **`npm`**, **`npx`**, and the **`scripts`** in [`package.json`](package.json). After `npm install`, you may also call binaries from **`/app/node_modules/.bin`** using `npx` (example: `npx tsc`).
+- In the **Development Container**, environment variables and access tokens can be sourced from the `.env` file. This is done by the `docker/entrypoint.sh` script (when container started using `docker run ...`). For agents started from the IDE or other tools started using `docker exec ...`, this automatic loading may not occur, so you may need to source `.env` manually.
+  Example, running the `gh` CLI tool from a bash shell inside the container (see `docker/entrypoint.sh` for the details):
+  ```bash
+  set -a && source .env && gh ...
+  ```
 
-### Commands Agents Use (in development container)
+### Commands Agents Use (in Development Container)
 
 - Install / refresh dependencies: **`npm install`**
 - Compile: `npm run compile` (`tsc`) or `npx tsc [OPTIONS...]`
