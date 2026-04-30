@@ -3,10 +3,7 @@ import { readFile } from "node:fs/promises";
 
 import { prepare } from "./support/register.helper.mjs";
 
-import {
-  CSVFile,
-  parseCSV,
-} from "../src/datasource.mjs";
+import { CSVFile, parseCSV } from "../src/datasource.mjs";
 import { ValueError } from "../src/error.mjs";
 import { ProtocolError } from "../src/error.mjs";
 
@@ -113,11 +110,7 @@ describe("CSVFile", function () {
       let csvFile: CSVFile<string, string>;
 
       before(async function () {
-        csvFile = await CSVFile.createFromPath(
-          CSV_TEST_FILE,
-          String,
-          String,
-        );
+        csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, String, String);
       });
 
       // prettier-ignore
@@ -139,11 +132,7 @@ describe("CSVFile", function () {
       let csvFile: CSVFile<string, string>;
 
       before(async function () {
-        csvFile = await CSVFile.createFromPath(
-          CSV_TEST_FILE,
-          String,
-          String,
-        );
+        csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, String, String);
       });
 
       // prettier-ignore
@@ -227,6 +216,27 @@ describe("CSVFile", function () {
           }
         });
       }
+    });
+  });
+
+  describe("options", function () {
+    describe("separator", function () {
+      it("parses [string,string,string] rows with a semicolon separator", () => {
+        // Hard-coded semicolon-delimited triples: key column + two data columns per row.
+        // prettier-ignore
+        const text = [
+          "left;middle;right",
+          "row-one;alfa;omega",
+          "row-two;ping;pong",
+        ].join("\n");
+
+        const csvFile = CSVFile.createFromText(text, String, String, {
+          separator: ";",
+        });
+
+        assert.deepEqual(csvFile.get("row-one", "middle"), ["row-one", "alfa"]);
+        assert.deepEqual(csvFile.get("row-two", "right"), ["row-two", "pong"]);
+      });
     });
   });
 });
