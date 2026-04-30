@@ -268,6 +268,11 @@ export class EmptyDataSource<K, V> implements DataSource<K, V> {
 export type CSVFileOptionBag = CSVParserOption & {
   reorder?: (input: string[], heading: boolean) => string[]; // FWIW, the reorder helper may resize the row or synthetise new data
   headings?: string[]; // User-supplied headings, if not provided, the parser will use the first line of the file as headings
+  /**
+   * When `false` (default), rows where `toKey` or `toData` returns `undefined` trigger {@link ValueError}.
+   * When `true`, such rows are skipped with no warning.
+   */
+  skipInvalidRows?: boolean;
 };
 
 /**
@@ -320,8 +325,8 @@ export class CSVFile<K, T> implements DataSource<K, T> {
 
   static createFromPath<K, T>(
     path: string,
-    toKey: (arg0: string) => K,
-    toData: (arg0: string) => T,
+    toKey: (arg0: string) => K | undefined,
+    toData: (arg0: string) => T | undefined,
     options: CSVFileOptionBag = {},
   ): Promise<CSVFile<K, T>> {
     return readFile(path, { encoding: "utf8" }).then((text) =>
@@ -331,21 +336,22 @@ export class CSVFile<K, T> implements DataSource<K, T> {
 
   static createFromText<K, T>(
     text: string,
-    toKey: (arg0: string) => K,
-    toData: (arg0: string) => T,
+    toKey: (arg0: string) => K | undefined,
+    toData: (arg0: string) => T | undefined,
     options: CSVFileOptionBag = {},
   ): CSVFile<K, T> {
     const reorder = options.reorder;
+    const skipInvalidRows = options.skipInvalidRows ?? false;
 
     const sentinel = Symbol();
     let sorted = true;
     let prev: K | typeof sentinel = sentinel;
     let empty = true;
-    //let headings: string[] | undefined;
     let headings = options.headings;
     const rows = [] as [K, ...T[]][];
+    let dataRowIndex = 0;
 
-    for (const line of parseCSV(text, options)) {
+    csvLines: for (const line of parseCSV(text, options)) {
       if (headings === undefined) {
         // read the heading
         headings = line;
@@ -354,20 +360,44 @@ export class CSVFile<K, T> implements DataSource<K, T> {
         }
       } else {
         // read a data line
-        empty = false;
+        dataRowIndex += 1;
         let row = line;
         if (reorder) {
           row = reorder(row, false);
         }
-        const [date, ...rest] = row;
+        const [keyRaw, ...restRaw] = row;
+        const key = toKey(keyRaw);
+        if (key === undefined) {
+          if (!skipInvalidRows) {
+            throw new ValueError(
+              `Invalid CSV data row ${dataRowIndex}: key conversion returned undefined`,
+            );
+          }
+          continue;
+        }
+        const rest: T[] = [];
+        for (const cell of restRaw) {
+          const value = toData(cell);
+          if (value === undefined) {
+            if (!skipInvalidRows) {
+              throw new ValueError(
+                `Invalid CSV data row ${dataRowIndex}: column conversion returned undefined`,
+              );
+            }
+            continue csvLines;
+          }
+          rest.push(value);
+        }
+
+        empty = false;
         if (prev !== sentinel) {
-          if (sorted && date < prev) {
+          if (sorted && keyRaw < prev) {
             // ISSUE #231: We should check order after conversion to the key type.
             sorted = false;
             log.trace("C1005", "The data are not sorted by column 0");
           }
         }
-        rows.push([(prev = toKey(date)), ...rest.map(toData)]);
+        rows.push([(prev = key), ...rest]);
       }
     }
     if (empty || !headings) {

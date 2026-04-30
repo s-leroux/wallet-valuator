@@ -256,5 +256,63 @@ describe("CSVFile", function () {
         assert.deepEqual(csvFile.get("row-two", "right"), ["row-two", "pong"]);
       });
     });
+
+    describe("invalid row conversions (undefined)", function () {
+      // prettier-ignore
+      const headingAndRows = [
+        "key,value1,value2",
+        "K1,V1.1,V1.2",
+        "K2,V2.1,V2.2",
+        "K3,V3.1,V3.2",
+        "K4,V4.1,V4.2",
+      ].join("\n");
+
+      const convertRejectBad = (s: string): string | undefined =>
+        s === "__bad__" ? undefined : s;
+
+      it("throws ValueError when a key is undefined", () => {
+        const text = headingAndRows.replace("K2", "__bad__");
+        assert.throws(
+          () => CSVFile.createFromText(text, convertRejectBad, String),
+          ValueError,
+          /Invalid CSV data row 2:/,
+        );
+      });
+
+      it("throws ValueError when toData returns undefined", () => {
+        const text = headingAndRows.replace("V3.2", "__bad__");
+        assert.throws(
+          () => CSVFile.createFromText(text, String, convertRejectBad),
+          ValueError,
+          /Invalid CSV data row 3:/,
+        );
+      });
+
+      it("skipInvalidRows ignores invalid rows", () => {
+        const text = headingAndRows
+          .replace("K2", "__bad__")
+          .replace("V3.2", "__bad__");
+        const csvFile = //
+          CSVFile.createFromText(text, convertRejectBad, convertRejectBad, {
+            skipInvalidRows: true, // Ignore the invalid row
+          });
+        assert.deepEqual(csvFile.get("K1", "value1"), ["K1", "V1.1"]);
+        assert.deepEqual(csvFile.get("K2", "value1"), ["K1", "V1.1"]); // best match
+        assert.deepEqual(csvFile.get("K3", "value1"), ["K1", "V1.1"]); // best match
+        assert.deepEqual(csvFile.get("K4", "value1"), ["K4", "V4.1"]);
+      });
+
+      it("throws when every data row conversion fails and skipInvalidRows is true", () => {
+        const text = headingAndRows.replace(/K\d/g, "__bad__");
+        assert.throws(
+          () =>
+            CSVFile.createFromText(text, convertRejectBad, String, {
+              skipInvalidRows: true,
+            }),
+          ValueError,
+          "No data to proceed",
+        );
+      });
+    });
   });
 });
