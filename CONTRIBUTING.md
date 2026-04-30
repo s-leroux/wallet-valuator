@@ -78,7 +78,13 @@ Source code should be processed by Prettier to ensure consistent formatting acro
 
 Consistency is key to maintaining a readable and maintainable codebase. Please follow these guidelines:
 
-### General Guidelines
+### General Guidelines for Markdown
+
+To keep `diff`/`git diff` readable, write prose using **one complete sentence per line**.
+Avoid putting multiple sentences on the same line.
+Avoid splitting a single sentence across multiple lines.
+
+### General Guidelines for TypeScript
 
 - Use TypeScript's `strict` mode.
 - Use `const` for variables that won't be reassigned and `let` otherwise. Avoid using `var`.
