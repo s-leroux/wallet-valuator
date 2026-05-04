@@ -1,5 +1,6 @@
 import { assert } from "chai";
 
+import { ValueError } from "../src/error.mjs";
 import { prepare } from "./support/register.helper.mjs";
 import { Ensure } from "../src/type.mjs";
 
@@ -35,6 +36,49 @@ describe("Type utilities", function () {
       ["isNumber", ["abcde", "fghij"], TypeError],
       ["isNumber", ["abcde", 123], TypeError],
 
+      ["isInteger", null, TypeError],
+      ["isInteger", "", TypeError],
+      ["isInteger", "abcde", TypeError],
+      ["isInteger", 123],
+      ["isInteger", 0],
+      ["isInteger", -1],
+      ["isInteger", Number(123)],
+      ["isInteger", 123.456, ValueError],
+      ["isInteger", Number.NaN, ValueError],
+      ["isInteger", Number.POSITIVE_INFINITY, ValueError],
+      ["isInteger", Number.NEGATIVE_INFINITY, ValueError],
+      ["isInteger", {}, TypeError],
+      ["isInteger", [], TypeError],
+      ["isInteger", ["abcde"], TypeError],
+      ["isInteger", ["abcde", "fghij"], TypeError],
+      ["isInteger", ["abcde", 123], TypeError],
+      ["isInteger", 1n, TypeError],
+
+      ["isNonNegativeInteger", null, TypeError],
+      ["isNonNegativeInteger", undefined, TypeError],
+      ["isNonNegativeInteger", true, TypeError],
+      ["isNonNegativeInteger", false, TypeError],
+      ["isNonNegativeInteger", "", TypeError],
+      ["isNonNegativeInteger", "abcde", TypeError],
+      ["isNonNegativeInteger", Symbol("isNonNegativeInteger"), TypeError],
+      ["isNonNegativeInteger", 123],
+      ["isNonNegativeInteger", 0],
+      ["isNonNegativeInteger", -0],
+      ["isNonNegativeInteger", Number(123)],
+      ["isNonNegativeInteger", -1, ValueError],
+      ["isNonNegativeInteger", -123, ValueError],
+      ["isNonNegativeInteger", 123.456, ValueError],
+      ["isNonNegativeInteger", Number.NaN, ValueError],
+      ["isNonNegativeInteger", Number.POSITIVE_INFINITY, ValueError],
+      ["isNonNegativeInteger", Number.NEGATIVE_INFINITY, ValueError],
+      ["isNonNegativeInteger", {}, TypeError],
+      ["isNonNegativeInteger", [], TypeError],
+      ["isNonNegativeInteger", ["abcde"], TypeError],
+      ["isNonNegativeInteger", ["abcde", "fghij"], TypeError],
+      ["isNonNegativeInteger", ["abcde", 123], TypeError],
+      ["isNonNegativeInteger", 0n, TypeError],
+      ["isNonNegativeInteger", 1n, TypeError],
+
       [ownsProperty, { prop: "value" }],
       [ownsProperty, { other: "value" }, TypeError],
       [ownsProperty, {}, TypeError],
@@ -69,16 +113,20 @@ describe("Type utilities", function () {
     ] as const;
 
     for (const [fn, value, errType] of test_cases) {
-      register(`case ${fn}(${value}) [${errType?.name || "OK"}]`, () => {
-        const fct = typeof fn === "string" ? Ensure[fn] : fn;
-        assert.isDefined(fct, `Ensure.${fn}() does not exist`);
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string -- object/array labels are diagnostic only; explicit String() is required for symbol values (TS).
+      register(
+        `case ${fn}(${String(value)}) [${errType?.name || "OK"}]`,
+        () => {
+          const fct = typeof fn === "string" ? Ensure[fn] : fn;
+          assert.isDefined(fct, `Ensure.${fn}() does not exist`);
 
-        if (errType) {
-          assert.throws(() => fct(value), errType);
-        } else {
-          assert.strictEqual(fct(value), value);
-        }
-      });
+          if (errType) {
+            assert.throws(() => fct(value), errType);
+          } else {
+            assert.strictEqual(fct(value), value);
+          }
+        },
+      );
     }
   });
 });

@@ -125,6 +125,10 @@ export class EnsureNG {
  * ```
  */
 export class Ensure {
+  //--------------------------------------------------------------------
+  //  String checks
+  //--------------------------------------------------------------------
+
   /**
    * Checks that the provided value is a string.
    *
@@ -139,6 +143,18 @@ export class Ensure {
     }
     return obj as string;
   }
+
+  static isNonEmptyString(this: void, obj: unknown): string {
+    const type = typeof obj;
+    if (type !== "string" || obj === "") {
+      throw new TypeError(`Expected a non-empty string but got ${obj}`);
+    }
+    return obj as string;
+  }
+
+  //--------------------------------------------------------------------
+  //  Array checks
+  //--------------------------------------------------------------------
 
   /**
    * Checks that the provided value is an array.
@@ -169,6 +185,10 @@ export class Ensure {
     return array as string[];
   }
 
+  //--------------------------------------------------------------------
+  //  Number checks
+  //--------------------------------------------------------------------
+
   /**
    * Checks that the provided value is a number.
    *
@@ -184,20 +204,50 @@ export class Ensure {
     return obj as number;
   }
 
+  /**
+   * Checks that the provided value is an integer number.
+   *
+   * @param obj - The value to test.
+   * @returns The same value if it is an integer number.
+   * @throws {TypeError} If the value is not a number.
+   * @throws {ValueError} If the value is a number but not an integer.
+   */
+  static isInteger(this: void, obj: unknown): number {
+    if (Number.isInteger(obj)) {
+      return obj as number;
+    }
+
+    const x = Ensure.isNumber(obj);
+    throw new ValueError(`Expected integer number but got ${x}`);
+  }
+
+  /**
+   * Checks that the provided value is a non-negative integer.
+   *
+   * @param obj - The value to test.
+   * @returns The same value if it is a non-negative integer.
+   * @throws {TypeError} If the value is not a number.
+   * @throws {ValueError} If the value is a number but not a non-negative integer.
+   */
+  static isNonNegativeInteger(this: void, obj: unknown): number {
+    if (Number.isInteger(obj) && (obj as number) >= 0) {
+      return obj as number;
+    }
+
+    const x = Ensure.isNumber(obj);
+    throw new ValueError(`Expected a non-negative integer but got ${x}`);
+  }
+
+  //--------------------------------------------------------------------
+  //  Miscellaneous checks
+  //--------------------------------------------------------------------
+
   static isDefined<T>(this: void, obj: T | undefined): NotUndefined<T> {
     if (obj === undefined) {
       throw new ValueError("Expected defined value but got undefined");
     }
 
     return obj as NotUndefined<T>;
-  }
-
-  static isNonEmptyString(this: void, obj: unknown): string {
-    const type = typeof obj;
-    if (type !== "string" || obj === "") {
-      throw new TypeError(`Expected a non-empty string but got ${obj}`);
-    }
-    return obj as string;
   }
 
   static ownsProperty<T>(this: void, obj: T, property: string): T {
