@@ -144,12 +144,36 @@ export class Ensure {
     return obj as string;
   }
 
+  /**
+   * Checks that the provided value is a non-empty string.
+   *
+   * @param obj - The value to test.
+   * @returns The same value if it is a non-empty string.
+   * @throws {TypeError} If the value is not a string.
+   * @throws {ValueError} If the value is a string but is empty.
+   */
   static isNonEmptyString(this: void, obj: unknown): string {
-    const type = typeof obj;
-    if (type !== "string" || obj === "") {
-      throw new TypeError(`Expected a non-empty string but got ${obj}`);
+    const str = Ensure.isString(obj);
+    if (str === "") {
+      throw new ValueError(`Expected a non-empty string but got ${str}`);
     }
-    return obj as string;
+    return str;
+  }
+
+  /**
+   * Checks that the provided value is a one-character string.
+   *
+   * @param obj - The value to test.
+   * @returns The same value if it is a one-character string.
+   * @throws {TypeError} If the value is not a string.
+   * @throws {ValueError} If the value is a string but not a one-character string.
+   */
+  static isOneCharString(this: void, obj: unknown): string {
+    const str = Ensure.isString(obj);
+    if (str.length !== 1) {
+      throw new ValueError(`Expected a one-character string but got ${str}`);
+    }
+    return str;
   }
 
   //--------------------------------------------------------------------
