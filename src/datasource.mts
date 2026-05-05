@@ -4,11 +4,87 @@ import { ValueError, ProtocolError } from "./error.mjs";
 import { bsearch, linsearch } from "./bsearch.mjs";
 
 import { logger } from "./debug.mjs";
+import { Ensure } from "./type.mjs";
 const log = logger("datasource");
 
 type CSVParserOption = {
   separator?: string;
+  "garbage-lines"?: number; // Number of lines of garbage to drop from the beginning of the file.
 };
+
+// =====================================================================
+// CSV parser helpers
+// =====================================================================
+
+const enum GarbageState {
+  Start,
+  Error,
+  End,
+  InGarbage,
+  DecrementGarbageLines,
+}
+
+/**
+ * Drop *exactly* `n` lines of garbage from the beginning of a text.
+ *
+ * One line is any sequence of characters ending with LF (and,
+ * by extension, CRLF).
+ *
+ * @param n - The number of lines to drop.
+ * @param text - The text to drop the garbage from.
+ * @param idx - The index to start dropping the garbage from.
+ * @returns The index of the first non-garbage character.
+ */
+function dropGarbage(n: number, text: string, idx: number = 0): number {
+  Ensure.isNonNegativeInteger(n);
+
+  let state = GarbageState.Start;
+  let error: Error;
+
+  stateMachine: for (;;) {
+    switch (state) {
+      case GarbageState.Start:
+        if (n > 0) {
+          state = GarbageState.InGarbage;
+        } else {
+          state = GarbageState.End;
+        }
+        continue stateMachine;
+
+      case GarbageState.End:
+        return idx;
+
+      case GarbageState.Error:
+        // @ts-expect-error: State machine ensures error is initialized
+        throw error;
+
+      case GarbageState.InGarbage:
+        switch (text[idx] ?? "\0") {
+          case "\n":
+            ++idx;
+            state = GarbageState.DecrementGarbageLines;
+            continue stateMachine;
+          case "\0":
+            state = GarbageState.Error;
+            error = new ProtocolError(
+              `Unexpected end of file: still expecting ${n} garbage lines`,
+            );
+            continue stateMachine;
+          default:
+            ++idx;
+            continue stateMachine;
+        }
+
+      case GarbageState.DecrementGarbageLines:
+        if (--n > 0) {
+          state = GarbageState.InGarbage;
+        } else {
+          state = GarbageState.End;
+        }
+        continue stateMachine;
+    }
+  }
+}
 
 // =====================================================================
 // CSV parser
@@ -50,8 +126,9 @@ export function* parseCSV(
   options: CSVParserOption = {},
 ): IterableIterator<string[]> {
   const separator = options.separator ?? ",";
+  const garbageLines = options["garbage-lines"] ?? 0;
 
-  let idx = 0;
+  let idx = garbageLines > 0 ? dropGarbage(garbageLines, text, 0) : 0;
   let state = State.Start;
   let error: Error;
   let token: string;

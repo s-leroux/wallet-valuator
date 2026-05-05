@@ -239,6 +239,60 @@ describe("CSVFile", function () {
       });
     });
 
+    describe("garbage-lines", function () {
+      it("drops a fixed number of LF-terminated leading lines before the heading row", () => {
+        // Two preamble lines (not RFC CSV header), then the same shape as the invalid-row tests.
+        // prettier-ignore
+        const text = [
+          "Preamble: ignored",
+          "Also ignored",
+          "key,value1,value2",
+          "K1,V1.1,V1.2",
+          "K2,V2.1,V2.2",
+        ].join("\n");
+
+        const csvFile = CSVFile.createFromText(text, String, String, {
+          "garbage-lines": 2,
+        });
+
+        assert.deepEqual(csvFile.get("K1", "value1"), ["K1", "V1.1"]);
+        assert.deepEqual(csvFile.get("K2", "value2"), ["K2", "V2.2"]);
+      });
+
+      it("throws ProtocolError when the file ends before every garbage line is terminated", () => {
+        // Only one full line plus LF; option asks to drop two lines.
+        const text = "only one garbage line\n";
+
+        assert.throws(
+          () =>
+            CSVFile.createFromText(text, String, String, {
+              "garbage-lines": 2,
+            }),
+          ProtocolError,
+          /still expecting 1 garbage lines/,
+        );
+      });
+
+      it("throws when garbage-lines is larger than the real preamble (header is consumed)", () => {
+        // One preamble line; asking for two drops the real heading row as “garbage”.
+        // prettier-ignore
+        const text = [
+          "NOISE",
+          "key,value1,value2",
+          "K1,V1.1,V1.2",
+        ].join("\n");
+
+        assert.throws(
+          () =>
+            CSVFile.createFromText(text, String, String, {
+              "garbage-lines": 2,
+            }),
+          ValueError,
+          /No data to proceed/,
+        );
+      });
+    });
+
     describe("user-supplied headings", function () {
       it("maps columns from headings option while every CSV line is a data row", () => {
         // No heading row in the file — options.headings define column names.
