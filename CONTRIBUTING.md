@@ -43,6 +43,10 @@ Throughout the project, I have tried to be consistent with the following definit
 - **fiat** (or better **fiat-currency**): a generic term for government-issued currency. Fiat currencies are identified by _ISO 4217 currency codes_, a 3-letter code usually made from the country and currency initial: USD, GBP, JPY. A notable exception is EUR for euros.
 - **`Fixed` / unscaled value**: decimal quantities are stored as **`Fixed`**: the **`value`** field is the **unscaled value** (signed `bigint`), and **`scale`** is the number of decimal places; the quantity is `value × 10^−scale`. Use this term in prose and comments instead of informal float jargon such as “mantissa”, “coefficient”, or “significand” for `value`. For human-readable decimal text from a **`Fixed`**, use **`toDecimalString`** (truncation when narrowing scale), not `Number.prototype.toFixed` (rounding).
 
+### Localized numeric text
+
+- For localized numeric input strings, see the preamble comment in `src/intl.mts` for the parsing policy (canonical core parsing + parameter-driven normalization).
+
 ### Block explorer views and fees (EVM)
 
 When integrating Etherscan-style APIs (e.g. `txlist`, `txlistinternal`, `tokentx`), treat the three feeds as **different projections** of activity that often **share the same transaction `hash`** under one **signed** (top-level) transaction:
