@@ -216,14 +216,21 @@ export class Ensure {
   /**
    * Checks that the provided value is a number.
    *
+   * By definition, NaN is not a number and throws a ValueError.
+   * Plus/Minus Infinity are considered numbers and are returned as is.
+   *
    * @param obj - The value to test.
    * @returns The same value if it is a number.
    * @throws {TypeError} If the value is not a number.
+   * @throws {ValueError} If the value is a number but is NaN.
    */
   static isNumber(this: void, obj: unknown): number {
     const type = typeof obj;
     if (type !== "number") {
       throw new TypeError(`Expected number but got ${type}`);
+    }
+    if (Number.isNaN(obj)) {
+      throw new ValueError(`Expected number but got NaN`);
     }
     return obj as number;
   }
