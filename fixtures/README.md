@@ -14,6 +14,7 @@ This directory contains test data used by the project's test suite to validate f
 - `./sol-eur-max.csv`: SOL-EUR average price data (2020-04-11 to 2025-01-20 ascending).
 - `./sol-gbp-max.csv`: SOL-GBP average price data (2020-04-11 to 2025-01-20 ascending).
 - `./sol-usd-max.csv`: SOL-USD average price data (2020-04-11 to 2025-01-17 ascending).
+- `./eur-usd-bdf.csv`: EUR-USD average price data, file as downloaded from "Banque de France" website.
 
 - `./ERC20TokenTransferEvents.json`: GnosisScan-style ERC-20 token transfer (`tokentx`) API response sample (2021-02-21 to 2021-11-08).
 - `./InternalTransactions.json`: GnosisScan-style internal transaction (`txlistinternal`) API response sample (2021-03-12 to 2024-11-10).

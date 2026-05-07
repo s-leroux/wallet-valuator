@@ -94,6 +94,10 @@ These rules match the comments on the methods; they are **not** the same as the 
 
 Domain types (e.g. **`Price`**, **`Value`**, **`Amount`**) should expose **`FixedSource`** (not bare `number`) at their public edges where a decimal is intended; internal fields remain **`Fixed`**.
 
+### Localized numeric text
+
+- For localized numeric input strings, see the preamble comment in `src/intl.mts` for the parsing policy (canonical core parsing + parameter-driven normalization).
+
 ## Commit and Pre-commit Expectations
 
 - Include **test coverage** for new behavior or fixes when the change is not adequately covered already (see [`CONTRIBUTING.md`](CONTRIBUTING.md)).

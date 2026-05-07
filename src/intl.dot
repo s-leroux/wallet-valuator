@@ -1,0 +1,78 @@
+digraph NumberParsingStateMachine {
+    // Parse localized numeric strings to canonical decimal form.
+    // 
+    // Edge convention (for implementing a reader from this diagram):
+    // - Solid edges: consume the input token described by the label (advance the cursor).
+    // - Dashed edges with a label: test that token (lookahead / peek) without consuming it.
+    // - Dashed edges with no label: ε-transitions — rearrange state without reading input.
+    // 
+    // In practice, a solid edge implies reading the next token.
+    // 
+    // All states transition to Error on unexpected tokens (not showed in the diagram).
+    node [shape = circle;];
+    
+    Start [label = "Start";];
+    // Error [label = "Error";];
+    End [label = "End";];
+    
+    // Transitions
+    Start -> InitialDigit0 [label = "digit";];
+    Start -> Sign [label = "sign";];
+    // Start -> Error [style = dashed;];
+    
+    Sign -> InitialDigit0 [label = "digit";];
+    // Sign -> Error [style = dashed;];
+    
+    InitialDigit0 -> InitialDigit1 [label = "digit";];
+    InitialDigit0 -> GroupDigit0 [label = "Grouping separator";];
+    InitialDigit0 -> DecimalSeparator [label = "Decimal separator";];
+    InitialDigit0 -> End [label = "EOF"; style = dashed;];
+    // InitialDigit0 -> Error [style = dashed;];
+    
+    InitialDigit1 -> InitialDigit2 [label = "digit";];
+    InitialDigit1 -> GroupDigit0 [label = "Grouping separator";];
+    InitialDigit1 -> DecimalSeparator [label = "Decimal separator";];
+    InitialDigit1 -> End [label = "EOF"; style = dashed;];
+    // InitialDigit1 -> Error [style = dashed;];
+    
+    InitialDigit2 -> InitialDigit3 [label = "digit";];
+    InitialDigit2 -> GroupDigit0 [label = "Grouping separator";];
+    InitialDigit2 -> DecimalSeparator [label = "Decimal separator";];
+    InitialDigit2 -> End [label = "EOF"; style = dashed;];
+    // InitialDigit2 -> Error [style = dashed;];
+    
+    InitialDigit3 -> InitialDigit0 [label = "no grouping"; style = dashed;];
+    InitialDigit3 -> GroupDigit0 [label = "Grouping separator";];
+    InitialDigit3 -> DecimalSeparator [label = "Decimal separator";];
+    InitialDigit3 -> End [label = "EOF"; style = dashed;];
+    // InitialDigit3 -> Error [style = dashed;];
+    
+    // According to The International Bureau of Weights and Measures,
+    // "when there are only four digits before or after the decimal marker, 
+    // it is customary NOT to use a space to isolate a single digit."
+    // https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-10-more-printing-and-using-symbols-and-numbers#1053
+    // 
+    // XXX I suggest this to be implemented in the state machine.
+    
+    
+    GroupDigit0 -> GroupDigit1 [label = "digit";];
+    // GroupDigit0 -> Error [style = dashed;];
+    
+    GroupDigit1 -> GroupDigit2 [label = "digit";];
+    // GroupDigit0 -> Error [style = dashed;];
+    
+    GroupDigit2 -> GroupDigit3 [label = "digit";];
+    // GroupDigit2 -> Error [style = dashed;];
+    
+    GroupDigit3 -> GroupDigit0 [label = "grouping separator";];
+    GroupDigit3 -> DecimalSeparator [label = "Decimal separator";];
+    GroupDigit3 -> End [label = "EOF"; style = dashed;];
+    // GroupDigit3 -> Error [style = dashed;];
+    
+    DecimalSeparator -> DecimalDigit [label = "ε"; style = dashed;];
+    // DecimalSeparator -> Error [style = dashed;];
+    
+    DecimalDigit -> DecimalDigit [label = "digit";];
+    DecimalDigit -> End [label = "EOF"; style = dashed;];
+    // DecimalDigit -> Error [style = dashed;];
+}

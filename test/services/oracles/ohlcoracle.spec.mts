@@ -43,7 +43,7 @@ describe("OHLCOracle", function () {
       // eslint-disable-next-line @typescript-eslint/unbound-method
       Fixed.fromString,
       {
-        separator: ";",
+        "field-separator": ";",
       },
     );
     oracle = new OHLCOracle(bitcoin, USD, datasource, {

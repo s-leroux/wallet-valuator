@@ -3,12 +3,10 @@ import { readFile } from "node:fs/promises";
 
 import { prepare } from "./support/register.helper.mjs";
 
-import {
-  CSVFile,
-  parseCSV,
-} from "../src/datasource.mjs";
+import { CSVFile, parseCSV } from "../src/datasource.mjs";
 import { ValueError } from "../src/error.mjs";
 import { ProtocolError } from "../src/error.mjs";
+import { intlNumberWrapper } from "../src/intl.mjs";
 
 describe("CSV parser", function () {
   describe("Should parse valid RFC-4180 input", function () {
@@ -113,11 +111,7 @@ describe("CSVFile", function () {
       let csvFile: CSVFile<string, string>;
 
       before(async function () {
-        csvFile = await CSVFile.createFromPath(
-          CSV_TEST_FILE,
-          String,
-          String,
-        );
+        csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, String, String);
       });
 
       // prettier-ignore
@@ -139,11 +133,7 @@ describe("CSVFile", function () {
       let csvFile: CSVFile<string, string>;
 
       before(async function () {
-        csvFile = await CSVFile.createFromPath(
-          CSV_TEST_FILE,
-          String,
-          String,
-        );
+        csvFile = await CSVFile.createFromPath(CSV_TEST_FILE, String, String);
       });
 
       // prettier-ignore
@@ -210,7 +200,7 @@ describe("CSVFile", function () {
         ["2023-01-14 12:36", "Sent Amount", "69.924364"],
         ["2023-01-14 15:33", "ID", "ce7d4d..5c"],
         ["2023-01-14 16:19", "Age", undefined, ValueError], // Should fail
-        ["2023-01-14 17:29", "Date", undefined],
+        ["2023-01-14 17:29", "Date", "2023-01-14 16:19"],
       ] as const;
 
       for (const [row, col, expected, error] of testcases) {
@@ -227,6 +217,187 @@ describe("CSVFile", function () {
           }
         });
       }
+    });
+  });
+
+  describe("options", function () {
+    describe("separator", function () {
+      it("parses [string,string,string] rows with a semicolon separator", () => {
+        // Hard-coded semicolon-delimited triples: key column + two data columns per row.
+        // prettier-ignore
+        const text = [
+          "left;middle;right",
+          "row-one;alfa;omega",
+          "row-two;ping;pong",
+        ].join("\n");
+
+        const csvFile = CSVFile.createFromText(text, String, String, {
+          "field-separator": ";",
+        });
+
+        assert.deepEqual(csvFile.get("row-one", "middle"), ["row-one", "alfa"]);
+        assert.deepEqual(csvFile.get("row-two", "right"), ["row-two", "pong"]);
+      });
+    });
+
+    describe("garbage-lines", function () {
+      it("drops a fixed number of LF-terminated leading lines before the heading row", () => {
+        // Two preamble lines (not RFC CSV header), then the same shape as the invalid-row tests.
+        // prettier-ignore
+        const text = [
+          "Preamble: ignored",
+          "Also ignored",
+          "key,value1,value2",
+          "K1,V1.1,V1.2",
+          "K2,V2.1,V2.2",
+        ].join("\n");
+
+        const csvFile = CSVFile.createFromText(text, String, String, {
+          "garbage-lines": 2,
+        });
+
+        assert.deepEqual(csvFile.get("K1", "value1"), ["K1", "V1.1"]);
+        assert.deepEqual(csvFile.get("K2", "value2"), ["K2", "V2.2"]);
+      });
+
+      it("throws ProtocolError when the file ends before every garbage line is terminated", () => {
+        // Only one full line plus LF; option asks to drop two lines.
+        const text = "only one garbage line\n";
+
+        assert.throws(
+          () =>
+            CSVFile.createFromText(text, String, String, {
+              "garbage-lines": 2,
+            }),
+          ProtocolError,
+          /still expecting 1 garbage lines/,
+        );
+      });
+
+      it("throws when garbage-lines is larger than the real preamble (header is consumed)", () => {
+        // One preamble line; asking for two drops the real heading row as “garbage”.
+        // prettier-ignore
+        const text = [
+          "NOISE",
+          "key,value1,value2",
+          "K1,V1.1,V1.2",
+        ].join("\n");
+
+        assert.throws(
+          () =>
+            CSVFile.createFromText(text, String, String, {
+              "garbage-lines": 2,
+            }),
+          ValueError,
+          /No data to proceed/,
+        );
+      });
+    });
+
+    describe("user-supplied headings", function () {
+      it("maps columns from headings option while every CSV line is a data row", () => {
+        // No heading row in the file — options.headings define column names.
+        // prettier-ignore
+        const text = [
+          "row-one,alfa,omega",
+          "row-two,ping,pong",
+        ].join("\n");
+
+        const csvFile = CSVFile.createFromText(text, String, String, {
+          headings: ["left", "middle", "right"],
+        });
+
+        assert.deepEqual(csvFile.get("row-one", "middle"), ["row-one", "alfa"]);
+        assert.deepEqual(csvFile.get("row-two", "right"), ["row-two", "pong"]);
+      });
+    });
+
+    describe("invalid row conversions (undefined)", function () {
+      // prettier-ignore
+      const headingAndRows = [
+        "key,value1,value2",
+        "K1,V1.1,V1.2",
+        "K2,V2.1,V2.2",
+        "K3,V3.1,V3.2",
+        "K4,V4.1,V4.2",
+      ].join("\n");
+
+      const convertRejectBad = (s: string): string | undefined =>
+        s === "__bad__" ? undefined : s;
+
+      it("throws ValueError when a key is undefined", () => {
+        const text = headingAndRows.replace("K2", "__bad__");
+        assert.throws(
+          () => CSVFile.createFromText(text, convertRejectBad, String),
+          ValueError,
+          /Invalid CSV data row 2:/,
+        );
+      });
+
+      it("throws ValueError when toData returns undefined", () => {
+        const text = headingAndRows.replace("V3.2", "__bad__");
+        assert.throws(
+          () => CSVFile.createFromText(text, String, convertRejectBad),
+          ValueError,
+          /Invalid CSV data row 3:/,
+        );
+      });
+
+      it("skipInvalidRows ignores invalid rows", () => {
+        const text = headingAndRows
+          .replace("K2", "__bad__")
+          .replace("V3.2", "__bad__");
+        const csvFile = //
+          CSVFile.createFromText(text, convertRejectBad, convertRejectBad, {
+            "skip-invalid-rows": true, // Ignore the invalid row
+          });
+        assert.deepEqual(csvFile.get("K1", "value1"), ["K1", "V1.1"]);
+        assert.deepEqual(csvFile.get("K2", "value1"), ["K1", "V1.1"]); // best match
+        assert.deepEqual(csvFile.get("K3", "value1"), ["K1", "V1.1"]); // best match
+        assert.deepEqual(csvFile.get("K4", "value1"), ["K4", "V4.1"]);
+      });
+
+      it("throws when every data row conversion fails and skipInvalidRows is true", () => {
+        const text = headingAndRows.replace(/K\d/g, "__bad__");
+        assert.throws(
+          () =>
+            CSVFile.createFromText(text, convertRejectBad, String, {
+              "skip-invalid-rows": true,
+            }),
+          ValueError,
+          "No data to proceed",
+        );
+      });
+    });
+  });
+
+  describe("CSVFile with options", function () {
+    it("Can load a file with exotic options", async () => {
+      const BDF_TEST_FILE = "fixtures/eur-usd-bdf.csv";
+      const toDate = String; // keep as an YYYY-MM-DD string for now
+      const toPrice = intlNumberWrapper(Number, {
+        "decimal-separator": ",",
+      });
+      const csvFile = await CSVFile.createFromPath(
+        BDF_TEST_FILE,
+        toDate,
+        toPrice,
+        {
+          "garbage-lines": 6,
+          headings: ["Date", "Price"],
+          "field-separator": ";",
+          "skip-invalid-rows": true,
+        },
+      );
+
+      const firstRow = csvFile.get("2026-04-29", "Price");
+      assert.deepEqual(firstRow, ["2026-04-29", 1.1706]);
+
+      const nearestRow = csvFile.get("2026-04-26", "Price");
+      assert.deepEqual(nearestRow, ["2026-04-24", 1.1712]);
+
+      const historicalRow = csvFile.get("2021-12-31", "Price");
+      assert.deepEqual(historicalRow, ["2021-12-31", 1.1326]);
     });
   });
 });

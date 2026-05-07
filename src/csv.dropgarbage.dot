@@ -1,0 +1,26 @@
+digraph CSVDropGarbageStateMachine {
+    // States and transitions to drop garbage before CSV files (not in RFC 4180).
+    // 
+    // Edge convention (for implementing a reader from this diagram):
+    // - Solid edges: consume the input token described by the label (advance the cursor).
+    // - Dashed edges with a label: test that token (lookahead / peek) without consuming it.
+    // - Dashed edges with no label: ε-transitions — rearrange state without reading input.
+    node [shape = circle;];
+    Start [label = "Start";];
+    Error [label = "Error";];
+    End [label = "End";];
+    
+    InGarbage [label = "InGarbage";];
+    DecrementGarbageLines [label = "Decrement garbageLines";];
+    
+    // Transitions
+    Start -> InGarbage [label = "garbageLines > 0"; style = dashed;];
+    Start -> End [style = dashed;];
+    
+    InGarbage -> Error [label = "EOF"; style = dashed;];
+    InGarbage -> DecrementGarbageLines [label = "LF";];
+    InGarbage -> InGarbage [label = "Any character";];
+    
+    DecrementGarbageLines -> InGarbage [label = "garbageLines > 0"; style = dashed;];
+    DecrementGarbageLines -> End [style = dashed;];
+}

@@ -4,11 +4,87 @@ import { ValueError, ProtocolError } from "./error.mjs";
 import { bsearch, linsearch } from "./bsearch.mjs";
 
 import { logger } from "./debug.mjs";
+import { Ensure } from "./type.mjs";
 const log = logger("datasource");
 
 type CSVParserOption = {
-  separator?: string;
+  "field-separator"?: string;
+  "garbage-lines"?: number; // Number of lines of garbage to drop from the beginning of the file.
 };
+
+// =====================================================================
+// CSV parser helpers
+// =====================================================================
+
+const enum GarbageState {
+  Start,
+  Error,
+  End,
+  InGarbage,
+  DecrementGarbageLines,
+}
+
+/**
+ * Drop *exactly* `n` lines of garbage from the beginning of a text.
+ *
+ * One line is any sequence of characters ending with LF (and,
+ * by extension, CRLF).
+ *
+ * @param n - The number of lines to drop.
+ * @param text - The text to drop the garbage from.
+ * @param idx - The index to start dropping the garbage from.
+ * @returns The index of the first non-garbage character.
+ */
+function dropGarbage(n: number, text: string, idx: number = 0): number {
+  Ensure.isNonNegativeInteger(n);
+
+  let state = GarbageState.Start;
+  let error: Error;
+
+  stateMachine: for (;;) {
+    switch (state) {
+      case GarbageState.Start:
+        if (n > 0) {
+          state = GarbageState.InGarbage;
+        } else {
+          state = GarbageState.End;
+        }
+        continue stateMachine;
+
+      case GarbageState.End:
+        return idx;
+
+      case GarbageState.Error:
+        // @ts-expect-error: State machine ensures error is initialized
+        throw error;
+
+      case GarbageState.InGarbage:
+        switch (text[idx] ?? "\0") {
+          case "\n":
+            ++idx;
+            state = GarbageState.DecrementGarbageLines;
+            continue stateMachine;
+          case "\0":
+            state = GarbageState.Error;
+            error = new ProtocolError(
+              `Unexpected end of file: still expecting ${n} garbage lines`,
+            );
+            continue stateMachine;
+          default:
+            ++idx;
+            continue stateMachine;
+        }
+
+      case GarbageState.DecrementGarbageLines:
+        if (--n > 0) {
+          state = GarbageState.InGarbage;
+        } else {
+          state = GarbageState.End;
+        }
+        continue stateMachine;
+    }
+  }
+}
 
 // =====================================================================
 // CSV parser
@@ -49,9 +125,10 @@ export function* parseCSV(
   text: string,
   options: CSVParserOption = {},
 ): IterableIterator<string[]> {
-  const separator = options.separator ?? ",";
+  const fieldSeparator = options["field-separator"] ?? ",";
+  const garbageLines = options["garbage-lines"] ?? 0;
 
-  let idx = 0;
+  let idx = garbageLines > 0 ? dropGarbage(garbageLines, text, 0) : 0;
   let state = State.Start;
   let error: Error;
   let token: string;
@@ -131,7 +208,7 @@ export function* parseCSV(
           case "\n":
             state = State.LF;
             break;
-          case separator:
+          case fieldSeparator:
             state = State.EndOfField;
             break;
           default:
@@ -173,7 +250,7 @@ export function* parseCSV(
             token = text[idx++] ?? "\0";
             state = State.EndOfRow;
             break;
-          case separator:
+          case fieldSeparator:
             token = text[idx++] ?? "\0";
             state = State.NewField;
             break;
@@ -237,11 +314,6 @@ export interface DataSource<K, V> {
   [Symbol.iterator](): Iterator<[K, ...V[]]>; // Implements IterableIterator<[K, ...V[]]>
 }
 
-export class CSVFileOptionBag {
-  reorder?: (input: string[], heading: boolean) => string[]; // FWIW, the reorder helper may resize the row or synthetise new data
-  separator?: string;
-}
-
 //======================================================================
 //  Empty DataSource
 //======================================================================
@@ -269,6 +341,16 @@ export class EmptyDataSource<K, V> implements DataSource<K, V> {
 //======================================================================
 //  CSV DataSource
 //======================================================================
+
+export type CSVFileOptionBag = CSVParserOption & {
+  reorder?: (input: string[], heading: boolean) => string[]; // FWIW, the reorder helper may resize the row or synthetise new data
+  headings?: string[]; // User-supplied headings, if not provided, the parser will use the first line of the file as headings
+  /**
+   * When `false` (default), rows where `toKey` or `toData` returns `undefined` trigger {@link ValueError}.
+   * When `true`, such rows are skipped with no warning.
+   */
+  "skip-invalid-rows"?: boolean;
+};
 
 /**
  *  Read homogenous simple CSV files.
@@ -320,8 +402,8 @@ export class CSVFile<K, T> implements DataSource<K, T> {
 
   static createFromPath<K, T>(
     path: string,
-    toKey: (arg0: string) => K,
-    toData: (arg0: string) => T,
+    toKey: (arg0: string) => K | undefined,
+    toData: (arg0: string) => T | undefined,
     options: CSVFileOptionBag = {},
   ): Promise<CSVFile<K, T>> {
     return readFile(path, { encoding: "utf8" }).then((text) =>
@@ -331,20 +413,22 @@ export class CSVFile<K, T> implements DataSource<K, T> {
 
   static createFromText<K, T>(
     text: string,
-    toKey: (arg0: string) => K,
-    toData: (arg0: string) => T,
+    toKey: (arg0: string) => K | undefined,
+    toData: (arg0: string) => T | undefined,
     options: CSVFileOptionBag = {},
   ): CSVFile<K, T> {
     const reorder = options.reorder;
+    const skipInvalidRows = options["skip-invalid-rows"] ?? false;
 
     const sentinel = Symbol();
     let sorted = true;
     let prev: K | typeof sentinel = sentinel;
     let empty = true;
-    let headings: string[] | undefined;
+    let headings = options.headings;
     const rows = [] as [K, ...T[]][];
+    let dataRowIndex = 0;
 
-    for (const line of parseCSV(text, options)) {
+    csvLines: for (const line of parseCSV(text, options)) {
       if (headings === undefined) {
         // read the heading
         headings = line;
@@ -353,24 +437,62 @@ export class CSVFile<K, T> implements DataSource<K, T> {
         }
       } else {
         // read a data line
-        empty = false;
+        dataRowIndex += 1;
         let row = line;
         if (reorder) {
           row = reorder(row, false);
         }
-        const [date, ...rest] = row;
+        const [keyRaw, ...restRaw] = row;
+        const key = toKey(keyRaw);
+        if (key === undefined) {
+          if (!skipInvalidRows) {
+            throw new ValueError(
+              `Invalid CSV data row ${dataRowIndex}: key conversion returned undefined`,
+            );
+          }
+          continue;
+        }
+        const rest: T[] = [];
+        for (const cell of restRaw) {
+          let value: T | undefined;
+
+          try {
+            value = toData(cell);
+          } catch (error) {
+            log.info(
+              "C1025",
+              `Error while converting a CSV data row ${dataRowIndex}: ${error}`,
+            );
+          }
+          if (value === undefined) {
+            if (!skipInvalidRows) {
+              throw new ValueError(
+                `Invalid CSV data row ${dataRowIndex}: column conversion returned undefined`,
+              );
+            }
+            continue csvLines;
+          }
+          rest.push(value);
+        }
+
+        empty = false;
         if (prev !== sentinel) {
-          if (sorted && date < prev) {
+          if (sorted && keyRaw < prev) {
             // ISSUE #231: We should check order after conversion to the key type.
             sorted = false;
             log.trace("C1005", "The data are not sorted by column 0");
           }
         }
-        rows.push([(prev = toKey(date)), ...rest.map(toData)]);
+        rows.push([(prev = key), ...rest]);
       }
     }
     if (empty || !headings) {
       throw new ValueError("No data to proceed");
+    }
+
+    if (!sorted) {
+      rows.sort((a, b) => (a[0] < b[0] ? -1 : 1));
+      sorted = true;
     }
     return new CSVFile(headings, rows, sorted);
   }

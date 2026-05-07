@@ -92,7 +92,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
       {
         origin: "Yahoo",
         dateFormat: "MMM D, YYYY",
-        separator: ";",
+        "field-separator": ";",
       },
     ),
     await OHLCOracle.createFromPath(
@@ -102,7 +102,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
       {
         origin: "Yahoo",
         dateFormat: "MMM D, YYYY",
-        separator: ";",
+        "field-separator": ";",
       },
     ),
   ]).cache(envvars["CACHE_PATH"]);
