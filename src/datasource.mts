@@ -8,7 +8,7 @@ import { Ensure } from "./type.mjs";
 const log = logger("datasource");
 
 type CSVParserOption = {
-  separator?: string;
+  "field-separator"?: string;
   "garbage-lines"?: number; // Number of lines of garbage to drop from the beginning of the file.
 };
 
@@ -125,7 +125,7 @@ export function* parseCSV(
   text: string,
   options: CSVParserOption = {},
 ): IterableIterator<string[]> {
-  const separator = options.separator ?? ",";
+  const fieldSeparator = options["field-separator"] ?? ",";
   const garbageLines = options["garbage-lines"] ?? 0;
 
   let idx = garbageLines > 0 ? dropGarbage(garbageLines, text, 0) : 0;
@@ -208,7 +208,7 @@ export function* parseCSV(
           case "\n":
             state = State.LF;
             break;
-          case separator:
+          case fieldSeparator:
             state = State.EndOfField;
             break;
           default:
@@ -250,7 +250,7 @@ export function* parseCSV(
             token = text[idx++] ?? "\0";
             state = State.EndOfRow;
             break;
-          case separator:
+          case fieldSeparator:
             token = text[idx++] ?? "\0";
             state = State.NewField;
             break;
@@ -349,7 +349,7 @@ export type CSVFileOptionBag = CSVParserOption & {
    * When `false` (default), rows where `toKey` or `toData` returns `undefined` trigger {@link ValueError}.
    * When `true`, such rows are skipped with no warning.
    */
-  skipInvalidRows?: boolean;
+  "skip-invalid-rows"?: boolean;
 };
 
 /**
@@ -418,7 +418,7 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     options: CSVFileOptionBag = {},
   ): CSVFile<K, T> {
     const reorder = options.reorder;
-    const skipInvalidRows = options.skipInvalidRows ?? false;
+    const skipInvalidRows = options["skip-invalid-rows"] ?? false;
 
     const sentinel = Symbol();
     let sorted = true;
@@ -454,7 +454,16 @@ export class CSVFile<K, T> implements DataSource<K, T> {
         }
         const rest: T[] = [];
         for (const cell of restRaw) {
-          const value = toData(cell);
+          let value: T | undefined;
+
+          try {
+            value = toData(cell);
+          } catch (error) {
+            log.info(
+              "C1025",
+              `Error while converting a CSV data row ${dataRowIndex}: ${error}`,
+            );
+          }
           if (value === undefined) {
             if (!skipInvalidRows) {
               throw new ValueError(
@@ -479,6 +488,11 @@ export class CSVFile<K, T> implements DataSource<K, T> {
     }
     if (empty || !headings) {
       throw new ValueError("No data to proceed");
+    }
+
+    if (!sorted) {
+      rows.sort((a, b) => (a[0] < b[0] ? -1 : 1));
+      sorted = true;
     }
     return new CSVFile(headings, rows, sorted);
   }
