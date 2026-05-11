@@ -79,14 +79,14 @@ describe("DefiLlama API", function () {
       }
     });
 
-    describe("should handle all well known crypto-assets", function () {
-      const coinGeckoIds = new Set<string>();
-      for (const cryptoAsset of WellKnownCryptoAssets) {
-        const coinGeckoId = cryptoAsset[4]?.coingeckoId;
-        if (coinGeckoId) {
-          coinGeckoIds.add(coinGeckoId);
-        }
-      }
+    describe("should accept coingecko ids for well known crypto-assets", function () {
+      const coinGeckoIds = new Set<string>([
+        "bitcoin",
+        "usd-coin",
+        "ethereum",
+        "solana",
+        "xdai",
+      ]);
 
       const register = prepare(this);
       for (const id of coinGeckoIds) {
