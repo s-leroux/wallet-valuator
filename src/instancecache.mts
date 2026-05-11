@@ -4,8 +4,8 @@ import { logger } from "./debug.mjs";
 const log = logger("instancecache");
 
 /**
- * DeepReadonly utility type.
- * ISSUE #221: Check if this behaves correctly with arrays?
+ * Recursive readonly: functions unchanged; arrays/tuples get readonly elements;
+ * plain objects get readonly properties; primitives pass through unchanged.
  */
 type DeepReadonly<T> = T extends (...args: unknown[]) => unknown
   ? T
