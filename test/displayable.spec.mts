@@ -7,12 +7,13 @@ import {
   Displayable,
   tabular,
   TextUtils,
-  DateFormat,
   objectFormatter,
   FormatGroups,
   FORMAT_RE,
+  Formatter,
+  numberFormat,
 } from "../src/displayable.mjs";
-import { NotImplementedError, ValueError } from "../src/error.mjs";
+import { ValueError } from "../src/error.mjs";
 import { Fixed } from "../src/bignumber.mjs";
 
 describe("toDisplayString", function () {
@@ -26,9 +27,9 @@ describe("toDisplayString", function () {
     assert.strictEqual(toDisplayString(obj), "custom string");
   });
 
-  it("should throw an error if toDisplayString() is missing", function () {
-    const obj = { key: "value" }; // No toDisplayString() implementation
-    assert.throws(() => toDisplayString(obj), NotImplementedError);
+  it("should use noDisplayString fallback when toDisplayString() is missing", function () {
+    const obj = { key: "value" };
+    assert.strictEqual(toDisplayString(obj), "[Object [object Object]]");
   });
 
   it("should return string representations for primitives", function () {
@@ -187,6 +188,35 @@ describe("objectFormatter", function () {
   });
 });
 
+describe("numberFormat", function () {
+  it("should reject invalid format strings", function () {
+    assert.throws(() => numberFormat(""), ValueError);
+    assert.throws(() => numberFormat("abc"), ValueError);
+    assert.throws(() => numberFormat("0"), ValueError);
+  });
+
+  it("should format with width and fractional precision", function () {
+    const fmt = numberFormat("10.2");
+    assert.strictEqual(fmt(123.456), "    123.45");
+    assert.strictEqual(fmt(-1.2), "     -1.20");
+  });
+
+  it("should default fractional digits to six when precision is omitted", function () {
+    const fmt = numberFormat("12");
+    assert.strictEqual(fmt(123.456), "  123.456000");
+  });
+
+  it("should pad numeric field with zeros when the format requests it", function () {
+    const fmt = numberFormat("010.2");
+    assert.strictEqual(fmt(123.456), "0000123.45");
+  });
+
+  it("should truncate with ellipsis when the aligned field exceeds the width", function () {
+    const fmt = numberFormat("5.2");
+    assert.strictEqual(fmt(123.456), "123.…");
+  });
+});
+
 describe("TextUtils", function () {
   describe("indent", function () {
     it("should indent lines with default shift width", function () {
@@ -217,7 +247,7 @@ describe("TextUtils", function () {
 
   describe("formatDate", function () {
     // prettier-ignore
-    const testcases: [date: number | Date, format : DateFormat, expected:string, desc:string][] = [
+    const testcases: [date: number | Date, format : Formatter<Date> | string, expected:string, desc:string][] = [
       [ new Date("2026-02-10"), "YYYY-MM-DD", "2026-02-10", "formats full ISO date"],
       [ new Date("2026-02-10"), "YYYY", "2026", "formats year only"],
       [ new Date("2026-02-10").getTime(), "YYYY-MM-DD", "2026-02-10", "accepts timestamp input"],

@@ -9,16 +9,15 @@ export interface Displayable {
   toDisplayString(options: Readonly<DisplayOptions>): string;
 }
 
-export type DateFormat = string | ((date: Date) => string);
-
 export type DisplayOptions = Partial<{
   "address.compact": boolean; // Display numeric address in compact form
   "address.name": boolean; // Display address name instead of numeric address
   "amount.separator": string;
   "amount.symbol.format": (arg: string) => string; // DEPRECATED: use "amount.format" instead
   "amount.value.format": (arg: string) => string; // DEPRECATED: use "amount.format" instead
-  "amount.format": Formatter; // Defines an amount format as understood by formatAmount
-  "date.format": DateFormat; // Defines a date format as understood by formatDate
+  "amount.format": ObjectFormatter; // Defines an amount format as understood by formatAmount
+  "date.format": Formatter<Date> | string; // Defines a date format as understood by formatDate
+  "number.format": Formatter<number>; // Defines a number format as understood by formatNumber
   "record.format": (...obj: unknown[]) => string;
   "shift.width": number; // Defines the indentation width (in number of character)
 }>;
@@ -30,6 +29,7 @@ function id<T>(x: T) {
 export const defaultDisplayOptions: Required<DisplayOptions> = {
   "shift.width": 2,
   "date.format": "YYYY-MM-DD",
+  "number.format": String,
   "address.compact": false,
   "address.name": false,
   "amount.separator": " ",
@@ -101,6 +101,9 @@ export function toDisplayString(
 
     // for non-object, use the default toString() implementation
     // ISSUE #225: Shouldn't we allow number formatting specifiers?
+    if (typeof obj === "number") {
+      return (options["number.format"] ?? String)(obj);
+    }
     return String(obj);
   }
 
@@ -162,7 +165,13 @@ interface FormatOptions {
   overflow?: OverflowPolicy;
 }
 
-type Formatter = (arg: Record<string, unknown>) => string;
+type ObjectFormatter = (what: Record<string, unknown>) => string;
+
+export type Formattable = number | Date;
+export type Formatter<T extends Formattable> = (value: T) => string;
+export type FormatterFactory<T extends Formattable> = (
+  fmt: string,
+) => Formatter<T>;
 
 /**
  * `objectFormatter` mini-language: strings use {@link formatStringAtom}. All other
@@ -227,6 +236,8 @@ function formatFixedAtom(
 
 export const FORMAT_RE =
   /{(?<field>\w+)(?<format>:(?<zero>0+)?(?<width>[1-9]\d*)(?:\.(?<precision>\d+))?)?}/g;
+export const ATOM_FORMAT_RE =
+  /^(?<format>(?<zero>0+)?(?<width>[1-9]\d*)(?:\.(?<precision>\d+))?)?$/;
 
 export type FormatGroups =
   | {
@@ -247,7 +258,7 @@ export type FormatGroups =
 export function objectFormatter(
   format: string,
   options: FormatOptions = {},
-): Formatter {
+): ObjectFormatter {
   return (arg: Record<string, string | FixedSource>): string => {
     return format.replace(FORMAT_RE, (_, ...args): string => {
       const groups = args.at(-1)! as FormatGroups;
@@ -294,6 +305,27 @@ export function objectFormatter(
       return result;
     });
   };
+}
+
+export function numberFormat(fmt: string): Formatter<number> {
+  const match = fmt.match(ATOM_FORMAT_RE);
+  const widthStr = match?.groups?.width;
+  if (!widthStr) {
+    throw new ValueError(`Invalid format ${fmt}`);
+  }
+
+  const { zero, precision } = match.groups!;
+  const align = alignLeft(+widthStr);
+
+  return (value: number) =>
+    align(
+      formatNumberAtom(
+        value,
+        +widthStr,
+        precision ? +precision : undefined,
+        !!zero,
+      ),
+    );
 }
 
 /**

@@ -30,7 +30,7 @@ export class PrettyTabularView implements TabularView {
     // Build the columns and compute the width of each column.
     for (const row of this.tabularDataSource.rows()) {
       indexOf.forEach((ptr, i) => {
-        const columnSpec = columnSpecs[ptr];
+        const columnSpec = columnSpecs[i];
         const cell = toDisplayString(row[ptr], columnSpec);
         const length = cell.length;
         columns[i].push(cell);
