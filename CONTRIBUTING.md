@@ -219,7 +219,8 @@ All compilation and testing should be done within the Docker container defined b
 
 All new features and fixes must include test coverage. Follow these steps for testing:
 
-1. Write unit tests using [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/).assert.
+1. Write unit tests using [Mocha](https://mochajs.org/) and [Chai.assert](https://www.chaijs.com/api/assert/):
+   e.g., `import { assert } from "chai"`, do not import Node’s built-in `assert` module.
 2. Run tests using `make docker-test`:
    ```bash
    make docker-test
