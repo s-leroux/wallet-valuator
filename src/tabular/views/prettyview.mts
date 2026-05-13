@@ -1,6 +1,6 @@
 import { toDisplayString } from "../../displayable.mjs";
 import { TabularAdapter } from "../adapter.mjs";
-import { ColumnSpec, TabularView } from "../view.mjs";
+import { columnIndices, ColumnSpec, TabularView } from "../view.mjs";
 
 /**
  * PrettyTabularView is a view that formats a tabular data source as a list of lines.
@@ -19,11 +19,7 @@ export class PrettyTabularView implements TabularView {
   *lines(columnSpecs: readonly ColumnSpec[]): IterableIterator<string> {
     const headings = this.tabularDataSource.headings();
 
-    // Find the index of each column in the headings.
-    // We use that as an indirection table to map column specs to the requested headings.
-    const indexOf = columnSpecs.map((columnSpec) =>
-      headings.indexOf(columnSpec.name),
-    );
+    const indexOf = columnIndices(headings, columnSpecs);
     const width = indexOf.map(() => 0);
     const columns = indexOf.map(() => [] as string[]);
 

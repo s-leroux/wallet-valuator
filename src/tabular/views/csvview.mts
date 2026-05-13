@@ -1,6 +1,6 @@
 import { toDisplayString } from "../../displayable.mjs";
 import { TabularAdapter } from "../adapter.mjs";
-import { ColumnSpec, TabularView } from "../view.mjs";
+import { columnIndices, ColumnSpec, TabularView } from "../view.mjs";
 
 /**
  * CSVView is a view that formats a tabular data source as a CSV string.
@@ -22,16 +22,12 @@ export class CSVTabularView implements TabularView {
   *lines(columnSpecs: readonly ColumnSpec[]): IterableIterator<string> {
     const headings = this.tabularDataSource.headings();
 
-    // Find the index of each column in the headings.
-    // We use that as an indirection table to map column specs to the requested headings.
-    const indexOf = columnSpecs.map((columnSpec) =>
-      headings.indexOf(columnSpec.name),
-    );
+    const indexOf = columnIndices(headings, columnSpecs);
 
     // Build the lines by concatenating the cells with the appropriate separator.
     for (const row of this.tabularDataSource.rows()) {
       yield indexOf
-        .map((ptr) => toDisplayString(row[ptr], columnSpecs[ptr]))
+        .map((ptr, i) => toDisplayString(row[ptr], columnSpecs[i]))
         .join(this.separator);
     }
   }

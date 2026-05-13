@@ -77,7 +77,8 @@ export const ERRORS = {
   "C3113": "Unknown transaction operation",
   "C3114": "Unknown transaction operation",
   "C3115": "Unknown Binance mnemonic",
-  
+  "C3116": "Unknown tabular column name",
+
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",
 } as const;

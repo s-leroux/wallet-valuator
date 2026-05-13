@@ -80,6 +80,7 @@
     "test/tabular/adapters/snapshotvaluationadapter.spec.mts",
     "test/tabular/snapshotprettyview.spec.mts",
     "test/tabular/utils.spec.mts",
+    "test/tabular/view.spec.mts",
     "test/tabular/views/csvview.spec.mts",
     "test/tabular/views/prettyview.spec.mts",
     "test/text.spec.mts",
