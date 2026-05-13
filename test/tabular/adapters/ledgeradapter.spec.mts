@@ -1,4 +1,4 @@
-import assert from "assert";
+import { assert } from "chai";
 import { asBlockchain } from "../../../src/blockchain.mjs";
 import { ChainAddress } from "../../../src/chainaddress.mjs";
 import { Ledger } from "../../../src/ledger.mjs";

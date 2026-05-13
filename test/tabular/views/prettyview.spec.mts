@@ -1,4 +1,4 @@
-import assert from "assert";
+import { assert } from "chai";
 import { FakeTabularAdapter } from "../../support/tabularadapter.fake.mjs";
 import { PrettyTabularView } from "../../../src/tabular/views/prettyview.mjs";
 import { numberFormat } from "../../../src/displayable.mjs";

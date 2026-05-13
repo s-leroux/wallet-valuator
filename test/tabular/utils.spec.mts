@@ -1,4 +1,4 @@
-import assert from "assert";
+import { assert } from "chai";
 import { asCSV } from "../../src/tabular/utils.mjs";
 import type { TabularAdapter } from "../../src/tabular/adapter.mjs";
 

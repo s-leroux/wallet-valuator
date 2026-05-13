@@ -1,6 +1,5 @@
-import assert from "assert";
+import { assert } from "chai";
 
-import { FakeCryptoAsset } from "../../support/cryptoasset.fake.mjs";
 import {
   FakeMovement,
   snapshotsFromMovements,
@@ -16,7 +15,6 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { NullFiatConverter } from "../../../src/services/fiatconverter.mjs";
-import { PriceResolver } from "../../../src/priceresolver.mjs";
 import { SnapshotValuationTabularAdapter } from "../../../src/tabular/adapters/snapshotvaluationadapter.mjs";
 import { PortfolioValuationTabularAdapter } from "../../../src/tabular/adapters/portfoliovaluationadapter.mjs";
 

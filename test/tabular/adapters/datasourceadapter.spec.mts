@@ -1,4 +1,4 @@
-import assert from "assert";
+import { assert } from "chai";
 import { Fixed } from "../../../src/bignumber.mjs";
 import { CSVFile, DataSource } from "../../../src/datasource.mjs";
 import { DataSourceTabularAdapter } from "../../../src/tabular/adapters/datasourceadapter.mjs";
@@ -48,7 +48,10 @@ describe("DataSourceTabularAdapter", () => {
 
     const actual = Array.from(adapter.rows()).slice(0, 10);
 
-    assert.deepEqual(actual, expected);
+    assert.deepEqual(
+      actual as unknown,
+      expected as unknown,
+    );
   });
 
   it("should expose all the rows from the data source", () => {

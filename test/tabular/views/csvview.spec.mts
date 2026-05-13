@@ -1,4 +1,4 @@
-import assert from "assert";
+import { assert } from "chai";
 import { FakeTabularAdapter } from "../../support/tabularadapter.fake.mjs";
 import { CSVTabularView } from "../../../src/tabular/views/csvview.mjs";
 
