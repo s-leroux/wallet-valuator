@@ -67,7 +67,7 @@ function createExplorers(registry: CryptoRegistryNG, envvars: EnvVars) {
     "polygon",
     "optimism",
   ].map((id) =>
-    ExplorerFactories[id].create(registry, envvars["ETHERSCAN_API_KEY"])
+    ExplorerFactories[id].create(registry, envvars["ETHERSCAN_API_KEY"]),
   );
 }
 
@@ -77,7 +77,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
       acc[key] = metadata.coingeckoId;
       return acc;
     },
-    Object.create(null) as InternalToCoinGeckoIdMapping
+    Object.create(null) as InternalToCoinGeckoIdMapping,
   );
 
   return CompositeOracle.create([
@@ -93,7 +93,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
         origin: "Yahoo",
         dateFormat: "MMM D, YYYY",
         "field-separator": ";",
-      }
+      },
     ),
     await OHLCOracle.createFromPath(
       registry.createCryptoAsset("bitcoin"),
@@ -103,7 +103,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
         origin: "Yahoo",
         dateFormat: "MMM D, YYYY",
         "field-separator": ";",
-      }
+      },
     ),
   ]).cache(envvars["CACHE_PATH"]);
 }
@@ -146,26 +146,26 @@ export async function processAddresses(configPath?: string): Promise<void> {
     explorers,
     cryptoRegistry,
     cryptoMetadata,
-    resolver
+    resolver,
   );
 
   // Convert hex addresses to internal account objects
   const accounts = await Promise.all(
     (config.accounts ?? []).map(([chain, address]) =>
-      chain !== false ? MakeAccount(swarm, chain, address) : null
-    )
+      chain !== false ? MakeAccount(swarm, chain, address) : null,
+    ),
   );
 
   // Pre-populate the address table with the user-provided data
   await Promise.all(
     (config.addresses ?? []).map(([chain, address, data]) =>
-      swarm.address(asBlockchain(chain), address, data)
-    )
+      swarm.address(asBlockchain(chain), address, data),
+    ),
   );
 
   // Load all transfers from the user accounts
   const transfers = await Promise.all(
-    accounts.map((account) => (account ? account.loadTransactions(swarm) : []))
+    accounts.map((account) => (account ? account.loadTransactions(swarm) : [])),
   );
 
   // Create a ledger to track all transfers and their directions
@@ -200,7 +200,7 @@ export async function processAddresses(configPath?: string): Promise<void> {
     cryptoMetadata,
     oracle,
     fiatConverter,
-    FiatCurrency("EUR")
+    FiatCurrency("EUR"),
   );
 
   // Configure display options for the output
