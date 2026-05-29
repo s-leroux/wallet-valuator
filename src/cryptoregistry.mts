@@ -59,7 +59,11 @@ export type CryptoAssetDescriptor = {
   decimal: number;
 };
 
-type CryptoAssetFiscalCategory = undefined | "SECURITY" | "UTILITY TOKEN";
+type CryptoAssetFiscalCategory =
+  | "SECURITY"
+  | "UTILITY TOKEN"
+  | "SCAM"
+  | "UNKNOWN";
 
 export class CryptoRegistryNG {
   private readonly cache: CryptoAssetCache;
