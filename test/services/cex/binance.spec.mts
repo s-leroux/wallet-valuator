@@ -44,7 +44,7 @@ describe("Binance", () => {
   });
 });
 
-describe("BinanceAccount2", () => {
+describe("Binance2", () => {
   describe("loadTransaction", function () {
     let cryptoRegistry: CryptoRegistryNG;
     beforeEach(() => {
@@ -74,6 +74,7 @@ describe("BinanceAccount2", () => {
       ["Spot,Transaction Sold,SOL,-0.17,", "TRADE"],
       ["Spot,Transaction Fee,BNB,-0.00100292,", null],
       ["Spot,Binance Convert,USDT,-0.41200646,", "TRADE"],
+      ["Spot,Transaction Buy,BERA,7.572,", "TRADE"],
 
       // staking
       ["Spot,BNSOL Staking - Extra Rewards,SIGN,0.17536365,", "RECEIVE"],
@@ -147,6 +148,18 @@ describe("BinanceAccount2", () => {
       const account = await BinanceAccount2.createFromPath(path);
       assert.strictEqual(account.chain, Binance.chain);
       assert.strictEqual(account.address, "my-binance-account");
+    });
+
+    it("should parse the date properly", async () => {
+      const cryptoRegistry = CryptoRegistryNG.create();
+      const cryptoMetadata = CryptoMetadata.create();
+      const swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, []);
+      const account = await BinanceAccount2.createFromPath(path);
+      const transactions = await account.loadTransactions(swarm);
+      assert.strictEqual(
+        transactions[0].timeStamp,
+        new Date("2023-12-22").getTime() / 1000,
+      );
     });
 
     it("should load transactions from a path", async () => {

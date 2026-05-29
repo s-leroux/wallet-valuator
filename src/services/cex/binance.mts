@@ -15,6 +15,7 @@ import {
   Transaction,
 } from "../../transaction.mjs";
 import { Value } from "../../valuation.mjs";
+import { parseDate } from "../../date.mjs";
 
 type WellKnownCryptoId = (typeof WellKnownCryptoAssets)[number][0];
 const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
@@ -429,8 +430,15 @@ export class BinanceAccount2 {
   }
 
   static async createFromPath(path: string) {
+    function dateParser(date: string) {
+      return parseDate(
+        /^(?<year>\d\d\d\d)-(?<month>\d\d)-(?<day>\d\d) .*/,
+        "20" + date,
+      );
+    }
+
     return BinanceAccount2.create(
-      await CSVFile.createFromPath(path, (date) => new Date(date), String, {
+      await CSVFile.createFromPath(path, dateParser, String, {
         reorder(input, heading) {
           // swap the ID and Date columns
           const temp = input[0];
