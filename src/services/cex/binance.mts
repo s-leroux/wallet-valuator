@@ -16,6 +16,9 @@ import {
 } from "../../transaction.mjs";
 import { Value } from "../../valuation.mjs";
 import { parseDate } from "../../date.mjs";
+import { logger } from "../../debug.mjs";
+
+const log = logger("binance");
 
 type WellKnownCryptoId = (typeof WellKnownCryptoAssets)[number][0];
 const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
@@ -146,6 +149,12 @@ export class BinanceAccount {
   }
 
   static async createFromPath(path: string) {
+    log.trace(
+      "C1027",
+      "Loading transactions from Binance v1 report at %s",
+      path,
+    );
+
     return BinanceAccount.create(
       await CSVFile.createFromPath(path, String, String, {
         reorder(input, heading) {
@@ -436,6 +445,12 @@ export class BinanceAccount2 {
         "20" + date,
       );
     }
+
+    log.trace(
+      "C1026",
+      "Loading transactions from Binance v2 report at %s",
+      path,
+    );
 
     return BinanceAccount2.create(
       await CSVFile.createFromPath(path, dateParser, String, {

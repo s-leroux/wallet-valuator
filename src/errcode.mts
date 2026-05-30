@@ -28,6 +28,8 @@ export const ERRORS = {
   "C1023": "Price not in cache",
   "C1024": "Can't use FiatConverter",
   "C1025": "Error while converting a CSV data row",
+  "C1026": "Loading transactions from Binance v2 report",
+  "C1027": "Loading transactions from Binance v1 report",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",
