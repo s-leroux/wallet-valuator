@@ -11,13 +11,99 @@ import {
 import { prepare } from "../../support/register.helper.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
 import { CSVFile, EmptyDataSource } from "../../../src/datasource.mjs";
-import { parseDate } from "../../../src/date.mjs";
-import { mangleChainAddress } from "../../../src/chainaddress.mjs";
-import { OffChainTransactionType } from "../../../src/transaction.mjs";
+import { ChainAddress, mangleChainAddress } from "../../../src/chainaddress.mjs";
+import { ValueError } from "../../../src/error.mjs";
+import {
+  OffChainTransactionType,
+  Transaction,
+} from "../../../src/transaction.mjs";
+
+const BINANCE_NOWHERE = "binance-cex:nowhere";
+const BINANCE_ACCOUNT = "binance-cex:my-binance-account";
+
+const inlineIntegrationBuyStamp = Math.floor(
+  new Date("2023-12-22 18:26:26").getTime() / 1000,
+);
+const inlineIntegrationTradeStamp = Math.floor(
+  new Date("2023-12-22 18:34:46").getTime() / 1000,
+);
+const inlineIntegrationReceiveStamp = Math.floor(
+  new Date("2023-12-22 18:41:50").getTime() / 1000,
+);
+
+type IntegrationTxTuple = readonly [
+  timeStamp: number,
+  type: OffChainTransactionType,
+  from: string,
+  to: string,
+  amount: string,
+];
+
+/** Canonical outcome for the inline v1/v2 integration scenarios (same economic events). */
+const inlineIntegrationExpected: IntegrationTxTuple[] = [
+  [
+    inlineIntegrationBuyStamp,
+    "BUY",
+    BINANCE_NOWHERE,
+    BINANCE_ACCOUNT,
+    "325.94914962 USDT",
+  ],
+  [
+    inlineIntegrationTradeStamp,
+    "TRADE",
+    BINANCE_NOWHERE,
+    BINANCE_ACCOUNT,
+    "1.68 SOL",
+  ],
+  [
+    inlineIntegrationTradeStamp,
+    "TRADE",
+    BINANCE_ACCOUNT,
+    BINANCE_NOWHERE,
+    "159.264 USDT",
+  ],
+  [
+    inlineIntegrationReceiveStamp,
+    "RECEIVE",
+    BINANCE_NOWHERE,
+    BINANCE_ACCOUNT,
+    "0.15952744 USDT",
+  ],
+];
+
+function integrationTxTuples(
+  transactions: Transaction[],
+): IntegrationTxTuple[] {
+  return transactions.map((tx) => [
+    tx.timeStamp,
+    tx.type as OffChainTransactionType,
+    mangleChainAddress(tx.from),
+    mangleChainAddress(tx.to),
+    tx.amount.toString(),
+  ]);
+}
 
 describe("Binance", () => {
   it("should have a chain property", () => {
     assert.equal(Binance.chain.id, "binance-cex");
+  });
+
+  it("should reject negative amounts in createTransaction", () => {
+    const cryptoRegistry = CryptoRegistryNG.create();
+    const amount = Binance.amountFromCrypto(cryptoRegistry, "USDT", "-1");
+    try {
+      Binance.createTransaction(
+        "TRADE",
+        0,
+        amount,
+        ChainAddress("binance-cex", "nowhere"),
+        ChainAddress("binance-cex", "my-binance-account"),
+      );
+      assert.fail("expected createTransaction to throw");
+    } catch (err) {
+      assert.instanceOf(err, ValueError);
+      assert.propertyVal(err, "errCode", "C3117");
+    }
   });
 
   describe("amountFromCrypto", function () {
@@ -72,32 +158,9 @@ describe("Binance", () => {
       const account = BinanceAccount.create(dataSource);
       const transactions = await account.loadTransactions(swarm);
 
-      const nowhere = "binance-cex:nowhere";
-      const accountAddr = "binance-cex:my-binance-account";
-      const buyStamp = Math.floor(
-        new Date("2023-12-22 18:26:26").getTime() / 1000,
-      );
-      const tradeStamp = Math.floor(
-        new Date("2023-12-22 18:34:46").getTime() / 1000,
-      );
-      const receiveStamp = Math.floor(
-        new Date("2023-12-22 18:41:50").getTime() / 1000,
-      );
-
       assert.deepEqual(
-        transactions.map((tx) => [
-          tx.timeStamp,
-          tx.type,
-          mangleChainAddress(tx.from),
-          mangleChainAddress(tx.to),
-          tx.amount.toString(),
-        ]),
-        [
-          [buyStamp, "BUY", nowhere, accountAddr, "325.94914962 USDT"],
-          [tradeStamp, "TRADE", nowhere, accountAddr, "1.68 SOL"],
-          [tradeStamp, "TRADE", accountAddr, nowhere, "159.264 USDT"],
-          [receiveStamp, "RECEIVE", nowhere, accountAddr, "0.15952744 USDT"],
-        ],
+        integrationTxTuples(transactions),
+        inlineIntegrationExpected,
       );
     });
   });
@@ -206,17 +269,14 @@ describe("Binance2", () => {
       const inlineReport = [
         "User ID,Time,Account,Operation,Coin,Change,Remark",
         "user-1,23-12-22 18:26:26,Spot,Buy Crypto With Fiat,USDT,325.94914962,RefWallet",
-        "user-1,23-12-22 18:26:26,Spot,Transaction Spend,USDT,-159.264,",
         "user-1,23-12-22 18:34:46,Spot,Transaction Buy,SOL,1.68,",
+        "user-1,23-12-22 18:34:46,Spot,Transaction Spend,USDT,-159.264,",
         "user-1,23-12-22 18:34:46,Spot,Transaction Fee,SOL,-0.00168,",
         "user-1,23-12-22 18:41:50,Spot,Cashback Voucher,USDT,0.15952744,",
       ].join("\n");
 
       function dateParser(date: string) {
-        return parseDate(
-          /^(?<year>\d\d\d\d)-(?<month>\d\d)-(?<day>\d\d) .*/,
-          "20" + date,
-        );
+        return new Date("20" + date);
       }
 
       const dataSource = CSVFile.createFromText(
@@ -239,25 +299,9 @@ describe("Binance2", () => {
       const account = BinanceAccount2.create(dataSource);
       const transactions = await account.loadTransactions(swarm);
 
-      const nowhere = "binance-cex:nowhere";
-      const dayStamp = Math.floor(
-        dateParser("23-12-22 18:26:26").getTime() / 1000,
-      );
-
       assert.deepEqual(
-        transactions.map((tx) => [
-          tx.timeStamp,
-          tx.type,
-          mangleChainAddress(tx.from),
-          mangleChainAddress(tx.to),
-          tx.amount.toString(),
-        ]),
-        [
-          [dayStamp, "BUY", nowhere, nowhere, "325.94914962 USDT"],
-          [dayStamp, "TRADE", nowhere, nowhere, "-159.264 USDT"],
-          [dayStamp, "TRADE", nowhere, nowhere, "1.68 SOL"],
-          [dayStamp, "RECEIVE", nowhere, nowhere, "0.15952744 USDT"],
-        ],
+        integrationTxTuples(transactions),
+        inlineIntegrationExpected,
       );
     });
   });
@@ -277,10 +321,7 @@ describe("Binance2", () => {
       const swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, []);
       const account = await BinanceAccount2.createFromPath(path);
       const transactions = await account.loadTransactions(swarm);
-      assert.strictEqual(
-        transactions[0].timeStamp,
-        new Date("2023-12-22").getTime() / 1000,
-      );
+      assert.strictEqual(transactions[0].timeStamp, inlineIntegrationBuyStamp);
     });
 
     it("should load transactions from a path", async () => {
@@ -298,14 +339,14 @@ describe("Binance2", () => {
         amount: string,
       ][] = [
         [0, "BUY", "325.94914962 USDT"],
-        [1, "TRADE", "-159.264 USDT"],
+        [1, "TRADE", "159.264 USDT"],
         [2, "TRADE", "1.68 SOL"],
-        [3, "TRADE", "-159.79089 USDT"],
+        [3, "TRADE", "159.79089 USDT"],
         [4, "TRADE", "0.069 ETH"],
         [5, "RECEIVE", "0.15952744 USDT"],
-        [6, "TRADE", "-4.8726 USDT"],
+        [6, "TRADE", "4.8726 USDT"],
         [7, "TRADE", "0.018 BNB"],
-        [8, "TRADE", "-0.8 SOL"],
+        [8, "TRADE", "0.8 SOL"],
         [9, "TRADE", "79.6 USDT"],
       ];
 
