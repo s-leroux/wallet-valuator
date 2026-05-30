@@ -72,7 +72,7 @@ export const WellKnownCryptoAssets: readonly WellKnownCryptoAsset[] = [
   ["savings-dai", "Savings Dai", "sDAI", 18, { coingeckoId: "savings-dai" }],
   ["savings-xdai", "Savings xDai", "sDAI", 18, { coingeckoId: "savings-xdai" }],
   ["sei", "Sei", "SEI", 18, { coingeckoId: "sei-network" }],
-  ["sign", "Sign", "SIGN", 18, { coingeckoId: "sign" }],
+  ["sign", "Sign", "SIGN", 18, { coingeckoId: "sign-global" }],
   ["solana", "Solana", "SOL", 9, { coingeckoId: "solana" }],
   ["sui", "Sui", "SUI", 9, { coingeckoId: "sui" }],
   ["tron", "TRON", "TRX", 6, { coingeckoId: "tron" }],
