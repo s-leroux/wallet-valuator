@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import {
   Binance,
+  BinanceAccount,
   BinanceAccount2,
 } from "../../../src/services/cex/binance.mjs";
 import {
@@ -42,6 +43,63 @@ describe("Binance", () => {
         );
       });
     }
+  });
+
+  describe("integration", () => {
+    it("should load transactions from an inline v1 report", async () => {
+      // Same economic events as the Binance2 inline integration test, expressed
+      // in the legacy v1 column layout (see binance-transactions-2023.csv).
+      // prettier-ignore
+      const inlineReport = [
+        "ID,Date,Type,Label,Sent Amount,Sent Currency,Sent Address,Received Amount,Received Currency,Fee Amount,Fee Currency,Comment",
+        "tx-buy,2023-12-22 18:26:26,Buy,N/A,299,EUR,,325.94914962,USDT,1,EUR,",
+        "tx-trade,2023-12-22 18:34:46,Trade,N/A,159.264,USDT,,1.68,SOL,0.00168,SOL,",
+        "tx-rcv,2023-12-22 18:41:50,Receive,N/A,0,,,0.15952744,USDT,0,,",
+      ].join("\n");
+
+      const dataSource = CSVFile.createFromText(inlineReport, String, String, {
+        reorder(input) {
+          const temp = input[0];
+          input[0] = input[1];
+          input[1] = temp;
+          return input;
+        },
+      });
+
+      const cryptoRegistry = CryptoRegistryNG.create();
+      const cryptoMetadata = CryptoMetadata.create();
+      const swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, []);
+      const account = BinanceAccount.create(dataSource);
+      const transactions = await account.loadTransactions(swarm);
+
+      const nowhere = "binance-cex:nowhere";
+      const accountAddr = "binance-cex:my-binance-account";
+      const buyStamp = Math.floor(
+        new Date("2023-12-22 18:26:26").getTime() / 1000,
+      );
+      const tradeStamp = Math.floor(
+        new Date("2023-12-22 18:34:46").getTime() / 1000,
+      );
+      const receiveStamp = Math.floor(
+        new Date("2023-12-22 18:41:50").getTime() / 1000,
+      );
+
+      assert.deepEqual(
+        transactions.map((tx) => [
+          tx.timeStamp,
+          tx.type,
+          mangleChainAddress(tx.from),
+          mangleChainAddress(tx.to),
+          tx.amount.toString(),
+        ]),
+        [
+          [buyStamp, "BUY", nowhere, accountAddr, "325.94914962 USDT"],
+          [tradeStamp, "TRADE", nowhere, accountAddr, "1.68 SOL"],
+          [tradeStamp, "TRADE", accountAddr, nowhere, "159.264 USDT"],
+          [receiveStamp, "RECEIVE", nowhere, accountAddr, "0.15952744 USDT"],
+        ],
+      );
+    });
   });
 });
 
