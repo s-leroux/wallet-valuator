@@ -4,12 +4,14 @@ This directory contains sample transaction reports from Binance.
 
 ## Contents
 
-- `binance-transactions.csv`: Legacy transaction report from Binance.
-  Generation details are missing. As of April 2026, this file format is considered deprecated.
-- `binance-transactions-2.csv`: A sample transaction report from Binance.
+- `binance-report-v1-sample.csv`: Sample **v1** (legacy) transaction report from Binance.
+  Column layout: `ID,Date,Type,Label,Sent Amount,...`
+  As of April 2026, this format is considered deprecated.
+- `binance-report-v2-sample.csv`: Sample **v2** transaction report from Binance.
+  Column layout: `User ID,Time,Account,Operation,Coin,Change,Remark`
   Generated from a real transaction report obtained in April 2026 at
   https://www.binance.com/en/my/download-center?type=asset-transaction-history
   using the following command:
   ```bash
-  awk -f tools/binance-transactions.awk < binance-transactions.csv > fixtures/Binance/binance-transactions-2.csv
+  awk -f tools/binance-transactions.awk < binance-transactions.csv > fixtures/Binance/binance-report-v2-sample.csv
   ```

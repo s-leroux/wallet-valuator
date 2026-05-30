@@ -205,7 +205,7 @@ describe("Binance2", () => {
   });
 
   describe("createFromPath", () => {
-    const path = "fixtures/Binance/binance-transactions-2.csv";
+    const path = "fixtures/Binance/binance-report-v2-sample.csv";
 
     it("should create a BinanceAccount2 from a path", async () => {
       const account = await BinanceAccount2.createFromPath(path);

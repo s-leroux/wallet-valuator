@@ -178,7 +178,7 @@ describe("CSVFile", function () {
 
       before(async function () {
         csvFile = await CSVFile.createFromPath(
-          "./fixtures/Binance/binance-report.csv",
+          "./fixtures/Binance/binance-report-v1-sample.csv",
           String,
           String,
           {
