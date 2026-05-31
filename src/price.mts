@@ -6,6 +6,8 @@ import { GlobalMetadataStore, MetadataFacade } from "./metadata.mjs";
 
 type PriceMetadataType = {
   origin: string;
+  /** When true, the quote must not be treated as durable market data (e.g. ZeroOracle fallback). */
+  volatile?: boolean;
 };
 
 export class PriceMetadata extends MetadataFacade<Price, PriceMetadataType> {}

@@ -32,6 +32,7 @@ import { MakeAccount } from "../../account.mjs";
 import { WellKnownCryptoAssets } from "../../data/wellknowncryptoassets.mjs";
 import { OHLCOracle } from "../../services/oracles/ohlcoracle.mjs";
 import { CryptoMetadata } from "../../../src/cryptometadata.mjs";
+import { ZeroOracle } from "../../services/oracles/zerooracle.mjs";
 
 type ErrCode = "T0001";
 
@@ -105,6 +106,7 @@ async function createOracle(envvars: EnvVars, registry: CryptoRegistryNG) {
         "field-separator": ";",
       },
     ),
+    ZeroOracle.create(),
   ]).cache(envvars["CACHE_PATH"]);
 }
 

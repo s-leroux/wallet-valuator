@@ -190,6 +190,12 @@ export class Caching /*extends Oracle*/ {
       );
 
       const metadata = GlobalPriceMetadata.getMetadata(price);
+
+      // Ignore "volatile" prices (e.g. from ZeroOracle)
+      if (metadata?.volatile) {
+        continue;
+      }
+
       const origin =
         (metadata?.origin && this.dictionary(metadata.origin)) || undefined;
       stmt.run(
