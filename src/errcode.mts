@@ -44,6 +44,7 @@ export const ERRORS = {
   "C2101": "Unknown CEX transaction type",
   "C2102": "Unable to format and no fallback (noDisplayString)",
   "C2103": "Price fallback to zero (ZeroOracle)",
+  "C2104": "Internal server error (CurveOracle)",
 
   // Error-level codes (3000-3999)
   "C3001": "Report missing data",
