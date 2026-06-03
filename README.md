@@ -29,7 +29,7 @@ navigation layer still exists, but accounting is the main focus.
 
 ## Project Status
 
-🚧 **Under Active Development (03-2026)** 🚧
+🚧 **Used for the French Income Tax Declaration 2025. Under Maintenance until August 2026.** 🚧
 
 ## Numeric representation
 
