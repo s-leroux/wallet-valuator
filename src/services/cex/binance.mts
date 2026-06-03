@@ -15,6 +15,9 @@ import {
   Transaction,
 } from "../../transaction.mjs";
 import { Value } from "../../valuation.mjs";
+import { logger } from "../../debug.mjs";
+
+const log = logger("binance");
 
 type WellKnownCryptoId = (typeof WellKnownCryptoAssets)[number][0];
 const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
@@ -86,10 +89,11 @@ const BINANCE_MNEMONIC_TO_CRYPTO_ASSET_ID: Record<
   ZBT: "zerobase",
 } as const;
 
-const nowhere = ChainAddress("binance-cex", "nowhere");
+const BINANCE_CEX_CHAIN = asBlockchain("binance-cex");
+const nowhere = ChainAddress(BINANCE_CEX_CHAIN, "nowhere");
 
 export const Binance = {
-  chain: asBlockchain("binance-cex"),
+  chain: BINANCE_CEX_CHAIN,
 
   createTransaction(
     type: OffChainTransactionType,
@@ -99,6 +103,14 @@ export const Binance = {
     to: ChainAddress,
     comments: string[] = [],
   ): CEXTransaction {
+    if (amount.isNegative()) {
+      throw Logged(
+        "C3117",
+        ValueError,
+        `Negative amount ${amount} for ${type} on ${Binance.chain}`,
+      );
+    }
+
     return new CEXTransaction(
       Binance.chain,
       type,
@@ -136,7 +148,7 @@ export class BinanceAccount {
   transactions: Transaction[];
 
   constructor(readonly transactionReport: DataSource<string, string>) {
-    this.chain = asBlockchain("binance-cex");
+    this.chain = BINANCE_CEX_CHAIN;
     this.address = "my-binance-account";
   }
 
@@ -145,6 +157,12 @@ export class BinanceAccount {
   }
 
   static async createFromPath(path: string) {
+    log.trace(
+      "C1027",
+      "Loading transactions from Binance v1 report at %s",
+      path,
+    );
+
     return BinanceAccount.create(
       await CSVFile.createFromPath(path, String, String, {
         reorder(input, heading) {
@@ -313,8 +331,7 @@ export class BinanceAccount {
     to: ChainAddress,
     comments: string[] = [],
   ): CEXTransaction {
-    return new CEXTransaction(
-      this.chain,
+    return Binance.createTransaction(
       type,
       timeStamp,
       amount,
@@ -413,14 +430,13 @@ const BINANCE_OPERATIONS_2_RE = new RegExp(
 );
 
 export class BinanceAccount2 {
-  get chain() {
-    return Binance.chain;
-  }
+  readonly chain: Blockchain;
   readonly address: string;
 
   transactions: Transaction[];
 
   constructor(readonly transactionReport: DataSource<Date, string>) {
+    this.chain = BINANCE_CEX_CHAIN;
     this.address = "my-binance-account";
   }
 
@@ -429,8 +445,18 @@ export class BinanceAccount2 {
   }
 
   static async createFromPath(path: string) {
+    function dateParser(date: string) {
+      return new Date("20" + date);
+    }
+
+    log.trace(
+      "C1026",
+      "Loading transactions from Binance v2 report at %s",
+      path,
+    );
+
     return BinanceAccount2.create(
-      await CSVFile.createFromPath(path, (date) => new Date(date), String, {
+      await CSVFile.createFromPath(path, dateParser, String, {
         reorder(input, heading) {
           // swap the ID and Date columns
           const temp = input[0];
@@ -523,12 +549,15 @@ export class BinanceAccount2 {
     }
 
     const amount = Binance.amountFromCrypto(cryptoRegistry, coin, change);
+    const [from, to, magnitude] = amount.isNegative()
+      ? [this, nowhere, amount.negated()]
+      : [nowhere, this, amount];
     return Binance.createTransaction(
       transactionType,
       timeStamp,
-      amount,
-      nowhere,
-      nowhere,
+      magnitude,
+      from,
+      to,
       comments.concat(`${operation} ${coin} ${change}`),
     );
   }

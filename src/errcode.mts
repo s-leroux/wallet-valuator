@@ -28,6 +28,8 @@ export const ERRORS = {
   "C1023": "Price not in cache",
   "C1024": "Can't use FiatConverter",
   "C1025": "Error while converting a CSV data row",
+  "C1026": "Loading transactions from Binance v2 report",
+  "C1027": "Loading transactions from Binance v1 report",
 
   // Warning-level codes (2000-2999)
   "C2001": "Ignore an asset because of missing data",
@@ -41,8 +43,8 @@ export const ERRORS = {
   "C2100": "Price not found",
   "C2101": "Unknown CEX transaction type",
   "C2102": "Unable to format and no fallback (noDisplayString)",
-
-
+  "C2103": "Price fallback to zero (ZeroOracle)",
+  "C2104": "Internal server error (CurveOracle)",
 
   // Error-level codes (3000-3999)
   "C3001": "Report missing data",
@@ -78,6 +80,7 @@ export const ERRORS = {
   "C3114": "Unknown transaction operation",
   "C3115": "Unknown Binance mnemonic",
   "C3116": "Unknown tabular column name",
+  "C3117": "Negative CEX transaction amount",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

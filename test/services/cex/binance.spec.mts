@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import {
   Binance,
+  BinanceAccount,
   BinanceAccount2,
 } from "../../../src/services/cex/binance.mjs";
 import {
@@ -9,13 +10,100 @@ import {
 } from "../../../src/cryptoregistry.mjs";
 import { prepare } from "../../support/register.helper.mjs";
 import { Swarm } from "../../../src/swarm.mjs";
-import { EmptyDataSource } from "../../../src/datasource.mjs";
-import { OffChainTransactionType } from "../../../src/transaction.mjs";
-import { IndexInfo } from "typescript";
+import { CSVFile, EmptyDataSource } from "../../../src/datasource.mjs";
+import { ChainAddress, mangleChainAddress } from "../../../src/chainaddress.mjs";
+import { ValueError } from "../../../src/error.mjs";
+import {
+  OffChainTransactionType,
+  Transaction,
+} from "../../../src/transaction.mjs";
+
+const BINANCE_NOWHERE = "binance-cex:nowhere";
+const BINANCE_ACCOUNT = "binance-cex:my-binance-account";
+
+const inlineIntegrationBuyStamp = Math.floor(
+  new Date("2023-12-22 18:26:26").getTime() / 1000,
+);
+const inlineIntegrationTradeStamp = Math.floor(
+  new Date("2023-12-22 18:34:46").getTime() / 1000,
+);
+const inlineIntegrationReceiveStamp = Math.floor(
+  new Date("2023-12-22 18:41:50").getTime() / 1000,
+);
+
+type IntegrationTxTuple = readonly [
+  timeStamp: number,
+  type: OffChainTransactionType,
+  from: string,
+  to: string,
+  amount: string,
+];
+
+/** Canonical outcome for the inline v1/v2 integration scenarios (same economic events). */
+const inlineIntegrationExpected: IntegrationTxTuple[] = [
+  [
+    inlineIntegrationBuyStamp,
+    "BUY",
+    BINANCE_NOWHERE,
+    BINANCE_ACCOUNT,
+    "325.94914962 USDT",
+  ],
+  [
+    inlineIntegrationTradeStamp,
+    "TRADE",
+    BINANCE_NOWHERE,
+    BINANCE_ACCOUNT,
+    "1.68 SOL",
+  ],
+  [
+    inlineIntegrationTradeStamp,
+    "TRADE",
+    BINANCE_ACCOUNT,
+    BINANCE_NOWHERE,
+    "159.264 USDT",
+  ],
+  [
+    inlineIntegrationReceiveStamp,
+    "RECEIVE",
+    BINANCE_NOWHERE,
+    BINANCE_ACCOUNT,
+    "0.15952744 USDT",
+  ],
+];
+
+function integrationTxTuples(
+  transactions: Transaction[],
+): IntegrationTxTuple[] {
+  return transactions.map((tx) => [
+    tx.timeStamp,
+    tx.type as OffChainTransactionType,
+    mangleChainAddress(tx.from),
+    mangleChainAddress(tx.to),
+    tx.amount.toString(),
+  ]);
+}
 
 describe("Binance", () => {
   it("should have a chain property", () => {
     assert.equal(Binance.chain.id, "binance-cex");
+  });
+
+  it("should reject negative amounts in createTransaction", () => {
+    const cryptoRegistry = CryptoRegistryNG.create();
+    const amount = Binance.amountFromCrypto(cryptoRegistry, "USDT", "-1");
+    try {
+      Binance.createTransaction(
+        "TRADE",
+        0,
+        amount,
+        ChainAddress("binance-cex", "nowhere"),
+        ChainAddress("binance-cex", "my-binance-account"),
+      );
+      assert.fail("expected createTransaction to throw");
+    } catch (err) {
+      assert.instanceOf(err, ValueError);
+      assert.propertyVal(err, "errCode", "C3117");
+    }
   });
 
   describe("amountFromCrypto", function () {
@@ -42,9 +130,43 @@ describe("Binance", () => {
       });
     }
   });
+
+  describe("integration", () => {
+    it("should load transactions from an inline v1 report", async () => {
+      // Same economic events as the Binance2 inline integration test, expressed
+      // in the legacy v1 column layout (see binance-transactions-2023.csv).
+      // prettier-ignore
+      const inlineReport = [
+        "ID,Date,Type,Label,Sent Amount,Sent Currency,Sent Address,Received Amount,Received Currency,Fee Amount,Fee Currency,Comment",
+        "tx-buy,2023-12-22 18:26:26,Buy,N/A,299,EUR,,325.94914962,USDT,1,EUR,",
+        "tx-trade,2023-12-22 18:34:46,Trade,N/A,159.264,USDT,,1.68,SOL,0.00168,SOL,",
+        "tx-rcv,2023-12-22 18:41:50,Receive,N/A,0,,,0.15952744,USDT,0,,",
+      ].join("\n");
+
+      const dataSource = CSVFile.createFromText(inlineReport, String, String, {
+        reorder(input) {
+          const temp = input[0];
+          input[0] = input[1];
+          input[1] = temp;
+          return input;
+        },
+      });
+
+      const cryptoRegistry = CryptoRegistryNG.create();
+      const cryptoMetadata = CryptoMetadata.create();
+      const swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, []);
+      const account = BinanceAccount.create(dataSource);
+      const transactions = await account.loadTransactions(swarm);
+
+      assert.deepEqual(
+        integrationTxTuples(transactions),
+        inlineIntegrationExpected,
+      );
+    });
+  });
 });
 
-describe("BinanceAccount2", () => {
+describe("Binance2", () => {
   describe("loadTransaction", function () {
     let cryptoRegistry: CryptoRegistryNG;
     beforeEach(() => {
@@ -74,6 +196,7 @@ describe("BinanceAccount2", () => {
       ["Spot,Transaction Sold,SOL,-0.17,", "TRADE"],
       ["Spot,Transaction Fee,BNB,-0.00100292,", null],
       ["Spot,Binance Convert,USDT,-0.41200646,", "TRADE"],
+      ["Spot,Transaction Buy,BERA,7.572,", "TRADE"],
 
       // staking
       ["Spot,BNSOL Staking - Extra Rewards,SIGN,0.17536365,", "RECEIVE"],
@@ -140,13 +263,65 @@ describe("BinanceAccount2", () => {
     }
   });
 
+  describe("integration", () => {
+    it("should load transactions from an inline v2 report", async () => {
+      // prettier-ignore
+      const inlineReport = [
+        "User ID,Time,Account,Operation,Coin,Change,Remark",
+        "user-1,23-12-22 18:26:26,Spot,Buy Crypto With Fiat,USDT,325.94914962,RefWallet",
+        "user-1,23-12-22 18:34:46,Spot,Transaction Buy,SOL,1.68,",
+        "user-1,23-12-22 18:34:46,Spot,Transaction Spend,USDT,-159.264,",
+        "user-1,23-12-22 18:34:46,Spot,Transaction Fee,SOL,-0.00168,",
+        "user-1,23-12-22 18:41:50,Spot,Cashback Voucher,USDT,0.15952744,",
+      ].join("\n");
+
+      function dateParser(date: string) {
+        return new Date("20" + date);
+      }
+
+      const dataSource = CSVFile.createFromText(
+        inlineReport,
+        dateParser,
+        String,
+        {
+          reorder(input) {
+            const temp = input[0];
+            input[0] = input[1];
+            input[1] = temp;
+            return input;
+          },
+        },
+      );
+
+      const cryptoRegistry = CryptoRegistryNG.create();
+      const cryptoMetadata = CryptoMetadata.create();
+      const swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, []);
+      const account = BinanceAccount2.create(dataSource);
+      const transactions = await account.loadTransactions(swarm);
+
+      assert.deepEqual(
+        integrationTxTuples(transactions),
+        inlineIntegrationExpected,
+      );
+    });
+  });
+
   describe("createFromPath", () => {
-    const path = "fixtures/Binance/binance-transactions-2.csv";
+    const path = "fixtures/Binance/binance-report-v2-sample.csv";
 
     it("should create a BinanceAccount2 from a path", async () => {
       const account = await BinanceAccount2.createFromPath(path);
       assert.strictEqual(account.chain, Binance.chain);
       assert.strictEqual(account.address, "my-binance-account");
+    });
+
+    it("should parse the date properly", async () => {
+      const cryptoRegistry = CryptoRegistryNG.create();
+      const cryptoMetadata = CryptoMetadata.create();
+      const swarm = Swarm.create([], cryptoRegistry, cryptoMetadata, []);
+      const account = await BinanceAccount2.createFromPath(path);
+      const transactions = await account.loadTransactions(swarm);
+      assert.strictEqual(transactions[0].timeStamp, inlineIntegrationBuyStamp);
     });
 
     it("should load transactions from a path", async () => {
@@ -164,14 +339,14 @@ describe("BinanceAccount2", () => {
         amount: string,
       ][] = [
         [0, "BUY", "325.94914962 USDT"],
-        [1, "TRADE", "-159.264 USDT"],
+        [1, "TRADE", "159.264 USDT"],
         [2, "TRADE", "1.68 SOL"],
-        [3, "TRADE", "-159.79089 USDT"],
+        [3, "TRADE", "159.79089 USDT"],
         [4, "TRADE", "0.069 ETH"],
         [5, "RECEIVE", "0.15952744 USDT"],
-        [6, "TRADE", "-4.8726 USDT"],
+        [6, "TRADE", "4.8726 USDT"],
         [7, "TRADE", "0.018 BNB"],
-        [8, "TRADE", "-0.8 SOL"],
+        [8, "TRADE", "0.8 SOL"],
         [9, "TRADE", "79.6 USDT"],
       ];
 

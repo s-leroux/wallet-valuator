@@ -49,14 +49,21 @@ export class LazyCryptoResolver extends CryptoResolver {
     decimal: number,
   ): Promise<ResolutionResult> {
     const chainAddress = ChainAddress(chain.id, smartContractAddress);
+    const cryptoAsset = swarm.cryptoRegistry.createCryptoAsset(
+      chainAddress,
+      name,
+      symbol,
+      decimal,
+    );
+
+    cryptoMetadata.setMetadata(cryptoAsset, {
+      resolver: "lazy",
+      fiscalCategory: "UNKNOWN",
+    });
+
     return {
       status: "resolved",
-      asset: swarm.cryptoRegistry.createCryptoAsset(
-        chainAddress,
-        name,
-        symbol,
-        decimal,
-      ),
+      asset: cryptoAsset,
     };
   }
 }

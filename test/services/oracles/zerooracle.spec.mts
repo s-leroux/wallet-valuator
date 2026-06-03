@@ -11,6 +11,7 @@ import {
   CryptoRegistryNG,
 } from "../../../src/cryptoregistry.mjs";
 import { Fixed } from "../../../src/bignumber.mjs";
+import { GlobalPriceMetadata } from "../../../src/price.mjs";
 import { PriceMap } from "../../../src/services/oracle.mjs";
 import { ZeroOracle } from "../../../src/services/oracles/zerooracle.mjs";
 
@@ -49,6 +50,10 @@ describe("ZeroOracle", function () {
         assert.isTrue(price.rate.equals(zero), `rate for ${fiat.code}`);
         assert.equal(price.crypto, crypto);
         assert.equal(price.fiatCurrency, fiat);
+        assert.deepEqual(GlobalPriceMetadata.getMetadata(price), {
+          origin: "zerooracle",
+          volatile: true,
+        });
       }
     });
   });

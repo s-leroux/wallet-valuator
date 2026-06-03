@@ -7,7 +7,7 @@
 # User ID,Time,Account,Operation,Coin,Change,Remark
 #
 # Usage:
-# awk -f tools/binance-transactions.awk < binance-transactions.csv > fixtures/Binance/binance-transactions-2.csv
+# awk -f tools/binance-transactions.awk < binance-transactions.csv > fixtures/Binance/binance-report-v2-sample.csv
 
 BEGIN {
     FS=",";

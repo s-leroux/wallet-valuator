@@ -124,7 +124,7 @@ class ANSITermCap implements TermCap {
 // Log levels
 // =====================================================================
 function logLevel() {
-  const level = process.env["LOG_LEVEL"] ?? "2";
+  const level = process.env["LOG_LEVEL"]?.toUpperCase() ?? "2";
   switch (level) {
     case "0":
     case "1":
@@ -134,6 +134,17 @@ function logLevel() {
     case "5":
     case "6":
       return Number.parseInt(level);
+
+    case "DEBUG":
+      return 6;
+    case "TRACE":
+      return 5;
+    case "INFO":
+      return 3;
+    case "WARN":
+      return 2;
+    case "ERROR":
+      return 1;
 
     default:
       throw new ValueError(`LOG_LEVEL must be set to 1-6 (was ${level})`);
