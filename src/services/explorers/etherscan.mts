@@ -3,6 +3,7 @@ import {
   jsonValueToText,
   Payload,
   Provider,
+  ProviderOptionBag,
 } from "../../provider.mjs";
 import { Swarm } from "../../swarm.mjs";
 import { NormalTransaction } from "../../transaction.mjs";
@@ -53,9 +54,7 @@ const ETHERSCAN_DEFAULT_COOLDOWN = 1000;
 //  Provider interface
 //==========================================================================
 
-export type EtherscanOptionBag = {
-  cooldown?: number;
-  retry?: number;
+export type EtherscanProviderOptionBag = ProviderOptionBag & {
   baseAddress?: string;
 };
 
@@ -66,7 +65,7 @@ export type EtherscanOptionBag = {
 export class EtherscanProvider extends Provider {
   readonly api_key: string;
 
-  constructor(api_key: string, options: EtherscanOptionBag = {}) {
+  constructor(api_key: string, options: EtherscanProviderOptionBag = {}) {
     const opts = Object.assign(
       {
         retry: ETHERSCAN_DEFAULT_RETRY,
@@ -232,6 +231,8 @@ export type GethTransaction = {
 //  API
 //==========================================================================
 
+type EtherscanAPIOptionBag = object;
+
 /**
  * Provides an interface to the Etherscan API functions we need.
  *
@@ -245,7 +246,10 @@ export type GethTransaction = {
  * We should clarify that before considering a singleton implementation.
  */
 export class EtherscanAPI {
-  constructor(readonly provider: Provider) {}
+  constructor(
+    readonly provider: Provider,
+    options: EtherscanAPIOptionBag = {},
+  ) {}
 
   /**
    * Creates a new EtherscanAPI instance.
@@ -254,8 +258,11 @@ export class EtherscanAPI {
    * @param options - The options for the Etherscan API.
    * @returns A new EtherscanAPI instance.
    */
-  static create(api_key: string, options: EtherscanOptionBag = {}) {
-    return new EtherscanAPI(new EtherscanProvider(api_key, options));
+  static create(
+    api_key: string,
+    options: EtherscanProviderOptionBag & EtherscanAPIOptionBag = {},
+  ) {
+    return new EtherscanAPI(new EtherscanProvider(api_key, options), options);
   }
 
   async blockNoByTime(
@@ -300,7 +307,12 @@ export class EtherscanAPI {
     };
   }
 
-  blockInternalTransactions(eid: number, blockNumber: number) {
+  blockInternalTransactions(
+    eid: number,
+    blockNumber: number,
+    page: number,
+    offset: number,
+  ) {
     const params = {
       chainid: String(eid),
       module: "account",
@@ -308,13 +320,24 @@ export class EtherscanAPI {
       startBlock: blockNumber,
       endBlock: blockNumber,
       sort: "asc",
+
+      // pagination
+      page,
+      offset,
     };
+
     return this.provider.fetch("", params) as Promise<
       EtherscanResponse<InternalTransactionRecord[]>
     >;
   }
 
-  accountNormalTransactions(eid: number, address: string, block?: number) {
+  accountNormalTransactions(
+    eid: number,
+    address: string,
+    page: number,
+    offset: number,
+    block?: number,
+  ) {
     const params = {
       chainid: String(eid),
       module: "account",
@@ -323,13 +346,22 @@ export class EtherscanAPI {
       endBlock: block ?? 99999999,
       sort: "asc",
       address: address,
+
+      // pagination
+      page,
+      offset,
     };
     return this.provider.fetch("", params) as Promise<
       EtherscanResponse<NormalTransactionRecord[]>
     >;
   }
 
-  accountInternalTransactions(eid: number, address: string) {
+  accountInternalTransactions(
+    eid: number,
+    address: string,
+    page: number,
+    offset: number,
+  ) {
     const params = {
       chainid: String(eid),
       module: "account",
@@ -338,13 +370,22 @@ export class EtherscanAPI {
       endBlock: 99999999,
       sort: "asc",
       address: address,
+
+      // pagination
+      page,
+      offset,
     };
     return this.provider.fetch("", params) as Promise<
       EtherscanResponse<InternalTransactionRecord[]>
     >;
   }
 
-  accountTokenTransfers(eid: number, address: string) {
+  accountTokenTransfers(
+    eid: number,
+    address: string,
+    page: number,
+    offset: number,
+  ) {
     const params = {
       chainid: String(eid),
       module: "account",
@@ -353,6 +394,10 @@ export class EtherscanAPI {
       endBlock: 99999999,
       sort: "asc",
       address: address,
+
+      // pagination
+      page,
+      offset,
     };
     return this.provider.fetch("", params) as Promise<
       EtherscanResponse<TokenTransferRecord[]>
@@ -376,7 +421,7 @@ export class DefaultEtherscanBoundAPI {
   static forChain(
     chain: Blockchain,
     api_key: string,
-    options: EtherscanOptionBag = {},
+    options: EtherscanProviderOptionBag = {},
   ) {
     const eid = chain.getEVMExplorerOptions().chainid;
     const api = EtherscanAPI.create(api_key, options);
@@ -394,20 +439,41 @@ export class DefaultEtherscanBoundAPI {
     return this.delegate.normalTransaction(this.eid, txhash);
   }
 
-  blockInternalTransactions(blockNumber: number) {
-    return this.delegate.blockInternalTransactions(this.eid, blockNumber);
+  blockInternalTransactions(blockNumber: number, page: number, offset: number) {
+    return this.delegate.blockInternalTransactions(
+      this.eid,
+      blockNumber,
+      page,
+      offset,
+    );
   }
 
-  accountNormalTransactions(address: string, block?: number) {
-    return this.delegate.accountNormalTransactions(this.eid, address, block);
+  accountNormalTransactions(
+    address: string,
+    page: number,
+    offset: number,
+    block?: number,
+  ) {
+    return this.delegate.accountNormalTransactions(
+      this.eid,
+      address,
+      page,
+      offset,
+      block,
+    );
   }
 
-  accountInternalTransactions(address: string) {
-    return this.delegate.accountInternalTransactions(this.eid, address);
+  accountInternalTransactions(address: string, page: number, offset: number) {
+    return this.delegate.accountInternalTransactions(
+      this.eid,
+      address,
+      page,
+      offset,
+    );
   }
 
-  accountTokenTransfers(address: string) {
-    return this.delegate.accountTokenTransfers(this.eid, address);
+  accountTokenTransfers(address: string, page: number, offset: number) {
+    return this.delegate.accountTokenTransfers(this.eid, address, page, offset);
   }
 }
 
@@ -425,6 +491,33 @@ export type EtherscanBoundAPI = Pick<
 //  Explorer
 //==========================================================================
 
+async function paginate<T>(
+  offset: number,
+  fn: (page: number, offset: number) => Promise<EtherscanResponse<T[]>>,
+): Promise<T[]> {
+  const result: T[] = [];
+  let page = 1;
+
+  while (true) {
+    const part = (await fn(page, offset)).result;
+
+    for (let i = 0; i < part.length; i++) {
+      result.push(part[i]);
+    }
+
+    if (part.length < offset) {
+      break;
+    }
+    page++;
+  }
+
+  return result;
+}
+
+export type EtherscanOptionBag = {
+  "api.offset"?: number; // Page size. The Etherscan API `offset` parameter value for pagination.
+};
+
 /**
  * The high-level interface to retrieve transactions.
  * This should probably implement some kind of interface to reduce coupling between the rest
@@ -436,11 +529,13 @@ export type EtherscanBoundAPI = Pick<
 export class Etherscan extends CommonExplorer {
   readonly api: EtherscanBoundAPI;
   readonly eid: number; // The EIP-155 chain ID **not** our internal blockchain identifier
+  readonly api_offset: number;
 
   constructor(
     registry: CryptoRegistryNG,
     chain: Blockchain,
     api: EtherscanBoundAPI,
+    options: EtherscanOptionBag = {},
   ) {
     const explorerOptions = chain.getEVMExplorerOptions();
     const eid = explorerOptions.chainid;
@@ -456,18 +551,21 @@ export class Etherscan extends CommonExplorer {
     super(chain, myNativeCurrency);
     this.api = api;
     this.eid = eid;
+    this.api_offset = options["api.offset"] ?? 1000; // Effective July 1, 2026, the default is 1000 for Free tier API users.
   }
 
   static create(
     registry: CryptoRegistryNG,
     chain: BlockchainSource,
     api_key: string,
-    options = {} as EtherscanOptionBag,
+    options: EtherscanOptionBag &
+      EtherscanAPIOptionBag &
+      EtherscanProviderOptionBag = {},
   ) {
     chain = asBlockchain(chain);
 
     const api = DefaultEtherscanBoundAPI.forChain(chain, api_key, options);
-    return new Etherscan(registry, asBlockchain(chain), api);
+    return new Etherscan(registry, asBlockchain(chain), api, options);
   }
 
   /**
@@ -498,11 +596,12 @@ export class Etherscan extends CommonExplorer {
     const from = ethTransaction.from;
     // apparently the gnosis aPI does not accept hexadecimal numbers!
     const blockNumber = parseInt(ethTransaction.blockNumber);
+
     let result;
 
-    const records = (
-      await this.api.accountNormalTransactions(from, blockNumber)
-    ).result;
+    const records = await paginate(this.api_offset, (page, offset) =>
+      this.api.accountNormalTransactions(from, page, offset, blockNumber),
+    );
 
     for (const record of records) {
       const t = await swarm.normalTransaction(this.chain, record.hash, record);
@@ -520,19 +619,27 @@ export class Etherscan extends CommonExplorer {
   }
 
   async blockInternalTransactions(blockNumber: number) {
-    return (await this.api.blockInternalTransactions(blockNumber)).result;
+    return await paginate(this.api_offset, (page, offset) =>
+      this.api.blockInternalTransactions(blockNumber, page, offset),
+    );
   }
 
   async accountNormalTransactions(address: string) {
-    return (await this.api.accountNormalTransactions(address)).result;
+    return await paginate(this.api_offset, (page, offset) =>
+      this.api.accountNormalTransactions(address, page, offset),
+    );
   }
 
   async accountInternalTransactions(address: string) {
-    return (await this.api.accountInternalTransactions(address)).result;
+    return await paginate(this.api_offset, (page, offset) =>
+      this.api.accountInternalTransactions(address, page, offset),
+    );
   }
 
   async accountTokenTransfers(address: string) {
-    return (await this.api.accountTokenTransfers(address)).result;
+    return await paginate(this.api_offset, (page, offset) =>
+      this.api.accountTokenTransfers(address, page, offset),
+    );
   }
 }
 
@@ -543,7 +650,7 @@ export const ExplorerFactories = (() => {
       create: (
         registry: CryptoRegistryNG,
         api_key: string,
-        options?: EtherscanOptionBag,
+        options?: EtherscanProviderOptionBag,
       ) => Etherscan;
     }
   > = {};
@@ -554,7 +661,7 @@ export const ExplorerFactories = (() => {
         create(
           registry: CryptoRegistryNG,
           api_key: string,
-          options = {} as EtherscanOptionBag,
+          options = {} as EtherscanProviderOptionBag,
         ) {
           return Etherscan.create(registry, blockchain, api_key, options);
         },
@@ -570,7 +677,7 @@ const legacy = {
     create(
       registry: CryptoRegistryNG,
       api_key: string,
-      options = {} as EtherscanOptionBag,
+      options = {} as EtherscanProviderOptionBag,
     ) {
       return Etherscan.create(registry, "1", api_key, options);
     },
@@ -579,7 +686,7 @@ const legacy = {
     create(
       registry: CryptoRegistryNG,
       api_key: string,
-      options = {} as EtherscanOptionBag,
+      options = {} as EtherscanProviderOptionBag,
     ) {
       return Etherscan.create(registry, "100", api_key, options);
     },
@@ -587,7 +694,7 @@ const legacy = {
       create(
         registry: CryptoRegistryNG,
         api_key: string,
-        options = {} as EtherscanOptionBag,
+        options = {} as EtherscanProviderOptionBag,
       ) {
         return Etherscan.create(registry, "8453", api_key, options);
       },
@@ -596,7 +703,7 @@ const legacy = {
       create(
         registry: CryptoRegistryNG,
         api_key: string,
-        options = {} as EtherscanOptionBag,
+        options = {} as EtherscanProviderOptionBag,
       ) {
         return Etherscan.create(registry, "42161", api_key, options);
       },
@@ -605,7 +712,7 @@ const legacy = {
       create(
         registry: CryptoRegistryNG,
         api_key: string,
-        options = {} as EtherscanOptionBag,
+        options = {} as EtherscanProviderOptionBag,
       ) {
         return Etherscan.create(registry, "56", api_key, options);
       },

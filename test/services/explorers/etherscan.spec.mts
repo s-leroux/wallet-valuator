@@ -10,6 +10,7 @@ import {
   EtherscanAPI,
   Etherscan,
   DefaultEtherscanBoundAPI,
+  EtherscanOptionBag,
 } from "../../../src/services/explorers/etherscan.mjs";
 import { FakeCryptoResolver } from "../../support/cryptoresolver.fake.mjs";
 import {
@@ -121,6 +122,7 @@ when("ETHERSCAN_API_KEY", describe)("Etherscan", function () {
         return assert.isRejected(gs!.blockNoByTime(TEST_CHAIN_EXPLORER_ID, 1));
       });
     });
+
     describe("normalTransaction()", () => {
       it("should return a NormalTransaction given its hash", async () => {
         const transaction = NormalTransactions.result[0];
@@ -181,6 +183,7 @@ when("ETHERSCAN_API_KEY", describe)("Etherscan", function () {
     it("should use the chain given in constructor", () => {
       assert.equal(explorer.chain.id, TEST_CHAIN_NAME);
     });
+
     describe("normalTransaction()", () => {
       it("should load a transaction by its hash", async () => {
         const transaction = NormalTransactions.result[0];
@@ -197,5 +200,33 @@ when("ETHERSCAN_API_KEY", describe)("Etherscan", function () {
       });
     });
   });
+
+  describe("Etherscan", () => {
+    let cryptoRegistry: CryptoRegistryNG;
+    let chain: Blockchain;
+    const address = "0x417b4adc279743fc49f047c323fc668db9e600d8"; // A random not very activeGnosis address
+
+    function initExplorer(options: EtherscanOptionBag = {}) {
+      cryptoRegistry = CryptoRegistryNG.create();
+      chain = Blockchain.find(TEST_CHAIN_NAME);
+      return new Etherscan(
+        cryptoRegistry,
+        chain,
+        new DefaultEtherscanBoundAPI(TEST_CHAIN_EXPLORER_ID, gs),
+        options,
+      );
+    }
+
+    describe("accountTokenTransfers()", () => {
+      it("should return all token transfers for an address", async () => {
+        const explorer = initExplorer({
+          "api.offset": 500,
+        });
+        const result = await explorer.accountTokenTransfers(address);
+        assert.isAbove(result.length, 1400);
+      });
+    });
+  });
+
   describe("Utilities", () => {});
 });
