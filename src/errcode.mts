@@ -81,6 +81,10 @@ export const ERRORS = {
   "C3115": "Unknown Binance mnemonic",
   "C3116": "Unknown tabular column name",
   "C3117": "Negative CEX transaction amount",
+  "C3118": "Transaction not found in Etherscan (EtherscanProvider)",
+  "C3119": "An error occurred while checking if the request should be retried (EtherscanProvider)",
+  "C3120": "Transaction not found in Etherscan (EtherscanProvider)",
+  "C3121": "Transaction not found in Etherscan (EtherscanProvider)",
 
   // Debug-level codes (9000-9999)
   "C9999": "Generic debug information",

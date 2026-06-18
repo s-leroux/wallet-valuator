@@ -20,6 +20,8 @@ import {
 } from "../../blockchain.mjs";
 import { CryptoRegistryNG } from "../../cryptoregistry.mjs";
 import { WellKnownBlockchains } from "../../data/wellknownblockchains.mjs";
+import { Logged } from "../../errorutils.mjs";
+import { InternalError } from "../../error.mjs";
 
 /**
  * @module
@@ -164,9 +166,13 @@ export class EtherscanProvider extends Provider<
         EtherscanProvider.__shouldRetry(payload)
       );
     } catch (err) {
-      console.log("An error occurred:", err);
-      console.dir(payload);
-      throw err;
+      throw Logged(
+        "C3119",
+        InternalError,
+        "An error occurred while checking if the request should be retried: " +
+          String(err),
+        // err,
+      );
     }
   }
 
@@ -330,7 +336,7 @@ export class EtherscanAPI {
     )) as GethResponse<GethTransaction>;
 
     if (response.result === null) {
-      throw new Error(`Error finding normal transaction ${txhash}`);
+      throw Logged("C3120", Error, `Transaction ${txhash} not found`);
     }
 
     return {
@@ -631,7 +637,7 @@ export class Etherscan extends CommonExplorer {
   ): Promise<NormalTransaction> {
     const response = await this.api.normalTransaction(txhash);
     if (response.status !== "1") {
-      throw new Error(`Error finding normal transaction ${txhash}`);
+      throw Logged("C3121", Error, `Transaction ${txhash} not found`);
     }
     const ethTransaction = response.result;
     const from = ethTransaction.from;
@@ -654,7 +660,9 @@ export class Etherscan extends CommonExplorer {
       return result;
     }
     console.dir(ethTransaction);
-    throw new Error(
+    throw Logged(
+      "C3118",
+      Error,
       `Transaction ${txhash} was not found in block ${blockNumber}`,
     );
   }
