@@ -62,7 +62,9 @@ export type EtherscanProviderOptionBag = ProviderOptionBag & {
  * Etherscan-specific `Provider` behavior for API key injection, retry logic,
  * and response/error normalization.
  */
-export class EtherscanProvider extends Provider {
+export class EtherscanProvider extends Provider<
+  EtherscanResponseSuccess<unknown> | GethResponse<unknown>
+> {
   readonly api_key: string;
 
   constructor(api_key: string, options: EtherscanProviderOptionBag = {}) {
@@ -190,10 +192,35 @@ export class EtherscanProvider extends Provider {
 
 export type EtherscanBlockNo = string;
 
-export type EtherscanResponse<T> = {
+export type EtherscanResponse0<T> = {
   result: T;
   status: string;
   message: string;
+};
+
+export type EtherscanResponse<T> =
+  | EtherscanResponseSuccess<T>
+  | EtherscanResponseError;
+
+export type EtherscanResponseSuccess<T> =
+  | {
+      // Successful result case
+      status: "1";
+      message: "OK";
+      result: T;
+    }
+  | {
+      // Empty result case
+      status: "0";
+      message: "No transactions found";
+      result: [];
+    };
+
+type EtherscanResponseError = {
+  // Error case
+  status: "0";
+  message: "NOTOK";
+  result?: string;
 };
 
 type JSONRpcVersion = "2.0";
@@ -247,7 +274,9 @@ type EtherscanAPIOptionBag = object;
  */
 export class EtherscanAPI {
   constructor(
-    readonly provider: Provider,
+    readonly provider: Provider<
+      EtherscanResponseSuccess<unknown> | GethResponse<unknown>
+    >,
     options: EtherscanAPIOptionBag = {},
   ) {}
 
@@ -281,13 +310,13 @@ export class EtherscanAPI {
     return (await this.provider.fetch(
       "",
       params,
-    )) as EtherscanResponse<EtherscanBlockNo>;
+    )) as EtherscanResponseSuccess<EtherscanBlockNo>;
   }
 
   async normalTransaction(
     eid: number,
     txhash: string,
-  ): Promise<EtherscanResponse<GethTransaction>> {
+  ): Promise<EtherscanResponseSuccess<GethTransaction>> {
     const params = {
       chainid: String(eid),
       module: "proxy",
@@ -299,11 +328,15 @@ export class EtherscanAPI {
       "",
       params,
     )) as GethResponse<GethTransaction>;
-    const iserror = response.result === null;
+
+    if (response.result === null) {
+      throw new Error(`Error finding normal transaction ${txhash}`);
+    }
+
     return {
-      status: iserror ? "0" : "1",
-      message: iserror ? `Error finding normal transaction ${txhash}` : "OK",
-      result: response.result!, // ISSUE #215: This seems a bit forced
+      status: "1",
+      message: "OK",
+      result: response.result,
     };
   }
 
@@ -327,7 +360,7 @@ export class EtherscanAPI {
     };
 
     return this.provider.fetch("", params) as Promise<
-      EtherscanResponse<InternalTransactionRecord[]>
+      EtherscanResponseSuccess<InternalTransactionRecord[]>
     >;
   }
 
@@ -352,7 +385,7 @@ export class EtherscanAPI {
       offset,
     };
     return this.provider.fetch("", params) as Promise<
-      EtherscanResponse<NormalTransactionRecord[]>
+      EtherscanResponseSuccess<NormalTransactionRecord[]>
     >;
   }
 
@@ -376,7 +409,7 @@ export class EtherscanAPI {
       offset,
     };
     return this.provider.fetch("", params) as Promise<
-      EtherscanResponse<InternalTransactionRecord[]>
+      EtherscanResponseSuccess<InternalTransactionRecord[]>
     >;
   }
 
@@ -400,7 +433,7 @@ export class EtherscanAPI {
       offset,
     };
     return this.provider.fetch("", params) as Promise<
-      EtherscanResponse<TokenTransferRecord[]>
+      EtherscanResponseSuccess<TokenTransferRecord[]>
     >;
   }
 }
@@ -409,7 +442,7 @@ export class EtherscanAPI {
  * As the Etherscan v2 API is now a generic cross-chain API, we will define a chain-specific
  * bound API interface.
  */
-export class DefaultEtherscanBoundAPI {
+export class DefaultEtherscanBoundAPI implements EtherscanBoundAPI {
   private readonly eid: number; // The EIP-155 chain ID **not** our internal blockchain identifier
   private readonly delegate: EtherscanAPI;
 
@@ -493,13 +526,17 @@ export type EtherscanBoundAPI = Pick<
 
 async function paginate<T>(
   offset: number,
-  fn: (page: number, offset: number) => Promise<EtherscanResponse<T[]>>,
+  fn: (page: number, offset: number) => Promise<EtherscanResponseSuccess<T[]>>,
 ): Promise<T[]> {
   const result: T[] = [];
   let page = 1;
 
   while (true) {
-    const part = (await fn(page, offset)).result;
+    const response = await fn(page, offset);
+    if (response.status !== "1") {
+      break;
+    }
+    const part = response.result;
 
     for (let i = 0; i < part.length; i++) {
       result.push(part[i]);
@@ -592,7 +629,11 @@ export class Etherscan extends CommonExplorer {
     swarm: Swarm,
     txhash: string,
   ): Promise<NormalTransaction> {
-    const ethTransaction = (await this.api.normalTransaction(txhash)).result;
+    const response = await this.api.normalTransaction(txhash);
+    if (response.status !== "1") {
+      throw new Error(`Error finding normal transaction ${txhash}`);
+    }
+    const ethTransaction = response.result;
     const from = ethTransaction.from;
     // apparently the gnosis aPI does not accept hexadecimal numbers!
     const blockNumber = parseInt(ethTransaction.blockNumber);

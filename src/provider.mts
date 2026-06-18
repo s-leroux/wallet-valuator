@@ -4,8 +4,12 @@ import { logger as logger } from "./debug.mjs";
 
 const log = logger("provider");
 
-export interface ProviderInterface {
-  fetch(endpoint: string, params: Record<string, string>): Promise<Payload>;
+export interface ProviderInterface<T = Payload> {
+  fetch(
+    endpoint: string,
+    params: Record<string, string>,
+    options: FetchOptionBag<T>,
+  ): Promise<T>;
 }
 
 export type JSONValue = JSONAtom | JSONArray | JSONObject;
@@ -51,14 +55,15 @@ const defaultProviderOptions = {
 export type ProviderOptionBag = Readonly<
   Partial<typeof defaultProviderOptions>
 >;
-
-const defaultFetchOptions = {
-  failover: (res: Response, payload: Payload): Payload | void => {},
+export type FetchOptionBag<T = Payload> = {
+  failover?: (res: Response, payload: Payload) => T | undefined;
 };
 
-export type FetchOptionBag = Readonly<Partial<typeof defaultFetchOptions>>;
+const defaultFetchOptions: FetchOptionBag<unknown> = {
+  failover: (res: Response, payload: Payload) => undefined,
+};
 
-export class Provider implements ProviderInterface {
+export class Provider<T = Payload> implements ProviderInterface<T> {
   /**
    * Interface to the webservice provider.
    */
@@ -206,10 +211,10 @@ export class Provider implements ProviderInterface {
   async fetch(
     endpoint: string,
     params: Record<string, string | number> = {},
-    options: FetchOptionBag = {},
-  ): Promise<Payload> {
+    options: FetchOptionBag<T> = {},
+  ): Promise<T> {
     options = Object.assign(
-      Object.create(null) as FetchOptionBag,
+      Object.create(null) as FetchOptionBag<T>,
       defaultFetchOptions,
       options,
     );
@@ -265,7 +270,7 @@ export class Provider implements ProviderInterface {
       }
 
       // Here, `isError` is false and so `res` and `payload` are defined
-      return payload!;
+      return payload as T;
     }
   }
 }
