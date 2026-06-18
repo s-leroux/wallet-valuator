@@ -95,6 +95,84 @@ Avoid splitting a single sentence across multiple lines.
 - Use `arrow functions` (`=>`) unless a traditional `function` is explicitly required (e.g., for `this` binding).
 - Use `===` and `!==` for comparisons.
 
+### TypeScript naming
+
+These conventions describe how identifiers are named across the codebase.
+They are **not** enforced by ESLint or Prettier.
+Existing code contains deviations (for example, `snake_case` in some API-integration modules).
+New code **should** follow the guidelines below; enforcement may become stricter in the future.
+
+| Kind | Convention | Examples |
+|------|------------|----------|
+| **Class** | `PascalCase` | `Provider`, `Fixed`, `EtherscanAPI` |
+| **Interface** | `PascalCase` (noun or role) | `Account`, `Displayable`, `ProviderInterface` |
+| **Type alias** | `PascalCase` | `FixedLike`, `ProviderOptionBag`, `FiatCurrencyCode` |
+| **Module function** | Mostly `camelCase`; factories often `PascalCase` | `toDisplayString`, `isJSONObject`, `FiatCurrency`, `ChainAddress` |
+| **Module constant** | `UPPER_SNAKE_CASE`, `PascalCase`, or `camelCase` (see below) | `MAX_FIXED_SCALE`, `GlobalMetadataStore`, `defaultDisplayOptions` |
+| **Instance method** | `camelCase` | `fetch`, `buildUrl`, `toDisplayString` |
+| **Instance data** | Mostly `camelCase` | `base`, `crypto`, `value`, `chain` |
+
+#### Classes, interfaces, and types
+
+- **Classes** should use `PascalCase`.
+  Role suffixes such as `Provider`, `Oracle`, `Resolver`, `Explorer`, `Adapter`, and `API` are common.
+  Default implementations often use a `Default` prefix (`DefaultCurveAPI`).
+  Static factory methods are often named `create` (sometimes `createFromPath`, `forChain`).
+
+  ```typescript
+  export class Provider implements ProviderInterface {
+    readonly base: string;
+    // ...
+  }
+  ```
+
+- **Interfaces** should use `PascalCase`, usually as a domain noun (`Account`, `ChainAddress`).
+  Use an `Interface` suffix when the name would clash with a class (`ProviderInterface` vs `Provider`).
+  Metadata shapes often end in `Metadata` (`CryptoAssetMetadata`).
+
+- **Type aliases** should use `PascalCase`.
+  Recurring patterns include `*OptionBag` for configuration objects, `*Source` for external input, `*Like` for structural stand-ins, and branded types for domain identifiers:
+
+  ```typescript
+  export type ProviderOptionBag = Readonly<Partial<typeof defaultProviderOptions>>;
+  export type FiatCurrencyCode = string & { readonly brand: unique symbol };
+  ```
+
+#### Module-level functions and constants
+
+- **Module functions** should usually be `camelCase` utilities (`toDisplayString`, `fixedFromSource`, `paginate`).
+  Type guards should use an `is` prefix (`isJSONObject`, `isCryptoAsset`).
+  **Factory functions** that construct or return cached value objects may use `PascalCase` matching the type name (`FiatCurrency`, `ChainAddress`).
+
+- **Module constants** follow several conventions depending on role:
+  - `UPPER_SNAKE_CASE` for scalar limits, versions, regexes, and lookup tables (`MAX_FIXED_SCALE`, `ERRORS`, `FORMAT_RE`).
+  - `PascalCase` for singletons, registries, and namespace objects (`GlobalMetadataStore`, `WellKnownCryptoAssets`, `TextUtils`).
+  - `camelCase` for default option objects (`defaultDisplayOptions`).
+  - Module-private values should be `camelCase` (`const log = logger("provider")`, `defaultProviderOptions`).
+
+#### Instance members
+
+- **Instance methods** should use `camelCase` (`fetch`, `loadTransactions`, `getMetadata`).
+  Standard JavaScript names (`toString`, `valueOf`) apply where appropriate.
+
+- **Instance data** should usually use `camelCase` and `readonly` where the value does not change after initialization.
+  Constructor-parameter properties are often used for injected dependencies; explicit field declarations are used for core state (see [Mixed Property Declarations](#coding-style-mixed-property-declarations)).
+  `snake_case` appears in some older or API-facing code and should be avoided in new code unless mirroring an external API field name is intentional.
+
+### Source and test filenames
+
+- **Source files** live under `src/` with the `.mts` extension.
+  Basenames should be **lowercase** with **concatenated words** (no hyphens): `cryptoasset.mts`, `bignumber.mts`, `snapshotvaluationadapter.mts`.
+  Subdirectories under `src/` group related modules (for example, `src/services/explorers/etherscan.mts`).
+
+- **Test files** live under `test/` with the `.spec.mts` suffix.
+  The path and basename should mirror the module under test where practical: `test/fiatcurrency.spec.mts` for `src/fiatcurrency.mts`, `test/services/explorers/etherscan.spec.mts` for `src/services/explorers/etherscan.mts`.
+
+- **Test support files** live under `test/support/`.
+  Use a `.fake.mts` suffix for fakes and mocks (`cryptoresolver.fake.mts`) and a `.helper.mts` suffix for shared test utilities (`register.helper.mts`).
+
+- **`describe` blocks** in tests should name the class or function under test (`describe("FiatCurrency", …)`, `describe("EtherscanProvider", …)`).
+
 ### `null` vs `undefined`
 
 - Use `null` to explicitly indicate the intentional absence of a value. For example, the end of a linked list:
