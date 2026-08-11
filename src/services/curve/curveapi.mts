@@ -84,21 +84,20 @@ export type CurveOHLC = {
 // We provide the ToCurveChainName and FromCurveChainName utilities to perform
 // the conversion transparently:
 
-export const ToCurveChainName: Record<string, string> = {
-  // ISSUE #100 string | undefined
-  // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
-  __proto__: null,
+const createChainNameMap = (
+  entries: Record<string, string>,
+): Record<string, string | undefined> =>
+  Object.freeze(
+    Object.assign(Object.create(null) as Record<string, string | undefined>, entries),
+  );
 
+export const ToCurveChainName = createChainNameMap({
   gnosis: "xdai",
-} as const;
+});
 
-export const FromCurveChainName: Record<string, string> = {
-  // ISSUE #100 string | undefined
-  // @ts-expect-error The null-prototype literal object syntax is not supported by TypeScript
-  __proto__: null,
-
+export const FromCurveChainName = createChainNameMap({
   xdai: "gnosis",
-} as const;
+});
 
 /**
  * Converts a JavaScript Date object to Unix timestamp (seconds since epoch) as expected by the Curve API.
